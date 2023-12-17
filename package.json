@@ -1,0 +1,262 @@
+{
+  "name": "selection-processing-tools",
+  "displayName": "Selection Processing Tools",
+  "description": "Processing tools for selected text: select words, unique lines, sort lines, reverse lines...",
+  "version": "0.0.1",
+  "publisher": "erintheblack",
+  "author": {
+    "name": "Takashi Imahiro"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imahiro-t/selection-processing-tools.git"
+  },
+  "galleryBanner": {
+    "color": "#000",
+    "theme": "dark"
+  },
+  "icon": "images/icon.png",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "selection-processing-tools.select-others.match-case.match-word",
+        "title": "Select Others (Match Case, Match Word)",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.select-others.match-case.ignore-word",
+        "title": "Select Others (Match Case)",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.select-others.ignore-case.match-word",
+        "title": "Select Others (Match Word)",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.select-others.ignore-case.ignore-word",
+        "title": "Select Others",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.extract",
+        "title": "Extract Lines",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.reverse",
+        "title": "Reverse Lines",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.shuffle",
+        "title": "Shuffle Lines",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.sort.string.ascending",
+        "title": "Sort Lines Ascending by string",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.sort.string.descending",
+        "title": "Sort Lines Descending by string",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.sort.number.ascending",
+        "title": "Sort Lines Ascending by number",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.sort.number.descending",
+        "title": "Sort Lines Descending by number",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.unique",
+        "title": "Unique Lines",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.count-occurrences.count",
+        "title": "Count Occurrences sorting by count",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.count-occurrences.word",
+        "title": "Count Occurrences sorting by word",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.calculation",
+        "title": "Calc Mathematical Expression",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.calculation.date",
+        "title": "to ISO 8601 or Timestamp",
+        "category": "Selection Processing Tools"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "selection-processing-tools.submenu",
+        "label": "Selection Processing Tools"
+      },
+      {
+        "id": "selection-processing-tools.select.submenu",
+        "label": "Select"
+      },
+      {
+        "id": "selection-processing-tools.extract.submenu",
+        "label": "Extract"
+      },
+      {
+        "id": "selection-processing-tools.sort.submenu",
+        "label": "Sort"
+      },
+      {
+        "id": "selection-processing-tools.transform.submenu",
+        "label": "Transform"
+      },
+      {
+        "id": "selection-processing-tools.calculation.submenu",
+        "label": "Calculation"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-processing-tools.submenu",
+          "group": "selection-processing-tools"
+        }
+      ],
+      "selection-processing-tools.select.submenu": [
+        {
+          "command": "selection-processing-tools.select-others.match-case.match-word",
+          "group": "selection-processing-tools.select@0"
+        },
+        {
+          "command": "selection-processing-tools.select-others.match-case.ignore-word",
+          "group": "selection-processing-tools.select@1"
+        },
+        {
+          "command": "selection-processing-tools.select-others.ignore-case.match-word",
+          "group": "selection-processing-tools.select@2"
+        },
+        {
+          "command": "selection-processing-tools.select-others.ignore-case.ignore-word",
+          "group": "selection-processing-tools.select@3"
+        }
+      ],
+      "selection-processing-tools.extract.submenu": [
+        {
+          "command": "selection-processing-tools.extract",
+          "group": "selection-processing-tools.extract@0"
+        },
+        {
+          "command": "selection-processing-tools.reverse",
+          "group": "selection-processing-tools.extract@1"
+        },
+        {
+          "command": "selection-processing-tools.shuffle",
+          "group": "selection-processing-tools.extract@2"
+        }
+      ],
+      "selection-processing-tools.sort.submenu": [
+        {
+          "command": "selection-processing-tools.sort.string.ascending",
+          "group": "selection-processing-tools.sort@0"
+        },
+        {
+          "command": "selection-processing-tools.sort.string.descending",
+          "group": "selection-processing-tools.sort@1"
+        },
+        {
+          "command": "selection-processing-tools.sort.number.ascending",
+          "group": "selection-processing-tools.sort@2"
+        },
+        {
+          "command": "selection-processing-tools.sort.number.descending",
+          "group": "selection-processing-tools.sort@3"
+        }
+      ],
+      "selection-processing-tools.transform.submenu": [
+        {
+          "command": "selection-processing-tools.unique",
+          "group": "selection-processing-tools.transform@0"
+        },
+        {
+          "command": "selection-processing-tools.count-occurrences.count",
+          "group": "selection-processing-tools.transform@1"
+        },
+        {
+          "command": "selection-processing-tools.count-occurrences.word",
+          "group": "selection-processing-tools.transform@2"
+        }
+      ],
+      "selection-processing-tools.calculation.submenu": [
+        {
+          "command": "selection-processing-tools.calculation",
+          "group": "selection-processing-tools.transform@0"
+        },
+        {
+          "command": "selection-processing-tools.calculation.date",
+          "group": "selection-processing-tools.transform@0"
+        }
+      ],
+      "selection-processing-tools.submenu": [
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-processing-tools.select.submenu",
+          "group": "selection-processing-tools@0"
+        },
+        {
+          "submenu": "selection-processing-tools.extract.submenu",
+          "group": "selection-processing-tools@1"
+        },
+        {
+          "submenu": "selection-processing-tools.sort.submenu",
+          "group": "selection-processing-tools@2"
+        },
+        {
+          "submenu": "selection-processing-tools.transform.submenu",
+          "group": "selection-processing-tools@3"
+        },
+        {
+          "submenu": "selection-processing-tools.calculation.submenu",
+          "group": "selection-processing-tools@4"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8"
+  }
+}
