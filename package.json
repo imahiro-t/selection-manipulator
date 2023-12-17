@@ -33,17 +33,17 @@
       },
       {
         "command": "selection-processing-tools.select-others.match-case.ignore-word",
-        "title": "Select Others (Match Case)",
+        "title": "Select Others (Match Case, Ignore Word)",
         "category": "Selection Processing Tools"
       },
       {
         "command": "selection-processing-tools.select-others.ignore-case.match-word",
-        "title": "Select Others (Match Word)",
+        "title": "Select Others (Ignore Case, Match Word)",
         "category": "Selection Processing Tools"
       },
       {
         "command": "selection-processing-tools.select-others.ignore-case.ignore-word",
-        "title": "Select Others",
+        "title": "Select Others (Ignore Case, Ignore Word)",
         "category": "Selection Processing Tools"
       },
       {
@@ -98,7 +98,7 @@
       },
       {
         "command": "selection-processing-tools.calculation",
-        "title": "Calc Mathematical Expression",
+        "title": "Calculate Mathematical Expression",
         "category": "Selection Processing Tools"
       },
       {
@@ -130,7 +130,7 @@
       },
       {
         "id": "selection-processing-tools.calculation.submenu",
-        "label": "Calculation"
+        "label": "Calculate"
       }
     ],
     "menus": {
