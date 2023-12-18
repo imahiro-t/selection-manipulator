@@ -2,7 +2,7 @@
   "name": "selection-processing-tools",
   "displayName": "Selection Processing Tools",
   "description": "Processing tools for selected text: select words, unique lines, sort lines, reverse lines...",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -105,6 +105,26 @@
         "command": "selection-processing-tools.calculation.date",
         "title": "to ISO 8601 or Timestamp",
         "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.json.format",
+        "title": "Format JSON",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.json.minify",
+        "title": "Minify JSON",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.json.parse",
+        "title": "Parse JSON",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.json.stringify",
+        "title": "Stringify JSON",
+        "category": "Selection Processing Tools"
       }
     ],
     "submenus": [
@@ -127,6 +147,10 @@
       {
         "id": "selection-processing-tools.transform.submenu",
         "label": "Transform"
+      },
+      {
+        "id": "selection-processing-tools.json.submenu",
+        "label": "JSON"
       },
       {
         "id": "selection-processing-tools.calculation.submenu",
@@ -205,6 +229,24 @@
           "group": "selection-processing-tools.transform@2"
         }
       ],
+      "selection-processing-tools.json.submenu": [
+        {
+          "command": "selection-processing-tools.json.format",
+          "group": "selection-processing-tools.transform@0"
+        },
+        {
+          "command": "selection-processing-tools.json.minify",
+          "group": "selection-processing-tools.transform@1"
+        },
+        {
+          "command": "selection-processing-tools.json.parse",
+          "group": "selection-processing-tools.transform@2"
+        },
+        {
+          "command": "selection-processing-tools.json.stringify",
+          "group": "selection-processing-tools.transform@3"
+        }
+      ],
       "selection-processing-tools.calculation.submenu": [
         {
           "command": "selection-processing-tools.calculation",
@@ -234,8 +276,13 @@
           "group": "selection-processing-tools@3"
         },
         {
-          "submenu": "selection-processing-tools.calculation.submenu",
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-processing-tools.json.submenu",
           "group": "selection-processing-tools@4"
+        },
+        {
+          "submenu": "selection-processing-tools.calculation.submenu",
+          "group": "selection-processing-tools@5"
         }
       ]
     }
