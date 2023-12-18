@@ -8,6 +8,9 @@ import { uniqueHandler } from './handler/uniqueHandler';
 import { countOccurrencesHandler } from './handler/countOccurrencesHandler';
 import { calculationHandler } from './handler/calculationHandler';
 import { calcDateHandler } from './handler/calcDateHandler';
+import { formatJsonHandler } from './handler/formatJsonHandler';
+import { parseJsonHandler } from './handler/parseJsonHandler';
+import { stringifyJsonHandler } from './handler/stringifyJsonHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.select-others.match-case.match-word', selectOthersHandler(true, true)));
@@ -26,6 +29,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.count-occurrences.word', countOccurrencesHandler('word')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.calculation', calculationHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.calculation.date', calcDateHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.format', formatJsonHandler(2)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.minify', formatJsonHandler(0)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.parse', parseJsonHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.stringify', stringifyJsonHandler));
 }
 
 export function deactivate() { }
