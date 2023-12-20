@@ -1,7 +1,8 @@
 import {
-  TextEditor,
   workspace,
   window,
+  TextEditor,
+  ViewColumn,
   Range,
   TextEditorDecorationType,
   TextDocument
@@ -48,7 +49,7 @@ export const regexpHandler: (flags: flags) => (textEditor: TextEditor) => void =
     content: content,
     language: "text"
   }).then((doc: TextDocument) => {
-    window.showTextDocument(doc).then(editor => {
+    window.showTextDocument(doc, ViewColumn.Beside, true).then(editor => {
       const array = doc.getText().split("\n");
       const pattern = array.shift() ?? '';
       editor.setDecorations(titleDecorator, [new Range(doc.positionAt(0), doc.positionAt(pattern.length))]);

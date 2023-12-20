@@ -1,7 +1,9 @@
 import {
-  TextEditor,
   workspace,
-  window
+  window,
+  TextEditor,
+  TextDocument,
+  ViewColumn
 } from 'vscode';
 
 type sortType = 'count' | 'word';
@@ -17,15 +19,15 @@ export const countOccurrencesHandler: (sortType: sortType) => (textEditor: TextE
         .join("\n")
         .split("\n")
         .filter(x => x.trim() !== ''),
-        sortType
+      sortType
     );
   const content = occurrences.map(occurrence => sortType === 'count' ? `${occurrence[1]}\t${occurrence[0]}` : `${occurrence[0]}\t${occurrence[1]}`)
     .join("\n");
   workspace.openTextDocument({
     content: content,
     language: "text"
-  }).then(doc => {
-    window.showTextDocument(doc);
+  }).then((doc: TextDocument) => {
+    window.showTextDocument(doc, ViewColumn.Beside, true);
   });
 };
 
@@ -37,9 +39,9 @@ const countOccurrences: (array: Array<string>, sortType: sortType) => Array<Arra
   }
   const sorted = [];
   for (const selected in countObject) {
-      sorted.push([selected, countObject[selected]]);
+    sorted.push([selected, countObject[selected]]);
   }
-  const sortIndex =  sortType === 'count' ? 1 : 0;
+  const sortIndex = sortType === 'count' ? 1 : 0;
   sorted.sort((a, b) => {
     if (a[sortIndex] > b[sortIndex]) {
       return 1;
