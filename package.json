@@ -189,12 +189,16 @@
           "group": "selection-processing-tools.extract@0"
         },
         {
-          "command": "selection-processing-tools.reverse",
+          "command": "selection-processing-tools.unique",
           "group": "selection-processing-tools.extract@1"
         },
         {
-          "command": "selection-processing-tools.shuffle",
+          "command": "selection-processing-tools.reverse",
           "group": "selection-processing-tools.extract@2"
+        },
+        {
+          "command": "selection-processing-tools.shuffle",
+          "group": "selection-processing-tools.extract@3"
         }
       ],
       "selection-processing-tools.sort.submenu": [
@@ -217,16 +221,12 @@
       ],
       "selection-processing-tools.transform.submenu": [
         {
-          "command": "selection-processing-tools.unique",
+          "command": "selection-processing-tools.count-occurrences.count",
           "group": "selection-processing-tools.transform@0"
         },
         {
-          "command": "selection-processing-tools.count-occurrences.count",
-          "group": "selection-processing-tools.transform@1"
-        },
-        {
           "command": "selection-processing-tools.count-occurrences.word",
-          "group": "selection-processing-tools.transform@2"
+          "group": "selection-processing-tools.transform@1"
         }
       ],
       "selection-processing-tools.json.submenu": [
