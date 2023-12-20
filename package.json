@@ -125,6 +125,16 @@
         "command": "selection-processing-tools.json.stringify",
         "title": "Stringify JSON",
         "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.regex.g",
+        "title": "Regex (/PATTERN/g)",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.regex.gi",
+        "title": "Regex (/PATTERN/gi)",
+        "category": "Selection Processing Tools"
       }
     ],
     "submenus": [
@@ -155,6 +165,10 @@
       {
         "id": "selection-processing-tools.calculation.submenu",
         "label": "Calculate"
+      },
+      {
+        "id": "selection-processing-tools.regex.submenu",
+        "label": "Regular Expression"
       }
     ],
     "menus": {
@@ -257,6 +271,16 @@
           "group": "selection-processing-tools.transform@0"
         }
       ],
+      "selection-processing-tools.regex.submenu": [
+        {
+          "command": "selection-processing-tools.regex.g",
+          "group": "selection-processing-tools.regex@0"
+        },
+        {
+          "command": "selection-processing-tools.regex.gi",
+          "group": "selection-processing-tools.regex@0"
+        }
+      ],
       "selection-processing-tools.submenu": [
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -283,6 +307,10 @@
         {
           "submenu": "selection-processing-tools.calculation.submenu",
           "group": "selection-processing-tools@5"
+        },
+        {
+          "submenu": "selection-processing-tools.regex.submenu",
+          "group": "selection-processing-tools@6"
         }
       ]
     }

@@ -11,6 +11,7 @@ import { calcDateHandler } from './handler/calcDateHandler';
 import { formatJsonHandler } from './handler/formatJsonHandler';
 import { parseJsonHandler } from './handler/parseJsonHandler';
 import { stringifyJsonHandler } from './handler/stringifyJsonHandler';
+import { regexpHandler } from './handler/regexpHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.select-others.match-case.match-word', selectOthersHandler(true, true)));
@@ -33,6 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.minify', formatJsonHandler(0)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.parse', parseJsonHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.stringify', stringifyJsonHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.g', regexpHandler('g')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.gi', regexpHandler('gi')));
 }
 
 export function deactivate() { }
