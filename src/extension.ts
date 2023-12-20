@@ -8,9 +8,7 @@ import { uniqueHandler } from './handler/uniqueHandler';
 import { countOccurrencesHandler } from './handler/countOccurrencesHandler';
 import { calculationHandler } from './handler/calculationHandler';
 import { calcDateHandler } from './handler/calcDateHandler';
-import { formatJsonHandler } from './handler/formatJsonHandler';
-import { parseJsonHandler } from './handler/parseJsonHandler';
-import { stringifyJsonHandler } from './handler/stringifyJsonHandler';
+import { jsonHandler } from './handler/jsonHandler';
 import { regexpHandler } from './handler/regexpHandler';
 import { base64Handler } from './handler/base64Handler';
 
@@ -31,10 +29,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.count-occurrences.word', countOccurrencesHandler('word')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.calculation', calculationHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.calculation.date', calcDateHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.format', formatJsonHandler(2)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.minify', formatJsonHandler(0)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.parse', parseJsonHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.stringify', stringifyJsonHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.format', jsonHandler('format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.minify', jsonHandler('minify')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.parse', jsonHandler('parse')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.stringify', jsonHandler('stringify')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.g', regexpHandler('g')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.gi', regexpHandler('gi')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.base64.encode', base64Handler('encode')));
