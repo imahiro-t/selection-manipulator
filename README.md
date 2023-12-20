@@ -44,10 +44,17 @@ We currently offer fewer than 20 features, but we plan to add more gradually.
 
 ## Release Notes
 
+## 0.0.3
+
+- ? Add base64 tools
+- ? Add regex check tool
+- ? Change to open editor beside
+- ? Change application name
+
 ### 0.0.2
 
-Add transformer for JSON
+- ? Add transformer for JSON
 
 ### 0.0.1
 
-Initial release
+- ? Initial release
