@@ -36,6 +36,11 @@ We currently offer fewer than 20 features, but we plan to add more gradually.
 | to ISO 8601 or Timestamp                 | Convert to ISO 8601 or Timestamp from Timestamp or ISO 8601     | selection-processing-tools.calculation.date                      |
 | Regular Expression (/PATTERN/g)          | Regular Expression (/PATTERN/g)                                 | selection-processing-tools.regex.g                               |
 | Regular Expression (/PATTERN/gi)         | Regular Expression (/PATTERN/gi)                                | selection-processing-tools.regex.gi                              |
+| Regular Expression (/PATTERN/gi)         | Regular Expression (/PATTERN/gi)                                | selection-processing-tools.regex.gi                              |
+| Encode Base64                            | Encode Base64                                                   | selection-processing-tools.base64.encode                         |
+| Decode Base64                            | Decode Base64                                                   | selection-processing-tools.base64.decode                         |
+| Deflate Base64                           | Deflate Base64                                                  | selection-processing-tools.base64.deflate                        |
+| Inflate Base64                           | Inflate Base64                                                  | selection-processing-tools.base64.inflate                        |
 
 ## Release Notes
 
