@@ -12,6 +12,7 @@ import { formatJsonHandler } from './handler/formatJsonHandler';
 import { parseJsonHandler } from './handler/parseJsonHandler';
 import { stringifyJsonHandler } from './handler/stringifyJsonHandler';
 import { regexpHandler } from './handler/regexpHandler';
+import { base64Handler } from './handler/base64Handler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.select-others.match-case.match-word', selectOthersHandler(true, true)));
@@ -36,6 +37,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.json.stringify', stringifyJsonHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.g', regexpHandler('g')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.regex.gi', regexpHandler('gi')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.base64.encode', base64Handler('encode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.base64.decode', base64Handler('decode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.base64.deflate', base64Handler('deflate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-processing-tools.base64.unzip', base64Handler('inflate')));
 }
 
 export function deactivate() { }

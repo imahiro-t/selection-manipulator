@@ -135,6 +135,26 @@
         "command": "selection-processing-tools.regex.gi",
         "title": "Regex (/PATTERN/gi)",
         "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.base64.encode",
+        "title": "Encode Base64",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.base64.decode",
+        "title": "Decode Base64",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.base64.deflate",
+        "title": "Deflate Base64",
+        "category": "Selection Processing Tools"
+      },
+      {
+        "command": "selection-processing-tools.base64.unzip",
+        "title": "Inflate Base64",
+        "category": "Selection Processing Tools"
       }
     ],
     "submenus": [
@@ -169,6 +189,10 @@
       {
         "id": "selection-processing-tools.regex.submenu",
         "label": "Regular Expression"
+      },
+      {
+        "id": "selection-processing-tools.base64.submenu",
+        "label": "Base64"
       }
     ],
     "menus": {
@@ -268,7 +292,7 @@
         },
         {
           "command": "selection-processing-tools.calculation.date",
-          "group": "selection-processing-tools.transform@0"
+          "group": "selection-processing-tools.transform@1"
         }
       ],
       "selection-processing-tools.regex.submenu": [
@@ -278,7 +302,25 @@
         },
         {
           "command": "selection-processing-tools.regex.gi",
-          "group": "selection-processing-tools.regex@0"
+          "group": "selection-processing-tools.regex@1"
+        }
+      ],
+      "selection-processing-tools.base64.submenu": [
+        {
+          "command": "selection-processing-tools.base64.encode",
+          "group": "selection-processing-tools.base64@0"
+        },
+        {
+          "command": "selection-processing-tools.base64.decode",
+          "group": "selection-processing-tools.base64@1"
+        },
+        {
+          "command": "selection-processing-tools.base64.deflate",
+          "group": "selection-processing-tools.base64@2"
+        },
+        {
+          "command": "selection-processing-tools.base64.unzip",
+          "group": "selection-processing-tools.base64@3"
         }
       ],
       "selection-processing-tools.submenu": [
@@ -311,6 +353,10 @@
         {
           "submenu": "selection-processing-tools.regex.submenu",
           "group": "selection-processing-tools@6"
+        },
+        {
+          "submenu": "selection-processing-tools.base64.submenu",
+          "group": "selection-processing-tools@7"
         }
       ]
     }
