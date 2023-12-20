@@ -1,7 +1,9 @@
 import {
-  TextEditor,
   workspace,
-  window
+  window,
+  TextEditor,
+  TextDocument,
+  ViewColumn
 } from 'vscode';
 
 export const formatJsonHandler: (indent: number) => (textEditor: TextEditor) => void = (indent) => (textEditor) => {
@@ -13,7 +15,7 @@ export const formatJsonHandler: (indent: number) => (textEditor: TextEditor) => 
   workspace.openTextDocument({
     content: content,
     language: "text"
-  }).then(doc => {
-    window.showTextDocument(doc);
+  }).then((doc: TextDocument) => {
+    window.showTextDocument(doc, ViewColumn.Beside, true);
   });
 };

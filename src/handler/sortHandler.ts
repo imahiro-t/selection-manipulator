@@ -1,7 +1,9 @@
 import {
-  TextEditor,
   workspace,
-  window
+  window,
+  TextEditor,
+  TextDocument,
+  ViewColumn
 } from 'vscode';
 
 type compareType = 'number' | 'string';
@@ -24,8 +26,8 @@ export const sortHandler: (compareType: compareType, isAscending: boolean) => (t
   workspace.openTextDocument({
     content: content,
     language: "text"
-  }).then(doc => {
-    window.showTextDocument(doc);
+  }).then((doc: TextDocument) => {
+    window.showTextDocument(doc, ViewColumn.Beside, true);
   });
 };
 

@@ -1,7 +1,9 @@
 import {
-  TextEditor,
   workspace,
-  window
+  window,
+  TextEditor,
+  TextDocument,
+  ViewColumn
 } from 'vscode';
 
 export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) => {
@@ -19,8 +21,8 @@ export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) =>
   workspace.openTextDocument({
     content: content,
     language: "text"
-  }).then(doc => {
-    window.showTextDocument(doc);
+  }).then((doc: TextDocument) => {
+    window.showTextDocument(doc, ViewColumn.Beside, true);
   });
 };
 
