@@ -34,6 +34,8 @@ We currently offer fewer than 20 features, but we plan to add more gradually.
 | Stringify JSON                           | Stringify JSON                                                  | selection-processing-tools.json.stringify                        |
 | Calculate Mathematical Expression        | Calculate Mathematical Expression                               | selection-processing-tools.calculation                           |
 | to ISO 8601 or Timestamp                 | Convert to ISO 8601 or Timestamp from Timestamp or ISO 8601     | selection-processing-tools.calculation.date                      |
+| Regular Expression (/PATTERN/g)          | Regular Expression (/PATTERN/g)                                 | selection-processing-tools.regex.g                               |
+| Regular Expression (/PATTERN/gi)         | Regular Expression (/PATTERN/gi)                                | selection-processing-tools.regex.gi                              |
 
 ## Release Notes
 
