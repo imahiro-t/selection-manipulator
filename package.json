@@ -1,6 +1,6 @@
 {
-  "name": "selection-processing-tools",
-  "displayName": "Selection Processing Tools",
+  "name": "selection-manipulator",
+  "displayName": "Selection Manipulator",
   "description": "Processing tools for selected text: select words, unique lines, sort lines, reverse lines...",
   "version": "0.0.2",
   "publisher": "erintheblack",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/imahiro-t/selection-processing-tools.git"
+    "url": "https://github.com/imahiro-t/selection-manipulator.git"
   },
   "galleryBanner": {
     "color": "#000",
@@ -27,171 +27,171 @@
   "contributes": {
     "commands": [
       {
-        "command": "selection-processing-tools.select-others.match-case.match-word",
+        "command": "selection-manipulator.select-others.match-case.match-word",
         "title": "Select Others (Match Case, Match Word)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.select-others.match-case.ignore-word",
+        "command": "selection-manipulator.select-others.match-case.ignore-word",
         "title": "Select Others (Match Case, Ignore Word)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.select-others.ignore-case.match-word",
+        "command": "selection-manipulator.select-others.ignore-case.match-word",
         "title": "Select Others (Ignore Case, Match Word)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.select-others.ignore-case.ignore-word",
+        "command": "selection-manipulator.select-others.ignore-case.ignore-word",
         "title": "Select Others (Ignore Case, Ignore Word)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.extract",
+        "command": "selection-manipulator.extract",
         "title": "Extract Lines",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.reverse",
+        "command": "selection-manipulator.reverse",
         "title": "Reverse Lines",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.shuffle",
+        "command": "selection-manipulator.shuffle",
         "title": "Shuffle Lines",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.sort.string.ascending",
+        "command": "selection-manipulator.sort.string.ascending",
         "title": "Sort Lines Ascending by string",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.sort.string.descending",
+        "command": "selection-manipulator.sort.string.descending",
         "title": "Sort Lines Descending by string",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.sort.number.ascending",
+        "command": "selection-manipulator.sort.number.ascending",
         "title": "Sort Lines Ascending by number",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.sort.number.descending",
+        "command": "selection-manipulator.sort.number.descending",
         "title": "Sort Lines Descending by number",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.unique",
+        "command": "selection-manipulator.unique",
         "title": "Unique Lines",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.count-occurrences.count",
+        "command": "selection-manipulator.count-occurrences.count",
         "title": "Count Occurrences sorting by count",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.count-occurrences.word",
+        "command": "selection-manipulator.count-occurrences.word",
         "title": "Count Occurrences sorting by word",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.calculation",
+        "command": "selection-manipulator.calculation",
         "title": "Calculate Mathematical Expression",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.calculation.date",
+        "command": "selection-manipulator.calculation.date",
         "title": "to ISO 8601 or Timestamp",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.json.format",
+        "command": "selection-manipulator.json.format",
         "title": "Format JSON",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.json.minify",
+        "command": "selection-manipulator.json.minify",
         "title": "Minify JSON",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.json.parse",
+        "command": "selection-manipulator.json.parse",
         "title": "Parse JSON",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.json.stringify",
+        "command": "selection-manipulator.json.stringify",
         "title": "Stringify JSON",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.regex.g",
+        "command": "selection-manipulator.regex.g",
         "title": "Regex (/PATTERN/g)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.regex.gi",
+        "command": "selection-manipulator.regex.gi",
         "title": "Regex (/PATTERN/gi)",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.base64.encode",
+        "command": "selection-manipulator.base64.encode",
         "title": "Encode Base64",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.base64.decode",
+        "command": "selection-manipulator.base64.decode",
         "title": "Decode Base64",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.base64.deflate",
+        "command": "selection-manipulator.base64.deflate",
         "title": "Deflate Base64",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       },
       {
-        "command": "selection-processing-tools.base64.unzip",
+        "command": "selection-manipulator.base64.unzip",
         "title": "Inflate Base64",
-        "category": "Selection Processing Tools"
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
       {
-        "id": "selection-processing-tools.submenu",
-        "label": "Selection Processing Tools"
+        "id": "selection-manipulator.submenu",
+        "label": "Selection Manipulator"
       },
       {
-        "id": "selection-processing-tools.select.submenu",
+        "id": "selection-manipulator.select.submenu",
         "label": "Select"
       },
       {
-        "id": "selection-processing-tools.extract.submenu",
+        "id": "selection-manipulator.extract.submenu",
         "label": "Extract"
       },
       {
-        "id": "selection-processing-tools.sort.submenu",
+        "id": "selection-manipulator.sort.submenu",
         "label": "Sort"
       },
       {
-        "id": "selection-processing-tools.transform.submenu",
+        "id": "selection-manipulator.transform.submenu",
         "label": "Transform"
       },
       {
-        "id": "selection-processing-tools.json.submenu",
+        "id": "selection-manipulator.json.submenu",
         "label": "JSON"
       },
       {
-        "id": "selection-processing-tools.calculation.submenu",
+        "id": "selection-manipulator.calculation.submenu",
         "label": "Calculate"
       },
       {
-        "id": "selection-processing-tools.regex.submenu",
+        "id": "selection-manipulator.regex.submenu",
         "label": "Regular Expression"
       },
       {
-        "id": "selection-processing-tools.base64.submenu",
+        "id": "selection-manipulator.base64.submenu",
         "label": "Base64"
       }
     ],
@@ -199,164 +199,164 @@
       "editor/context": [
         {
           "when": "editorHasSelection",
-          "submenu": "selection-processing-tools.submenu",
-          "group": "selection-processing-tools"
+          "submenu": "selection-manipulator.submenu",
+          "group": "selection-manipulator"
         }
       ],
-      "selection-processing-tools.select.submenu": [
+      "selection-manipulator.select.submenu": [
         {
-          "command": "selection-processing-tools.select-others.match-case.match-word",
-          "group": "selection-processing-tools.select@0"
+          "command": "selection-manipulator.select-others.match-case.match-word",
+          "group": "selection-manipulator.select@0"
         },
         {
-          "command": "selection-processing-tools.select-others.match-case.ignore-word",
-          "group": "selection-processing-tools.select@1"
+          "command": "selection-manipulator.select-others.match-case.ignore-word",
+          "group": "selection-manipulator.select@1"
         },
         {
-          "command": "selection-processing-tools.select-others.ignore-case.match-word",
-          "group": "selection-processing-tools.select@2"
+          "command": "selection-manipulator.select-others.ignore-case.match-word",
+          "group": "selection-manipulator.select@2"
         },
         {
-          "command": "selection-processing-tools.select-others.ignore-case.ignore-word",
-          "group": "selection-processing-tools.select@3"
+          "command": "selection-manipulator.select-others.ignore-case.ignore-word",
+          "group": "selection-manipulator.select@3"
         }
       ],
-      "selection-processing-tools.extract.submenu": [
+      "selection-manipulator.extract.submenu": [
         {
-          "command": "selection-processing-tools.extract",
-          "group": "selection-processing-tools.extract@0"
+          "command": "selection-manipulator.extract",
+          "group": "selection-manipulator.extract@0"
         },
         {
-          "command": "selection-processing-tools.unique",
-          "group": "selection-processing-tools.extract@1"
+          "command": "selection-manipulator.unique",
+          "group": "selection-manipulator.extract@1"
         },
         {
-          "command": "selection-processing-tools.reverse",
-          "group": "selection-processing-tools.extract@2"
+          "command": "selection-manipulator.reverse",
+          "group": "selection-manipulator.extract@2"
         },
         {
-          "command": "selection-processing-tools.shuffle",
-          "group": "selection-processing-tools.extract@3"
+          "command": "selection-manipulator.shuffle",
+          "group": "selection-manipulator.extract@3"
         }
       ],
-      "selection-processing-tools.sort.submenu": [
+      "selection-manipulator.sort.submenu": [
         {
-          "command": "selection-processing-tools.sort.string.ascending",
-          "group": "selection-processing-tools.sort@0"
+          "command": "selection-manipulator.sort.string.ascending",
+          "group": "selection-manipulator.sort@0"
         },
         {
-          "command": "selection-processing-tools.sort.string.descending",
-          "group": "selection-processing-tools.sort@1"
+          "command": "selection-manipulator.sort.string.descending",
+          "group": "selection-manipulator.sort@1"
         },
         {
-          "command": "selection-processing-tools.sort.number.ascending",
-          "group": "selection-processing-tools.sort@2"
+          "command": "selection-manipulator.sort.number.ascending",
+          "group": "selection-manipulator.sort@2"
         },
         {
-          "command": "selection-processing-tools.sort.number.descending",
-          "group": "selection-processing-tools.sort@3"
+          "command": "selection-manipulator.sort.number.descending",
+          "group": "selection-manipulator.sort@3"
         }
       ],
-      "selection-processing-tools.transform.submenu": [
+      "selection-manipulator.transform.submenu": [
         {
-          "command": "selection-processing-tools.count-occurrences.count",
-          "group": "selection-processing-tools.transform@0"
+          "command": "selection-manipulator.count-occurrences.count",
+          "group": "selection-manipulator.transform@0"
         },
         {
-          "command": "selection-processing-tools.count-occurrences.word",
-          "group": "selection-processing-tools.transform@1"
+          "command": "selection-manipulator.count-occurrences.word",
+          "group": "selection-manipulator.transform@1"
         }
       ],
-      "selection-processing-tools.json.submenu": [
+      "selection-manipulator.json.submenu": [
         {
-          "command": "selection-processing-tools.json.format",
-          "group": "selection-processing-tools.transform@0"
+          "command": "selection-manipulator.json.format",
+          "group": "selection-manipulator.transform@0"
         },
         {
-          "command": "selection-processing-tools.json.minify",
-          "group": "selection-processing-tools.transform@1"
+          "command": "selection-manipulator.json.minify",
+          "group": "selection-manipulator.transform@1"
         },
         {
-          "command": "selection-processing-tools.json.parse",
-          "group": "selection-processing-tools.transform@2"
+          "command": "selection-manipulator.json.parse",
+          "group": "selection-manipulator.transform@2"
         },
         {
-          "command": "selection-processing-tools.json.stringify",
-          "group": "selection-processing-tools.transform@3"
+          "command": "selection-manipulator.json.stringify",
+          "group": "selection-manipulator.transform@3"
         }
       ],
-      "selection-processing-tools.calculation.submenu": [
+      "selection-manipulator.calculation.submenu": [
         {
-          "command": "selection-processing-tools.calculation",
-          "group": "selection-processing-tools.transform@0"
+          "command": "selection-manipulator.calculation",
+          "group": "selection-manipulator.transform@0"
         },
         {
-          "command": "selection-processing-tools.calculation.date",
-          "group": "selection-processing-tools.transform@1"
+          "command": "selection-manipulator.calculation.date",
+          "group": "selection-manipulator.transform@1"
         }
       ],
-      "selection-processing-tools.regex.submenu": [
+      "selection-manipulator.regex.submenu": [
         {
-          "command": "selection-processing-tools.regex.g",
-          "group": "selection-processing-tools.regex@0"
+          "command": "selection-manipulator.regex.g",
+          "group": "selection-manipulator.regex@0"
         },
         {
-          "command": "selection-processing-tools.regex.gi",
-          "group": "selection-processing-tools.regex@1"
+          "command": "selection-manipulator.regex.gi",
+          "group": "selection-manipulator.regex@1"
         }
       ],
-      "selection-processing-tools.base64.submenu": [
+      "selection-manipulator.base64.submenu": [
         {
-          "command": "selection-processing-tools.base64.encode",
-          "group": "selection-processing-tools.base64@0"
+          "command": "selection-manipulator.base64.encode",
+          "group": "selection-manipulator.base64@0"
         },
         {
-          "command": "selection-processing-tools.base64.decode",
-          "group": "selection-processing-tools.base64@1"
+          "command": "selection-manipulator.base64.decode",
+          "group": "selection-manipulator.base64@1"
         },
         {
-          "command": "selection-processing-tools.base64.deflate",
-          "group": "selection-processing-tools.base64@2"
+          "command": "selection-manipulator.base64.deflate",
+          "group": "selection-manipulator.base64@2"
         },
         {
-          "command": "selection-processing-tools.base64.unzip",
-          "group": "selection-processing-tools.base64@3"
+          "command": "selection-manipulator.base64.unzip",
+          "group": "selection-manipulator.base64@3"
         }
       ],
-      "selection-processing-tools.submenu": [
+      "selection-manipulator.submenu": [
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
-          "submenu": "selection-processing-tools.select.submenu",
-          "group": "selection-processing-tools@0"
+          "submenu": "selection-manipulator.select.submenu",
+          "group": "selection-manipulator@0"
         },
         {
-          "submenu": "selection-processing-tools.extract.submenu",
-          "group": "selection-processing-tools@1"
+          "submenu": "selection-manipulator.extract.submenu",
+          "group": "selection-manipulator@1"
         },
         {
-          "submenu": "selection-processing-tools.sort.submenu",
-          "group": "selection-processing-tools@2"
+          "submenu": "selection-manipulator.sort.submenu",
+          "group": "selection-manipulator@2"
         },
         {
-          "submenu": "selection-processing-tools.transform.submenu",
-          "group": "selection-processing-tools@3"
+          "submenu": "selection-manipulator.transform.submenu",
+          "group": "selection-manipulator@3"
         },
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
-          "submenu": "selection-processing-tools.json.submenu",
-          "group": "selection-processing-tools@4"
+          "submenu": "selection-manipulator.json.submenu",
+          "group": "selection-manipulator@4"
         },
         {
-          "submenu": "selection-processing-tools.calculation.submenu",
-          "group": "selection-processing-tools@5"
+          "submenu": "selection-manipulator.calculation.submenu",
+          "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-processing-tools.regex.submenu",
-          "group": "selection-processing-tools@6"
+          "submenu": "selection-manipulator.regex.submenu",
+          "group": "selection-manipulator@6"
         },
         {
-          "submenu": "selection-processing-tools.base64.submenu",
-          "group": "selection-processing-tools@7"
+          "submenu": "selection-manipulator.base64.submenu",
+          "group": "selection-manipulator@7"
         }
       ]
     }
