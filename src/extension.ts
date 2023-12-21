@@ -11,6 +11,7 @@ import { calcDateHandler } from './handler/calcDateHandler';
 import { jsonHandler } from './handler/jsonHandler';
 import { regexpHandler } from './handler/regexpHandler';
 import { base64Handler } from './handler/base64Handler';
+import { xmlHandler } from './handler/xmlHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.match-case.match-word', selectOthersHandler(true, true)));
@@ -39,6 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.decode', base64Handler('decode')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.deflate', base64Handler('deflate')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.unzip', base64Handler('inflate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.format', xmlHandler('format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.minify', xmlHandler('minify')));
 }
 
 export function deactivate() { }
