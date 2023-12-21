@@ -108,7 +108,7 @@
       },
       {
         "command": "selection-manipulator.json.format",
-        "title": "Format JSON",
+        "title": "Format JSON (Pretty Print)",
         "category": "Selection Manipulator"
       },
       {
@@ -124,6 +124,16 @@
       {
         "command": "selection-manipulator.json.stringify",
         "title": "Stringify JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.format",
+        "title": "Format XML (Pretty Print)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.minify",
+        "title": "Minify XML",
         "category": "Selection Manipulator"
       },
       {
@@ -183,6 +193,10 @@
         "label": "JSON"
       },
       {
+        "id": "selection-manipulator.xml.submenu",
+        "label": "XML"
+      },
+      {
         "id": "selection-manipulator.calculation.submenu",
         "label": "Calculate"
       },
@@ -206,121 +220,131 @@
       "selection-manipulator.select.submenu": [
         {
           "command": "selection-manipulator.select-others.match-case.match-word",
-          "group": "selection-manipulator.select@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.select-others.match-case.ignore-word",
-          "group": "selection-manipulator.select@1"
+          "group": "selection-manipulator@1"
         },
         {
           "command": "selection-manipulator.select-others.ignore-case.match-word",
-          "group": "selection-manipulator.select@2"
+          "group": "selection-manipulator@2"
         },
         {
           "command": "selection-manipulator.select-others.ignore-case.ignore-word",
-          "group": "selection-manipulator.select@3"
+          "group": "selection-manipulator@3"
         }
       ],
       "selection-manipulator.extract.submenu": [
         {
           "command": "selection-manipulator.extract",
-          "group": "selection-manipulator.extract@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.unique",
-          "group": "selection-manipulator.extract@1"
+          "group": "selection-manipulator@1"
         },
         {
           "command": "selection-manipulator.reverse",
-          "group": "selection-manipulator.extract@2"
+          "group": "selection-manipulator@2"
         },
         {
           "command": "selection-manipulator.shuffle",
-          "group": "selection-manipulator.extract@3"
+          "group": "selection-manipulator@3"
         }
       ],
       "selection-manipulator.sort.submenu": [
         {
           "command": "selection-manipulator.sort.string.ascending",
-          "group": "selection-manipulator.sort@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.sort.string.descending",
-          "group": "selection-manipulator.sort@1"
+          "group": "selection-manipulator@1"
         },
         {
           "command": "selection-manipulator.sort.number.ascending",
-          "group": "selection-manipulator.sort@2"
+          "group": "selection-manipulator@2"
         },
         {
           "command": "selection-manipulator.sort.number.descending",
-          "group": "selection-manipulator.sort@3"
+          "group": "selection-manipulator@3"
         }
       ],
       "selection-manipulator.transform.submenu": [
         {
           "command": "selection-manipulator.count-occurrences.count",
-          "group": "selection-manipulator.transform@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.count-occurrences.word",
-          "group": "selection-manipulator.transform@1"
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.json.submenu": [
         {
           "command": "selection-manipulator.json.format",
-          "group": "selection-manipulator.transform@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.json.minify",
-          "group": "selection-manipulator.transform@1"
+          "group": "selection-manipulator@1"
         },
         {
           "command": "selection-manipulator.json.parse",
-          "group": "selection-manipulator.transform@2"
+          "group": "selection-manipulator@2"
         },
         {
           "command": "selection-manipulator.json.stringify",
-          "group": "selection-manipulator.transform@3"
+          "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.xml.submenu": [
+        {
+          "command": "selection-manipulator.xml.format",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.xml.minify",
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.calculation.submenu": [
         {
           "command": "selection-manipulator.calculation",
-          "group": "selection-manipulator.transform@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.calculation.date",
-          "group": "selection-manipulator.transform@1"
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.regex.submenu": [
         {
           "command": "selection-manipulator.regex.g",
-          "group": "selection-manipulator.regex@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.regex.gi",
-          "group": "selection-manipulator.regex@1"
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.base64.submenu": [
         {
           "command": "selection-manipulator.base64.encode",
-          "group": "selection-manipulator.base64@0"
+          "group": "selection-manipulator@0"
         },
         {
           "command": "selection-manipulator.base64.decode",
-          "group": "selection-manipulator.base64@1"
+          "group": "selection-manipulator@1"
         },
         {
           "command": "selection-manipulator.base64.deflate",
-          "group": "selection-manipulator.base64@2"
+          "group": "selection-manipulator@2"
         },
         {
           "command": "selection-manipulator.base64.unzip",
-          "group": "selection-manipulator.base64@3"
+          "group": "selection-manipulator@3"
         }
       ],
       "selection-manipulator.submenu": [
@@ -347,16 +371,21 @@
           "group": "selection-manipulator@4"
         },
         {
-          "submenu": "selection-manipulator.calculation.submenu",
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-manipulator.xml.submenu",
           "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-manipulator.regex.submenu",
+          "submenu": "selection-manipulator.calculation.submenu",
           "group": "selection-manipulator@6"
         },
         {
-          "submenu": "selection-manipulator.base64.submenu",
+          "submenu": "selection-manipulator.regex.submenu",
           "group": "selection-manipulator@7"
+        },
+        {
+          "submenu": "selection-manipulator.base64.submenu",
+          "group": "selection-manipulator@8"
         }
       ]
     }
@@ -370,14 +399,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
-    "eslint": "^8.54.0",
-    "typescript": "^5.3.2",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "xml-formatter": "^3.6.0"
   }
 }
