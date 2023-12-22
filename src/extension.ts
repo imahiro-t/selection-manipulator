@@ -14,6 +14,8 @@ import { xmlHandler } from './handler/xmlHandler';
 import { multiSelectionHandler } from './handler/multiSelectionHandler';
 import { countUpListHandler } from './handler/countUpListHandler';
 import { zeroPaddingHandler } from './handler/zeroPaddingHandler';
+import { incrementHandler, incrementByHandler } from './handler/incrementHandler';
+import { decrementHandler, decrementByHandler } from './handler/decrementHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
@@ -44,6 +46,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.minify', xmlHandler('minify')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-up-list', countUpListHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.zero-padding', zeroPaddingHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-1', incrementByHandler(1)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-n', incrementHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-1', decrementByHandler(1)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-n', decrementHandler));
 }
 
 export function deactivate() { }

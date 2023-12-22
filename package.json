@@ -165,6 +165,26 @@
         "command": "selection-manipulator.regex.gi",
         "title": "Regex (/PATTERN/gi)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-by-1",
+        "title": "Increment by 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-by-n",
+        "title": "Increment by N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-by-1",
+        "title": "Decrement by 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-by-n",
+        "title": "Decrement by N",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -183,6 +203,10 @@
       {
         "id": "selection-manipulator.sort.submenu",
         "label": "Sort"
+      },
+      {
+        "id": "selection-manipulator.change.submenu",
+        "label": "Change"
       },
       {
         "id": "selection-manipulator.transform.submenu",
@@ -345,6 +369,24 @@
           "group": "selection-manipulator@3"
         }
       ],
+      "selection-manipulator.change.submenu": [
+        {
+          "command": "selection-manipulator.increment-by-1",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.increment-by-n",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.decrement-by-1",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.decrement-by-n",
+          "group": "selection-manipulator@3"
+        }
+      ],
       "selection-manipulator.calculation.submenu": [
         {
           "command": "selection-manipulator.calculation",
@@ -378,6 +420,10 @@
         {
           "submenu": "selection-manipulator.transform.submenu",
           "group": "selection-manipulator@2"
+        },
+        {
+          "submenu": "selection-manipulator.change.submenu",
+          "group": "selection-manipulator@3"
         },
         {
           "submenu": "selection-manipulator.calculation.submenu",
