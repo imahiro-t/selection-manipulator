@@ -8,7 +8,7 @@ export const decrementByHandler: (decrementBy: number) => (textEditor: TextEdito
     return;
   }
   textEditor.edit((editBuilder) => {
-    const array = textEditor.selections
+    textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, decrement(decrementBy)(text));
