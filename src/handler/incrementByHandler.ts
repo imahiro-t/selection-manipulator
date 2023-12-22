@@ -8,7 +8,7 @@ export const incrementByHandler: (incrementBy: number) => (textEditor: TextEdito
     return;
   }
   textEditor.edit((editBuilder) => {
-    const array = textEditor.selections
+    textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, increment(incrementBy)(text));
