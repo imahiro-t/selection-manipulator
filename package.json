@@ -42,6 +42,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.unique",
+        "title": "Unique Lines",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.reverse",
         "title": "Reverse Lines",
         "category": "Selection Manipulator"
@@ -69,31 +74,6 @@
       {
         "command": "selection-manipulator.sort.number.descending",
         "title": "Sort Lines Descending by number",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.unique",
-        "title": "Unique Lines",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.count-occurrences.count",
-        "title": "Count Occurrences sorting by count",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.count-occurrences.word",
-        "title": "Count Occurrences sorting by word",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.calculation",
-        "title": "Calculate Mathematical Expression",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.calculation.date",
-        "title": "Transform to Timestamp and ISO 8601",
         "category": "Selection Manipulator"
       },
       {
@@ -127,16 +107,6 @@
         "category": "Selection Manipulator"
       },
       {
-        "command": "selection-manipulator.regex.g",
-        "title": "Regex (/PATTERN/g)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.regex.gi",
-        "title": "Regex (/PATTERN/gi)",
-        "category": "Selection Manipulator"
-      },
-      {
         "command": "selection-manipulator.base64.encode",
         "title": "Encode Base64",
         "category": "Selection Manipulator"
@@ -144,6 +114,26 @@
       {
         "command": "selection-manipulator.base64.decode",
         "title": "Decode Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.count-occurrences.count",
+        "title": "Count Occurrences sorting by count",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.count-occurrences.word",
+        "title": "Count Occurrences sorting by word",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.count-up-list",
+        "title": "Count Up to List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.zero-padding",
+        "title": "Zero Padding",
         "category": "Selection Manipulator"
       },
       {
@@ -157,13 +147,23 @@
         "category": "Selection Manipulator"
       },
       {
-        "command": "selection-manipulator.count-up-list",
-        "title": "Count Up to List",
+        "command": "selection-manipulator.calculation",
+        "title": "Calculate Mathematical Expression",
         "category": "Selection Manipulator"
       },
       {
-        "command": "selection-manipulator.zero-padding",
-        "title": "Zero Padding",
+        "command": "selection-manipulator.calculation.date",
+        "title": "Transform to Timestamp and ISO 8601",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.regex.g",
+        "title": "Regex (/PATTERN/g)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.regex.gi",
+        "title": "Regex (/PATTERN/gi)",
         "category": "Selection Manipulator"
       }
     ],
@@ -243,6 +243,10 @@
         {
           "command": "selection-manipulator.shuffle",
           "group": "selection-manipulator@4"
+        },
+        {
+          "submenu": "selection-manipulator.sort.submenu",
+          "group": "selection-manipulator@5"
         }
       ],
       "selection-manipulator.sort.submenu": [
@@ -265,20 +269,34 @@
       ],
       "selection-manipulator.transform.submenu": [
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-manipulator.json.submenu",
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-manipulator.xml.submenu",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.zero-padding",
+          "submenu": "selection-manipulator.base64.submenu",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.count-up-list",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.count-occurrences.word",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.zero-padding",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
+          "group": "selection-manipulator@6"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -309,6 +327,24 @@
           "group": "selection-manipulator@1"
         }
       ],
+      "selection-manipulator.base64.submenu": [
+        {
+          "command": "selection-manipulator.base64.encode",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.base64.decode",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.base64.deflate",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.base64.unzip",
+          "group": "selection-manipulator@3"
+        }
+      ],
       "selection-manipulator.calculation.submenu": [
         {
           "command": "selection-manipulator.calculation",
@@ -329,24 +365,6 @@
           "group": "selection-manipulator@1"
         }
       ],
-      "selection-manipulator.base64.submenu": [
-        {
-          "command": "selection-manipulator.base64.encode",
-          "group": "selection-manipulator@0"
-        },
-        {
-          "command": "selection-manipulator.base64.decode",
-          "group": "selection-manipulator@1"
-        },
-        {
-          "command": "selection-manipulator.base64.deflate",
-          "group": "selection-manipulator@2"
-        },
-        {
-          "command": "selection-manipulator.base64.unzip",
-          "group": "selection-manipulator@3"
-        }
-      ],
       "selection-manipulator.submenu": [
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -358,34 +376,16 @@
           "group": "selection-manipulator@1"
         },
         {
-          "submenu": "selection-manipulator.sort.submenu",
+          "submenu": "selection-manipulator.transform.submenu",
           "group": "selection-manipulator@2"
         },
         {
-          "submenu": "selection-manipulator.transform.submenu",
-          "group": "selection-manipulator@3"
-        },
-        {
-          "when": "editorHasSelection && !editorHasMultipleSelections",
-          "submenu": "selection-manipulator.json.submenu",
+          "submenu": "selection-manipulator.calculation.submenu",
           "group": "selection-manipulator@4"
         },
         {
-          "when": "editorHasSelection && !editorHasMultipleSelections",
-          "submenu": "selection-manipulator.xml.submenu",
-          "group": "selection-manipulator@5"
-        },
-        {
-          "submenu": "selection-manipulator.calculation.submenu",
-          "group": "selection-manipulator@6"
-        },
-        {
           "submenu": "selection-manipulator.regex.submenu",
-          "group": "selection-manipulator@7"
-        },
-        {
-          "submenu": "selection-manipulator.base64.submenu",
-          "group": "selection-manipulator@8"
+          "group": "selection-manipulator@5"
         }
       ]
     }
