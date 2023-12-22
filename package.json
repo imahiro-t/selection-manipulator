@@ -167,6 +167,26 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.increment-from-1",
+        "title": "Increment from 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-from-n",
+        "title": "Increment from N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-to-1",
+        "title": "Decrement to 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-to-n",
+        "title": "Decrement to N",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.increment-by-1",
         "title": "Increment by 1",
         "category": "Selection Manipulator"
@@ -517,20 +537,36 @@
       ],
       "selection-manipulator.number.submenu": [
         {
-          "command": "selection-manipulator.increment-by-1",
+          "command": "selection-manipulator.increment-from-1",
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.increment-by-n",
+          "command": "selection-manipulator.increment-from-n",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.decrement-by-1",
+          "command": "selection-manipulator.decrement-to-1",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.decrement-by-n",
+          "command": "selection-manipulator.decrement-to-n",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.increment-by-1",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.increment-by-n",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.decrement-by-1",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.decrement-by-n",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.calculation.submenu": [
