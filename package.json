@@ -37,6 +37,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.extract.exclude-blank-rows",
+        "title": "Extract Lines exclude Blank Rows",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.reverse",
         "title": "Reverse Lines",
         "category": "Selection Manipulator"
@@ -214,16 +219,20 @@
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.unique",
+          "command": "selection-manipulator.extract.exclude-blank-rows",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.reverse",
+          "command": "selection-manipulator.unique",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.shuffle",
+          "command": "selection-manipulator.reverse",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.shuffle",
+          "group": "selection-manipulator@4"
         }
       ],
       "selection-manipulator.sort.submenu": [
