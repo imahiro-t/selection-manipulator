@@ -103,7 +103,7 @@
       },
       {
         "command": "selection-manipulator.calculation.date",
-        "title": "to ISO 8601 or Timestamp",
+        "title": "Transform to Timestamp and ISO 8601",
         "category": "Selection Manipulator"
       },
       {
