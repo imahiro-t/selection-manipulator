@@ -155,6 +155,11 @@
         "command": "selection-manipulator.base64.unzip",
         "title": "Inflate Base64",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.count-up-list",
+        "title": "Count Up to List",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -260,6 +265,10 @@
         },
         {
           "command": "selection-manipulator.count-occurrences.word",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
           "group": "selection-manipulator@1"
         }
       ],
