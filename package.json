@@ -27,6 +27,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "selection-manipulator.multi-selection",
+        "title": "Convert to Multi Selection",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.select-others.match-case.match-word",
         "title": "Select Others (Match Case, Match Word)",
         "category": "Selection Manipulator"
@@ -218,6 +223,10 @@
         }
       ],
       "selection-manipulator.select.submenu": [
+        {
+          "command": "selection-manipulator.multi-selection",
+          "group": "selection-manipulator@0"
+        },
         {
           "command": "selection-manipulator.select-others.match-case.match-word",
           "group": "selection-manipulator@0"

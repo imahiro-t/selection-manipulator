@@ -12,8 +12,10 @@ import { jsonHandler } from './handler/jsonHandler';
 import { regexpHandler } from './handler/regexpHandler';
 import { base64Handler } from './handler/base64Handler';
 import { xmlHandler } from './handler/xmlHandler';
+import { multiSelectionHandler } from './handler/multiSelectionHandler';
 
 export function activate(context: vscode.ExtensionContext) {
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.match-case.match-word', selectOthersHandler(true, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.match-case.ignore-word', selectOthersHandler(true, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.ignore-case.match-word', selectOthersHandler(false, true)));
