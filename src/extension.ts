@@ -16,6 +16,7 @@ import { countUpListHandler } from './handler/countUpListHandler';
 import { zeroPaddingHandler } from './handler/zeroPaddingHandler';
 import { incrementHandler, incrementByHandler } from './handler/incrementHandler';
 import { decrementHandler, decrementByHandler } from './handler/decrementHandler';
+import { caseHandler } from './handler/caseHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
@@ -50,6 +51,20 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-n', incrementHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-1', decrementByHandler(1)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-n', decrementHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.camel', caseHandler('camel')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.capital', caseHandler('capital')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.constant', caseHandler('constant')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.dot', caseHandler('dot')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.kebab', caseHandler('kebab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.no', caseHandler('no')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.pascal', caseHandler('pascal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.pascalSnake', caseHandler('pascalSnake')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.path', caseHandler('path')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.sentence', caseHandler('sentence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.snake', caseHandler('snake')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.train', caseHandler('train')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.upper', caseHandler('upper')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.lower', caseHandler('lower')));
 }
 
 export function deactivate() { }
