@@ -15,7 +15,8 @@ import { multiSelectionHandler } from './handler/multiSelectionHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows', extractHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.ascending', sortHandler('string', true)));
