@@ -160,6 +160,11 @@
         "command": "selection-manipulator.count-up-list",
         "title": "Count Up to List",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.zero-padding",
+        "title": "Zero Padding",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -268,8 +273,12 @@
           "group": "selection-manipulator@1"
         },
         {
+          "command": "selection-manipulator.zero-padding",
+          "group": "selection-manipulator@2"
+        },
+        {
           "command": "selection-manipulator.count-up-list",
-          "group": "selection-manipulator@1"
+          "group": "selection-manipulator@3"
         }
       ],
       "selection-manipulator.json.submenu": [

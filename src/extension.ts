@@ -13,6 +13,7 @@ import { base64Handler } from './handler/base64Handler';
 import { xmlHandler } from './handler/xmlHandler';
 import { multiSelectionHandler } from './handler/multiSelectionHandler';
 import { countUpListHandler } from './handler/countUpListHandler';
+import { zeroPaddingHandler } from './handler/zeroPaddingHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
@@ -42,6 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.format', xmlHandler('format')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.minify', xmlHandler('minify')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-up-list', countUpListHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.zero-padding', zeroPaddingHandler));
 }
 
 export function deactivate() { }
