@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { selectOthersHandler } from './handler/selectOthersHandler';
 import { extractHandler } from './handler/extractHandler';
 import { reverseHandler } from './handler/reverseHandler';
 import { shuffleHandler } from './handler/shuffleHandler';
@@ -16,10 +15,6 @@ import { multiSelectionHandler } from './handler/multiSelectionHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.match-case.match-word', selectOthersHandler(true, true)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.match-case.ignore-word', selectOthersHandler(true, false)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.ignore-case.match-word', selectOthersHandler(false, true)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.select-others.ignore-case.ignore-word', selectOthersHandler(false, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler));
