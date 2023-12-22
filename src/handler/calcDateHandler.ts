@@ -16,7 +16,7 @@ export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) =>
       .join("\n")
       .split("\n")
       .filter(x => x.trim() !== '')
-      .map(expression => `${expression.trim()} = ${calc(expression)}`)
+      .map(expression => `${expression.trim()}: ${calc(expression)}`)
       .join("\n");
   workspace.openTextDocument({
     content: content,
@@ -27,15 +27,21 @@ export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) =>
 };
 
 const calc: (expression: string) => string = (expression) => {
-  if (expression.toLowerCase() === 'now') {
-    const date = new Date();
-    return `${date.getTime()} = ${date.toISOString()}`;
+  if (expression.toLowerCase().startsWith('now')) {
+    try {
+      const date = new Date(Number(eval(`${(new Date()).getTime()}${expression.substring(3)}`)));
+      return `${date.getTime()} = ${date.toISOString()}`;
+    } catch (_e) {
+      return '';
+    }
   }
   try {
-    return new Date(Number(expression)).toISOString();
+    const date = new Date(Number(eval(expression)));
+    return `${date.getTime()} = ${date.toISOString()}`;
   } catch (_e) {
     try {
-      return new Date(expression).getTime().toString();
+      const date = new Date(expression);
+      return `${date.getTime()} = ${date.toISOString()}`;
     } catch (_e) {
       return '';
     }
