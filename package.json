@@ -185,6 +185,76 @@
         "command": "selection-manipulator.decrement-by-n",
         "title": "Decrement by N",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.camel",
+        "title": "Change Case Camel",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.capital",
+        "title": "Change Case Capital",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.constant",
+        "title": "Change Case Constant",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.dot",
+        "title": "Change Case Dot",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.kebab",
+        "title": "Change Case Kebab",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.no",
+        "title": "Change Case No",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pascal",
+        "title": "Change Case Pascal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pascalSnake",
+        "title": "Change Case PascalSnake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.path",
+        "title": "Change Case Path",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.sentence",
+        "title": "Change Case Sentence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.snake",
+        "title": "Change Case Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.train",
+        "title": "Change Case Train",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper",
+        "title": "Change Case Upper",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower",
+        "title": "Change Case Lower",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -207,6 +277,14 @@
       {
         "id": "selection-manipulator.change.submenu",
         "label": "Change"
+      },
+      {
+        "id": "selection-manipulator.case.submenu",
+        "label": "Case"
+      },
+      {
+        "id": "selection-manipulator.number.submenu",
+        "label": "Number"
       },
       {
         "id": "selection-manipulator.transform.submenu",
@@ -371,6 +449,74 @@
       ],
       "selection-manipulator.change.submenu": [
         {
+          "submenu": "selection-manipulator.case.submenu",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "submenu": "selection-manipulator.number.submenu",
+          "group": "selection-manipulator@1"
+        }
+      ],
+      "selection-manipulator.case.submenu": [
+        {
+          "command": "selection-manipulator.case.camel",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.case.capital",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.case.constant",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.case.dot",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.case.kebab",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.case.no",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.case.pascal",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.case.pascalSnake",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.case.path",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.case.sentence",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.case.snake",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.case.train",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.case.upper",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.case.lower",
+          "group": "selection-manipulator@13"
+        }
+      ],
+      "selection-manipulator.number.submenu": [
+        {
           "command": "selection-manipulator.increment-by-1",
           "group": "selection-manipulator@0"
         },
@@ -456,6 +602,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
+    "change-case": "^5.3.0",
     "xml-formatter": "^3.6.0"
   }
 }
