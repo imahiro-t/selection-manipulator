@@ -16,7 +16,7 @@ export const incrementByHandler: (incrementBy: number) => (textEditor: TextEdito
   });
 };
 
-export const incrementHandler: (textEditor: TextEditor) => void = async (textEditor) => {
+export const incrementByInputHandler: (textEditor: TextEditor) => void = async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

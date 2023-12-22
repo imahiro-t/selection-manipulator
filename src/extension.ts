@@ -14,8 +14,8 @@ import { xmlHandler } from './handler/xmlHandler';
 import { multiSelectionHandler } from './handler/multiSelectionHandler';
 import { countUpListHandler } from './handler/countUpListHandler';
 import { zeroPaddingHandler } from './handler/zeroPaddingHandler';
-import { incrementHandler, incrementByHandler } from './handler/incrementHandler';
-import { decrementHandler, decrementByHandler } from './handler/decrementHandler';
+import { incrementByInputHandler, incrementByHandler } from './handler/incrementByHandler';
+import { decrementByInputHandler, decrementByHandler } from './handler/decrementByHandler';
 import { caseHandler } from './handler/caseHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -48,9 +48,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-up-list', countUpListHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.zero-padding', zeroPaddingHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-1', incrementByHandler(1)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-n', incrementHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-by-n', incrementByInputHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-1', decrementByHandler(1)));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-n', decrementHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.decrement-by-n', decrementByInputHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.camel', caseHandler('camel')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.capital', caseHandler('capital')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.constant', caseHandler('constant')));

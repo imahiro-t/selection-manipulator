@@ -16,7 +16,7 @@ export const decrementByHandler: (decrementBy: number) => (textEditor: TextEdito
   });
 };
 
-export const decrementHandler: (textEditor: TextEditor) => void = async (textEditor) => {
+export const decrementByInputHandler: (textEditor: TextEditor) => void = async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
