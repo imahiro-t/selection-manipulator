@@ -117,6 +117,16 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.base64.deflate",
+        "title": "Deflate Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.unzip",
+        "title": "Inflate Base64",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.count-occurrences.count",
         "title": "Count Occurrences sorting by count",
         "category": "Selection Manipulator"
@@ -129,81 +139,6 @@
       {
         "command": "selection-manipulator.count-up-list",
         "title": "Count Up to List",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.zero-padding",
-        "title": "Zero Padding",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.base64.deflate",
-        "title": "Deflate Base64",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.base64.unzip",
-        "title": "Inflate Base64",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.calculation",
-        "title": "Calculate Mathematical Expression",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.calculation.date",
-        "title": "Transform to Timestamp and ISO 8601",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.regex.g",
-        "title": "Regex (/PATTERN/g)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.regex.gi",
-        "title": "Regex (/PATTERN/gi)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.increment-from-1",
-        "title": "Increment from 1",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.increment-from-n",
-        "title": "Increment from N",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.decrement-to-1",
-        "title": "Decrement to 1",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.decrement-to-n",
-        "title": "Decrement to N",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.increment-by-1",
-        "title": "Increment by 1",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.increment-by-n",
-        "title": "Increment by N",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.decrement-by-1",
-        "title": "Decrement by 1",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.decrement-by-n",
-        "title": "Decrement by N",
         "category": "Selection Manipulator"
       },
       {
@@ -275,6 +210,71 @@
         "command": "selection-manipulator.case.lower",
         "title": "Change Case Lower",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.zero-padding",
+        "title": "Zero Padding",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-from-1",
+        "title": "Increment from 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-from-n",
+        "title": "Increment from N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-to-1",
+        "title": "Decrement to 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-to-n",
+        "title": "Decrement to N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-by-1",
+        "title": "Increment by 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.increment-by-n",
+        "title": "Increment by N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-by-1",
+        "title": "Decrement by 1",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.decrement-by-n",
+        "title": "Decrement by N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.calculation",
+        "title": "Calculate Mathematical Expression",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.calculation.date",
+        "title": "Transform to Timestamp and ISO 8601",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.regex.g",
+        "title": "Regex (/PATTERN/g)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.regex.gi",
+        "title": "Regex (/PATTERN/gi)",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -332,6 +332,208 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.multi-selection"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.extract"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.extract.exclude-blank-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unique"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.reverse"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.shuffle"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.string.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.string.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.number.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.number.descending"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.json.format"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.json.minify"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.json.parse"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.json.stringify"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.xml.format"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.xml.minify"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.base64.encode"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.base64.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.count-occurrences.count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.count-occurrences.word"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.count-up-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.zero-padding"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.deflate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.unzip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.calculation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.calculation.date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.regex.g"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.regex.gi"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-from-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-from-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-to-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-to-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-by-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-by-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.camel"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.capital"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.constant"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.dot"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.kebab"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.no"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pascal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pascalSnake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.path"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.sentence"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.train"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower"
+        }
+      ],
       "editor/context": [
         {
           "when": "editorHasSelection",
