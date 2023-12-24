@@ -27,6 +27,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "selection-manipulator.show-commands",
+        "title": "Show Selection Manipulator Commands"
+      },
+      {
         "command": "selection-manipulator.multi-selection",
         "title": "Convert to Multi Selection",
         "category": "Selection Manipulator"
@@ -295,18 +299,6 @@
         "label": "Sort"
       },
       {
-        "id": "selection-manipulator.change.submenu",
-        "label": "Change"
-      },
-      {
-        "id": "selection-manipulator.case.submenu",
-        "label": "Case"
-      },
-      {
-        "id": "selection-manipulator.number.submenu",
-        "label": "Number"
-      },
-      {
         "id": "selection-manipulator.transform.submenu",
         "label": "Transform"
       },
@@ -317,6 +309,18 @@
       {
         "id": "selection-manipulator.xml.submenu",
         "label": "XML"
+      },
+      {
+        "id": "selection-manipulator.replace.submenu",
+        "label": "Replace"
+      },
+      {
+        "id": "selection-manipulator.case.submenu",
+        "label": "Case"
+      },
+      {
+        "id": "selection-manipulator.number.submenu",
+        "label": "Number"
       },
       {
         "id": "selection-manipulator.calculation.submenu",
@@ -333,6 +337,10 @@
     ],
     "menus": {
       "commandPalette": [
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.show-commands"
+        },
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "command": "selection-manipulator.multi-selection"
@@ -669,7 +677,7 @@
           "group": "selection-manipulator@3"
         }
       ],
-      "selection-manipulator.change.submenu": [
+      "selection-manipulator.replace.submenu": [
         {
           "submenu": "selection-manipulator.case.submenu",
           "group": "selection-manipulator@0"
@@ -806,7 +814,7 @@
           "group": "selection-manipulator@2"
         },
         {
-          "submenu": "selection-manipulator.change.submenu",
+          "submenu": "selection-manipulator.replace.submenu",
           "group": "selection-manipulator@3"
         },
         {
