@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 type command = 'format' | 'minify' | 'stringify' | 'parse';
 
@@ -23,10 +20,5 @@ export const jsonHandler: (command: command) => (textEditor: TextEditor) => void
   } else if (command === 'parse') {
     content = JSON.parse(selectedText);
   }
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };

@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const calculationHandler: (textEditor: TextEditor) => void = (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -18,12 +15,7 @@ export const calculationHandler: (textEditor: TextEditor) => void = (textEditor)
       .filter(x => x.trim() !== '')
       .map(expression => `${expression.trim()} = ${calc(expression)}`)
       .join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
 
 const calc: (expression: string) => string = (expression) => {

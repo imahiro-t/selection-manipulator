@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const extractHandler: (includeBlankRows: boolean) => (textEditor: TextEditor) => void = (includeBlankRows) => (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -22,10 +19,5 @@ export const extractHandler: (includeBlankRows: boolean) => (textEditor: TextEdi
       .filter(x => x.trim() !== '')
       .join("\n")
     ;
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };

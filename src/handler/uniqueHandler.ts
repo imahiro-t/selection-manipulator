@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const uniqueHandler: (textEditor: TextEditor) => void = (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -19,12 +16,7 @@ export const uniqueHandler: (textEditor: TextEditor) => void = (textEditor) => {
         .filter(x => x.trim() !== '')
     )
       .join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
 
 const unique: (array: Array<string>) => Array<string> = (array) => {

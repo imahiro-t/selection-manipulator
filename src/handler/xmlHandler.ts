@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 import xmlFormat from 'xml-formatter';
 
@@ -20,11 +17,8 @@ export const xmlHandler: (command: command) => (textEditor: TextEditor) => void 
     content = xmlFormat(selectedText, { indentation: '  ', lineSeparator: '\n' });
   } else if (command === 'minify') {
     content = xmlFormat.minify(selectedText, { collapseContent: true });
+  } else {
+    content = '';
   }
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };

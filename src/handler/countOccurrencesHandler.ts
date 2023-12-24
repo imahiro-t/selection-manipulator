@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 type sortType = 'count' | 'word';
 
@@ -23,12 +20,7 @@ export const countOccurrencesHandler: (sortType: sortType) => (textEditor: TextE
     );
   const content = occurrences.map(occurrence => sortType === 'count' ? `${occurrence[1]}\t${occurrence[0]}` : `${occurrence[0]}\t${occurrence[1]}`)
     .join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
 
 const countOccurrences: (array: Array<string>, sortType: sortType) => Array<Array<string>> = (array, sortType) => {
