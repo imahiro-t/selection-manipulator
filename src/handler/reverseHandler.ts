@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const reverseHandler: (textEditor: TextEditor) => void = (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -18,10 +15,5 @@ export const reverseHandler: (textEditor: TextEditor) => void = (textEditor) => 
     array.pop();
   }
   const content = array.reverse().join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };

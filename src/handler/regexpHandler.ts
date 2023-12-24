@@ -1,12 +1,11 @@
 import {
-  workspace,
   window,
   TextEditor,
-  ViewColumn,
   Range,
   TextEditorDecorationType,
   TextDocument
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 const titleDecorator: TextEditorDecorationType = window.createTextEditorDecorationType({
   'borderWidth': '2px',
@@ -45,35 +44,30 @@ export const regexpHandler: (flags: flags) => (textEditor: TextEditor) => void =
   const content = array.join("\n");
   const regex = RegExp(pattern, flags);
 
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true).then(editor => {
-      const array = doc.getText().split("\n");
-      const pattern = array.shift() ?? '';
-      editor.setDecorations(titleDecorator, [new Range(doc.positionAt(0), doc.positionAt(pattern.length))]);
-      const ranges: Range[] = [];
-      let currentIndex = pattern.length + 1;
-      array.forEach(value => {
-        if (flags.indexOf('g') !== -1) {
-          let results;
-          while ((results = regex.exec(value)) !== null) {
-            var startPos = doc.positionAt(currentIndex + results.index);
-            var endPos = doc.positionAt(currentIndex + results.index + results[0].length);
-            ranges.push(new Range(startPos, endPos));
-          }
-        } else {
-          const results = regex.exec(value);
-          if (results !== null) {
-            var startPos = doc.positionAt(currentIndex + results.index);
-            var endPos = doc.positionAt(currentIndex + results.index + results[0].length);
-            ranges.push(new Range(startPos, endPos));
-          }
+  openTextDocument(content, (doc: TextDocument, editor: TextEditor) => {
+    const array = doc.getText().split("\n");
+    const pattern = array.shift() ?? '';
+    editor.setDecorations(titleDecorator, [new Range(doc.positionAt(0), doc.positionAt(pattern.length))]);
+    const ranges: Range[] = [];
+    let currentIndex = pattern.length + 1;
+    array.forEach(value => {
+      if (flags.indexOf('g') !== -1) {
+        let results;
+        while ((results = regex.exec(value)) !== null) {
+          var startPos = doc.positionAt(currentIndex + results.index);
+          var endPos = doc.positionAt(currentIndex + results.index + results[0].length);
+          ranges.push(new Range(startPos, endPos));
         }
-        currentIndex = currentIndex + value.length + 1;
-      });
-      editor.setDecorations(targetDecorator, ranges);
+      } else {
+        const results = regex.exec(value);
+        if (results !== null) {
+          var startPos = doc.positionAt(currentIndex + results.index);
+          var endPos = doc.positionAt(currentIndex + results.index + results[0].length);
+          ranges.push(new Range(startPos, endPos));
+        }
+      }
+      currentIndex = currentIndex + value.length + 1;
     });
+    editor.setDecorations(targetDecorator, ranges);
   });
 };

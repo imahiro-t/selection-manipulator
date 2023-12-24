@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 type compareType = 'number' | 'string';
 
@@ -23,12 +20,7 @@ export const sortHandler: (compareType: compareType, isAscending: boolean) => (t
       isAscending
     )
       .join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
 
 const sort: (array: Array<string>, compareType: compareType, isAscending: boolean) => Array<string> = (array, compareType, isAscending) => {

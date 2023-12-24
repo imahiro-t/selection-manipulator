@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const shuffleHandler: (textEditor: TextEditor) => void = (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -19,12 +16,7 @@ export const shuffleHandler: (textEditor: TextEditor) => void = (textEditor) => 
   }
   shuffleArray(array);
   const content = array.join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
 
 const shuffleArray: (array: Array<any>) => void = array => {

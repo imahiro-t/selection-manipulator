@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 type command = 'encode' | 'decode' | 'deflate' | 'inflate';
 
@@ -27,10 +24,5 @@ export const base64Handler: (command: command) => (textEditor: TextEditor) => vo
   } else if (command === 'inflate') {
     content = zlib.inflateRawSync(Buffer.from(text, 'base64')).toString();
   }
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };

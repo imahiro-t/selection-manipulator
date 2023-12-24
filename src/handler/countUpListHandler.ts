@@ -1,10 +1,7 @@
 import {
-  workspace,
-  window,
   TextEditor,
-  TextDocument,
-  ViewColumn
 } from 'vscode';
+import { openTextDocument } from '../common';
 
 export const countUpListHandler: (textEditor: TextEditor) => void = (textEditor) => {
   let selectedText = textEditor.document.getText(textEditor.selection);
@@ -26,10 +23,5 @@ export const countUpListHandler: (textEditor: TextEditor) => void = (textEditor)
     array.push(i.toString());
   }
   const content = array.join('\n');
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
-  });
+  openTextDocument(content);
 };
