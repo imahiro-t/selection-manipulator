@@ -86,6 +86,58 @@ const myCommands = [
     "title": "Transform - Base64 - Inflate Base64"
   },
   {
+    "command": "selection-manipulator.dns.a",
+    "title": "Transform - DNS - A Record"
+  },
+  {
+    "command": "selection-manipulator.dns.aaaa",
+    "title": "Transform - DNS - AAAA Record"
+  },
+  {
+    "command": "selection-manipulator.dns.any",
+    "title": "Transform - DNS - ANY Record"
+  },
+  {
+    "command": "selection-manipulator.dns.caa",
+    "title": "Transform - DNS - CAA Record"
+  },
+  {
+    "command": "selection-manipulator.dns.cname",
+    "title": "Transform - DNS - CNAME Record"
+  },
+  {
+    "command": "selection-manipulator.dns.mx",
+    "title": "Transform - DNS - MX Record"
+  },
+  {
+    "command": "selection-manipulator.dns.naptr",
+    "title": "Transform - DNS - NAPTR Record"
+  },
+  {
+    "command": "selection-manipulator.dns.ns",
+    "title": "Transform - DNS - NS Record"
+  },
+  {
+    "command": "selection-manipulator.dns.ptr",
+    "title": "Transform - DNS - PTR Record"
+  },
+  {
+    "command": "selection-manipulator.dns.soa",
+    "title": "Transform - DNS - SOA Record"
+  },
+  {
+    "command": "selection-manipulator.dns.srv",
+    "title": "Transform - DNS - SRV Record"
+  },
+  {
+    "command": "selection-manipulator.dns.txt",
+    "title": "Transform - DNS - TXT Record"
+  },
+  {
+    "command": "selection-manipulator.dns.reverse",
+    "title": "Transform - DNS - REVERSE Record"
+  },
+  {
     "command": "selection-manipulator.count-occurrences.count",
     "title": "Transform - Count Occurrences sorting by count"
   },
