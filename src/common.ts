@@ -4,6 +4,9 @@ import {
   TextEditor,
   TextDocument,
   ViewColumn,
+  TextEditorDecorationType,
+  DecorationRangeBehavior,
+  Range,
 } from 'vscode';
 
 export const openTextDocument = (content: string, func?: (doc: TextDocument, editor: TextEditor) => void) => {
@@ -13,10 +16,36 @@ export const openTextDocument = (content: string, func?: (doc: TextDocument, edi
     content: content,
     language: "text"
   }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, openViewColumn, true).then((editor: TextEditor)  => {
+    window.showTextDocument(doc, openViewColumn, true).then((editor: TextEditor) => {
       if (func) {
         func(doc, editor);
       }
     });
+  });
+};
+
+const titleDecorator: TextEditorDecorationType = window.createTextEditorDecorationType({
+  fontWeight: 'bold',
+  light: {
+    color: 'rgba(104, 183, 161, 1)',
+  },
+  dark: {
+    color: 'rgba(104, 183, 161, 1)',
+  },
+  rangeBehavior: DecorationRangeBehavior.ClosedClosed
+});
+
+export const openTextDocumentWithTitles = (zip: string[][]) => {
+  const content = zip.map(([selectedText, result]) => `${selectedText}\n${result}\n`).join('\n').trim();
+  openTextDocument(content, (doc: TextDocument, editor: TextEditor) => {
+    const ranges: Range[] = [];
+    let currentIndex = 0;
+    zip.forEach(([title, value]) => {
+      var startPos = doc.positionAt(currentIndex);
+      var endPos = doc.positionAt(currentIndex + title.length);
+      ranges.push(new Range(startPos, endPos));
+      currentIndex = currentIndex + title.length + value.length + 3;
+    });
+    editor.setDecorations(titleDecorator, ranges);
   });
 };
