@@ -1,9 +1,6 @@
 import {
-  workspace,
   window,
-  TextEditor,
-  TextDocument,
-  ViewColumn
+  TextEditor
 } from 'vscode';
 
 const DEFAULT_DIGIT = 8;
@@ -21,20 +18,15 @@ export const zeroPaddingHandler: (textEditor: TextEditor) => void = async (textE
     ignoreFocusOut: true,
   }));
   digit = digit > 0 ? digit : DEFAULT_DIGIT;
-  const content =
-    selectedText
-      .split("\n")
-      .map(zeroPadding(digit))
-      .filter(x => x.trim() !== '')
-      .join("\n");
-  workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    window.showTextDocument(doc, ViewColumn.Beside, true);
+  textEditor.edit((editBuilder) => {
+    textEditor.selections
+      .forEach((selection) => {
+        const text = textEditor.document.getText(selection);
+        editBuilder.replace(selection, zeroPadding(digit)(text));
+      });
   });
 };
 
 const zeroPadding: (digit: number) => (value: string) => string = (digit) => (value) => {
-  return /^\d+$/.test(value) ? (Array(digit).join('0') + Number(value)).slice(-digit) : '';
+  return /^\d+$/.test(value) ? (Array(digit).join('0') + Number(value)).slice(-digit) : value;
 };

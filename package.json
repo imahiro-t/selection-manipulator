@@ -427,63 +427,11 @@
         },
         {
           "when": "editorHasSelection",
-          "command": "selection-manipulator.zero-padding"
-        },
-        {
-          "when": "editorHasSelection",
           "command": "selection-manipulator.base64.deflate"
         },
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.base64.unzip"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.calculation"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.calculation.date"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.regex.g"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.regex.gi"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.increment-from-1"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.increment-from-n"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.decrement-to-1"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.decrement-to-n"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.increment-by-1"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.increment-by-n"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.decrement-by-1"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.decrement-by-n"
         },
         {
           "when": "editorHasSelection",
@@ -540,6 +488,58 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.case.lower"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.zero-padding"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-from-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-from-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-to-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-to-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-by-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.increment-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-by-1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.decrement-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.calculation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.calculation.date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.regex.g"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.regex.gi"
         }
       ],
       "editor/context": [
@@ -623,12 +623,8 @@
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.zero-padding",
-          "group": "selection-manipulator@5"
-        },
-        {
           "command": "selection-manipulator.count-up-list",
-          "group": "selection-manipulator@6"
+          "group": "selection-manipulator@5"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -747,36 +743,40 @@
       ],
       "selection-manipulator.number.submenu": [
         {
-          "command": "selection-manipulator.increment-from-1",
+          "command": "selection-manipulator.zero-padding",
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.increment-from-n",
+          "command": "selection-manipulator.increment-from-1",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.decrement-to-1",
+          "command": "selection-manipulator.increment-from-n",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.decrement-to-n",
+          "command": "selection-manipulator.decrement-to-1",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.increment-by-1",
+          "command": "selection-manipulator.decrement-to-n",
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.increment-by-n",
+          "command": "selection-manipulator.increment-by-1",
           "group": "selection-manipulator@5"
         },
         {
-          "command": "selection-manipulator.decrement-by-1",
+          "command": "selection-manipulator.increment-by-n",
           "group": "selection-manipulator@6"
         },
         {
-          "command": "selection-manipulator.decrement-by-n",
+          "command": "selection-manipulator.decrement-by-1",
           "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.decrement-by-n",
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.calculation.submenu": [

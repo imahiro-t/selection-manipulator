@@ -98,10 +98,6 @@ const myCommands = [
     "title": "Transform - Count Up to List"
   },
   {
-    "command": "selection-manipulator.zero-padding",
-    "title": "Transform - Zero Padding"
-  },
-  {
     "command": "selection-manipulator.case.camel",
     "title": "Replace - Case - Change Case Camel"
   },
@@ -156,6 +152,10 @@ const myCommands = [
   {
     "command": "selection-manipulator.case.lower",
     "title": "Replace - Case - Change Case Lower"
+  },
+  {
+    "command": "selection-manipulator.zero-padding",
+    "title": "Replace - Number - Zero Padding"
   },
   {
     "command": "selection-manipulator.increment-from-1",
