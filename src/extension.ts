@@ -20,6 +20,7 @@ import { incrementByInputHandler, incrementByHandler } from './handler/increment
 import { decrementByInputHandler, decrementByHandler } from './handler/decrementByHandler';
 import { caseHandler } from './handler/caseHandler';
 import { showCommandsHandler } from './handler/showCommandsHandler';
+import { dnsHandler } from './handler/dnsHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -73,6 +74,19 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.train', caseHandler('train')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.upper', caseHandler('upper')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.lower', caseHandler('lower')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.a', dnsHandler('A')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.aaaa', dnsHandler('AAAA')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.any', dnsHandler('ANY')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.caa', dnsHandler('CAA')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.cname', dnsHandler('CNAME')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.mx', dnsHandler('MX')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.naptr', dnsHandler('NAPTR')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.ns', dnsHandler('NS')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.ptr', dnsHandler('PTR')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.soa', dnsHandler('SOA')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.srv', dnsHandler('SRV')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.txt', dnsHandler('TXT')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.reverse', dnsHandler('REVERSE')));
 }
 
 export function deactivate() { }

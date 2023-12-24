@@ -131,6 +131,71 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.dns.a",
+        "title": "Resolve A DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.aaaa",
+        "title": "Resolve AAAA DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.any",
+        "title": "Resolve ANY DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.caa",
+        "title": "Resolve CAA DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.cname",
+        "title": "Resolve CNAME DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.mx",
+        "title": "Resolve MX DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.naptr",
+        "title": "Resolve NAPTR DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.ns",
+        "title": "Resolve NS DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.ptr",
+        "title": "Resolve PTR DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.soa",
+        "title": "Resolve SOA DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.srv",
+        "title": "Resolve SRV DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.txt",
+        "title": "Resolve TXT DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.reverse",
+        "title": "Resolve REVERSE DNS Record",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.count-occurrences.count",
         "title": "Count Occurrences sorting by count",
         "category": "Selection Manipulator"
@@ -311,6 +376,14 @@
         "label": "XML"
       },
       {
+        "id": "selection-manipulator.base64.submenu",
+        "label": "Base64"
+      },
+      {
+        "id": "selection-manipulator.dns.submenu",
+        "label": "DNS"
+      },
+      {
         "id": "selection-manipulator.replace.submenu",
         "label": "Replace"
       },
@@ -329,10 +402,6 @@
       {
         "id": "selection-manipulator.regex.submenu",
         "label": "Regular Expression"
-      },
-      {
-        "id": "selection-manipulator.base64.submenu",
-        "label": "Base64"
       }
     ],
     "menus": {
@@ -412,6 +481,58 @@
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "command": "selection-manipulator.base64.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.a"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.aaaa"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.any"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.caa"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.cname"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.mx"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.naptr"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.ns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.ptr"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.soa"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.srv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.txt"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.reverse"
         },
         {
           "when": "editorHasSelection",
@@ -615,16 +736,20 @@
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "submenu": "selection-manipulator.dns.submenu",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.count-up-list",
+          "command": "selection-manipulator.count-occurrences.word",
           "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
+          "group": "selection-manipulator@6"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -671,6 +796,60 @@
         {
           "command": "selection-manipulator.base64.unzip",
           "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.dns.submenu": [
+        {
+          "command": "selection-manipulator.dns.a",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.dns.aaaa",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.dns.any",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.dns.caa",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.dns.cname",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.dns.mx",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.dns.naptr",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.dns.ns",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.dns.ptr",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.dns.soa",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.dns.srv",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.dns.txt",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.dns.reverse",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.replace.submenu": [
