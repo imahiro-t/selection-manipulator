@@ -3,31 +3,32 @@ import {
   TextEditor,
   Range,
   TextEditorDecorationType,
-  TextDocument
+  DecorationRangeBehavior,
+  TextDocument,
 } from 'vscode';
 import { openTextDocument } from '../common';
 
 const titleDecorator: TextEditorDecorationType = window.createTextEditorDecorationType({
-  'borderWidth': '2px',
-  'borderRadius': '2px',
-  'borderStyle': 'solid',
-  'light': {
-    'borderColor': 'rgba(104, 183, 161, 1)',
+  fontWeight: 'bold',
+  light: {
+    color: 'rgba(104, 183, 161, 1)',
   },
-  'dark': {
-    'borderColor': 'rgba(104, 183, 161, 1)',
-  }
+  dark: {
+    color: 'rgba(104, 183, 161, 1)',
+  },
+  rangeBehavior: DecorationRangeBehavior.ClosedClosed
 });
 
 const targetDecorator: TextEditorDecorationType = window.createTextEditorDecorationType({
-  'light': {
-    'backgroundColor': 'rgba(104, 183, 161, 1)',
-    'color': 'rgba(0, 0, 0, 1.0)'
+  light: {
+    backgroundColor: 'rgba(104, 183, 161, 1)',
+    color: 'rgba(0, 0, 0, 1.0)'
   },
-  'dark': {
-    'backgroundColor': 'rgba(104, 183, 161, 1)',
-    'color': 'rgba(27, 27, 27, 1.0)'
-  }
+  dark: {
+    backgroundColor: 'rgba(104, 183, 161, 1)',
+    color: 'rgba(27, 27, 27, 1.0)'
+  },
+  rangeBehavior: DecorationRangeBehavior.ClosedClosed
 });
 
 type flags = 'gi' | 'g';
