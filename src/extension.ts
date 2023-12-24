@@ -19,8 +19,10 @@ import { decrementToHandler, decrementToInputHandler } from './handler/decrement
 import { incrementByInputHandler, incrementByHandler } from './handler/incrementByHandler';
 import { decrementByInputHandler, decrementByHandler } from './handler/decrementByHandler';
 import { caseHandler } from './handler/caseHandler';
+import { showCommandsHandler } from './handler/showCommandsHandler';
 
 export function activate(context: vscode.ExtensionContext) {
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows', extractHandler(false)));
