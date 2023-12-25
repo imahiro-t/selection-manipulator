@@ -6,7 +6,7 @@ import { openTextDocument } from '../common';
 type command = 'format' | 'minify' | 'stringify' | 'parse';
 
 export const jsonHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
-  let selectedText = textEditor.document.getText(textEditor.selection);
+  const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
   }

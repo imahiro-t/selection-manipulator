@@ -5,7 +5,7 @@ import {
 } from 'vscode';
 
 export const multiSelectionHandler: (textEditor: TextEditor) => void = (textEditor) => {
-  let selectedText = textEditor.document.getText(textEditor.selection);
+  const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
   }

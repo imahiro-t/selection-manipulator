@@ -8,7 +8,7 @@ import xmlFormat from 'xml-formatter';
 type command = 'format' | 'minify';
 
 export const xmlHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
-  let selectedText = textEditor.document.getText(textEditor.selection);
+  const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
   }
