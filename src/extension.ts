@@ -67,7 +67,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.kebab', caseHandler('kebab')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.no', caseHandler('no')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.pascal', caseHandler('pascal')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.pascalSnake', caseHandler('pascalSnake')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.path', caseHandler('path')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.sentence', caseHandler('sentence')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.case.snake', caseHandler('snake')));
