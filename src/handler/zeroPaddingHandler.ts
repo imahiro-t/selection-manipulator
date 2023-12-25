@@ -9,9 +9,6 @@ export const zeroPaddingHandler: (textEditor: TextEditor) => void = async (textE
   if (textEditor.selections.length === 0) {
     return;
   }
-  const selectedText = textEditor.selections
-    .map(selection => textEditor.document.getText(selection))
-    .join("\n");
   let digit = Number(await window.showInputBox({
     prompt: 'Number of Digits',
     placeHolder: `Default: ${DEFAULT_DIGIT}`,
