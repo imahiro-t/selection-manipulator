@@ -723,6 +723,7 @@
           "group": "selection-manipulator@1"
         },
         {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
           "submenu": "selection-manipulator.base64.submenu",
           "group": "selection-manipulator@2"
         },
