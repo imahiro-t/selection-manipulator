@@ -11,7 +11,10 @@ export const dnsHandler: (command: command) => (textEditor: TextEditor) => void 
     return;
   }
   const selectedTexts = textEditor.selections
-    .map(selection => textEditor.document.getText(selection).trim())
+    .map(selection => textEditor.document.getText(selection))
+    .join("\n")
+    .split("\n")
+    .map(selectedText => selectedText.trim())
     .filter(selectedText => selectedText.length > 0);
   const zip = await Promise.all(selectedTexts
     .map(async selectedText => {
