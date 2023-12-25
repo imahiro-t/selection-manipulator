@@ -9,10 +9,11 @@ export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) =>
   }
   const zip =
     textEditor.selections
-      .map(selection => textEditor.document.getText(selection).trim())
+      .map(selection => textEditor.document.getText(selection))
       .join("\n")
       .split("\n")
-      .filter(x => x !== '')
+      .map(selectedText => selectedText.trim())
+      .filter(selectedText => selectedText.length > 0)
       .map(expression => [expression.trim(), calc(expression)]);
   openTextDocumentWithTitles(zip);
 };
