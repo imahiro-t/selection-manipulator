@@ -1,7 +1,7 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "Processing tools for selected text: select words, unique lines, sort lines, reverse lines...",
+  "description": "Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64...",
   "version": "0.0.4",
   "publisher": "erintheblack",
   "author": {
@@ -243,11 +243,6 @@
       {
         "command": "selection-manipulator.case.pascal",
         "title": "Change Case Pascal",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.pascalSnake",
-        "title": "Change Case PascalSnake",
         "category": "Selection Manipulator"
       },
       {
@@ -584,10 +579,6 @@
         },
         {
           "when": "editorHasSelection",
-          "command": "selection-manipulator.case.pascalSnake"
-        },
-        {
-          "when": "editorHasSelection",
           "command": "selection-manipulator.case.path"
         },
         {
@@ -892,10 +883,6 @@
           "group": "selection-manipulator@6"
         },
         {
-          "command": "selection-manipulator.case.pascalSnake",
-          "group": "selection-manipulator@7"
-        },
-        {
           "command": "selection-manipulator.case.path",
           "group": "selection-manipulator@8"
         },
@@ -1027,7 +1014,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "change-case": "^5.3.0",
+    "change-case": "^4.1.2",
     "xml-formatter": "^3.6.0"
   }
 }

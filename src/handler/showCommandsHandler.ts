@@ -178,10 +178,6 @@ const myCommands = [
     "title": "Replace - Case - Change Case Pascal"
   },
   {
-    "command": "selection-manipulator.case.pascalSnake",
-    "title": "Replace - Case - Change Case PascalSnake"
-  },
-  {
     "command": "selection-manipulator.case.path",
     "title": "Replace - Case - Change Case Path"
   },
