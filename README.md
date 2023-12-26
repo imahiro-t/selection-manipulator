@@ -6,9 +6,15 @@ Processing tools for selected text: extract unique lines, sort lines, count occu
 
 Processing tools for selected text.
 
-We currently offer almost 50 features, but we plan to add more gradually.
+We currently offer almost 60+ features, but we plan to add more gradually.
 
-![sample count occurrences](images/sample-count-occurrences.gif)
+### sample - increment and zero padding
+
+![sample - increment and zero padding](images/sample-increment-zero-padding.gif)
+
+### sample - DNS
+
+![sample - DNS](images/sample-dns.gif)
 
 ## Commands
 
@@ -79,6 +85,11 @@ We currently offer almost 50 features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                |
 
 ## Release Notes
+
+## 0.0.6
+
+- 💄 Commands that cannot be used in multiple selection mode are now hidden
+- 💄 In base64, only single selection is allowed
 
 ## 0.0.5
 
