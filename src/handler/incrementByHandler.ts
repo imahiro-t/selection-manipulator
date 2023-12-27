@@ -3,7 +3,7 @@ import {
   window,
 } from 'vscode';
 
-export const incrementByHandler: (incrementBy: number) => (textEditor: TextEditor) => void = (incrementBy) => async (textEditor) => {
+export const incrementByHandler: (incrementBy: number) => (textEditor: TextEditor) => void = (incrementBy) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
