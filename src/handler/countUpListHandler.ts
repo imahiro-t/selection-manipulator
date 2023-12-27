@@ -18,6 +18,9 @@ export const countUpListHandler: (textEditor: TextEditor) => void = (textEditor)
     from = 1;
     to = Number(ranges[0].trim());
   }
+  if (to - from > 99999) {
+    return;
+  }
   const array = [];
   for (let i = from; i <= to; i++) {
     array.push(i.toString());
