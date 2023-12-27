@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2023-12-27
+
+- ✨ Add tools for URL
+- ✨ Add tool to decode JWT
+- ✨ Add tool to decode SAML Request / Response
+
 ## [0.0.6] - 2023-12-26
 
 - 💄 Commands that cannot be used in multiple selection mode are now hidden
