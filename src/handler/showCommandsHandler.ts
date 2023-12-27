@@ -136,6 +136,11 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.jwt.decode",
+    "title": "Transform - JWT - Decode JWT",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.dns.aaaa",
     "title": "Transform - DNS - AAAA Record",
     "canMultiSelection": true
