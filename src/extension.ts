@@ -22,6 +22,7 @@ import { caseHandler } from './handler/caseHandler';
 import { showCommandsHandler } from './handler/showCommandsHandler';
 import { dnsHandler } from './handler/dnsHandler';
 import { urlHandler } from './handler/urlHandler';
+import { jwtHandler } from './handler/jwtHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -92,6 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-uri', urlHandler('DECODE_URI')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri-component', urlHandler('ENCODE_URI_COMPONENT')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-uri-component', urlHandler('DECODE_URI_COMPONENT')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jwt.decode', jwtHandler));
 }
 
 export function deactivate() { }
