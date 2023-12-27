@@ -5,7 +5,7 @@ import * as changeCase from "change-case";
 
 type command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower';
 
-export const caseHandler: (command: command) => (textEditor: TextEditor) => void = (command) => async (textEditor) => {
+export const caseHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

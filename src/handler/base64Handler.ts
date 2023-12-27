@@ -5,7 +5,7 @@ import { openTextDocument } from '../common';
 
 type command = 'encode' | 'decode' | 'deflate' | 'inflate';
 
-export const base64Handler: (command: command) => (textEditor: TextEditor) => void = (command) => async (textEditor) => {
+export const base64Handler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
