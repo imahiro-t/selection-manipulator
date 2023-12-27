@@ -21,6 +21,7 @@ import { decrementByInputHandler, decrementByHandler } from './handler/decrement
 import { caseHandler } from './handler/caseHandler';
 import { showCommandsHandler } from './handler/showCommandsHandler';
 import { dnsHandler } from './handler/dnsHandler';
+import { urlHandler } from './handler/urlHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -86,6 +87,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.srv', dnsHandler('SRV')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.txt', dnsHandler('TXT')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.reverse', dnsHandler('REVERSE')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.parse', urlHandler('PARSE_TO_JSON')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri', urlHandler('ENCODE_URI')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-uri', urlHandler('DECODE_URI')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri-component', urlHandler('ENCODE_URI_COMPONENT')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-uri-component', urlHandler('DECODE_URI_COMPONENT')));
 }
 
 export function deactivate() { }

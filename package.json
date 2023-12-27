@@ -131,6 +131,31 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.url.parse",
+        "title": "Parse URL to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-uri",
+        "title": "Encode URI",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.decode-uri",
+        "title": "Decode URI",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-uri-component",
+        "title": "Encode URI Component",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.decode-uri-component",
+        "title": "Decode URI Component",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.dns.a",
         "title": "Resolve A DNS Record",
         "category": "Selection Manipulator"
@@ -375,6 +400,10 @@
         "label": "Base64"
       },
       {
+        "id": "selection-manipulator.url.submenu",
+        "label": "URL"
+      },
+      {
         "id": "selection-manipulator.dns.submenu",
         "label": "DNS"
       },
@@ -476,6 +505,26 @@
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "command": "selection-manipulator.base64.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.parse"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-uri"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.decode-uri"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-uri-component"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.decode-uri-component"
         },
         {
           "when": "editorHasSelection",
@@ -728,20 +777,24 @@
           "group": "selection-manipulator@2"
         },
         {
-          "submenu": "selection-manipulator.dns.submenu",
+          "submenu": "selection-manipulator.url.submenu",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "submenu": "selection-manipulator.dns.submenu",
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@5"
         },
         {
-          "command": "selection-manipulator.count-up-list",
+          "command": "selection-manipulator.count-occurrences.word",
           "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -788,6 +841,28 @@
         {
           "command": "selection-manipulator.base64.unzip",
           "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.url.submenu": [
+        {
+          "command": "selection-manipulator.url.parse",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.url.encode-uri",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.url.decode-uri",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.url.encode-uri-component",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.url.decode-uri-component",
+          "group": "selection-manipulator@4"
         }
       ],
       "selection-manipulator.dns.submenu": [

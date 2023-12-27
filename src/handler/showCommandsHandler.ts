@@ -111,6 +111,31 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.url.parse",
+    "title": "Transform - URL - Parse URL to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-uri",
+    "title": "Transform - URL - Encode URI",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.decode-uri",
+    "title": "Transform - URL - Decode URI",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-uri-component",
+    "title": "Transform - URL - Encode URI Component",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.decode-uri-component",
+    "title": "Transform - URL - Decode URI Component",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.dns.aaaa",
     "title": "Transform - DNS - AAAA Record",
     "canMultiSelection": true
