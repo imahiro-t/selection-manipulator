@@ -141,6 +141,11 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.saml.decode",
+    "title": "Transform - SAML - Decode SAML Request / Response",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.dns.aaaa",
     "title": "Transform - DNS - AAAA Record",
     "canMultiSelection": true
