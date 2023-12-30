@@ -36,11 +36,12 @@ const titleDecorator: TextEditorDecorationType = window.createTextEditorDecorati
 });
 
 export const openTextDocumentWithTitles = (zip: string[][]) => {
-  const content = zip.map(([selectedText, result]) => `${selectedText}\n${result}\n`).join('\n').trim();
+  const trimZip = zip.map(([selectedText, result]) => [selectedText.trim(), result.replaceAll('\r', '').trim()]);
+  const content = trimZip.map(([selectedText, result]) => `${selectedText}\n${result}\n`).join('\n').trim();
   openTextDocument(content, (doc: TextDocument, editor: TextEditor) => {
     const ranges: Range[] = [];
     let currentIndex = 0;
-    zip.forEach(([title, value]) => {
+    trimZip.forEach(([title, value]) => {
       var startPos = doc.positionAt(currentIndex);
       var endPos = doc.positionAt(currentIndex + title.length);
       ranges.push(new Range(startPos, endPos));

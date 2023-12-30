@@ -106,11 +106,6 @@ const myCommands = [
     "canMultiSelection": false
   },
   {
-    "command": "selection-manipulator.dns.a",
-    "title": "Transform - DNS - A Record",
-    "canMultiSelection": true
-  },
-  {
     "command": "selection-manipulator.url.parse",
     "title": "Transform - URL - Parse URL to JSON",
     "canMultiSelection": true
@@ -143,66 +138,6 @@ const myCommands = [
   {
     "command": "selection-manipulator.saml.decode",
     "title": "Transform - SAML - Decode SAML Request / Response",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.aaaa",
-    "title": "Transform - DNS - AAAA Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.any",
-    "title": "Transform - DNS - ANY Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.caa",
-    "title": "Transform - DNS - CAA Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.cname",
-    "title": "Transform - DNS - CNAME Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.mx",
-    "title": "Transform - DNS - MX Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.naptr",
-    "title": "Transform - DNS - NAPTR Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.ns",
-    "title": "Transform - DNS - NS Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.ptr",
-    "title": "Transform - DNS - PTR Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.soa",
-    "title": "Transform - DNS - SOA Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.srv",
-    "title": "Transform - DNS - SRV Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.txt",
-    "title": "Transform - DNS - TXT Record",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.dns.reverse",
-    "title": "Transform - DNS - REVERSE Record",
     "canMultiSelection": true
   },
   {
@@ -328,6 +263,76 @@ const myCommands = [
   {
     "command": "selection-manipulator.decrement-by-n",
     "title": "Replace - Number - Decrement by N",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whois",
+    "title": "Lookup - WHOIS - whois",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.a",
+    "title": "Lookup - DNS - A Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.aaaa",
+    "title": "Lookup - DNS - AAAA Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.any",
+    "title": "Lookup - DNS - ANY Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.caa",
+    "title": "Lookup - DNS - CAA Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.cname",
+    "title": "Lookup - DNS - CNAME Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.mx",
+    "title": "Lookup - DNS - MX Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.naptr",
+    "title": "Lookup - DNS - NAPTR Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.ns",
+    "title": "Lookup - DNS - NS Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.ptr",
+    "title": "Lookup - DNS - PTR Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.soa",
+    "title": "Lookup - DNS - SOA Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.srv",
+    "title": "Lookup - DNS - SRV Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.txt",
+    "title": "Lookup - DNS - TXT Record",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.dns.reverse",
+    "title": "Lookup - DNS - REVERSE Record",
     "canMultiSelection": true
   },
   {
