@@ -166,6 +166,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.whois",
+        "title": "Lookup whois",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.dns.a",
         "title": "Resolve A DNS Record",
         "category": "Selection Manipulator"
@@ -422,10 +427,6 @@
         "label": "SAML"
       },
       {
-        "id": "selection-manipulator.dns.submenu",
-        "label": "DNS"
-      },
-      {
         "id": "selection-manipulator.replace.submenu",
         "label": "Replace"
       },
@@ -436,6 +437,18 @@
       {
         "id": "selection-manipulator.number.submenu",
         "label": "Number"
+      },
+      {
+        "id": "selection-manipulator.lookup.submenu",
+        "label": "Lookup"
+      },
+      {
+        "id": "selection-manipulator.whois.submenu",
+        "label": "WHOIS"
+      },
+      {
+        "id": "selection-manipulator.dns.submenu",
+        "label": "DNS"
       },
       {
         "id": "selection-manipulator.calculation.submenu",
@@ -551,6 +564,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.saml.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whois"
         },
         {
           "when": "editorHasSelection",
@@ -815,20 +832,16 @@
           "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-manipulator.dns.submenu",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@6"
         },
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "command": "selection-manipulator.count-occurrences.word",
           "group": "selection-manipulator@7"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
-          "group": "selection-manipulator@8"
-        },
-        {
           "command": "selection-manipulator.count-up-list",
-          "group": "selection-manipulator@9"
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -909,60 +922,6 @@
         {
           "command": "selection-manipulator.saml.decode",
           "group": "selection-manipulator@0"
-        }
-      ],
-      "selection-manipulator.dns.submenu": [
-        {
-          "command": "selection-manipulator.dns.a",
-          "group": "selection-manipulator@0"
-        },
-        {
-          "command": "selection-manipulator.dns.aaaa",
-          "group": "selection-manipulator@1"
-        },
-        {
-          "command": "selection-manipulator.dns.any",
-          "group": "selection-manipulator@2"
-        },
-        {
-          "command": "selection-manipulator.dns.caa",
-          "group": "selection-manipulator@3"
-        },
-        {
-          "command": "selection-manipulator.dns.cname",
-          "group": "selection-manipulator@4"
-        },
-        {
-          "command": "selection-manipulator.dns.mx",
-          "group": "selection-manipulator@5"
-        },
-        {
-          "command": "selection-manipulator.dns.naptr",
-          "group": "selection-manipulator@6"
-        },
-        {
-          "command": "selection-manipulator.dns.ns",
-          "group": "selection-manipulator@7"
-        },
-        {
-          "command": "selection-manipulator.dns.ptr",
-          "group": "selection-manipulator@8"
-        },
-        {
-          "command": "selection-manipulator.dns.soa",
-          "group": "selection-manipulator@9"
-        },
-        {
-          "command": "selection-manipulator.dns.srv",
-          "group": "selection-manipulator@10"
-        },
-        {
-          "command": "selection-manipulator.dns.txt",
-          "group": "selection-manipulator@11"
-        },
-        {
-          "command": "selection-manipulator.dns.reverse",
-          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.replace.submenu": [
@@ -1067,6 +1026,78 @@
           "group": "selection-manipulator@8"
         }
       ],
+      "selection-manipulator.lookup.submenu": [
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.whois.submenu",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.dns.submenu",
+          "group": "selection-manipulator@1"
+        }
+      ],
+      "selection-manipulator.whois.submenu": [
+        {
+          "command": "selection-manipulator.whois",
+          "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.dns.submenu": [
+        {
+          "command": "selection-manipulator.dns.a",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.dns.aaaa",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.dns.any",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.dns.caa",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.dns.cname",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.dns.mx",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.dns.naptr",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.dns.ns",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.dns.ptr",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.dns.soa",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.dns.srv",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.dns.txt",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.dns.reverse",
+          "group": "selection-manipulator@12"
+        }
+      ],
       "selection-manipulator.calculation.submenu": [
         {
           "command": "selection-manipulator.calculation",
@@ -1106,8 +1137,12 @@
           "group": "selection-manipulator@3"
         },
         {
-          "submenu": "selection-manipulator.calculation.submenu",
+          "submenu": "selection-manipulator.lookup.submenu",
           "group": "selection-manipulator@4"
+        },
+        {
+          "submenu": "selection-manipulator.calculation.submenu",
+          "group": "selection-manipulator@5"
         },
         {
           "submenu": "selection-manipulator.regex.submenu",
@@ -1137,6 +1172,7 @@
   },
   "dependencies": {
     "change-case": "^4.1.2",
+    "whois": "^2.14.0",
     "xml-formatter": "^3.6.0"
   }
 }
