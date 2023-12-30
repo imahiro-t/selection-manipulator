@@ -1,6 +1,6 @@
 # Selection Manipulator
 
-Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT...
+Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, lookup whois or dns...
 
 ## Features
 
@@ -48,19 +48,6 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Decode URI Component                 | Decode URI Component to a new editor page                                            | selection-manipulator.url.decode-uri-component |
 | Decode JWT                           | Decode JWT to a new editor page                                                      | selection-manipulator.jwt.decode               |
 | Decode SAML Request / Response       | Decode SAML Request / Response to a new editor page                                  | selection-manipulator.saml.decode              |
-| Resolve A DNS Record                 | Resolve A DNS Record to a new editor page                                            | selection-manipulator.dns.a                    |
-| Resolve AAAA DNS Record              | Resolve AAAA DNS Record to a new editor page                                         | selection-manipulator.dns.aaaa                 |
-| Resolve ANY DNS Record               | Resolve ANY DNS Record to a new editor page                                          | selection-manipulator.dns.any                  |
-| Resolve CAA DNS Record               | Resolve CAA DNS Record to a new editor page                                          | selection-manipulator.dns.caa                  |
-| Resolve CNAME DNS Record             | Resolve CNAME DNS Record to a new editor page                                        | selection-manipulator.dns.cname                |
-| Resolve MX DNS Record                | Resolve MX DNS Record to a new editor page                                           | selection-manipulator.dns.mx                   |
-| Resolve NAPTR DNS Record             | Resolve NAPTR DNS Record to a new editor page                                        | selection-manipulator.dns.naptr                |
-| Resolve NS DNS Record                | Resolve NS DNS Record to a new editor page                                           | selection-manipulator.dns.ns                   |
-| Resolve PTR DNS Record               | Resolve PTR DNS Record to a new editor page                                          | selection-manipulator.dns.ptr                  |
-| Resolve SOA DNS Record               | Resolve SOA DNS Record to a new editor page                                          | selection-manipulator.dns.soa                  |
-| Resolve SRV DNS Record               | Resolve SRV DNS Record to a new editor page                                          | selection-manipulator.dns.srv                  |
-| Resolve TXT DNS Record               | Resolve TXT DNS Record to a new editor page                                          | selection-manipulator.dns.txt                  |
-| Resolve REVERSE DNS Record           | Resolve REVERSE DNS Record to a new editor page                                      | selection-manipulator.dns.reverse              |
 | Count Occurrences sorting by count   | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count  |
 | Count Occurrences sorting by word    | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word   |
 | Count Up to List                     | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list            |
@@ -86,12 +73,30 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Increment by N                       | Increment by N                                                                       | selection-manipulator.increment-by-n           |
 | Decrement by 1                       | Decrement by 1                                                                       | selection-manipulator.decrement-by-1           |
 | Decrement by N                       | Decrement by N                                                                       | selection-manipulator.decrement-by-n           |
+| Lookup WHOIS                         | Lookup WHOIS to a new editor page                                                    | selection-manipulator.whois                    |
+| Resolve A DNS Record                 | Resolve A DNS Record to a new editor page                                            | selection-manipulator.dns.a                    |
+| Resolve AAAA DNS Record              | Resolve AAAA DNS Record to a new editor page                                         | selection-manipulator.dns.aaaa                 |
+| Resolve ANY DNS Record               | Resolve ANY DNS Record to a new editor page                                          | selection-manipulator.dns.any                  |
+| Resolve CAA DNS Record               | Resolve CAA DNS Record to a new editor page                                          | selection-manipulator.dns.caa                  |
+| Resolve CNAME DNS Record             | Resolve CNAME DNS Record to a new editor page                                        | selection-manipulator.dns.cname                |
+| Resolve MX DNS Record                | Resolve MX DNS Record to a new editor page                                           | selection-manipulator.dns.mx                   |
+| Resolve NAPTR DNS Record             | Resolve NAPTR DNS Record to a new editor page                                        | selection-manipulator.dns.naptr                |
+| Resolve NS DNS Record                | Resolve NS DNS Record to a new editor page                                           | selection-manipulator.dns.ns                   |
+| Resolve PTR DNS Record               | Resolve PTR DNS Record to a new editor page                                          | selection-manipulator.dns.ptr                  |
+| Resolve SOA DNS Record               | Resolve SOA DNS Record to a new editor page                                          | selection-manipulator.dns.soa                  |
+| Resolve SRV DNS Record               | Resolve SRV DNS Record to a new editor page                                          | selection-manipulator.dns.srv                  |
+| Resolve TXT DNS Record               | Resolve TXT DNS Record to a new editor page                                          | selection-manipulator.dns.txt                  |
+| Resolve REVERSE DNS Record           | Resolve REVERSE DNS Record to a new editor page                                      | selection-manipulator.dns.reverse              |
 | Calculate Mathematical Expression    | Calculate Mathematical Expression to a new editor page                               | selection-manipulator.calculation              |
 | Transform to Timestamp and ISO 8601  | Convert to timestamp and ISO 8601 from timestamp or date format to a new editor page | selection-manipulator.calculation.date         |
 | Regular Expression (/PATTERN/g)      | Regular Expression to a new editor page (/PATTERN/g)                                 | selection-manipulator.regex.g                  |
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.8
+
+- ✨ Add tools for WHOIS
 
 ## 0.0.7
 
