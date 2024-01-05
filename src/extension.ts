@@ -89,6 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.soa', dnsHandler('SOA')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.srv', dnsHandler('SRV')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.txt', dnsHandler('TXT')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.lookup', dnsHandler('LOOKUP')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.reverse', dnsHandler('REVERSE')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.parse', urlHandler('PARSE_TO_JSON')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri', urlHandler('ENCODE_URI')));

@@ -172,67 +172,72 @@
       },
       {
         "command": "selection-manipulator.dns.a",
-        "title": "Resolve A DNS Record",
+        "title": "Lookup DNS A Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.aaaa",
-        "title": "Resolve AAAA DNS Record",
+        "title": "Lookup DNS AAAA Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.any",
-        "title": "Resolve ANY DNS Record",
+        "title": "Lookup DNS ANY Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.caa",
-        "title": "Resolve CAA DNS Record",
+        "title": "Lookup DNS CAA Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.cname",
-        "title": "Resolve CNAME DNS Record",
+        "title": "Lookup DNS CNAME Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.mx",
-        "title": "Resolve MX DNS Record",
+        "title": "Lookup DNS MX Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.naptr",
-        "title": "Resolve NAPTR DNS Record",
+        "title": "Lookup DNS NAPTR Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.ns",
-        "title": "Resolve NS DNS Record",
+        "title": "Lookup DNS NS Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.ptr",
-        "title": "Resolve PTR DNS Record",
+        "title": "Lookup DNS PTR Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.soa",
-        "title": "Resolve SOA DNS Record",
+        "title": "Lookup DNS SOA Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.srv",
-        "title": "Resolve SRV DNS Record",
+        "title": "Lookup DNS SRV Record",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.txt",
-        "title": "Resolve TXT DNS Record",
+        "title": "Lookup DNS TXT Record",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.dns.lookup",
+        "title": "Lookup DNS IP from Hostname",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.dns.reverse",
-        "title": "Resolve REVERSE DNS Record",
+        "title": "Lookup DNS Hostname from IP",
         "category": "Selection Manipulator"
       },
       {
@@ -616,6 +621,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.dns.txt"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.dns.lookup"
         },
         {
           "when": "editorHasSelection",
@@ -1094,8 +1103,12 @@
           "group": "selection-manipulator@11"
         },
         {
-          "command": "selection-manipulator.dns.reverse",
+          "command": "selection-manipulator.dns.lookup",
           "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.dns.reverse",
+          "group": "selection-manipulator@13"
         }
       ],
       "selection-manipulator.calculation.submenu": [
