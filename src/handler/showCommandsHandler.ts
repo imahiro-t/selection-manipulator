@@ -331,8 +331,13 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.dns.lookup",
+    "title": "Lookup - DNS - IP from Hostname",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.dns.reverse",
-    "title": "Lookup - DNS - REVERSE Record",
+    "title": "Lookup - DNS - Hostname from IP",
     "canMultiSelection": true
   },
   {
