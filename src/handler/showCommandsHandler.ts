@@ -156,6 +156,16 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.har-to-mermaid",
+    "title": "Transform - HAR to Sequence Diagram Mermaid",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.har-to-image",
+    "title": "Transform - HAR to Sequence Diagram Image",
+    "canMultiSelection": false
+  },
+  {
     "command": "selection-manipulator.case.camel",
     "title": "Replace - Case - Change Case Camel",
     "canMultiSelection": true

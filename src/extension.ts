@@ -25,6 +25,7 @@ import { urlHandler } from './handler/urlHandler';
 import { jwtHandler } from './handler/jwtHandler';
 import { samlHandler } from './handler/samlHandler';
 import { whoisHandler } from './handler/whoisHandler';
+import { harToMermaidHandler } from './handler/harToMermaidHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -99,6 +100,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jwt.decode', jwtHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.saml.decode', samlHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whois', whoisHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-mermaid', harToMermaidHandler('mermaid')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-image', harToMermaidHandler('image')));
 }
 
 export function deactivate() { }
