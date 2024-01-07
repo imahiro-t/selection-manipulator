@@ -256,6 +256,16 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.har-to-mermaid",
+        "title": " HAR to Sequence Diagram Mermaid",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.har-to-image",
+        "title": " HAR to Sequence Diagram Image",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.case.camel",
         "title": "Change Case Camel",
         "category": "Selection Manipulator"
@@ -430,6 +440,10 @@
       {
         "id": "selection-manipulator.saml.submenu",
         "label": "SAML"
+      },
+      {
+        "id": "selection-manipulator.har.submenu",
+        "label": "HAR"
       },
       {
         "id": "selection-manipulator.replace.submenu",
@@ -643,6 +657,14 @@
           "command": "selection-manipulator.count-up-list"
         },
         {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.har-to-mermaid"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.har-to-image"
+        },
+        {
           "when": "editorHasSelection",
           "command": "selection-manipulator.base64.deflate"
         },
@@ -841,16 +863,20 @@
           "group": "selection-manipulator@5"
         },
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "submenu": "selection-manipulator.har.submenu",
           "group": "selection-manipulator@6"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@7"
         },
         {
-          "command": "selection-manipulator.count-up-list",
+          "command": "selection-manipulator.count-occurrences.word",
           "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -931,6 +957,16 @@
         {
           "command": "selection-manipulator.saml.decode",
           "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.har.submenu": [
+        {
+          "command": "selection-manipulator.har-to-mermaid",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.har-to-image",
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.replace.submenu": [
