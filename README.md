@@ -51,6 +51,8 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Count Occurrences sorting by count   | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count  |
 | Count Occurrences sorting by word    | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word   |
 | Count Up to List                     | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list            |
+| HAR to Sequence Diagram Mermaid      | HAR to Sequence Diagram Mermaid to a new editor page                                 | selection-manipulator.har-to-mermaid           |
+| HAR to Sequence Diagram Image        | HAR to Sequence Diagram Image to a new editor page                                   | selection-manipulator.har-to-mermaid           |
 | Change Case Camel                    | Change Case Camel                                                                    | selection-manipulator.case.camel               |
 | Change Case Capital                  | Change Case Capital                                                                  | selection-manipulator.case.capital             |
 | Change Case Constant                 | Change Case Constant                                                                 | selection-manipulator.case.constant            |
@@ -94,6 +96,10 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.11
+
+- ✨ Add tool to transform HAR to Sequence Diagram
 
 ## 0.0.10
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.11] - 2024-01-07
+
+- ✨ Add tool to transform HAR to Sequence Diagram
+
 ## [0.0.10] - 2024-01-05
 
 - ✨ Add tool for DNS Lookup
