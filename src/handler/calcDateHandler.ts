@@ -21,14 +21,14 @@ export const calcDateHandler: (textEditor: TextEditor) => void = (textEditor) =>
 const calc: (expression: string) => string = (expression) => {
   if (expression.toLowerCase().startsWith('now')) {
     try {
-      const date = new Date(Number(eval(`${(new Date()).getTime()}${expression.substring(3)}`)));
+      const date = new Date(Number((0, eval)(`${(new Date()).getTime()}${expression.substring(3)}`)));
       return `${date.getTime()}\n${date.toISOString()}`;
     } catch (_e) {
       return '';
     }
   }
   try {
-    let timestamp = Number(eval(expression));
+    let timestamp = Number((0, eval)(expression));
     if (timestamp <= 30000000000) {
       timestamp = timestamp * 1000;
     }

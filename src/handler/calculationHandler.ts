@@ -20,7 +20,7 @@ export const calculationHandler: (textEditor: TextEditor) => void = (textEditor)
 
 const calc: (expression: string) => string = (expression) => {
   try {
-    return eval(expression).toString();
+    return (0, eval)(expression).toString();
   } catch (_e) {
     return 'NaN';
   }
