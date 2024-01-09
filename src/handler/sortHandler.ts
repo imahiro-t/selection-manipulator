@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocument } from '../common';
 
-type compareType = 'number' | 'string';
+type CompareType = 'number' | 'string';
 
-export const sortHandler: (compareType: compareType, isAscending: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending) => (textEditor) => {
+export const sortHandler: (compareType: CompareType, isAscending: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -23,7 +23,7 @@ export const sortHandler: (compareType: compareType, isAscending: boolean) => (t
   openTextDocument(content);
 };
 
-const sort: (array: Array<string>, compareType: compareType, isAscending: boolean) => Array<string> = (array, compareType, isAscending) => {
+const sort: (array: Array<string>, compareType: CompareType, isAscending: boolean) => Array<string> = (array, compareType, isAscending) => {
   const sorted = compareType === 'number' ? array.sort((a: string, b: string) => Number(a) - Number(b)) : array.sort();
   return isAscending ? sorted : sorted.reverse();
 };

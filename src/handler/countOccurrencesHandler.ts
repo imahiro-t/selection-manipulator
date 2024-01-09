@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocument } from '../common';
 
-type sortType = 'count' | 'word';
+type SortType = 'count' | 'word';
 
-export const countOccurrencesHandler: (sortType: sortType) => (textEditor: TextEditor) => void = (sortType) => (textEditor) => {
+export const countOccurrencesHandler: (sortType: SortType) => (textEditor: TextEditor) => void = (sortType) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -23,7 +23,7 @@ export const countOccurrencesHandler: (sortType: sortType) => (textEditor: TextE
   openTextDocument(content);
 };
 
-const countOccurrences: (array: Array<string>, sortType: sortType) => Array<Array<string>> = (array, sortType) => {
+const countOccurrences: (array: Array<string>, sortType: SortType) => Array<Array<string>> = (array, sortType) => {
   const countObject: any = {};
   for (var i = 0; i < array.length; i++) {
     const selected = array[i];

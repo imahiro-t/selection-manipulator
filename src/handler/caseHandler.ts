@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import * as changeCase from "change-case";
 
-type command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower';
+type Command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower';
 
-export const caseHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const caseHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -18,7 +18,7 @@ export const caseHandler: (command: command) => (textEditor: TextEditor) => void
   });
 };
 
-const change: (command: command) => (value: string) => string = (command) => (value) => {
+const change: (command: Command) => (value: string) => string = (command) => (value) => {
   switch (command) {
     case 'camel':
       return changeCase.camelCase(value);

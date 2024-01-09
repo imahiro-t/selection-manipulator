@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocument } from '../common';
 
-type command = 'format' | 'minify' | 'stringify' | 'parse';
+type Command = 'format' | 'minify' | 'stringify' | 'parse';
 
-export const jsonHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const jsonHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
