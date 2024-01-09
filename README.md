@@ -97,6 +97,10 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 
 ## Release Notes
 
+## 0.0.12
+
+- 🎨 Adjust second timestamp to millisecond timestamp
+
 ## 0.0.11
 
 - ✨ Add tool to transform HAR to Sequence Diagram
