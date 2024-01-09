@@ -28,7 +28,11 @@ const calc: (expression: string) => string = (expression) => {
     }
   }
   try {
-    const date = new Date(Number(eval(expression)));
+    let timestamp = Number(eval(expression));
+    if (timestamp <= 30000000000) {
+      timestamp = timestamp * 1000;
+    }
+    const date = new Date(timestamp);
     return `${date.getTime()}\n${date.toISOString()}`;
   } catch (_e) {
     try {
