@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocumentWithTitles } from '../common';
 
-type command = 'PARSE_TO_JSON' | 'ENCODE_URI' | 'DECODE_URI' | 'ENCODE_URI_COMPONENT' | 'DECODE_URI_COMPONENT';
+type Command = 'PARSE_TO_JSON' | 'ENCODE_URI' | 'DECODE_URI' | 'ENCODE_URI_COMPONENT' | 'DECODE_URI_COMPONENT';
 
-export const urlHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const urlHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

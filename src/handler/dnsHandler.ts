@@ -4,9 +4,9 @@ import {
 import { openTextDocumentWithTitles } from '../common';
 import { resolve, reverse, lookup } from 'node:dns/promises';
 
-type command = 'A' | 'AAAA' | 'ANY' | 'CAA' | 'CNAME' | 'MX' | 'NAPTR' | 'NS' | 'PTR' | 'SOA' | 'SRV' | 'TXT' | 'LOOKUP' | 'REVERSE';
+type Command = 'A' | 'AAAA' | 'ANY' | 'CAA' | 'CNAME' | 'MX' | 'NAPTR' | 'NS' | 'PTR' | 'SOA' | 'SRV' | 'TXT' | 'LOOKUP' | 'REVERSE';
 
-export const dnsHandler: (command: command) => (textEditor: TextEditor) => void = (command) => async (textEditor) => {
+export const dnsHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

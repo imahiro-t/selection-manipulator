@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocument } from '../common';
 
-type command = 'encode' | 'decode' | 'deflate' | 'inflate';
+type Command = 'encode' | 'decode' | 'deflate' | 'inflate';
 
-export const base64Handler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const base64Handler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;

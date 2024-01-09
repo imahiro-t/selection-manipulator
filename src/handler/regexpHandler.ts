@@ -31,9 +31,9 @@ const targetDecorator: TextEditorDecorationType = window.createTextEditorDecorat
   rangeBehavior: DecorationRangeBehavior.ClosedClosed
 });
 
-type flags = 'gi' | 'g';
+type Flags = 'gi' | 'g';
 
-export const regexpHandler: (flags: flags) => (textEditor: TextEditor) => void = (flags) => (textEditor) => {
+export const regexpHandler: (flags: Flags) => (textEditor: TextEditor) => void = (flags) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

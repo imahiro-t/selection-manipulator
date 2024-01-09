@@ -5,9 +5,9 @@ import { openTextDocument } from '../common';
 
 import xmlFormat from 'xml-formatter';
 
-type command = 'format' | 'minify';
+type Command = 'format' | 'minify';
 
-export const xmlHandler: (command: command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const xmlHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
