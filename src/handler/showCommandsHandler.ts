@@ -141,6 +141,41 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.crypto.x509",
+    "title": "Transform - Crypto - Decode X509 Certification",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha256",
+    "title": "Transform - Crypto - Create Hash (SHA-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha512",
+    "title": "Transform - Crypto - Create Hash (SHA-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-md5",
+    "title": "Transform - Crypto - Create Hash (MD5)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha256",
+    "title": "Transform - Crypto - Create HMAC (SHA-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha512",
+    "title": "Transform - Crypto - Create HMAC (SHA-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-md5",
+    "title": "Transform - Crypto - Create HMAC (MD5)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.count-occurrences.count",
     "title": "Transform - Count Occurrences sorting by count",
     "canMultiSelection": true

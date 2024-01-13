@@ -26,6 +26,9 @@ import { jwtHandler } from './handler/jwtHandler';
 import { samlHandler } from './handler/samlHandler';
 import { whoisHandler } from './handler/whoisHandler';
 import { harToMermaidHandler } from './handler/harToMermaidHandler';
+import { x509CertificateHandler } from './handler/x509CertificateHandler';
+import { hashHandler } from './handler/hashHandler';
+import { hmacHandler } from './handler/hmacHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -102,6 +105,13 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whois', whoisHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-mermaid', harToMermaidHandler('mermaid')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-image', harToMermaidHandler('image')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.x509', x509CertificateHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256', hashHandler('sha256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha512', hashHandler('sha512')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-md5', hashHandler('md5')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha256', hmacHandler('sha256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha512', hmacHandler('sha512')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-md5', hmacHandler('md5')));
 }
 
 export function deactivate() { }

@@ -394,6 +394,41 @@
         "command": "selection-manipulator.regex.gi",
         "title": "Regex (/PATTERN/gi)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.x509",
+        "title": "Decode X509 Certification",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256",
+        "title": "Create Hash (SHA-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha512",
+        "title": "Create Hash (SHA-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-md5",
+        "title": "Create Hash (MD5)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha256",
+        "title": "Create HMAC (SHA-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha512",
+        "title": "Create HMAC (SHA-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-md5",
+        "title": "Create HMAC (MD5)",
+        "category": "Selection Manipulator"
       }
     ],
     "submenus": [
@@ -440,6 +475,10 @@
       {
         "id": "selection-manipulator.saml.submenu",
         "label": "SAML"
+      },
+      {
+        "id": "selection-manipulator.crypto.submenu",
+        "label": "Crypto"
       },
       {
         "id": "selection-manipulator.har.submenu",
@@ -583,6 +622,34 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.saml.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.x509"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-md5"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-md5"
         },
         {
           "when": "editorHasSelection",
@@ -863,20 +930,24 @@
           "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-manipulator.har.submenu",
+          "submenu": "selection-manipulator.crypto.submenu",
           "group": "selection-manipulator@6"
         },
         {
-          "command": "selection-manipulator.count-occurrences.count",
+          "submenu": "selection-manipulator.har.submenu",
           "group": "selection-manipulator@7"
         },
         {
-          "command": "selection-manipulator.count-occurrences.word",
+          "command": "selection-manipulator.count-occurrences.count",
           "group": "selection-manipulator@8"
         },
         {
-          "command": "selection-manipulator.count-up-list",
+          "command": "selection-manipulator.count-occurrences.word",
           "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.count-up-list",
+          "group": "selection-manipulator@10"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -957,6 +1028,36 @@
         {
           "command": "selection-manipulator.saml.decode",
           "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.crypto.submenu": [
+        {
+          "command": "selection-manipulator.crypto.x509",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha512",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-md5",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha256",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha512",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-md5",
+          "group": "selection-manipulator@6"
         }
       ],
       "selection-manipulator.har.submenu": [
