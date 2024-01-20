@@ -74,25 +74,30 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Decrement by 1                       | Decrement by 1                                                                       | selection-manipulator.decrement-by-1           |
 | Decrement by N                       | Decrement by N                                                                       | selection-manipulator.decrement-by-n           |
 | Lookup WHOIS                         | Lookup WHOIS to a new editor page                                                    | selection-manipulator.whois                    |
-| Resolve A DNS Record                 | Resolve A DNS Record to a new editor page                                            | selection-manipulator.dns.a                    |
-| Resolve AAAA DNS Record              | Resolve AAAA DNS Record to a new editor page                                         | selection-manipulator.dns.aaaa                 |
-| Resolve ANY DNS Record               | Resolve ANY DNS Record to a new editor page                                          | selection-manipulator.dns.any                  |
-| Resolve CAA DNS Record               | Resolve CAA DNS Record to a new editor page                                          | selection-manipulator.dns.caa                  |
-| Resolve CNAME DNS Record             | Resolve CNAME DNS Record to a new editor page                                        | selection-manipulator.dns.cname                |
-| Resolve MX DNS Record                | Resolve MX DNS Record to a new editor page                                           | selection-manipulator.dns.mx                   |
-| Resolve NAPTR DNS Record             | Resolve NAPTR DNS Record to a new editor page                                        | selection-manipulator.dns.naptr                |
-| Resolve NS DNS Record                | Resolve NS DNS Record to a new editor page                                           | selection-manipulator.dns.ns                   |
-| Resolve PTR DNS Record               | Resolve PTR DNS Record to a new editor page                                          | selection-manipulator.dns.ptr                  |
-| Resolve SOA DNS Record               | Resolve SOA DNS Record to a new editor page                                          | selection-manipulator.dns.soa                  |
-| Resolve SRV DNS Record               | Resolve SRV DNS Record to a new editor page                                          | selection-manipulator.dns.srv                  |
-| Resolve TXT DNS Record               | Resolve TXT DNS Record to a new editor page                                          | selection-manipulator.dns.txt                  |
-| Resolve REVERSE DNS Record           | Resolve REVERSE DNS Record to a new editor page                                      | selection-manipulator.dns.reverse              |
+| Lookup DNS A Record                  | Lookup DNS A Record to a new editor page                                             | selection-manipulator.dns.a                    |
+| Lookup DNS AAAA Record               | Lookup DNS AAAA Record to a new editor page                                          | selection-manipulator.dns.aaaa                 |
+| Lookup DNS ANY Record                | Lookup DNS ANY Record to a new editor page                                           | selection-manipulator.dns.any                  |
+| Lookup DNS CAA Record                | Lookup DNS CAA Record to a new editor page                                           | selection-manipulator.dns.caa                  |
+| Lookup DNS CNAME Record              | Lookup DNS CNAME Record to a new editor page                                         | selection-manipulator.dns.cname                |
+| Lookup DNS MX Record                 | Lookup DNS MX Record to a new editor page                                            | selection-manipulator.dns.mx                   |
+| Lookup DNS NAPTR Record              | Lookup DNS NAPTR Record to a new editor page                                         | selection-manipulator.dns.naptr                |
+| Lookup DNS NS Record                 | Lookup DNS NS Record to a new editor page                                            | selection-manipulator.dns.ns                   |
+| Lookup DNS PTR Record                | Lookup DNS PTR Record to a new editor page                                           | selection-manipulator.dns.ptr                  |
+| Lookup DNS SOA Record                | Lookup DNS SOA Record to a new editor page                                           | selection-manipulator.dns.soa                  |
+| Lookup DNS SRV Record                | Lookup DNS SRV Record to a new editor page                                           | selection-manipulator.dns.srv                  |
+| Lookup DNS TXT Record                | Lookup DNS TXT Record to a new editor page                                           | selection-manipulator.dns.txt                  |
+| Lookup DNS IP from Hostname          | Lookup DNS IP from Hostname to a new editor page                                     | selection-manipulator.dns.lookup               |
+| Lookup DNS Hostname from IP          | Lookup DNS Hostname from IP to a new editor page                                     | selection-manipulator.dns.reverse              |
 | Calculate Mathematical Expression    | Calculate Mathematical Expression to a new editor page                               | selection-manipulator.calculation              |
 | Transform to Timestamp and ISO 8601  | Convert to timestamp and ISO 8601 from timestamp or date format to a new editor page | selection-manipulator.calculation.date         |
 | Regular Expression (/PATTERN/g)      | Regular Expression to a new editor page (/PATTERN/g)                                 | selection-manipulator.regex.g                  |
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.10
+
+- ✨ Add tool for DNS Lookup
 
 ## 0.0.9
 
