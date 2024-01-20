@@ -94,6 +94,10 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 
 ## Release Notes
 
+## 0.0.9
+
+- ⚡️ Bundling Extensions
+
 ## 0.0.8
 
 - ✨ Add tools for WHOIS
