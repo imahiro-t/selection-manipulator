@@ -30,6 +30,7 @@ import { x509CertificateHandler } from './handler/x509CertificateHandler';
 import { hashHandler } from './handler/hashHandler';
 import { hmacHandler } from './handler/hmacHandler';
 import { removeCursorHandler } from './handler/removeCursorHandler';
+import { removeCharacterFromEachSideHandler } from './handler/removeCharacterFromEachSideHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -115,6 +116,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-md5', hmacHandler('md5')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-cursor-above', removeCursorHandler('above')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-cursor-below', removeCursorHandler('below')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-character-from-each-side', removeCharacterFromEachSideHandler));
 }
 
 export function deactivate() { }

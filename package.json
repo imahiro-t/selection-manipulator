@@ -35,6 +35,10 @@
         "title": "Remove Cursor Below"
       },
       {
+        "command": "selection-manipulator.remove-character-from-each-side",
+        "title": "Remove Character from Each Side"
+      },
+      {
         "command": "selection-manipulator.show-commands",
         "title": "Show Selection Manipulator Commands"
       },
@@ -451,6 +455,12 @@
         "key": "ctrl+alt+pagedown",
         "win": "ctrl+alt+pagedown",
         "mac": "cmd+alt+pagedown"
+      },
+      {
+        "command": "selection-manipulator.remove-character-from-each-side",
+        "key": "ctrl+shift+backspace",
+        "win": "ctrl+shift+backspace",
+        "mac": "cmd+shift+backspace"
       }
     ],
     "submenus": [
