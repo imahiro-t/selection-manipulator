@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2024-01-13
+
+- ✨ Add tool to decode X509 Certification
+- ✨ Add tool to create Hash
+- ✨ Add tool to create HMAC
+
 ## [0.0.12] - 2024-01-09
 
 - 🎨 Adjust second timestamp to millisecond timestamp

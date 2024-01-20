@@ -48,10 +48,17 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Decode URI Component                 | Decode URI Component to a new editor page                                            | selection-manipulator.url.decode-uri-component |
 | Decode JWT                           | Decode JWT to a new editor page                                                      | selection-manipulator.jwt.decode               |
 | Decode SAML Request / Response       | Decode SAML Request / Response to a new editor page                                  | selection-manipulator.saml.decode              |
+| Decode X509 Certification            | Decode X509 Certification to a new editor page                                       | selection-manipulator.crypto.x509              |
+| Create Hash (SHA-256)                | Create Hash (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hash-sha256       |
+| Create Hash (SHA-512)                | Create Hash (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hash-sha512       |
+| Create Hash (MD5)                    | Create Hash (MD5) to a new editor page                                               | selection-manipulator.crypto.hash-md5          |
+| Create HMAC (SHA-256)                | Create HMAC (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hmac-sha256       |
+| Create HMAC (SHA-512)                | Create HMAC (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hmac-sha512       |
+| Create HMAC (MD5)                    | Create HMAC (MD5) to a new editor page                                               | selection-manipulator.crypto.hmac-md5          |
 | Count Occurrences sorting by count   | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count  |
 | Count Occurrences sorting by word    | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word   |
 | Count Up to List                     | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list            |
-| HAR to Sequence Diagram Mermaid      | HAR to Sequence Diagram Mermaid to a new editor page                                 | selection-manipulator.har-to-mermaid           |
+| HAR to Sequence Diagram Mermaid      | HAR (HTTP Archive) to Sequence Diagram Mermaid to a new editor page                  | selection-manipulator.har-to-mermaid           |
 | HAR to Sequence Diagram Image        | HAR to Sequence Diagram Image to a new editor page                                   | selection-manipulator.har-to-mermaid           |
 | Change Case Camel                    | Change Case Camel                                                                    | selection-manipulator.case.camel               |
 | Change Case Capital                  | Change Case Capital                                                                  | selection-manipulator.case.capital             |
@@ -96,6 +103,12 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.13
+
+- ✨ Add tool to decode X509 Certification
+- ✨ Add tool to create Hash
+- ✨ Add tool to create HMAC
 
 ## 0.0.12
 
