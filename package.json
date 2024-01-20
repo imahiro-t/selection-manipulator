@@ -27,6 +27,14 @@
   "contributes": {
     "commands": [
       {
+        "command": "selection-manipulator.remove-cursor-above",
+        "title": "Remove Cursor Above"
+      },
+      {
+        "command": "selection-manipulator.remove-cursor-below",
+        "title": "Remove Cursor Below"
+      },
+      {
         "command": "selection-manipulator.show-commands",
         "title": "Show Selection Manipulator Commands"
       },
@@ -429,6 +437,20 @@
         "command": "selection-manipulator.crypto.hmac-md5",
         "title": "Create HMAC (MD5)",
         "category": "Selection Manipulator"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "selection-manipulator.remove-cursor-above",
+        "key": "ctrl+alt+pageup",
+        "win": "ctrl+alt+pageup",
+        "mac": "cmd+alt+pageup"
+      },
+      {
+        "command": "selection-manipulator.remove-cursor-below",
+        "key": "ctrl+alt+pagedown",
+        "win": "ctrl+alt+pagedown",
+        "mac": "cmd+alt+pagedown"
       }
     ],
     "submenus": [
