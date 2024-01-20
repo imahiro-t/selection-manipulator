@@ -1,12 +1,12 @@
 # Selection Manipulator
 
-Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, lookup whois or dns...
+Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, SAML assertion, X509, lookup WHOIS or DNS...
 
 ## Features
 
 Processing tools for selected text.
 
-We currently offer almost 70+ features, but we plan to add more gradually.
+We currently offer almost 80+ features, but we plan to add more gradually.
 
 ### sample - increment and zero padding
 
@@ -20,6 +20,8 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 
 | TITLE                                | DESCRIPTION                                                                          | ID                                             |
 | ------------------------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| Remove Cursor Above                  | Remove Cursor Above                                                                  | selection-manipulator.remove-cursor-above      |
+| Remove Cursor Below                  | Remove Cursor Below                                                                  | selection-manipulator.remove-cursor-below      |
 | Show Selection Manipulation Commands | Show Selection Manipulation Commands                                                 | selection-manipulator.show-commands            |
 | Convert to Multi Selection           | Convert to multi selections (cursors) from single selection                          | selection-manipulator.multi-selection          |
 | Extract Lines                        | Extract selected text to a new editor page                                           | selection-manipulator.extract                  |
@@ -103,6 +105,10 @@ We currently offer almost 70+ features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.14
+
+- ✨ Add tool to remove cursor above or below
 
 ## 0.0.13
 
