@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15] - 2024-01-21
+
+- ✨ Add tool to remove one character from each side
+
 ## [0.0.14] - 2024-01-20
 
 - ✨ Add tool to remove cursor above or below

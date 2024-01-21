@@ -22,6 +22,7 @@ We currently offer almost 80+ features, but we plan to add more gradually.
 | ------------------------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------- |
 | Remove Cursor Above                  | Remove Cursor Above                                                                  | selection-manipulator.remove-cursor-above      |
 | Remove Cursor Below                  | Remove Cursor Below                                                                  | selection-manipulator.remove-cursor-below      |
+| Remove One Character from Each Side  | Remove One Character from Each Side                                                  | remove-character-from-each-side                |
 | Show Selection Manipulation Commands | Show Selection Manipulation Commands                                                 | selection-manipulator.show-commands            |
 | Convert to Multi Selection           | Convert to multi selections (cursors) from single selection                          | selection-manipulator.multi-selection          |
 | Extract Lines                        | Extract selected text to a new editor page                                           | selection-manipulator.extract                  |
@@ -105,6 +106,10 @@ We currently offer almost 80+ features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.15
+
+- ✨ Add tool to remove one character from each side
 
 ## 0.0.14
 
