@@ -10,7 +10,7 @@ export const caseHandler: (command: Command) => (textEditor: TextEditor) => void
     return;
   }
   textEditor.edit((editBuilder) => {
-    const array = textEditor.selections
+    textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, change(command)(text));

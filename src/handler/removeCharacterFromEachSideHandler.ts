@@ -19,7 +19,6 @@ export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => voi
   textEditor.edit((editBuilder) => {
     textEditor.selections
       .forEach((selection, index) => {
-        const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, selectedTexts[index]);
       });
   });
