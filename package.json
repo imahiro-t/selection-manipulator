@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64...",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
