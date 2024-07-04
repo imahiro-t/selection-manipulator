@@ -441,6 +441,11 @@
         "command": "selection-manipulator.crypto.hmac-md5",
         "title": "Create HMAC (MD5)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.geo-ip",
+        "title": "IP Geolocation",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -535,6 +540,10 @@
       {
         "id": "selection-manipulator.whois.submenu",
         "label": "WHOIS"
+      },
+      {
+        "id": "selection-manipulator.geo-ip.submenu",
+        "label": "IP Geolocation"
       },
       {
         "id": "selection-manipulator.dns.submenu",
@@ -686,6 +695,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.whois"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.geo-ip"
         },
         {
           "when": "editorHasSelection",
@@ -1212,13 +1225,24 @@
         },
         {
           "when": "editorHasSelection",
-          "submenu": "selection-manipulator.dns.submenu",
+          "submenu": "selection-manipulator.geo-ip.submenu",
           "group": "selection-manipulator@1"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.dns.submenu",
+          "group": "selection-manipulator@2"
         }
       ],
       "selection-manipulator.whois.submenu": [
         {
           "command": "selection-manipulator.whois",
+          "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.geo-ip.submenu": [
+        {
+          "command": "selection-manipulator.geo-ip",
           "group": "selection-manipulator@0"
         }
       ],
@@ -1353,6 +1377,7 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
+    "axios": "^1.7.2",
     "change-case": "^4.1.2",
     "whois": "^2.14.0",
     "xml-formatter": "^3.6.0"

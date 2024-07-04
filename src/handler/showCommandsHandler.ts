@@ -404,6 +404,11 @@ const myCommands = [
     "command": "selection-manipulator.regex.gi",
     "title": "Regular Expression - Regex (/PATTERN/gi)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.geo-ip",
+    "title": "IP Geolocation",
+    "canMultiSelection": true
   }
 ];
 
