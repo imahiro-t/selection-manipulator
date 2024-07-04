@@ -1,6 +1,6 @@
 # Selection Manipulator
 
-Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, SAML assertion, X509, lookup WHOIS or DNS...
+Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, SAML assertion, X509, lookup WHOIS or GEO IP, DNS...
 
 ## Features
 
@@ -86,6 +86,7 @@ We currently offer almost 80+ features, but we plan to add more gradually.
 | Decrement by 1                       | Decrement by 1                                                                       | selection-manipulator.decrement-by-1           |
 | Decrement by N                       | Decrement by N                                                                       | selection-manipulator.decrement-by-n           |
 | Lookup WHOIS                         | Lookup WHOIS to a new editor page                                                    | selection-manipulator.whois                    |
+| Lookup IP Geolocation                | Lookup IP Geolocation to a new editor page                                           | selection-manipulator.geo-ip                   |
 | Lookup DNS A Record                  | Lookup DNS A Record to a new editor page                                             | selection-manipulator.dns.a                    |
 | Lookup DNS AAAA Record               | Lookup DNS AAAA Record to a new editor page                                          | selection-manipulator.dns.aaaa                 |
 | Lookup DNS ANY Record                | Lookup DNS ANY Record to a new editor page                                           | selection-manipulator.dns.any                  |
@@ -106,6 +107,10 @@ We currently offer almost 80+ features, but we plan to add more gradually.
 | Regular Expression (/PATTERN/gi)     | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                 |
 
 ## Release Notes
+
+## 0.0.16
+
+- ✨ Add tool for IP Geolocation lookup
 
 ## 0.0.15
 
