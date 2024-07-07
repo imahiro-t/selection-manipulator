@@ -49,46 +49,66 @@
       },
       {
         "command": "selection-manipulator.extract",
-        "title": "Extract Lines",
+        "title": "Extract Selections",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.extract.exclude-blank-rows",
-        "title": "Extract Lines exclude Blank Rows",
+        "title": "Extract Selections exclude Blank Rows",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.unique",
-        "title": "Unique Lines",
+        "title": "Unique Selections",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.reverse",
-        "title": "Reverse Lines",
+        "title": "Reverse Selections",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.shuffle",
-        "title": "Shuffle Lines",
+        "title": "Shuffle Selections",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.sort.string.ascending",
-        "title": "Sort Lines Ascending by string",
+        "title": "Sort Selections Ascending by string",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.sort.string.descending",
-        "title": "Sort Lines Descending by string",
+        "title": "Sort Selections Descending by string",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.sort.number.ascending",
-        "title": "Sort Lines Ascending by number",
+        "title": "Sort Selections Ascending by number",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.sort.number.descending",
+        "title": "Sort Selections Descending by number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.string.ascending",
+        "title": "Sort Lines Ascending by string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.string.descending",
+        "title": "Sort Lines Descending by string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.number.ascending",
+        "title": "Sort Lines Ascending by number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.number.descending",
         "title": "Sort Lines Descending by number",
         "category": "Selection Manipulator"
       },
@@ -483,7 +503,11 @@
       },
       {
         "id": "selection-manipulator.sort.submenu",
-        "label": "Sort"
+        "label": "Sort Selections"
+      },
+      {
+        "id": "selection-manipulator.sort-line.submenu",
+        "label": "Sort Lines"
       },
       {
         "id": "selection-manipulator.transform.submenu",
@@ -603,6 +627,22 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.sort.number.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.string.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.string.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.number.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.number.descending"
         },
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -926,6 +966,10 @@
         {
           "submenu": "selection-manipulator.sort.submenu",
           "group": "selection-manipulator@5"
+        },
+        {
+          "submenu": "selection-manipulator.sort-line.submenu",
+          "group": "selection-manipulator@6"
         }
       ],
       "selection-manipulator.sort.submenu": [
@@ -943,6 +987,24 @@
         },
         {
           "command": "selection-manipulator.sort.number.descending",
+          "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.sort-line.submenu": [
+        {
+          "command": "selection-manipulator.sort-line.string.ascending",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.sort-line.string.descending",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.sort-line.number.ascending",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.sort-line.number.descending",
           "group": "selection-manipulator@3"
         }
       ],

@@ -12,46 +12,66 @@ const myCommands = [
   },
   {
     "command": "selection-manipulator.extract",
-    "title": "Extract - Extract Lines",
+    "title": "Extract - Extract Selections",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.extract.exclude-blank-rows",
-    "title": "Extract - Extract Lines exclude Blank Rows",
+    "title": "Extract - Extract Selections exclude Blank Rows",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.unique",
-    "title": "Extract - Unique Lines",
+    "title": "Extract - Unique Selections",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.reverse",
-    "title": "Extract - Reverse Lines",
+    "title": "Extract - Reverse Selections",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.shuffle",
-    "title": "Extract - Shuffle Lines",
+    "title": "Extract - Shuffle Selections",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.sort.string.ascending",
-    "title": "Extract - Sort Lines Ascending by string",
+    "title": "Extract - Sort Selections Ascending by string",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.sort.string.descending",
-    "title": "Extract - Sort Lines Descending by string",
+    "title": "Extract - Sort Selections Descending by string",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.sort.number.ascending",
-    "title": "Extract - Sort Lines Ascending by number",
+    "title": "Extract - Sort Selections Ascending by number",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.sort.number.descending",
+    "title": "Extract - Sort Selections Descending by number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.string.ascending",
+    "title": "Extract - Sort Lines Ascending by string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.string.descending",
+    "title": "Extract - Sort Lines Descending by string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.number.ascending",
+    "title": "Extract - Sort Lines Ascending by number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.number.descending",
     "title": "Extract - Sort Lines Descending by number",
     "canMultiSelection": true
   },

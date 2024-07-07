@@ -3,6 +3,7 @@ import { extractHandler } from './handler/extractHandler';
 import { reverseHandler } from './handler/reverseHandler';
 import { shuffleHandler } from './handler/shuffleHandler';
 import { sortHandler } from './handler/sortHandler';
+import { sortLineHandler } from './handler/sortLineHandler';
 import { uniqueHandler } from './handler/uniqueHandler';
 import { countOccurrencesHandler } from './handler/countOccurrencesHandler';
 import { calculationHandler } from './handler/calculationHandler';
@@ -44,6 +45,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.descending', sortHandler('string', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.number.ascending', sortHandler('number', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.number.descending', sortHandler('number', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.string.ascending', sortLineHandler('string', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.string.descending', sortLineHandler('string', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.number.ascending', sortLineHandler('number', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.number.descending', sortLineHandler('number', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unique', uniqueHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-occurrences.count', countOccurrencesHandler('count')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-occurrences.word', countOccurrencesHandler('word')));
