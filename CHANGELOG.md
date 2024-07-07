@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2024-07-07
+
+- ✨ Add tool to sort line (not selection)
+
+## [0.0.16] - 2024-07-05
+
+- ✨ Add tool for IP Geolocation lookup
+
 ## [0.0.15] - 2024-01-21
 
 - ✨ Add tool to remove one character from each side
