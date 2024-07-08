@@ -53,6 +53,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.extract-line",
+        "title": "Extract Lines in Selection",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.extract.exclude-blank-rows",
         "title": "Extract Selections exclude Blank Rows",
         "category": "Selection Manipulator"
@@ -952,24 +957,28 @@
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.unique",
+          "command": "selection-manipulator.extract-line",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.reverse",
+          "command": "selection-manipulator.unique",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.shuffle",
+          "command": "selection-manipulator.reverse",
           "group": "selection-manipulator@4"
         },
         {
-          "submenu": "selection-manipulator.sort.submenu",
+          "command": "selection-manipulator.shuffle",
           "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-manipulator.sort-line.submenu",
+          "submenu": "selection-manipulator.sort.submenu",
           "group": "selection-manipulator@6"
+        },
+        {
+          "submenu": "selection-manipulator.sort-line.submenu",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.sort.submenu": [

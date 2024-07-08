@@ -21,6 +21,11 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.extract-line",
+    "title": "Extract - Extract Lines in Selection",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.unique",
     "title": "Extract - Unique Selections",
     "canMultiSelection": true

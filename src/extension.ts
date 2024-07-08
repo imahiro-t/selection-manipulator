@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { extractHandler } from './handler/extractHandler';
+import { extractLineHandler } from './handler/extractLineHandler';
 import { reverseHandler } from './handler/reverseHandler';
 import { shuffleHandler } from './handler/shuffleHandler';
 import { sortHandler } from './handler/sortHandler';
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows', extractHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract-line', extractLineHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.ascending', sortHandler('string', true)));
