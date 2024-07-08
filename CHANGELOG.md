@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2024-07-08
+
+- ✨ Add tool to extract lines in selection
+
 ## [0.0.17] - 2024-07-07
 
 - ✨ Add tool to sort line (not selection)

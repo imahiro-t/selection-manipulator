@@ -6,7 +6,7 @@ Processing tools for selected text: extract unique lines, sort lines, count occu
 
 Processing tools for selected text.
 
-We currently offer almost 80+ features, but we plan to add more.
+We currently offer almost 90+ features, but we plan to add more.
 
 ### sample - increment and zero padding
 
@@ -27,13 +27,14 @@ We currently offer almost 80+ features, but we plan to add more.
 | Convert to Multi Selection            | Convert to multi selections (cursors) from single selection                          | selection-manipulator.multi-selection             |
 | Extract Selections                    | Extract selected text to a new editor page                                           | selection-manipulator.extract                     |
 | Extract Selections exclude Blank Rows | Extract selected text to exclude blank rows to a new editor page                     | selection-manipulator.extract                     |
+| Extract lines in selection            | Extract lines in selection to a new editor page                                      | selection-manipulator.extract-line                |
 | Unique Selections                     | Unique selected text to a new editor page                                            | selection-manipulator.unique                      |
 | Reverse Selections                    | Reverse selected text to a new editor page                                           | selection-manipulator.reverse                     |
 | Shuffle Selections                    | Shuffle selected text to a new editor page                                           | selection-manipulator.shuffle                     |
-| Sort Selections Ascending by string   | Sort lines ascending by string to a new editor page                                  | selection-manipulator.sort.string.ascending       |
-| Sort Selections Descending by string  | Sort lines descending by string to a new editor page                                 | selection-manipulator.sort.string.descending      |
-| Sort Selections Ascending by number   | Sort lines ascending by number to a new editor page                                  | selection-manipulator.sort.number.ascending       |
-| Sort Selections Descending by number  | Sort lines descending by number to a new editor page                                 | selection-manipulator.sort.number.descending      |
+| Sort Selections Ascending by string   | Sort selected text ascending by string to a new editor page                          | selection-manipulator.sort.string.ascending       |
+| Sort Selections Descending by string  | Sort selected text descending by string to a new editor page                         | selection-manipulator.sort.string.descending      |
+| Sort Selections Ascending by number   | Sort selected text ascending by number to a new editor page                          | selection-manipulator.sort.number.ascending       |
+| Sort Selections Descending by number  | Sort selected text descending by number to a new editor page                         | selection-manipulator.sort.number.descending      |
 | Sort Lines Ascending by string        | Sort lines ascending by string to a new editor page                                  | selection-manipulator.sort-line.string.ascending  |
 | Sort Lines Descending by string       | Sort lines descending by string to a new editor page                                 | selection-manipulator.sort-line.string.descending |
 | Sort Lines Ascending by number        | Sort lines ascending by number to a new editor page                                  | selection-manipulator.sort-line.number.ascending  |
@@ -111,6 +112,10 @@ We currently offer almost 80+ features, but we plan to add more.
 | Regular Expression (/PATTERN/gi)      | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                    |
 
 ## Release Notes
+
+## 0.0.18
+
+- ✨ Add tool to extract lines in selection
 
 ## 0.0.17
 
