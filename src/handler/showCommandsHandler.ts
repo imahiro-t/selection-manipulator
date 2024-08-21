@@ -101,6 +101,26 @@ const myCommands = [
     "canMultiSelection": false
   },
   {
+    "command": "selection-manipulator.json.format.replace",
+    "title": "Transform - JSON - Format JSON (Pretty Print) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.minify.replace",
+    "title": "Transform - JSON - Minify JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.parse.replace",
+    "title": "Transform - JSON - Parse JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.stringify.replace",
+    "title": "Transform - JSON - Stringify JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.xml.format",
     "title": "Transform - XML - Format XML (Pretty Print)",
     "canMultiSelection": false
@@ -109,6 +129,16 @@ const myCommands = [
     "command": "selection-manipulator.xml.minify",
     "title": "Transform - XML - Minify XML",
     "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.xml.format.replace",
+    "title": "Transform - XML - Format XML (Pretty Print) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.minify.replace",
+    "title": "Transform - XML - Minify XML (Replace)",
+    "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.base64.encode",
@@ -129,6 +159,26 @@ const myCommands = [
     "command": "selection-manipulator.base64.unzip",
     "title": "Transform - Base64 - Inflate Base64",
     "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.base64.encode.replace",
+    "title": "Transform - Base64 - Encode Base64 (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.decode.replace",
+    "title": "Transform - Base64 - Decode Base64 (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.deflate.replace",
+    "title": "Transform - Base64 - Deflate Base64 (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.unzip.replace",
+    "title": "Transform - Base64 - Inflate Base64 (Replace)",
+    "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.url.parse",

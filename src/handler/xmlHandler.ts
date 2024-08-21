@@ -7,18 +7,34 @@ import xmlFormat from 'xml-formatter';
 
 type Command = 'format' | 'minify';
 
-export const xmlHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
-  const selectedText = textEditor.document.getText(textEditor.selection);
-  if (!selectedText) {
-    return;
-  }
-  let content;
-  if (command === 'format') {
-    content = xmlFormat(selectedText, { indentation: '  ', lineSeparator: '\n' });
-  } else if (command === 'minify') {
-    content = xmlFormat.minify(selectedText, { collapseContent: true });
+export const xmlHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+  if (isReplace) {
+    if (textEditor.selections.length === 0) {
+      return;
+    }
+    textEditor.edit((editBuilder) => {
+      textEditor.selections
+        .forEach(selection => {
+          const text = textEditor.document.getText(selection);
+          editBuilder.replace(selection, change(command)(text));
+        });
+    });
   } else {
-    content = '';
+    const selectedText = textEditor.document.getText(textEditor.selection);
+    if (!selectedText) {
+      return;
+    }
+    openTextDocument(change(command)(selectedText));
   }
-  openTextDocument(content);
+};
+
+const change: (command: Command) => (value: string) => string = (command) => (value) => {
+  switch (command) {
+    case 'format':
+      return xmlFormat(value, { indentation: '  ', lineSeparator: '\n' });
+    case 'minify':
+      return xmlFormat.minify(value, { collapseContent: true });
+    default:
+      return '';
+  }
 };
