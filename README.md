@@ -6,7 +6,7 @@ Processing tools for selected text: extract unique lines, sort lines, count occu
 
 Processing tools for selected text.
 
-We currently offer almost 90+ features, but we plan to add more.
+We currently offer almost 100+ features, but we plan to add more.
 
 ### sample - increment and zero padding
 
@@ -43,12 +43,22 @@ We currently offer almost 90+ features, but we plan to add more.
 | Minify JSON                           | Minify JSON to a new editor page                                                     | selection-manipulator.json.minify                 |
 | Parse JSON                            | Parse JSON to a new editor page                                                      | selection-manipulator.json.parse                  |
 | Stringify JSON                        | Stringify JSON to a new editor page                                                  | selection-manipulator.json.stringify              |
+| Format JSON (Replace)                 | Format JSON                                                                          | selection-manipulator.json.format.replace         |
+| Minify JSON JSON (Replace)            | Minify JSON                                                                          | selection-manipulator.json.minify.replace         |
+| Parse JSON JSON (Replace)             | Parse JSON                                                                           | selection-manipulator.json.parse.replace          |
+| Stringify JSON JSON (Replace)         | Stringify JSON                                                                       | selection-manipulator.json.stringify.replace      |
 | Format XML                            | Format XML to a new editor page                                                      | selection-manipulator.xml.format                  |
 | Minify XML                            | Minify XML to a new editor page                                                      | selection-manipulator.xml.minify                  |
+| Format XML (Replace)                  | Format XML                                                                           | selection-manipulator.xml.format.replace          |
+| Minify XML (Replace)                  | Minify XML                                                                           | selection-manipulator.xml.minify.replace          |
 | Encode Base64                         | Encode Base64 to a new editor page                                                   | selection-manipulator.base64.encode               |
 | Decode Base64                         | Decode Base64 to a new editor page                                                   | selection-manipulator.base64.decode               |
 | Deflate Base64                        | Deflate Base64 to a new editor page                                                  | selection-manipulator.base64.deflate              |
 | Inflate Base64                        | Inflate Base64 to a new editor page                                                  | selection-manipulator.base64.inflate              |
+| Encode Base64 (Replace)               | Encode Base64                                                                        | selection-manipulator.base64.encode.replace       |
+| Decode Base64 (Replace)               | Decode Base64                                                                        | selection-manipulator.base64.decode.replace       |
+| Deflate Base64 (Replace)              | Deflate Base64                                                                       | selection-manipulator.base64.deflate.replace      |
+| Inflate Base64 (Replace)              | Inflate Base64                                                                       | selection-manipulator.base64.inflate.replace      |
 | Parse URL to JSON                     | Parse URL to JSON to a new editor page                                               | selection-manipulator.url.parse                   |
 | Encode URI                            | Encode URI to a new editor page                                                      | selection-manipulator.url.encode-uri              |
 | Decode URI                            | Decode URI to a new editor page                                                      | selection-manipulator.url.decode-uri              |
@@ -112,6 +122,10 @@ We currently offer almost 90+ features, but we plan to add more.
 | Regular Expression (/PATTERN/gi)      | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                    |
 
 ## Release Notes
+
+## 0.0.19
+
+- ✨ Add tool to replace mode for json, xml and base64
 
 ## 0.0.18
 

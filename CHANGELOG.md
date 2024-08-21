@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.19] - 2024-08-21
+
+- ✨ Add tool to replace mode for json, xml and base64
+
 ## [0.0.18] - 2024-07-08
 
 - ✨ Add tool to extract lines in selection
