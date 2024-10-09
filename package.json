@@ -521,6 +521,11 @@
         "command": "selection-manipulator.geo-ip",
         "title": "IP Geolocation",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.client-credentials-flow",
+        "title": "Client Credentials Flow",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -635,6 +640,10 @@
       {
         "id": "selection-manipulator.geo-ip.submenu",
         "label": "IP Geolocation"
+      },
+      {
+        "id": "selection-manipulator.token.submenu",
+        "label": "Token"
       },
       {
         "id": "selection-manipulator.dns.submenu",
@@ -854,6 +863,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.geo-ip"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.client-credentials-flow"
         },
         {
           "when": "editorHasSelection",
@@ -1558,6 +1571,12 @@
           "group": "selection-manipulator@1"
         }
       ],
+      "selection-manipulator.token.submenu": [
+        {
+          "command": "selection-manipulator.client-credentials-flow",
+          "group": "selection-manipulator@0"
+        }
+      ],
       "selection-manipulator.submenu": [
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -1586,7 +1605,11 @@
         },
         {
           "submenu": "selection-manipulator.regex.submenu",
-          "group": "selection-manipulator@5"
+          "group": "selection-manipulator@6"
+        },
+        {
+          "submenu": "selection-manipulator.token.submenu",
+          "group": "selection-manipulator@7"
         }
       ]
     }

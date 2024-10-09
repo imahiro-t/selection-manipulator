@@ -484,6 +484,11 @@ const myCommands = [
     "command": "selection-manipulator.geo-ip",
     "title": "IP Geolocation",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.client-credentials-flow",
+    "title": "Client Credentials Flow",
+    "canMultiSelection": false
   }
 ];
 

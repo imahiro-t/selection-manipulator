@@ -34,6 +34,7 @@ import { hmacHandler } from './handler/hmacHandler';
 import { removeCursorHandler } from './handler/removeCursorHandler';
 import { removeCharacterFromEachSideHandler } from './handler/removeCharacterFromEachSideHandler';
 import { geoIpHandler } from './handler/geoIpHandler';
+import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -136,6 +137,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-cursor-above', removeCursorHandler('above')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-cursor-below', removeCursorHandler('below')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-character-from-each-side', removeCharacterFromEachSideHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.client-credentials-flow', clientCredentialsFlowHandler));
 }
 
 export function deactivate() { }
