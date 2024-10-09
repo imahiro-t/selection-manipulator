@@ -120,8 +120,13 @@ We currently offer almost 100+ features, but we plan to add more.
 | Transform to Timestamp and ISO 8601   | Convert to timestamp and ISO 8601 from timestamp or date format to a new editor page | selection-manipulator.calculation.date            |
 | Regular Expression (/PATTERN/g)       | Regular Expression to a new editor page (/PATTERN/g)                                 | selection-manipulator.regex.g                     |
 | Regular Expression (/PATTERN/gi)      | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                    |
+| Client Credentials Flow               | Get Token with Client Credentials Flow to a new editor page                          | selection-manipulator.client-credentials-flow     |
 
 ## Release Notes
+
+## 0.0.20
+
+- ✨ Add tool to get token with Client Credentials Flow
 
 ## 0.0.19
 
