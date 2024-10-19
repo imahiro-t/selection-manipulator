@@ -11,9 +11,15 @@ export const x509CertificateHandler: (textEditor: TextEditor) => void = (textEdi
   if (textEditor.selections.length === 0) {
     return;
   }
-  const selectedText = textEditor.selections
+  const appendSeparator = (text: string) => {
+    let s = text;
+    s = s.includes(HEADER) ? s : `${HEADER}\n${s.trim()}`;
+    s = s.includes(FOOTER) ? s : `${s.trim()}\n${FOOTER}`;
+    return s;
+  };
+  const selectedText = appendSeparator(textEditor.selections
     .map(selection => textEditor.document.getText(selection))
-    .join("\n");
+    .join("\n"));
   const { X509Certificate } = require('node:crypto');
   const array = selectedText.replaceAll(FOOTER, FOOTER + SEPARATOR).split(SEPARATOR);
   const content = array.map(text => {
