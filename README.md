@@ -124,6 +124,10 @@ We currently offer almost 100+ features, but we plan to add more.
 
 ## Release Notes
 
+## 0.0.21
+
+- 💄 no header or no footer accepted for decoding X509 Certification
+
 ## 0.0.20
 
 - ✨ Add tool to get token with Client Credentials Flow

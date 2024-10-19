@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.21] - 2024-10-09
+
+- 💄 no header or no footer accepted for decoding X509 Certification
+
 ## [0.0.20] - 2024-10-09
 
 - ✨ Add tool to get token with Client Credentials Flow
