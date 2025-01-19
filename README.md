@@ -1,6 +1,6 @@
 # Selection Manipulator
 
-Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, SAML assertion, X509, lookup WHOIS or GEO IP, DNS...
+Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64, decode JWT, SAML assertion, X509, encrypt, decrypt, lookup WHOIS or GEO IP, DNS...
 
 ## Features
 
@@ -73,6 +73,10 @@ We currently offer almost 100+ features, but we plan to add more.
 | Create HMAC (SHA-256)                 | Create HMAC (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hmac-sha256          |
 | Create HMAC (SHA-512)                 | Create HMAC (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hmac-sha512          |
 | Create HMAC (MD5)                     | Create HMAC (MD5) to a new editor page                                               | selection-manipulator.crypto.hmac-md5             |
+| Encrypt by AES                        | Encrypt by AES to a new editor page                                                  | selection-manipulator.crypto.encrypt              |
+| Decrypt by AES                        | Decrypt by AES to a new editor page                                                  | selection-manipulator.crypto.decrypt              |
+| Encrypt by AES (Replace)              | Encrypt by AES                                                                       | selection-manipulator.crypto.encrypt.replace      |
+| Decrypt by AES (Replace)              | Decrypt by AES                                                                       | selection-manipulator.crypto.decrypt.replace      |
 | Count Occurrences sorting by count    | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count     |
 | Count Occurrences sorting by word     | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word      |
 | Count Up to List                      | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list               |
@@ -123,6 +127,10 @@ We currently offer almost 100+ features, but we plan to add more.
 | Client Credentials Flow               | Get Token with Client Credentials Flow to a new editor page                          | selection-manipulator.client-credentials-flow     |
 
 ## Release Notes
+
+## 0.0.22
+
+- ✨ Add tool to encrypt or decrypt by AES
 
 ## 0.0.21
 
