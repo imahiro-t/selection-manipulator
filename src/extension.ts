@@ -35,6 +35,7 @@ import { removeCursorHandler } from './handler/removeCursorHandler';
 import { removeCharacterFromEachSideHandler } from './handler/removeCharacterFromEachSideHandler';
 import { geoIpHandler } from './handler/geoIpHandler';
 import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHandler';
+import { aesHandler } from './handler/aesHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -138,6 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-cursor-below', removeCursorHandler('below')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.remove-character-from-each-side', removeCharacterFromEachSideHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.client-credentials-flow', clientCredentialsFlowHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.encrypt', aesHandler('encrypt', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.decrypt', aesHandler('decrypt', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.encrypt.replace', aesHandler('encrypt', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.decrypt.replace', aesHandler('decrypt', true)));
 }
 
 export function deactivate() { }

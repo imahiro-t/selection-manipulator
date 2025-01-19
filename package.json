@@ -518,6 +518,26 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.crypto.encrypt",
+        "title": "Encrypt by AES",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.decrypt",
+        "title": "Decrypt by AES",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.encrypt.replace",
+        "title": "Encrypt by AES (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.decrypt.replace",
+        "title": "Decrypt by AES (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.geo-ip",
         "title": "IP Geolocation",
         "category": "Selection Manipulator"
@@ -611,6 +631,10 @@
       },
       {
         "id": "selection-manipulator.crypto.submenu",
+        "label": "Crypto"
+      },
+      {
+        "id": "selection-manipulator.crypto.replace.submenu",
         "label": "Crypto"
       },
       {
@@ -855,6 +879,22 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.crypto.hmac-md5"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.crypto.encrypt"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "command": "selection-manipulator.crypto.decrypt"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.encrypt.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.decrypt.replace"
         },
         {
           "when": "editorHasSelection",
@@ -1289,6 +1329,14 @@
         {
           "command": "selection-manipulator.crypto.hmac-md5",
           "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.crypto.encrypt",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.crypto.decrypt",
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -1324,6 +1372,11 @@
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "submenu": "selection-manipulator.base64.replace.submenu",
           "group": "selection-manipulator@4"
+        },
+        {
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "submenu": "selection-manipulator.crypto.replace.submenu",
+          "group": "selection-manipulator@5"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -1462,6 +1515,16 @@
         {
           "command": "selection-manipulator.base64.unzip.replace",
           "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.crypto.replace.submenu": [
+        {
+          "command": "selection-manipulator.crypto.encrypt.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.crypto.decrypt.replace",
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.lookup.submenu": [

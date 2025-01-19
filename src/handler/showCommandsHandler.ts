@@ -251,6 +251,26 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.crypto.encrypt",
+    "title": "Transform - Crypto - Encrypt by AES",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.crypto.decrypt",
+    "title": "Transform - Crypto - Decrypt by AES",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.crypto.encrypt.replace",
+    "title": "Transform - Crypto - Encrypt by AES (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.decrypt.replace",
+    "title": "Transform - Crypto - Decrypt by AES (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.count-occurrences.count",
     "title": "Transform - Count Occurrences sorting by count",
     "canMultiSelection": true
