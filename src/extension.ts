@@ -53,6 +53,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.string.descending', sortLineHandler('string', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.number.ascending', sortLineHandler('number', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.number.descending', sortLineHandler('number', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.occurrence.ascending', sortLineHandler('occurrence', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.occurrence.descending', sortLineHandler('occurrence', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unique', uniqueHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-occurrences.count', countOccurrencesHandler('count')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-occurrences.word', countOccurrencesHandler('word')));

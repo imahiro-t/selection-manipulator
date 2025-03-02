@@ -81,6 +81,16 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort-line.occurrence.ascending",
+    "title": "Extract - Sort Lines Ascending by occurrence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.occurrence.descending",
+    "title": "Extract - Sort Lines Descending by occurrence",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.json.format",
     "title": "Transform - JSON - Format JSON (Pretty Print)",
     "canMultiSelection": false
