@@ -18,117 +18,137 @@ We currently offer almost 100+ features, but we plan to add more.
 
 ## Commands
 
-| TITLE                                 | DESCRIPTION                                                                          | ID                                                    |
-| ------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| Remove Cursor Above                   | Remove Cursor Above                                                                  | selection-manipulator.remove-cursor-above             |
-| Remove Cursor Below                   | Remove Cursor Below                                                                  | selection-manipulator.remove-cursor-below             |
-| Remove One Character from Each Side   | Remove One Character from Each Side                                                  | remove-character-from-each-side                       |
-| Show Selection Manipulation Commands  | Show Selection Manipulation Commands                                                 | selection-manipulator.show-commands                   |
-| Convert to Multi Selection            | Convert to multi selections (cursors) from single selection                          | selection-manipulator.multi-selection                 |
-| Extract Selections                    | Extract selected text to a new editor page                                           | selection-manipulator.extract                         |
-| Extract Selections exclude Blank Rows | Extract selected text to exclude blank rows to a new editor page                     | selection-manipulator.extract                         |
-| Extract lines in selection            | Extract lines in selection to a new editor page                                      | selection-manipulator.extract-line                    |
-| Unique Selections                     | Unique selected text to a new editor page                                            | selection-manipulator.unique                          |
-| Reverse Selections                    | Reverse selected text to a new editor page                                           | selection-manipulator.reverse                         |
-| Shuffle Selections                    | Shuffle selected text to a new editor page                                           | selection-manipulator.shuffle                         |
-| Sort Selections Ascending by string   | Sort selected text ascending by string to a new editor page                          | selection-manipulator.sort.string.ascending           |
-| Sort Selections Descending by string  | Sort selected text descending by string to a new editor page                         | selection-manipulator.sort.string.descending          |
-| Sort Selections Ascending by number   | Sort selected text ascending by number to a new editor page                          | selection-manipulator.sort.number.ascending           |
-| Sort Selections Descending by number  | Sort selected text descending by number to a new editor page                         | selection-manipulator.sort.number.descending          |
-| Sort Lines Ascending by string        | Sort lines ascending by string to a new editor page                                  | selection-manipulator.sort-line.string.ascending      |
-| Sort Lines Descending by string       | Sort lines descending by string to a new editor page                                 | selection-manipulator.sort-line.string.descending     |
-| Sort Lines Ascending by number        | Sort lines ascending by number to a new editor page                                  | selection-manipulator.sort-line.number.ascending      |
-| Sort Lines Descending by number       | Sort lines descending by number to a new editor page                                 | selection-manipulator.sort-line.number.descending     |
-| Sort Lines Ascending by occurrence    | Sort lines ascending by occurrence to a new editor page                              | selection-manipulator.sort-line.occurrence.ascending  |
-| Sort Lines Descending by occurrence   | Sort lines descending by occurrence to a new editor page                             | selection-manipulator.sort-line.occurrence.descending |
-| Format JSON                           | Format JSON to a new editor page                                                     | selection-manipulator.json.format                     |
-| Minify JSON                           | Minify JSON to a new editor page                                                     | selection-manipulator.json.minify                     |
-| Parse JSON                            | Parse JSON to a new editor page                                                      | selection-manipulator.json.parse                      |
-| Stringify JSON                        | Stringify JSON to a new editor page                                                  | selection-manipulator.json.stringify                  |
-| Format JSON (Replace)                 | Format JSON                                                                          | selection-manipulator.json.format.replace             |
-| Minify JSON JSON (Replace)            | Minify JSON                                                                          | selection-manipulator.json.minify.replace             |
-| Parse JSON JSON (Replace)             | Parse JSON                                                                           | selection-manipulator.json.parse.replace              |
-| Stringify JSON JSON (Replace)         | Stringify JSON                                                                       | selection-manipulator.json.stringify.replace          |
-| Format XML                            | Format XML to a new editor page                                                      | selection-manipulator.xml.format                      |
-| Minify XML                            | Minify XML to a new editor page                                                      | selection-manipulator.xml.minify                      |
-| Format XML (Replace)                  | Format XML                                                                           | selection-manipulator.xml.format.replace              |
-| Minify XML (Replace)                  | Minify XML                                                                           | selection-manipulator.xml.minify.replace              |
-| Encode Base64                         | Encode Base64 to a new editor page                                                   | selection-manipulator.base64.encode                   |
-| Decode Base64                         | Decode Base64 to a new editor page                                                   | selection-manipulator.base64.decode                   |
-| Deflate Base64                        | Deflate Base64 to a new editor page                                                  | selection-manipulator.base64.deflate                  |
-| Inflate Base64                        | Inflate Base64 to a new editor page                                                  | selection-manipulator.base64.inflate                  |
-| Encode Base64 (Replace)               | Encode Base64                                                                        | selection-manipulator.base64.encode.replace           |
-| Decode Base64 (Replace)               | Decode Base64                                                                        | selection-manipulator.base64.decode.replace           |
-| Deflate Base64 (Replace)              | Deflate Base64                                                                       | selection-manipulator.base64.deflate.replace          |
-| Inflate Base64 (Replace)              | Inflate Base64                                                                       | selection-manipulator.base64.inflate.replace          |
-| Parse URL to JSON                     | Parse URL to JSON to a new editor page                                               | selection-manipulator.url.parse                       |
-| Encode URI                            | Encode URI to a new editor page                                                      | selection-manipulator.url.encode-uri                  |
-| Decode URI                            | Decode URI to a new editor page                                                      | selection-manipulator.url.decode-uri                  |
-| Encode URI Component                  | Encode URI Component to a new editor page                                            | selection-manipulator.url.encode-uri-component        |
-| Decode URI Component                  | Decode URI Component to a new editor page                                            | selection-manipulator.url.decode-uri-component        |
-| Decode JWT                            | Decode JWT to a new editor page                                                      | selection-manipulator.jwt.decode                      |
-| Decode SAML Request / Response        | Decode SAML Request / Response to a new editor page                                  | selection-manipulator.saml.decode                     |
-| Decode X509 Certification             | Decode X509 Certification to a new editor page                                       | selection-manipulator.crypto.x509                     |
-| Create Hash (SHA-256)                 | Create Hash (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hash-sha256              |
-| Create Hash (SHA-512)                 | Create Hash (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hash-sha512              |
-| Create Hash (MD5)                     | Create Hash (MD5) to a new editor page                                               | selection-manipulator.crypto.hash-md5                 |
-| Create HMAC (SHA-256)                 | Create HMAC (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hmac-sha256              |
-| Create HMAC (SHA-512)                 | Create HMAC (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hmac-sha512              |
-| Create HMAC (MD5)                     | Create HMAC (MD5) to a new editor page                                               | selection-manipulator.crypto.hmac-md5                 |
-| Encrypt by AES                        | Encrypt by AES to a new editor page                                                  | selection-manipulator.crypto.encrypt                  |
-| Decrypt by AES                        | Decrypt by AES to a new editor page                                                  | selection-manipulator.crypto.decrypt                  |
-| Encrypt by AES (Replace)              | Encrypt by AES                                                                       | selection-manipulator.crypto.encrypt.replace          |
-| Decrypt by AES (Replace)              | Decrypt by AES                                                                       | selection-manipulator.crypto.decrypt.replace          |
-| Count Occurrences sorting by count    | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count         |
-| Count Occurrences sorting by word     | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word          |
-| Count Up to List                      | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list                   |
-| HAR to Sequence Diagram Mermaid       | HAR (HTTP Archive) to Sequence Diagram Mermaid to a new editor page                  | selection-manipulator.har-to-mermaid                  |
-| HAR to Sequence Diagram Image         | HAR to Sequence Diagram Image to a new editor page                                   | selection-manipulator.har-to-mermaid                  |
-| Change Case Camel                     | Change Case Camel                                                                    | selection-manipulator.case.camel                      |
-| Change Case Capital                   | Change Case Capital                                                                  | selection-manipulator.case.capital                    |
-| Change Case Constant                  | Change Case Constant                                                                 | selection-manipulator.case.constant                   |
-| Change Case Dot                       | Change Case Dot                                                                      | selection-manipulator.case.dot                        |
-| Change Case Kebab                     | Change Case Kebab                                                                    | selection-manipulator.case.kebab                      |
-| Change Case No                        | Change Case No                                                                       | selection-manipulator.case.no                         |
-| Change Case Pascal                    | Change Case Pascal                                                                   | selection-manipulator.case.pascal                     |
-| Change Case Path                      | Change Case Path                                                                     | selection-manipulator.case.path                       |
-| Change Case Sentence                  | Change Case Sentence                                                                 | selection-manipulator.case.sentence                   |
-| Change Case Snake                     | Change Case Snake                                                                    | selection-manipulator.case.snake                      |
-| Change Case Train                     | Change Case Train                                                                    | selection-manipulator.case.train                      |
-| Change Case Upper                     | Change Case Upper                                                                    | selection-manipulator.case.upper                      |
-| Change Case Lower                     | Change Case Lower                                                                    | selection-manipulator.case.lower                      |
-| Zero Padding                          | Zero padding to a new editor page                                                    | selection-manipulator.zero-padding                    |
-| Increment from 1                      | Increment from 1                                                                     | selection-manipulator.increment-from-1                |
-| Increment from N                      | Increment from N                                                                     | selection-manipulator.increment-from-n                |
-| Decrement to 1                        | Decrement to 1                                                                       | selection-manipulator.decrement-to-1                  |
-| Decrement to N                        | Decrement to N                                                                       | selection-manipulator.decrement-to-n                  |
-| Increment by 1                        | Increment by 1                                                                       | selection-manipulator.increment-by-1                  |
-| Increment by N                        | Increment by N                                                                       | selection-manipulator.increment-by-n                  |
-| Decrement by 1                        | Decrement by 1                                                                       | selection-manipulator.decrement-by-1                  |
-| Decrement by N                        | Decrement by N                                                                       | selection-manipulator.decrement-by-n                  |
-| Lookup WHOIS                          | Lookup WHOIS to a new editor page                                                    | selection-manipulator.whois                           |
-| Lookup IP Geolocation                 | Lookup IP Geolocation to a new editor page                                           | selection-manipulator.geo-ip                          |
-| Lookup DNS A Record                   | Lookup DNS A Record to a new editor page                                             | selection-manipulator.dns.a                           |
-| Lookup DNS AAAA Record                | Lookup DNS AAAA Record to a new editor page                                          | selection-manipulator.dns.aaaa                        |
-| Lookup DNS ANY Record                 | Lookup DNS ANY Record to a new editor page                                           | selection-manipulator.dns.any                         |
-| Lookup DNS CAA Record                 | Lookup DNS CAA Record to a new editor page                                           | selection-manipulator.dns.caa                         |
-| Lookup DNS CNAME Record               | Lookup DNS CNAME Record to a new editor page                                         | selection-manipulator.dns.cname                       |
-| Lookup DNS MX Record                  | Lookup DNS MX Record to a new editor page                                            | selection-manipulator.dns.mx                          |
-| Lookup DNS NAPTR Record               | Lookup DNS NAPTR Record to a new editor page                                         | selection-manipulator.dns.naptr                       |
-| Lookup DNS NS Record                  | Lookup DNS NS Record to a new editor page                                            | selection-manipulator.dns.ns                          |
-| Lookup DNS PTR Record                 | Lookup DNS PTR Record to a new editor page                                           | selection-manipulator.dns.ptr                         |
-| Lookup DNS SOA Record                 | Lookup DNS SOA Record to a new editor page                                           | selection-manipulator.dns.soa                         |
-| Lookup DNS SRV Record                 | Lookup DNS SRV Record to a new editor page                                           | selection-manipulator.dns.srv                         |
-| Lookup DNS TXT Record                 | Lookup DNS TXT Record to a new editor page                                           | selection-manipulator.dns.txt                         |
-| Lookup DNS IP from Hostname           | Lookup DNS IP from Hostname to a new editor page                                     | selection-manipulator.dns.lookup                      |
-| Lookup DNS Hostname from IP           | Lookup DNS Hostname from IP to a new editor page                                     | selection-manipulator.dns.reverse                     |
-| Calculate Mathematical Expression     | Calculate Mathematical Expression to a new editor page                               | selection-manipulator.calculation                     |
-| Transform to Timestamp and ISO 8601   | Convert to timestamp and ISO 8601 from timestamp or date format to a new editor page | selection-manipulator.calculation.date                |
-| Regular Expression (/PATTERN/g)       | Regular Expression to a new editor page (/PATTERN/g)                                 | selection-manipulator.regex.g                         |
-| Regular Expression (/PATTERN/gi)      | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                        |
-| Client Credentials Flow               | Get Token with Client Credentials Flow to a new editor page                          | selection-manipulator.client-credentials-flow         |
+| TITLE                                             | DESCRIPTION                                                                          | ID                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Remove Cursor Above                               | Remove Cursor Above                                                                  | selection-manipulator.remove-cursor-above                       |
+| Remove Cursor Below                               | Remove Cursor Below                                                                  | selection-manipulator.remove-cursor-below                       |
+| Remove One Character from Each Side               | Remove One Character from Each Side                                                  | remove-character-from-each-side                                 |
+| Show Selection Manipulation Commands              | Show Selection Manipulation Commands                                                 | selection-manipulator.show-commands                             |
+| Convert to Multi Selection                        | Convert to multi selections (cursors) from single selection                          | selection-manipulator.multi-selection                           |
+| Extract Selections                                | Extract selected text to a new editor page                                           | selection-manipulator.extract                                   |
+| Extract Selections (Clipboard)                    | Extract selected text to clipboard                                                   | selection-manipulator.extract.clipboard                         |
+| Extract Selections exclude Blank Rows             | Extract selected text to exclude blank rows to a new editor page                     | selection-manipulator.extract                                   |
+| Extract Selections exclude Blank Rows (Clipboard) | Extract selected text to exclude blank rows to clipboard                             | selection-manipulator.extract.clipboard                         |
+| Extract lines in selection                        | Extract lines in selection to a new editor page                                      | selection-manipulator.extract-line                              |
+| Extract lines in selection (Clipboard)            | Extract lines in selection to clipboard                                              | selection-manipulator.extract-line.clipboard                    |
+| Unique Selections                                 | Unique selected text to a new editor page                                            | selection-manipulator.unique                                    |
+| Unique Selections (Clipboard)                     | Unique selected text to clipboard                                                    | selection-manipulator.unique.clipboard                          |
+| Reverse Selections                                | Reverse selected text to a new editor page                                           | selection-manipulator.reverse                                   |
+| Reverse Selections (Clipboard)                    | Reverse selected text to clipboard                                                   | selection-manipulator.reverse.clipboard                         |
+| Shuffle Selections                                | Shuffle selected text to a new editor page                                           | selection-manipulator.shuffle                                   |
+| Shuffle Selections (Clipboard)                    | Shuffle selected text to clipboard                                                   | selection-manipulator.shuffle.clipboard                         |
+| Sort Selections Ascending by string               | Sort selected text ascending by string to a new editor page                          | selection-manipulator.sort.string.ascending                     |
+| Sort Selections Ascending by string (Clipboard)   | Sort selected text ascending by string to clipboard                                  | selection-manipulator.sort.string.ascending.clipboard           |
+| Sort Selections Descending by string              | Sort selected text descending by string to a new editor page                         | selection-manipulator.sort.string.descending                    |
+| Sort Selections Descending by string (Clipboard)  | Sort selected text descending by string to clipboard                                 | selection-manipulator.sort.string.descending.clipboard          |
+| Sort Selections Ascending by number               | Sort selected text ascending by number to a new editor page                          | selection-manipulator.sort.number.ascending                     |
+| Sort Selections Ascending by number (Clipboard)   | Sort selected text ascending by number to clipboard                                  | selection-manipulator.sort.number.ascending.clipboard           |
+| Sort Selections Descending by number              | Sort selected text descending by number to a new editor page                         | selection-manipulator.sort.number.descending                    |
+| Sort Selections Descending by number (Clipboard)  | Sort selected text descending by number to clipboard                                 | selection-manipulator.sort.number.descending.clipboard          |
+| Sort Lines Ascending by string                    | Sort lines ascending by string to a new editor page                                  | selection-manipulator.sort-line.string.ascending                |
+| Sort Lines Ascending by string (Clipboard)        | Sort lines ascending by string to clipboard                                          | selection-manipulator.sort-line.string.ascending.clipboard      |
+| Sort Lines Descending by string                   | Sort lines descending by string to a new editor page                                 | selection-manipulator.sort-line.string.descending               |
+| Sort Lines Descending by string (Clipboard)       | Sort lines descending by string to clipboard                                         | selection-manipulator.sort-line.string.descending.clipboard     |
+| Sort Lines Ascending by number                    | Sort lines ascending by number to a new editor page                                  | selection-manipulator.sort-line.number.ascending                |
+| Sort Lines Ascending by number (Clipboard)        | Sort lines ascending by number to clipboard                                          | selection-manipulator.sort-line.number.ascending.clipboard      |
+| Sort Lines Descending by number                   | Sort lines descending by number to a new editor page                                 | selection-manipulator.sort-line.number.descending               |
+| Sort Lines Descending by number (Clipboard)       | Sort lines descending by number to clipboard                                         | selection-manipulator.sort-line.number.descending.clipboard     |
+| Sort Lines Ascending by occurrence                | Sort lines ascending by occurrence to a new editor page                              | selection-manipulator.sort-line.occurrence.ascending            |
+| Sort Lines Ascending by occurrence (Clipboard)    | Sort lines ascending by occurrence to clipboard                                      | selection-manipulator.sort-line.occurrence.ascending.clipboard  |
+| Sort Lines Descending by occurrence               | Sort lines descending by occurrence to a new editor page                             | selection-manipulator.sort-line.occurrence.descending           |
+| Sort Lines Descending by occurrence (Clipboard)   | Sort lines descending by occurrence to clipboard                                     | selection-manipulator.sort-line.occurrence.descending.clipboard |
+| Format JSON                                       | Format JSON to a new editor page                                                     | selection-manipulator.json.format                               |
+| Minify JSON                                       | Minify JSON to a new editor page                                                     | selection-manipulator.json.minify                               |
+| Parse JSON                                        | Parse JSON to a new editor page                                                      | selection-manipulator.json.parse                                |
+| Stringify JSON                                    | Stringify JSON to a new editor page                                                  | selection-manipulator.json.stringify                            |
+| Format JSON (Replace)                             | Format JSON                                                                          | selection-manipulator.json.format.replace                       |
+| Minify JSON JSON (Replace)                        | Minify JSON                                                                          | selection-manipulator.json.minify.replace                       |
+| Parse JSON JSON (Replace)                         | Parse JSON                                                                           | selection-manipulator.json.parse.replace                        |
+| Stringify JSON JSON (Replace)                     | Stringify JSON                                                                       | selection-manipulator.json.stringify.replace                    |
+| Format XML                                        | Format XML to a new editor page                                                      | selection-manipulator.xml.format                                |
+| Minify XML                                        | Minify XML to a new editor page                                                      | selection-manipulator.xml.minify                                |
+| Format XML (Replace)                              | Format XML                                                                           | selection-manipulator.xml.format.replace                        |
+| Minify XML (Replace)                              | Minify XML                                                                           | selection-manipulator.xml.minify.replace                        |
+| Encode Base64                                     | Encode Base64 to a new editor page                                                   | selection-manipulator.base64.encode                             |
+| Decode Base64                                     | Decode Base64 to a new editor page                                                   | selection-manipulator.base64.decode                             |
+| Deflate Base64                                    | Deflate Base64 to a new editor page                                                  | selection-manipulator.base64.deflate                            |
+| Inflate Base64                                    | Inflate Base64 to a new editor page                                                  | selection-manipulator.base64.inflate                            |
+| Encode Base64 (Replace)                           | Encode Base64                                                                        | selection-manipulator.base64.encode.replace                     |
+| Decode Base64 (Replace)                           | Decode Base64                                                                        | selection-manipulator.base64.decode.replace                     |
+| Deflate Base64 (Replace)                          | Deflate Base64                                                                       | selection-manipulator.base64.deflate.replace                    |
+| Inflate Base64 (Replace)                          | Inflate Base64                                                                       | selection-manipulator.base64.inflate.replace                    |
+| Parse URL to JSON                                 | Parse URL to JSON to a new editor page                                               | selection-manipulator.url.parse                                 |
+| Encode URI                                        | Encode URI to a new editor page                                                      | selection-manipulator.url.encode-uri                            |
+| Decode URI                                        | Decode URI to a new editor page                                                      | selection-manipulator.url.decode-uri                            |
+| Encode URI Component                              | Encode URI Component to a new editor page                                            | selection-manipulator.url.encode-uri-component                  |
+| Decode URI Component                              | Decode URI Component to a new editor page                                            | selection-manipulator.url.decode-uri-component                  |
+| Decode JWT                                        | Decode JWT to a new editor page                                                      | selection-manipulator.jwt.decode                                |
+| Decode SAML Request / Response                    | Decode SAML Request / Response to a new editor page                                  | selection-manipulator.saml.decode                               |
+| Decode X509 Certification                         | Decode X509 Certification to a new editor page                                       | selection-manipulator.crypto.x509                               |
+| Create Hash (SHA-256)                             | Create Hash (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hash-sha256                        |
+| Create Hash (SHA-512)                             | Create Hash (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hash-sha512                        |
+| Create Hash (MD5)                                 | Create Hash (MD5) to a new editor page                                               | selection-manipulator.crypto.hash-md5                           |
+| Create HMAC (SHA-256)                             | Create HMAC (SHA-256) to a new editor page                                           | selection-manipulator.crypto.hmac-sha256                        |
+| Create HMAC (SHA-512)                             | Create HMAC (SHA-512) to a new editor page                                           | selection-manipulator.crypto.hmac-sha512                        |
+| Create HMAC (MD5)                                 | Create HMAC (MD5) to a new editor page                                               | selection-manipulator.crypto.hmac-md5                           |
+| Encrypt by AES                                    | Encrypt by AES to a new editor page                                                  | selection-manipulator.crypto.encrypt                            |
+| Decrypt by AES                                    | Decrypt by AES to a new editor page                                                  | selection-manipulator.crypto.decrypt                            |
+| Encrypt by AES (Replace)                          | Encrypt by AES                                                                       | selection-manipulator.crypto.encrypt.replace                    |
+| Decrypt by AES (Replace)                          | Decrypt by AES                                                                       | selection-manipulator.crypto.decrypt.replace                    |
+| Count Occurrences sorting by count                | Count occurrences sorting by count to a new editor page                              | selection-manipulator.count-occurrences.count                   |
+| Count Occurrences sorting by word                 | Count occurrences sorting by word to a new editor page                               | selection-manipulator.count-occurrences.word                    |
+| Count Up to List                                  | Count up number and make list to a new editor page                                   | selection-manipulator.count-up-list                             |
+| HAR to Sequence Diagram Mermaid                   | HAR (HTTP Archive) to Sequence Diagram Mermaid to a new editor page                  | selection-manipulator.har-to-mermaid                            |
+| HAR to Sequence Diagram Image                     | HAR to Sequence Diagram Image to a new editor page                                   | selection-manipulator.har-to-mermaid                            |
+| Change Case Camel                                 | Change Case Camel                                                                    | selection-manipulator.case.camel                                |
+| Change Case Capital                               | Change Case Capital                                                                  | selection-manipulator.case.capital                              |
+| Change Case Constant                              | Change Case Constant                                                                 | selection-manipulator.case.constant                             |
+| Change Case Dot                                   | Change Case Dot                                                                      | selection-manipulator.case.dot                                  |
+| Change Case Kebab                                 | Change Case Kebab                                                                    | selection-manipulator.case.kebab                                |
+| Change Case No                                    | Change Case No                                                                       | selection-manipulator.case.no                                   |
+| Change Case Pascal                                | Change Case Pascal                                                                   | selection-manipulator.case.pascal                               |
+| Change Case Path                                  | Change Case Path                                                                     | selection-manipulator.case.path                                 |
+| Change Case Sentence                              | Change Case Sentence                                                                 | selection-manipulator.case.sentence                             |
+| Change Case Snake                                 | Change Case Snake                                                                    | selection-manipulator.case.snake                                |
+| Change Case Train                                 | Change Case Train                                                                    | selection-manipulator.case.train                                |
+| Change Case Upper                                 | Change Case Upper                                                                    | selection-manipulator.case.upper                                |
+| Change Case Lower                                 | Change Case Lower                                                                    | selection-manipulator.case.lower                                |
+| Zero Padding                                      | Zero padding to a new editor page                                                    | selection-manipulator.zero-padding                              |
+| Increment from 1                                  | Increment from 1                                                                     | selection-manipulator.increment-from-1                          |
+| Increment from N                                  | Increment from N                                                                     | selection-manipulator.increment-from-n                          |
+| Decrement to 1                                    | Decrement to 1                                                                       | selection-manipulator.decrement-to-1                            |
+| Decrement to N                                    | Decrement to N                                                                       | selection-manipulator.decrement-to-n                            |
+| Increment by 1                                    | Increment by 1                                                                       | selection-manipulator.increment-by-1                            |
+| Increment by N                                    | Increment by N                                                                       | selection-manipulator.increment-by-n                            |
+| Decrement by 1                                    | Decrement by 1                                                                       | selection-manipulator.decrement-by-1                            |
+| Decrement by N                                    | Decrement by N                                                                       | selection-manipulator.decrement-by-n                            |
+| Lookup WHOIS                                      | Lookup WHOIS to a new editor page                                                    | selection-manipulator.whois                                     |
+| Lookup IP Geolocation                             | Lookup IP Geolocation to a new editor page                                           | selection-manipulator.geo-ip                                    |
+| Lookup DNS A Record                               | Lookup DNS A Record to a new editor page                                             | selection-manipulator.dns.a                                     |
+| Lookup DNS AAAA Record                            | Lookup DNS AAAA Record to a new editor page                                          | selection-manipulator.dns.aaaa                                  |
+| Lookup DNS ANY Record                             | Lookup DNS ANY Record to a new editor page                                           | selection-manipulator.dns.any                                   |
+| Lookup DNS CAA Record                             | Lookup DNS CAA Record to a new editor page                                           | selection-manipulator.dns.caa                                   |
+| Lookup DNS CNAME Record                           | Lookup DNS CNAME Record to a new editor page                                         | selection-manipulator.dns.cname                                 |
+| Lookup DNS MX Record                              | Lookup DNS MX Record to a new editor page                                            | selection-manipulator.dns.mx                                    |
+| Lookup DNS NAPTR Record                           | Lookup DNS NAPTR Record to a new editor page                                         | selection-manipulator.dns.naptr                                 |
+| Lookup DNS NS Record                              | Lookup DNS NS Record to a new editor page                                            | selection-manipulator.dns.ns                                    |
+| Lookup DNS PTR Record                             | Lookup DNS PTR Record to a new editor page                                           | selection-manipulator.dns.ptr                                   |
+| Lookup DNS SOA Record                             | Lookup DNS SOA Record to a new editor page                                           | selection-manipulator.dns.soa                                   |
+| Lookup DNS SRV Record                             | Lookup DNS SRV Record to a new editor page                                           | selection-manipulator.dns.srv                                   |
+| Lookup DNS TXT Record                             | Lookup DNS TXT Record to a new editor page                                           | selection-manipulator.dns.txt                                   |
+| Lookup DNS IP from Hostname                       | Lookup DNS IP from Hostname to a new editor page                                     | selection-manipulator.dns.lookup                                |
+| Lookup DNS Hostname from IP                       | Lookup DNS Hostname from IP to a new editor page                                     | selection-manipulator.dns.reverse                               |
+| Calculate Mathematical Expression                 | Calculate Mathematical Expression to a new editor page                               | selection-manipulator.calculation                               |
+| Transform to Timestamp and ISO 8601               | Convert to timestamp and ISO 8601 from timestamp or date format to a new editor page | selection-manipulator.calculation.date                          |
+| Regular Expression (/PATTERN/g)                   | Regular Expression to a new editor page (/PATTERN/g)                                 | selection-manipulator.regex.g                                   |
+| Regular Expression (/PATTERN/gi)                  | Regular Expression to a new editor page (/PATTERN/gi)                                | selection-manipulator.regex.gi                                  |
+| Client Credentials Flow                           | Get Token with Client Credentials Flow to a new editor page                          | selection-manipulator.client-credentials-flow                   |
 
 ## Release Notes
+
+## 0.0.24
+
+- ✨ Add tool to copy to clipboard instead of open other document
 
 ## 0.0.23
 
