@@ -16,8 +16,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.extract.clipboard",
+    "title": "Extract - Extract Selections (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.extract.exclude-blank-rows",
     "title": "Extract - Extract Selections exclude Blank Rows",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.exclude-blank-rows.clipboard",
+    "title": "Extract - Extract Selections exclude Blank Rows (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -26,8 +36,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.extract-line.clipboard",
+    "title": "Extract - Extract Lines in Selection (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.unique",
     "title": "Extract - Unique Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unique.clipboard",
+    "title": "Extract - Unique Selections (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -36,8 +56,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.reverse.clipboard",
+    "title": "Extract - Reverse Selections (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.shuffle",
     "title": "Extract - Shuffle Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.shuffle.clipboard",
+    "title": "Extract - Shuffle Selections (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -46,8 +76,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort.string.ascending.clipboard",
+    "title": "Extract - Sort Selections Ascending by string (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort.string.descending",
     "title": "Extract - Sort Selections Descending by string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.string.descending.clipboard",
+    "title": "Extract - Sort Selections Descending by string (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -56,8 +96,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort.number.ascending.clipboard",
+    "title": "Extract - Sort Selections Ascending by number (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort.number.descending",
     "title": "Extract - Sort Selections Descending by number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.number.descending.clipboard",
+    "title": "Extract - Sort Selections Descending by number (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -66,8 +116,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort-line.string.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by string (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort-line.string.descending",
     "title": "Extract - Sort Lines Descending by string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.string.descending.clipboard",
+    "title": "Extract - Sort Lines Descending by string (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -76,8 +136,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort-line.number.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by number (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort-line.number.descending",
     "title": "Extract - Sort Lines Descending by number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.number.descending.clipboard",
+    "title": "Extract - Sort Lines Descending by number (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -86,8 +156,18 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort-line.occurrence.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by occurrence (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort-line.occurrence.descending",
     "title": "Extract - Sort Lines Descending by occurrence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
+    "title": "Extract - Sort Lines Descending by occurrence (Clipboard)",
     "canMultiSelection": true
   },
   {

@@ -53,8 +53,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.extract.clipboard",
+        "title": "Extract Selections (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.extract-line",
         "title": "Extract Lines in Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract-line.clipboard",
+        "title": "Extract Lines in Selection (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -63,8 +73,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.extract.exclude-blank-rows.clipboard",
+        "title": "Extract Selections exclude Blank Rows (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.unique",
         "title": "Unique Selections",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unique.clipboard",
+        "title": "Unique Selections (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -73,8 +93,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.reverse.clipboard",
+        "title": "Reverse Selections (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.shuffle",
         "title": "Shuffle Selections",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.shuffle.clipboard",
+        "title": "Shuffle Selections (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -83,8 +113,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort.string.ascending.clipboard",
+        "title": "Sort Selections Ascending by string (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort.string.descending",
         "title": "Sort Selections Descending by string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.string.descending.clipboard",
+        "title": "Sort Selections Descending by string (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -93,8 +133,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort.number.ascending.clipboard",
+        "title": "Sort Selections Ascending by number (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort.number.descending",
         "title": "Sort Selections Descending by number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.number.descending.clipboard",
+        "title": "Sort Selections Descending by number (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -103,8 +153,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.string.ascending.clipboard",
+        "title": "Sort Lines Ascending by string (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort-line.string.descending",
         "title": "Sort Lines Descending by string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.string.descending.clipboard",
+        "title": "Sort Lines Descending by string (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -113,8 +173,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.number.ascending.clipboard",
+        "title": "Sort Lines Ascending by number (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort-line.number.descending",
         "title": "Sort Lines Descending by number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.number.descending.clipboard",
+        "title": "Sort Lines Descending by number (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -123,8 +193,18 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.occurrence.ascending.clipboard",
+        "title": "Sort Lines Ascending by occurrence (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort-line.occurrence.descending",
         "title": "Sort Lines Descending by occurrence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
+        "title": "Sort Lines Descending by occurrence (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -708,7 +788,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.extract.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.extract.exclude-blank-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.extract.exclude-blank-rows.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -716,7 +804,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.unique.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.reverse"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.reverse.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -724,7 +820,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.shuffle.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort.string.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.string.ascending.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -732,7 +836,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.string.descending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort.number.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.number.ascending.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -740,7 +852,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.number.descending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort-line.string.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.string.ascending.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -748,7 +868,15 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.string.descending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort-line.number.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.number.ascending.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -756,11 +884,23 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.number.descending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort-line.occurrence.ascending"
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.occurrence.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.sort-line.occurrence.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.occurrence.descending.clipboard"
         },
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -1126,32 +1266,56 @@
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.extract.exclude-blank-rows",
+          "command": "selection-manipulator.extract.clipboard",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.extract-line",
+          "command": "selection-manipulator.extract.exclude-blank-rows",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.unique",
+          "command": "selection-manipulator.extract.exclude-blank-rows.clipboard",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.reverse",
+          "command": "selection-manipulator.extract-line",
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.shuffle",
+          "command": "selection-manipulator.extract-line.clipboard",
           "group": "selection-manipulator@5"
         },
         {
-          "submenu": "selection-manipulator.sort.submenu",
+          "command": "selection-manipulator.unique",
           "group": "selection-manipulator@6"
         },
         {
-          "submenu": "selection-manipulator.sort-line.submenu",
+          "command": "selection-manipulator.unique.clipboard",
           "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.reverse",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.reverse.clipboard",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.shuffle",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.shuffle.clipboard",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "submenu": "selection-manipulator.sort.submenu",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "submenu": "selection-manipulator.sort-line.submenu",
+          "group": "selection-manipulator@13"
         }
       ],
       "selection-manipulator.sort.submenu": [
@@ -1160,16 +1324,32 @@
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.sort.string.descending",
+          "command": "selection-manipulator.sort.string.ascending.clipboard",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.sort.number.ascending",
+          "command": "selection-manipulator.sort.string.descending",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.sort.number.descending",
+          "command": "selection-manipulator.sort.string.descending.clipboard",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.sort.number.ascending",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.sort.number.ascending.clipboard",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.sort.number.descending",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.sort.number.descending.clipboard",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.sort-line.submenu": [
@@ -1178,24 +1358,48 @@
           "group": "selection-manipulator@0"
         },
         {
-          "command": "selection-manipulator.sort-line.string.descending",
+          "command": "selection-manipulator.sort-line.string.ascending.clipboard",
           "group": "selection-manipulator@1"
         },
         {
-          "command": "selection-manipulator.sort-line.number.ascending",
+          "command": "selection-manipulator.sort-line.string.descending",
           "group": "selection-manipulator@2"
         },
         {
-          "command": "selection-manipulator.sort-line.number.descending",
+          "command": "selection-manipulator.sort-line.string.descending.clipboard",
           "group": "selection-manipulator@3"
         },
         {
-          "command": "selection-manipulator.sort-line.occurrence.ascending",
+          "command": "selection-manipulator.sort-line.number.ascending",
           "group": "selection-manipulator@4"
         },
         {
-          "command": "selection-manipulator.sort-line.occurrence.descending",
+          "command": "selection-manipulator.sort-line.number.ascending.clipboard",
           "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.sort-line.number.descending",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.sort-line.number.descending.clipboard",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.sort-line.occurrence.ascending",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.sort-line.occurrence.ascending.clipboard",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.sort-line.occurrence.descending",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
+          "group": "selection-manipulator@11"
         }
       ],
       "selection-manipulator.transform.submenu": [

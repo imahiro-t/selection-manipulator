@@ -1,9 +1,10 @@
 import {
   TextEditor,
 } from 'vscode';
+import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
-export const uniqueHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const uniqueHandler: (isClipboard: boolean) => (textEditor: TextEditor) => void = (isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -16,7 +17,11 @@ export const uniqueHandler: (textEditor: TextEditor) => void = (textEditor) => {
         .filter(x => x.trim() !== '')
     )
       .join("\n");
-  openTextDocument(content);
+  if (isClipboard) {
+    vscode.env.clipboard.writeText(content);
+  } else {
+    openTextDocument(content);
+  }
 };
 
 const unique: (array: Array<string>) => Array<string> = (array) => {

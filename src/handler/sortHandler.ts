@@ -1,11 +1,12 @@
 import {
   TextEditor,
 } from 'vscode';
+import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
 type CompareType = 'number' | 'string';
 
-export const sortHandler: (compareType: CompareType, isAscending: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending) => (textEditor) => {
+export const sortHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending, isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -20,7 +21,11 @@ export const sortHandler: (compareType: CompareType, isAscending: boolean) => (t
       isAscending
     )
       .join("\n");
-  openTextDocument(content);
+  if (isClipboard) {
+    vscode.env.clipboard.writeText(content);
+  } else {
+    openTextDocument(content);
+  }
 };
 
 const sort: (array: Array<string>, compareType: CompareType, isAscending: boolean) => Array<string> = (array, compareType, isAscending) => {

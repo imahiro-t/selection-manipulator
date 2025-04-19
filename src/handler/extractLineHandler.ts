@@ -1,9 +1,10 @@
 import {
   TextEditor,
 } from 'vscode';
+import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
-export const extractLineHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const extractLineHandler: (isClipboard: boolean) => (textEditor: TextEditor) => void = (isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -11,5 +12,9 @@ export const extractLineHandler: (textEditor: TextEditor) => void = (textEditor)
     textEditor.selections
       .map(selection => textEditor.document.lineAt(selection.start).text)
       .join("\n");
-  openTextDocument(content);
+  if (isClipboard) {
+    vscode.env.clipboard.writeText(content);
+  } else {
+    openTextDocument(content);
+  }
 };

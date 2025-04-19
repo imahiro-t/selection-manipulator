@@ -1,9 +1,10 @@
 import {
   TextEditor,
 } from 'vscode';
+import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
-export const extractHandler: (includeBlankRows: boolean) => (textEditor: TextEditor) => void = (includeBlankRows) => (textEditor) => {
+export const extractHandler: (includeBlankRows: boolean, isClipboard: boolean) => (textEditor: TextEditor) => void = (includeBlankRows, isClipboard) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -19,5 +20,9 @@ export const extractHandler: (includeBlankRows: boolean) => (textEditor: TextEdi
       .filter(x => x.trim() !== '')
       .join("\n")
     ;
-  openTextDocument(content);
+  if (isClipboard) {
+    vscode.env.clipboard.writeText(content);
+  } else {
+    openTextDocument(content);
+  }
 };

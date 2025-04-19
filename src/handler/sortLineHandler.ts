@@ -1,6 +1,7 @@
 import {
   TextEditor, TextLine,
 } from 'vscode';
+import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
 type CompareType = 'number' | 'string' | 'occurrence';
@@ -9,7 +10,7 @@ type CompareObject = {
   line: TextLine
 };
 
-export const sortLineHandler: (compareType: CompareType, isAscending: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending) => (textEditor) => {
+export const sortLineHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending, isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -26,7 +27,11 @@ export const sortLineHandler: (compareType: CompareType, isAscending: boolean) =
     )
       .map(compareObject => compareObject.line.text)
       .join("\n");
-  openTextDocument(content);
+  if (isClipboard) {
+    vscode.env.clipboard.writeText(content);
+  } else {
+    openTextDocument(content);
+  }
 };
 
 const sort: (array: Array<CompareObject>, compareType: CompareType, isAscending: boolean) => Array<CompareObject> = (array, compareType, isAscending) => {
