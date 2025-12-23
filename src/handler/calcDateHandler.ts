@@ -22,7 +22,9 @@ const calc: (expression: string) => string = (expression) => {
   if (expression.toLowerCase().startsWith('now')) {
     try {
       const date = new Date(Number((0, eval)(`${(new Date()).getTime()}${expression.substring(3)}`)));
-      return `${date.getTime()}\n${date.toISOString()}`;
+      const dateStrInMilliseconds = String(date.getTime());
+      const dateStrInSeconds = String(date.getTime()).slice(0, -3);
+      return `${dateStrInMilliseconds}\n${dateStrInSeconds}\n${date.toISOString()}`;
     } catch (_e) {
       return '';
     }
@@ -33,11 +35,15 @@ const calc: (expression: string) => string = (expression) => {
       timestamp = timestamp * 1000;
     }
     const date = new Date(timestamp);
-    return `${date.getTime()}\n${date.toISOString()}`;
+    const dateStrInMilliseconds = String(date.getTime());
+    const dateStrInSeconds = String(date.getTime()).slice(0, -3);
+    return `${dateStrInMilliseconds}\n${dateStrInSeconds}\n${date.toISOString()}`;
   } catch (_e) {
     try {
       const date = new Date(expression);
-      return `${date.getTime()}\n${date.toISOString()}`;
+      const dateStrInMilliseconds = String(date.getTime());
+      const dateStrInSeconds = String(date.getTime()).slice(0, -3);
+      return `${dateStrInMilliseconds}\n${dateStrInSeconds}\n${date.toISOString()}`;
     } catch (_e) {
       return '';
     }
