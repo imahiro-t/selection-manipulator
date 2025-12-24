@@ -30,9 +30,9 @@ const change: (command: Command) => (value: string) => string = (command) => (va
   const zlib = require('node:zlib');
   switch (command) {
     case 'encode':
-      return btoa(value);
+      return Buffer.from(value, 'utf-8').toString('base64');
     case 'decode':
-      return atob(value);
+      return Buffer.from(value, 'base64').toString('utf-8');
     case 'deflate':
       return zlib.deflateRawSync(Buffer.from(value)).toString('base64');
     case 'inflate':
