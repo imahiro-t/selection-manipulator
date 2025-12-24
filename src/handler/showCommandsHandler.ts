@@ -599,6 +599,31 @@ const myCommands = [
     "command": "selection-manipulator.client-credentials-flow",
     "title": "Client Credentials Flow",
     "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.random.uuid",
+    "title": "Random - Random UUID",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.escape",
+    "title": "Text - Escape Text (JSON Stringify)",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.text.unescape",
+    "title": "Text - Unescape Text (JSON Parse)",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.text.escape.replace",
+    "title": "Text - Escape Text (JSON Stringify) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unescape.replace",
+    "title": "Text - Unescape Text (JSON Parse) (Replace)",
+    "canMultiSelection": true
   }
 ];
 

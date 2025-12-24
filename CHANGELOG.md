@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.27] - 2025-12-24
+
+- ✨ Add Random UUID generation
+- ✨ Add Text Escape and Unescape tools (JSON style)
+
 ## [0.0.24] - 2025-04-20
 
 - ✨ Add tool to copy to clipboard instead of open other document

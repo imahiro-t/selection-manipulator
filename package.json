@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "Processing tools for selected text: extract unique lines, sort lines, count occurrences, format JSON or XML, case chang, encode or decode Base64...",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -636,6 +636,31 @@
         "command": "selection-manipulator.client-credentials-flow",
         "title": "Client Credentials Flow",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.uuid",
+        "title": "Random UUID",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.escape",
+        "title": "Escape Text (JSON Stringify)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unescape",
+        "title": "Unescape Text (JSON Parse)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.escape.replace",
+        "title": "Escape Text (JSON Stringify) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unescape.replace",
+        "title": "Unescape Text (JSON Parse) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -770,6 +795,18 @@
       {
         "id": "selection-manipulator.regex.submenu",
         "label": "Regular Expression"
+      },
+      {
+        "id": "selection-manipulator.random.submenu",
+        "label": "Random"
+      },
+      {
+        "id": "selection-manipulator.text.submenu",
+        "label": "Text Escape"
+      },
+      {
+        "id": "selection-manipulator.text.replace.submenu",
+        "label": "Text Escape"
       }
     ],
     "menus": {
@@ -1607,6 +1644,10 @@
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "submenu": "selection-manipulator.crypto.replace.submenu",
           "group": "selection-manipulator@5"
+        },
+        {
+          "submenu": "selection-manipulator.text.replace.submenu",
+          "group": "selection-manipulator@6"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -1870,6 +1911,32 @@
           "group": "selection-manipulator@0"
         }
       ],
+      "selection-manipulator.random.submenu": [
+        {
+          "command": "selection-manipulator.random.uuid",
+          "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.text.submenu": [
+        {
+          "command": "selection-manipulator.text.escape",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.text.unescape",
+          "group": "selection-manipulator@1"
+        }
+      ],
+      "selection-manipulator.text.replace.submenu": [
+        {
+          "command": "selection-manipulator.text.escape.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.text.unescape.replace",
+          "group": "selection-manipulator@1"
+        }
+      ],
       "selection-manipulator.submenu": [
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -1903,6 +1970,14 @@
         {
           "submenu": "selection-manipulator.token.submenu",
           "group": "selection-manipulator@7"
+        },
+        {
+          "submenu": "selection-manipulator.random.submenu",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "submenu": "selection-manipulator.text.submenu",
+          "group": "selection-manipulator@9"
         }
       ]
     }

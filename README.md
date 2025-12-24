@@ -34,6 +34,8 @@
 *   **HAR Visualization**: Convert HAR (HTTP Archive) text to Mermaid Sequence Diagrams or Images.
 *   **Regular Expressions**: Test regex patterns (`/g`, `/gi`) against selections.
 *   **OAuth**: Helper for Client Credentials Flow text generation.
+*   **Random Data**: Generate Random UUIDs.
+*   **Text Escape**: Escape and Unescape text (JSON stringify/parse).
 
 ## 🚀 Usage
 
@@ -49,10 +51,17 @@
 | **Sort** | `Sort Lines Ascending` | Sorts selected lines alphabetically. |
 | **JSON** | `Format JSON` | Prettifies minified JSON. |
 | **Crypto** | `Create Hash (SHA-256)` | Replaces selection with its SHA-256 hash. |
+| **Random** | `Random UUID` | Generates a random UUID. |
+| **Escape** | `Escape Text` | Escapes special characters (e.g. quotes, newlines). |
 | **Net** | `Lookup DNS A Record` | Performs a DNS lookup for the selected domain. |
 | **Vis** | `HAR to Sequence Diagram` | Generates a Mermaid diagram from HAR data. |
 
 ## 📅 Release Notes
+
+## 0.0.27
+
+- ✨ Add Random UUID generation
+- ✨ Add Text Escape and Unescape tools (JSON style)
 
 ## 0.0.25
 

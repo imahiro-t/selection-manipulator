@@ -36,6 +36,8 @@ import { removeCharacterFromEachSideHandler } from './handler/removeCharacterFro
 import { geoIpHandler } from './handler/geoIpHandler';
 import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHandler';
 import { aesHandler } from './handler/aesHandler';
+import { randomHandler } from './handler/randomHandler';
+import { escapeHandler } from './handler/escapeHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -161,6 +163,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.decrypt', aesHandler('decrypt', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.encrypt.replace', aesHandler('encrypt', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.decrypt.replace', aesHandler('decrypt', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.uuid', randomHandler('uuid')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.escape', escapeHandler('escape', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unescape', escapeHandler('unescape', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.escape.replace', escapeHandler('escape', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unescape.replace', escapeHandler('unescape', true)));
 }
 
 export function deactivate() { }
