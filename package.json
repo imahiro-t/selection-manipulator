@@ -1987,7 +1987,8 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
-    "test-compile": "tsc -p ./"
+    "test-compile": "tsc -p ./",
+    "test": "npm run test-compile && node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
@@ -1999,6 +2000,8 @@
     "@vscode/test-electron": "^2.3.8",
     "esbuild": "^0.27.2",
     "eslint": "^8.54.0",
+    "glob": "^13.0.0",
+    "mocha": "^11.7.5",
     "typescript": "^5.3.2"
   },
   "dependencies": {

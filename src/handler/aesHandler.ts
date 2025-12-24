@@ -6,15 +6,15 @@ import { openTextDocument } from '../common';
 
 type Command = 'encrypt' | 'decrypt';
 
-export const aesHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => async (textEditor) => {
+export const aesHandler: (command: Command, isReplace: boolean, testSecret?: string) => (textEditor: TextEditor) => void = (command, isReplace, testSecret) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
-  const secret = await window.showInputBox({
+  const secret = testSecret ?? (await window.showInputBox({
     prompt: 'Secret?',
     ignoreFocusOut: true,
     password: true,
-  }) ?? "";
+  }) ?? "");
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;

@@ -76,7 +76,7 @@ const getResourceType: (entry: any) => string = (entry) => {
   return result ? result.value : '';
 };
 
-const createDocument: (filteredEntries: Array<any>, includeQueryString: boolean, includeCookie: boolean) => string = (filteredEntries, includeQueryString, includeCookie) => {
+export const createDocument: (filteredEntries: Array<any>, includeQueryString: boolean, includeCookie: boolean) => string = (filteredEntries, includeQueryString, includeCookie) => {
   const headers = [
     DIAGRAM_HEADER,
     'sequenceDiagram',

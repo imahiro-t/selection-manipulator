@@ -6,12 +6,12 @@ import { openTextDocumentWithTitles } from '../common';
 
 type Algorithm = 'sha256' | 'sha512' | 'md5';
 
-export const hmacHandler: (algorithm: Algorithm) => (textEditor: TextEditor) => void = (algorithm) => async (textEditor) => {
+export const hmacHandler: (algorithm: Algorithm, testSecret?: string) => (textEditor: TextEditor) => void = (algorithm, testSecret) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
   const { createHmac } = require('node:crypto');
-  let secret = await window.showInputBox({
+  let secret = testSecret ?? await window.showInputBox({
     prompt: 'Secret?',
     ignoreFocusOut: true,
     password: true,
