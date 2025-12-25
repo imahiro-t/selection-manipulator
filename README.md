@@ -44,6 +44,14 @@
 3.  Type `Selection Manipulator` to see all available commands.
 4.  Alternatively, right-click the selection and choose **Selection Manipulator** from the context menu.
 
+### Programmatic & Japanese Support
+*   **Programmatic**: Convert JSON<->YAML, RGB<->Hex, Toggle Quotes.
+*   **Japanese**: Convert Full/Half width, Hiragana/Katakana.
+
+### Enhanced Crypto & Extraction
+*   **Hashing**: MD5, SHA1, SHA256, SHA512 (Insert or Replace).
+*   **Extraction**: Emails, URLs, IPs (New Tab or Replace).
+
 ## ⌨️ Key Commands
 
 | Category | Command Example | Description |
@@ -63,7 +71,14 @@
 - ✨ Add Random UUID generation
 - ✨ Add Text Escape and Unescape tools (JSON style)
 
-## 0.0.25
+## 0.0.28
+
+- ✨ Add SHA1, SHA256, SHA512, MD5 Hash generation (with Replace option)
+- ✨ Add Email, URL, IP Extraction tools (with Replace option)
+- ✨ Add Japanese Text Conversion (Full/Half width, Hiragana/Katakana)
+- ✨ Add Programmatic Tools (JSON<->YAML, Hex<->RGB, Toggle Quotes)
+
+## 0.0.27
 
 - ✨ Add Unix timestamp (seconds) to date calculation output
 

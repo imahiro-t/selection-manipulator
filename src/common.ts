@@ -38,7 +38,7 @@ const titleDecorator: TextEditorDecorationType = window.createTextEditorDecorati
 export const openTextDocumentWithTitles = (zip: string[][]) => {
   const trimZip = zip.map(([selectedText, result]) => [selectedText.trim(), result.replaceAll('\r', '').trim()]);
   const content = trimZip.map(([selectedText, result]) => `${selectedText}\n${result}\n`).join('\n').trim();
-  openTextDocument(content, (doc: TextDocument, editor: TextEditor) => {
+  return openTextDocument(content, (doc: TextDocument, editor: TextEditor) => {
     const ranges: Range[] = [];
     let currentIndex = 0;
     trimZip.forEach(([title, value]) => {

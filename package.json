@@ -658,6 +658,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.text.unescape.replace",
+        "title": "Unescape Text (JSON Parse) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.programmatic.json-to-yaml",
         "title": "Convert JSON to YAML",
         "category": "Selection Manipulator"
@@ -740,6 +745,61 @@
       {
         "command": "selection-manipulator.japanese.katakana-to-hiragana.replace",
         "title": "Convert Katakana to Hiragana (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha1",
+        "title": "Create Hash (SHA-1)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha1.replace",
+        "title": "Create Hash (SHA-1) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256.replace",
+        "title": "Create Hash (SHA-256) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha512.replace",
+        "title": "Create Hash (SHA-512) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-md5.replace",
+        "title": "Create Hash (MD5) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.email",
+        "title": "Extract Email",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.email.replace",
+        "title": "Extract Email (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.url",
+        "title": "Extract URL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.url.replace",
+        "title": "Extract URL (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.ip",
+        "title": "Extract IP",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.ip.replace",
+        "title": "Extract IP (Replace)",
         "category": "Selection Manipulator"
       }
     ],
@@ -1441,6 +1501,30 @@
         {
           "submenu": "selection-manipulator.sort-line.submenu",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.extract.email",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.extract.email.replace",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.extract.url",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.extract.url.replace",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.extract.ip",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.extract.ip.replace",
+          "group": "selection-manipulator@19"
         }
       ],
       "selection-manipulator.sort.submenu": [
@@ -1700,6 +1784,10 @@
         {
           "command": "selection-manipulator.crypto.decrypt",
           "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha1",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -1892,6 +1980,22 @@
         {
           "command": "selection-manipulator.crypto.decrypt.replace",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha1.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha512.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-md5.replace",
+          "group": "selection-manipulator@5"
         }
       ],
       "selection-manipulator.lookup.submenu": [

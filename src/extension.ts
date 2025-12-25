@@ -29,7 +29,7 @@ import { samlHandler } from './handler/samlHandler';
 import { whoisHandler } from './handler/whoisHandler';
 import { harToMermaidHandler } from './handler/harToMermaidHandler';
 import { x509CertificateHandler } from './handler/x509CertificateHandler';
-import { hashHandler } from './handler/hashHandler';
+import { cryptoHandler } from './handler/cryptoHandler';
 import { hmacHandler } from './handler/hmacHandler';
 import { removeCursorHandler } from './handler/removeCursorHandler';
 import { removeCharacterFromEachSideHandler } from './handler/removeCharacterFromEachSideHandler';
@@ -38,6 +38,7 @@ import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHan
 import { aesHandler } from './handler/aesHandler';
 import { randomHandler } from './handler/randomHandler';
 import { escapeHandler } from './handler/escapeHandler';
+import { dataExtractionHandler } from './handler/dataExtractionHandler';
 import {
   jsonToYamlHandler,
   yamlToJsonHandler,
@@ -59,6 +60,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.clipboard', extractHandler(true, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows', extractHandler(false, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows.clipboard', extractHandler(false, true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.email', dataExtractionHandler('email', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.email.replace', dataExtractionHandler('email', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.url', dataExtractionHandler('url', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.url.replace', dataExtractionHandler('url', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.ip', dataExtractionHandler('ip', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.ip.replace', dataExtractionHandler('ip', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract-line', extractLineHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract-line.clipboard', extractLineHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler(false)));
@@ -161,9 +168,14 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-mermaid', harToMermaidHandler('mermaid')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-image', harToMermaidHandler('image')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.x509', x509CertificateHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256', hashHandler('sha256')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha512', hashHandler('sha512')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-md5', hashHandler('md5')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha1', cryptoHandler('sha1', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256', cryptoHandler('sha256', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha512', cryptoHandler('sha512', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-md5', cryptoHandler('md5', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha1.replace', cryptoHandler('sha1', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256.replace', cryptoHandler('sha256', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha512.replace', cryptoHandler('sha512', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-md5.replace', cryptoHandler('md5', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha256', hmacHandler('sha256')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha512', hmacHandler('sha512')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-md5', hmacHandler('md5')));
