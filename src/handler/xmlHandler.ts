@@ -7,12 +7,12 @@ import xmlFormat from 'xml-formatter';
 
 type Command = 'format' | 'minify';
 
-export const xmlHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+export const xmlHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => Thenable<boolean | void> = (command, isReplace) => (textEditor) => {
   if (isReplace) {
     if (textEditor.selections.length === 0) {
-      return;
+      return Promise.resolve();
     }
-    textEditor.edit((editBuilder) => {
+    return textEditor.edit((editBuilder) => {
       textEditor.selections
         .forEach(selection => {
           const text = textEditor.document.getText(selection);
@@ -22,9 +22,9 @@ export const xmlHandler: (command: Command, isReplace: boolean) => (textEditor: 
   } else {
     const selectedText = textEditor.document.getText(textEditor.selection);
     if (!selectedText) {
-      return;
+      return Promise.resolve();
     }
-    openTextDocument(change(command)(selectedText));
+    return openTextDocument(change(command)(selectedText)).then(() => { });
   }
 };
 

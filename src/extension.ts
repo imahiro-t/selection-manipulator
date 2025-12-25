@@ -38,6 +38,19 @@ import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHan
 import { aesHandler } from './handler/aesHandler';
 import { randomHandler } from './handler/randomHandler';
 import { escapeHandler } from './handler/escapeHandler';
+import {
+  jsonToYamlHandler,
+  yamlToJsonHandler,
+  hexToRgbHandler,
+  rgbToHexHandler,
+  toggleQuotesHandler,
+} from './handler/programmaticHandler';
+import {
+  fullWidthToHalfWidthHandler,
+  halfWidthToFullWidthHandler,
+  hiraganaToKatakanaHandler,
+  katakanaToHiraganaHandler,
+} from './handler/japaneseHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -168,6 +181,27 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unescape', escapeHandler('unescape', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.escape.replace', escapeHandler('escape', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unescape.replace', escapeHandler('unescape', true)));
+
+  // Programmatic Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-yaml', jsonToYamlHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-yaml.replace', jsonToYamlHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.yaml-to-json', yamlToJsonHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.yaml-to-json.replace', yamlToJsonHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-rgb', hexToRgbHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-rgb.replace', hexToRgbHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.rgb-to-hex', rgbToHexHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.rgb-to-hex.replace', rgbToHexHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.toggle-quotes', toggleQuotesHandler));
+
+  // Japanese Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.full-to-half', fullWidthToHalfWidthHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.full-to-half.replace', fullWidthToHalfWidthHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.half-to-full', halfWidthToFullWidthHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.half-to-full.replace', halfWidthToFullWidthHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-katakana', hiraganaToKatakanaHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-katakana.replace', hiraganaToKatakanaHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.katakana-to-hiragana', katakanaToHiraganaHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.katakana-to-hiragana.replace', katakanaToHiraganaHandler(true)));
 }
 
 export function deactivate() { }

@@ -7,9 +7,9 @@ const HEADER = '-----BEGIN CERTIFICATE-----';
 const FOOTER = '-----END CERTIFICATE-----';
 const SEPARATOR = '-----SEPARATOR-----';
 
-export const x509CertificateHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const x509CertificateHandler: (textEditor: TextEditor) => Thenable<void> = (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return Promise.resolve();
   }
   const appendSeparator = (text: string) => {
     let s = text;
@@ -21,26 +21,37 @@ export const x509CertificateHandler: (textEditor: TextEditor) => void = (textEdi
     .map(selection => textEditor.document.getText(selection))
     .join("\n"));
   const { X509Certificate } = require('node:crypto');
-  const array = selectedText.replaceAll(FOOTER, FOOTER + SEPARATOR).split(SEPARATOR);
-  const content = array.map(text => {
-    if (text.includes(HEADER) && text.includes(FOOTER)) {
-      const cert = new X509Certificate(text);
-      return JSON.stringify({
-        subject: cert.subject,
-        subjectAltName: cert.subjectAltName,
-        issuer: cert.issuer,
-        infoAccess: cert.infoAccess,
-        validFrom: cert.validFrom,
-        validTo: cert.validTo,
-        fingerprint: cert.fingerprint,
-        fingerprint256: cert.fingerprint256,
-        fingerprint512: cert.fingerprint512,
-        keyUsage: cert.keyUsage,
-        serialNumber: cert.serialNumber
-      }, null, 2);
-    } else {
-      '';
-    }
-  }).filter(x => x !== '').join('\n');
-  openTextDocument(content);
+  try {
+    const array = selectedText.replaceAll(FOOTER, FOOTER + SEPARATOR).split(SEPARATOR);
+    const content = array.map(text => {
+      text = text.trim();
+      if (text.includes(HEADER) && text.includes(FOOTER)) {
+        try {
+          const cert = new X509Certificate(text);
+          return JSON.stringify({
+            subject: cert.subject,
+            subjectAltName: cert.subjectAltName,
+            issuer: cert.issuer,
+            infoAccess: cert.infoAccess,
+            validFrom: cert.validFrom,
+            validTo: cert.validTo,
+            fingerprint: cert.fingerprint,
+            fingerprint256: cert.fingerprint256,
+            fingerprint512: cert.fingerprint512,
+            keyUsage: cert.keyUsage,
+            serialNumber: cert.serialNumber
+          }, null, 2);
+        } catch (e) {
+          console.error('Error parsing certificate section:', e);
+          return '';
+        }
+      } else {
+        return '';
+      }
+    }).filter(x => x !== '').join('\n');
+    return openTextDocument(content).then(() => { });
+  } catch (err) {
+    console.error(err);
+    return Promise.resolve();
+  }
 };

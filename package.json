@@ -658,8 +658,88 @@
         "category": "Selection Manipulator"
       },
       {
-        "command": "selection-manipulator.text.unescape.replace",
-        "title": "Unescape Text (JSON Parse) (Replace)",
+        "command": "selection-manipulator.programmatic.json-to-yaml",
+        "title": "Convert JSON to YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-yaml.replace",
+        "title": "Convert JSON to YAML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.yaml-to-json",
+        "title": "Convert YAML to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.yaml-to-json.replace",
+        "title": "Convert YAML to JSON (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hex-to-rgb",
+        "title": "Convert Hex to RGB",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hex-to-rgb.replace",
+        "title": "Convert Hex to RGB (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.rgb-to-hex",
+        "title": "Convert RGB to Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.rgb-to-hex.replace",
+        "title": "Convert RGB to Hex (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.toggle-quotes",
+        "title": "Toggle Quotes (' <-> \")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.full-to-half",
+        "title": "Convert Full-width to Half-width",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.full-to-half.replace",
+        "title": "Convert Full-width to Half-width (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.half-to-full",
+        "title": "Convert Half-width to Full-width",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.half-to-full.replace",
+        "title": "Convert Half-width to Full-width (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.hiragana-to-katakana",
+        "title": "Convert Hiragana to Katakana",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.hiragana-to-katakana.replace",
+        "title": "Convert Hiragana to Katakana (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.katakana-to-hiragana",
+        "title": "Convert Katakana to Hiragana",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.katakana-to-hiragana.replace",
+        "title": "Convert Katakana to Hiragana (Replace)",
         "category": "Selection Manipulator"
       }
     ],
@@ -795,6 +875,14 @@
       {
         "id": "selection-manipulator.regex.submenu",
         "label": "Regular Expression"
+      },
+      {
+        "id": "selection-manipulator.programmatic.submenu",
+        "label": "Programmatic"
+      },
+      {
+        "id": "selection-manipulator.japanese.submenu",
+        "label": "Japanese"
       },
       {
         "id": "selection-manipulator.random.submenu",
@@ -1486,6 +1574,14 @@
         {
           "command": "selection-manipulator.count-up-list",
           "group": "selection-manipulator@10"
+        },
+        {
+          "submenu": "selection-manipulator.programmatic.submenu",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "submenu": "selection-manipulator.japanese.submenu",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -1917,6 +2013,78 @@
           "group": "selection-manipulator@0"
         }
       ],
+      "selection-manipulator.programmatic.submenu": [
+        {
+          "command": "selection-manipulator.programmatic.json-to-yaml",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-yaml.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.programmatic.yaml-to-json",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.programmatic.yaml-to-json.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.programmatic.hex-to-rgb",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.programmatic.hex-to-rgb.replace",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.programmatic.rgb-to-hex",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.programmatic.rgb-to-hex.replace",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.programmatic.toggle-quotes",
+          "group": "selection-manipulator@8"
+        }
+      ],
+      "selection-manipulator.japanese.submenu": [
+        {
+          "command": "selection-manipulator.japanese.full-to-half",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.japanese.full-to-half.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.japanese.half-to-full",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.japanese.half-to-full.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.japanese.hiragana-to-katakana",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.japanese.hiragana-to-katakana.replace",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.japanese.katakana-to-hiragana",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.japanese.katakana-to-hiragana.replace",
+          "group": "selection-manipulator@7"
+        }
+      ],
       "selection-manipulator.text.submenu": [
         {
           "command": "selection-manipulator.text.escape",
@@ -1991,6 +2159,7 @@
     "test": "npm run test-compile && node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.85.0",
@@ -2007,6 +2176,7 @@
   "dependencies": {
     "axios": "^1.7.2",
     "change-case": "^4.1.2",
+    "js-yaml": "^4.1.1",
     "whois": "^2.14.0",
     "xml-formatter": "^3.6.0"
   }

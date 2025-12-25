@@ -9,6 +9,14 @@ export async function setSelection(editor: vscode.TextEditor, selections: vscode
   editor.selections = selections;
 }
 
+export async function selectAll(editor: vscode.TextEditor) {
+  const firstLine = editor.document.lineAt(0);
+  const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+  const range = new vscode.Range(firstLine.range.start, lastLine.range.end);
+  const selection = new vscode.Selection(range.start, range.end);
+  editor.selection = selection;
+}
+
 export function getDocumentText(editor: vscode.TextEditor): string {
   return editor.document.getText();
 }

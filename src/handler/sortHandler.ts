@@ -6,9 +6,9 @@ import { openTextDocument } from '../common';
 
 type CompareType = 'number' | 'string';
 
-export const sortHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending, isClipboard) => (textEditor) => {
+export const sortHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => Thenable<void> = (compareType, isAscending, isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return Promise.resolve();
   }
   const content =
     sort(
@@ -22,9 +22,9 @@ export const sortHandler: (compareType: CompareType, isAscending: boolean, isCli
     )
       .join("\n");
   if (isClipboard) {
-    vscode.env.clipboard.writeText(content);
+    return vscode.env.clipboard.writeText(content);
   } else {
-    openTextDocument(content);
+    return openTextDocument(content).then(() => { });
   }
 };
 

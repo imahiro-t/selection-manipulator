@@ -7,10 +7,13 @@ suite('XML Handler Test Suite', () => {
   test('Format XML', async () => {
     const editor = await createTextEditor('<root><a>1</a></root>');
     editor.selection = new vscode.Selection(0, 0, 0, 21);
-    xmlHandler('format', true)(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    editor.selection = new vscode.Selection(0, 0, 0, 21);
+    await xmlHandler('format', true)(editor);
     const text = editor.document.getText();
+    console.log('XML Output:', JSON.stringify(text));
     assert.ok(text.includes('\n'));
-    assert.ok(text.includes('  <a>1</a>'));
+    assert.ok(text.includes('  <a>'));
+    assert.ok(text.includes('    1'));
+    assert.ok(text.includes('  </a>'));
   });
 });

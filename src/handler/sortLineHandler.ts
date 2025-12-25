@@ -10,9 +10,9 @@ type CompareObject = {
   line: TextLine
 };
 
-export const sortLineHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => void = (compareType, isAscending, isClipboard) => (textEditor) => {
+export const sortLineHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => Thenable<void> = (compareType, isAscending, isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return Promise.resolve();
   }
   const selections = textEditor.selections
     .map(selection => ({
@@ -28,9 +28,9 @@ export const sortLineHandler: (compareType: CompareType, isAscending: boolean, i
       .map(compareObject => compareObject.line.text)
       .join("\n");
   if (isClipboard) {
-    vscode.env.clipboard.writeText(content);
+    return vscode.env.clipboard.writeText(content);
   } else {
-    openTextDocument(content);
+    return openTextDocument(content).then(() => { });
   }
 };
 
