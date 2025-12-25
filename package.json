@@ -2259,6 +2259,7 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "watch": "npm run esbuild-watch",
     "test-compile": "tsc -p ./",
     "test": "npm run test-compile && node ./out/test/runTest.js"
   },
