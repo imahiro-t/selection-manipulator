@@ -12,9 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Fix Half-width Katakana conversion
 - 💄 Suppress "Save changes?" confirmation for result tabs
 - 💄 Ensure result tabs persist (disable preview mode)
+
+## [0.0.29] - 2025-12-26
+
 - ✨ Add ASCII Art (Cowsay) generation
-- ✨ Add Random UUID generation
-- ✨ Add Text Escape and Unescape tools
+- ✨ Enhance full-width to half-width conversion to support Kana
+
+## [0.0.28] - 2025-12-25
+
+- ✨ Add SHA1, SHA256, SHA512, MD5 Hash generation (with Replace option)
+- ✨ Add Email, URL, IP Extraction tools (with Replace option)
+- ✨ Add Japanese Text Conversion (Full/Half width, Hiragana/Katakana)
+- ✨ Add Programmatic Tools (JSON<->YAML, Hex<->RGB, Toggle Quotes)
 
 ## [0.0.27] - 2025-12-24
 

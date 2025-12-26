@@ -81,9 +81,16 @@
 
 ## 📅 Release Notes
 
+## 0.0.30
+
+- 🐛 Fix Half-width Katakana conversion
+- 💄 Suppress "Save changes?" confirmation for result tabs
+- 💄 Ensure result tabs persist (disable preview mode)
+
 ## 0.0.29
 
-- ✨ Add ASCII Art / Cowsay generator
+- ✨ Add ASCII Art (Cowsay) generation
+- ✨ Enhance full-width to half-width conversion to support Kana
 
 ## 0.0.28
 
