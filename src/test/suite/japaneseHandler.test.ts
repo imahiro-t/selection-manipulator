@@ -10,10 +10,16 @@ import { createTextEditor, getDocumentText, waitForNewDocument, selectAll } from
 
 suite('Japanese Handler Test Suite', () => {
   test('fullWidthToHalfWidthHandler', async () => {
-    const editor = await createTextEditor('ＡＢＣ１２３　');
+    const editor = await createTextEditor('ＡＢＣａｂｃ１２３！＃＄　アイウエオ　あいうえお　ガギグゲゴ');
     await selectAll(editor);
-    await fullWidthToHalfWidthHandler(true)(editor);
-    assert.strictEqual(getDocumentText(editor), 'ABC123 ');
+    const newDocPromise = waitForNewDocument();
+    await fullWidthToHalfWidthHandler(false)(editor);
+
+    const activeEditor = await newDocPromise;
+    assert.ok(activeEditor);
+    // ABCabc123!#$ ｱｲｳｴｵ ｱｲｳｴｵ ｶﾞｷﾞｸﾞｹﾞｺﾞ
+    assert.strictEqual(activeEditor.getText(), 'ABCabc123!#$ ｱｲｳｴｵ ｱｲｳｴｵ ｶﾞｷﾞｸﾞｹﾞｺﾞ');
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
   });
 
   test('halfWidthToFullWidthHandler', async () => {
