@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { extractHandler } from './handler/extractHandler';
 import { extractLineHandler } from './handler/extractLineHandler';
+import { extractLineByLengthHandler } from './handler/extractLineByLengthHandler';
 import { reverseHandler } from './handler/reverseHandler';
 import { shuffleHandler } from './handler/shuffleHandler';
 import { sortHandler } from './handler/sortHandler';
@@ -70,6 +71,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.ip.replace', dataExtractionHandler('ip', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract-line', extractLineHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract-line.clipboard', extractLineHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.equal', extractLineByLengthHandler('equal', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.equal.clipboard', extractLineByLengthHandler('equal', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.less', extractLineByLengthHandler('less', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.less.clipboard', extractLineByLengthHandler('less', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.greater', extractLineByLengthHandler('greater', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.greater.clipboard', extractLineByLengthHandler('greater', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.clipboard', reverseHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler(false)));

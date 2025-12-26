@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 150 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -635,6 +635,36 @@
       {
         "command": "selection-manipulator.client-credentials-flow",
         "title": "Client Credentials Flow",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.equal",
+        "title": "Extract Lines Equal Length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.equal.clipboard",
+        "title": "Extract Lines Equal Length (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.less",
+        "title": "Extract Lines Less Than Length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.less.clipboard",
+        "title": "Extract Lines Less Than Length (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.greater",
+        "title": "Extract Lines Greater Than Length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.greater.clipboard",
+        "title": "Extract Lines Greater Than Length (Clipboard)",
         "category": "Selection Manipulator"
       },
       {
@@ -1539,6 +1569,30 @@
         {
           "command": "selection-manipulator.extract.ip.replace",
           "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.equal",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.equal.clipboard",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.less",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.less.clipboard",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.greater",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.extract.line-by-length.greater.clipboard",
+          "group": "selection-manipulator@25"
         }
       ],
       "selection-manipulator.sort.submenu": [

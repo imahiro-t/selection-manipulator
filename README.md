@@ -9,7 +9,7 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 ### 📝 Text Manipulation
 *   **Sort**: Organize lines or selections by string, number, or occurrence (Ascending/Descending).
 *   **Unique**: Instantly remove duplicate lines.
-*   **Extract**: Filter and extract matching text, lines, emails, URLs, or IPs to a new tab or clipboard.
+*   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 

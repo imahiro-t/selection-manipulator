@@ -621,6 +621,36 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.extract.line-by-length.equal",
+    "title": "Extract - Extract Lines Equal Length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.equal.clipboard",
+    "title": "Extract - Extract Lines Equal Length (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.less",
+    "title": "Extract - Extract Lines Less Than Length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.less.clipboard",
+    "title": "Extract - Extract Lines Less Than Length (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.greater",
+    "title": "Extract - Extract Lines Greater Than Length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.greater.clipboard",
+    "title": "Extract - Extract Lines Greater Than Length (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.unescape.replace",
     "title": "Text - Unescape Text (JSON Parse) (Replace)",
     "canMultiSelection": true

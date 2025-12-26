@@ -85,6 +85,12 @@ Randomly shuffles the selected lines or selections.
 ### Extract Lines
 Extracts lines that satisfy a condition (like regex match) or simply extracts the selected lines to a new tab.
 
+### Extract Lines by Length
+Extracts lines based on character count.
+*   **Equal**: Lines with exactly N characters.
+*   **Less Than or Equal**: Lines with N or fewer characters.
+*   **Greater Than or Equal**: Lines with N or more characters. This filters the *lines* within the selection, not just the selection itself.
+
 ### Extract Specific Data
 Extracts specific formats from the text.
 *   **Email**: `support@example.com`
