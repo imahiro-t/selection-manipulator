@@ -8,15 +8,18 @@ import {
   DecorationRangeBehavior,
   Range,
 } from 'vscode';
+import { ResultProvider } from './provider/resultProvider';
 
 export const openTextDocument = (content: string, func?: (doc: TextDocument, editor: TextEditor) => void) => {
   const viewColumn = window.activeTextEditor?.viewColumn;
   const openViewColumn = viewColumn === 1 ? ViewColumn.Beside : viewColumn;
-  return workspace.openTextDocument({
-    content: content,
-    language: "text"
-  }).then((doc: TextDocument) => {
-    return window.showTextDocument(doc, openViewColumn, true).then((editor: TextEditor) => {
+  const uri = ResultProvider.instance.registerContent(content);
+  return workspace.openTextDocument(uri).then((doc: TextDocument) => {
+    return window.showTextDocument(doc, {
+      viewColumn: openViewColumn,
+      preserveFocus: true,
+      preview: false
+    }).then((editor: TextEditor) => {
       if (func) {
         func(doc, editor);
       }

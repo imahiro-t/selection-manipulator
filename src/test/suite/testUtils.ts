@@ -1,5 +1,15 @@
 import * as vscode from 'vscode';
 
+import { ResultProvider } from '../../provider/resultProvider';
+
+// Register provider for tests if not already registered (or just register it, assuming one instance per test run)
+try {
+  vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance);
+} catch (e) {
+  // Ignore if already registered
+  console.log('Provider already registered or failed to register', e);
+}
+
 export async function createTextEditor(content: string = ''): Promise<vscode.TextEditor> {
   const document = await vscode.workspace.openTextDocument({ content });
   return await vscode.window.showTextDocument(document);

@@ -53,6 +53,7 @@ import {
   hiraganaToKatakanaHandler,
   katakanaToHiraganaHandler,
 } from './handler/japaneseHandler';
+import { ResultProvider } from './provider/resultProvider';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -219,6 +220,9 @@ export function activate(context: vscode.ExtensionContext) {
   // ASCII Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay', asciiArtHandler('cowsay', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay.replace', asciiArtHandler('cowsay', true)));
+
+  // Provider
+  context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));
 }
 
 export function deactivate() { }
