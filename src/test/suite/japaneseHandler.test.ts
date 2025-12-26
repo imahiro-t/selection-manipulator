@@ -27,6 +27,12 @@ suite('Japanese Handler Test Suite', () => {
     await selectAll(editor);
     await halfWidthToFullWidthHandler(true)(editor);
     assert.strictEqual(getDocumentText(editor), 'ＡＢＣ１２３　');
+
+    // Regression test for Half-width Katakana
+    const editor2 = await createTextEditor('ｱｲｳｴｵ');
+    await selectAll(editor2);
+    await halfWidthToFullWidthHandler(true)(editor2);
+    assert.strictEqual(getDocumentText(editor2), 'アイウエオ');
   });
 
   test('hiraganaToKatakanaHandler', async () => {
@@ -41,5 +47,11 @@ suite('Japanese Handler Test Suite', () => {
     await selectAll(editor);
     await katakanaToHiraganaHandler(true)(editor);
     assert.strictEqual(getDocumentText(editor), 'あいうえお');
+
+    // Regression test for Half-width Katakana
+    const editor2 = await createTextEditor('ｱｲｳｴｵ');
+    await selectAll(editor2);
+    await katakanaToHiraganaHandler(true)(editor2);
+    assert.strictEqual(getDocumentText(editor2), 'あいうえお');
   });
 });

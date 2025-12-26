@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.30] - 2025-12-26
+
+- 🐛 Fix Half-width Katakana conversion
+- 💄 Suppress "Save changes?" confirmation for result tabs
+- 💄 Ensure result tabs persist (disable preview mode)
+- ✨ Add ASCII Art (Cowsay) generation
+- ✨ Add Random UUID generation
+- ✨ Add Text Escape and Unescape tools
+
 ## [0.0.27] - 2025-12-24
 
 - ✨ Add Random UUID generation

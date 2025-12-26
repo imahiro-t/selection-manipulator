@@ -1,6 +1,6 @@
 # Selection Manipulator
 
-**Selection Manipulator** is a powerful VS Code extension offering over 100 tools for text processing, data transformation, cryptography, and network analysis. Extract, sort, encode, encrypt, and visualize your data directly within the editor.
+**Selection Manipulator** is a powerful VS Code extension offering over 150 tools for text processing, data transformation, cryptography, and network analysis. Extract, sort, encode, encrypt, and visualize your data directly within the editor.
 
 ## ✨ Features
 
@@ -42,7 +42,10 @@
 1.  Select the text you want to process.
 2.  Open the **Command Palette** (`Cmd+Shift+P` on Mac / `Ctrl+Shift+P` on Windows).
 3.  Type `Selection Manipulator` to see all available commands.
+3.  Type `Selection Manipulator` to see all available commands.
 4.  Alternatively, right-click the selection and choose **Selection Manipulator** from the context menu.
+
+> **Note**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
 
 ### Programmatic & Japanese Support
 *   **Programmatic**: Convert JSON<->YAML, RGB<->Hex, Toggle Quotes.
