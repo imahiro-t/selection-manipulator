@@ -1,83 +1,65 @@
 # Selection Manipulator
 
-**Selection Manipulator** is a powerful VS Code extension offering over 150 tools for text processing, data transformation, cryptography, and network analysis. Extract, sort, encode, encrypt, and visualize your data directly within the editor.
+**The Ultimate Text Processing Toolkit for VS Code**
+
+Selection Manipulator offers over **150 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
-### 📝 Text Processing & Manipulation
-*   **Sort**: Sort selections or lines by string, number, or occurrence (Ascending/Descending).
-*   **Unique / Deduplicate**: Remove duplicate lines from selections.
-*   **Extract**: Extract matching text or lines (optionally excluding blank rows) to a new tab or clipboard.
-*   **Edit**: Reverse text, shuffle content, remove cursors, and convert single selection to multi-selection.
+### 📝 Text Manipulation
+*   **Sort**: Organize lines or selections by string, number, or occurrence (Ascending/Descending).
+*   **Unique**: Instantly remove duplicate lines.
+*   **Extract**: Filter and extract matching text, lines, emails, URLs, or IPs to a new tab or clipboard.
+*   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
+*   **Format**: Remove blank rows, zero-pad numbers, and more.
 
-### 🔄 Formatting & Transformation
-*   **JSON & XML**: Format (Pretty Print), Minify, Stringify, and Parse.
-*   **Case Conversion**: Convert between Camel, Snake, Kebab, Pascal, Constant, Dot, Path, Sentence, and Title cases.
-*   **Numbers**: Zero padding, Increment/Decrement (from 1, from N, by 1, by N).
-*   **Date & Time**: Convert Unix timestamps to ISO 8601 and vice-versa. Includes milliseconds support.
-*   **Math**: Calculate mathematical expressions instantly.
+### 💻 Developer Utilities
+*   **JSON & XML**: Format (Pretty Print), Minify, Stringify, and Parse with ease.
+*   **Encoding**: Base64 Encode/Decode/Deflate/Inflate.
+*   **Case Conversion**: Switch between Camel, Snake, Kebab, Pascal, Constant, Dot, Path, Sentence, and Title cases.
+*   **Escaping**: Escape/Unescape text (JSON stringify/parse compatibility).
+*   **Programmatic**: Convert between JSON<->YAML, Hex<->RGB, and toggle quotes.
 
-### 🔐 Encoding, Decoding & Cryptography
-*   **Base64**: Encode, Decode, Deflate, and Inflate.
-*   **URL**: Encode and Decode URI components.
-*   **Security**: Decode JWT (JSON Web Tokens), SAML Requests/Responses, and X.509 Certificates.
-*   **Hashing**: Generate SHA-256, SHA-512, and MD5 hashes.
-*   **HMAC**: Create HMAC-SHA256, HMAC-SHA512, and HMAC-MD5.
-*   **Encryption**: AES Encryption and Decryption.
+### 🔐 Cryptography & Security
+*   **Hashing**: Generate MD5, SHA-1, SHA-256, and SHA-512 hashes.
+*   **HMAC**: Create HMAC-SHA256, HMAC-SHA512, and HMAC-MD5 signatures.
+*   **Encryption**: Securely Encrypt and Decrypt text using AES.
+*   **Decoders**: Decode JWT, SAML Request/Response, and X.509 Certificates.
 
-### 🌐 Network Tools
-*   **DNS Lookup**: Query A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, CAA, and NAPTR records.
-*   **WHOIS**: Perform WHOIS lookups for domains.
-*   **IP Geolocation**: Lookup geolocation data for IP addresses.
+### 🌐 Network & Analysis
+*   **DNS**: Perform comprehensive DNS lookups (A, AAAA, MX, NS, TXT, etc.).
+*   **Whois**: Quick domain Whois lookups.
+*   **IP Geolocation**: Get location data for IP addresses.
+*   **HAR Visualization**: Visualize HTTP Archive (HAR) logs as Mermaid Sequence Diagrams.
 
-### 📊 Visualization & Utilities
-*   **HAR Visualization**: Convert HAR (HTTP Archive) text to Mermaid Sequence Diagrams or Images.
-*   **Regular Expressions**: Test regex patterns (`/g`, `/gi`) against selections.
-*   **OAuth**: Helper for Client Credentials Flow text generation.
-*   **Random Data**: Generate Random UUIDs.
-*   **Text Escape**: Escape and Unescape text (JSON stringify/parse).
+### 🇯🇵 Japanese Text Support
+*   **Width Conversion**: Convert between Full-width and Half-width characters (including Katakana).
+*   **Kana Conversion**: Convert between Hiragana and Katakana.
 
-## 🚀 Usage
+### 🎨 Fun & Generators
+*   **Mock Data**: Generate Random UUIDs.
+*   **ASCII Art**: Generate "Cowsay" speech bubbles.
+*   **Math**: Evaluate mathematical expressions instantly.
 
-1.  Select the text you want to process.
-2.  Open the **Command Palette** (`Cmd+Shift+P` on Mac / `Ctrl+Shift+P` on Windows).
-3.  Type `Selection Manipulator` to see all available commands.
-3.  Type `Selection Manipulator` to see all available commands.
-4.  Alternatively, right-click the selection and choose **Selection Manipulator** from the context menu.
+## 🚀 Key Usage
 
-> **Note**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
+1.  **Select** the text you want to process.
+2.  Open **Command Palette** (`Cmd+Shift+P` / `Ctrl+Shift+P`).
+3.  Type `Selection Manipulator` to explore all commands.
+4.  (Or right-click and use the context menu).
 
-### Programmatic & Japanese Support
-*   **Programmatic**: Convert JSON<->YAML, RGB<->Hex, Toggle Quotes.
-*   **Japanese**: Convert Full/Half width, Hiragana/Katakana.
+> **Pro Tip**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
 
-### Enhanced Crypto & Extraction
-*   **Hashing**: MD5, SHA1, SHA256, SHA512 (Insert or Replace).
-*   **Extraction**: Emails, URLs, IPs (New Tab or Replace).
+## ⌨️ Shortcuts Reference
 
-### Security Tools
-- **Password**: Random UUID
-- **Encryption**: AES Encryption / Decryption
-- **Hashing**: MD5, SHA1, SHA256, SHA512, HMAC (with Replace option)
-- **Certificates**: Decode X.509
-- **Encoding**: Base64 Encode/Decode/Deflate/Inflate
-- **Extraction**: Extract Email, URL, IP Address, etc.
-- **Fun / Utilities**:
-    - **ASCII Art**: Cowsay (Balloon speech)
-    - **Random**: UUID Generation
-(New Tab or Replace).
-
-## ⌨️ Key Commands
-
-| Category | Command Example | Description |
+| Task | Command | Description |
 | :--- | :--- | :--- |
-| **Sort** | `Sort Lines Ascending` | Sorts selected lines alphabetically. |
-| **JSON** | `Format JSON` | Prettifies minified JSON. |
-| **Crypto** | `Create Hash (SHA-256)` | Replaces selection with its SHA-256 hash. |
-| **Random** | `Random UUID` | Generates a random UUID. |
-| **Escape** | `Escape Text` | Escapes special characters (e.g. quotes, newlines). |
-| **Net** | `Lookup DNS A Record` | Performs a DNS lookup for the selected domain. |
-| **Vis** | `HAR to Sequence Diagram` | Generates a Mermaid diagram from HAR data. |
+| **Sort** | `Sort Lines Ascending` | Alphabetize your selection. |
+| **Format** | `Format JSON` | Prettify minified JSON. |
+| **Hash** | `Create Hash (SHA-256)` | Hash your selection. |
+| **UUID** | `Random UUID` | Insert a new UUID. |
+| **Escape** | `Escape Text` | Make text JSON-safe. |
+| **DNS** | `Lookup DNS A Record` | Get IP for a domain. |
 
 ## 📅 Release Notes
 
@@ -201,6 +183,7 @@
 
 ## 0.0.4
 
+- 💥 Remove select others tools (instead use ⇧⌘L)
 - 💥 Remove select others tools (instead use ⇧⌘L)
 - ✨ Add xml format tools
 - ✨ Add tool converting multi selections from single selection
