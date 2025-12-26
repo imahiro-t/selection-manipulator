@@ -654,6 +654,61 @@ const myCommands = [
     "command": "selection-manipulator.text.unescape.replace",
     "title": "Text - Unescape Text (JSON Parse) (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.remove-cursor-above",
+    "title": "Edit - Remove Cursor Above",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.remove-cursor-below",
+    "title": "Edit - Remove Cursor Below",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.remove-character-from-each-side",
+    "title": "Edit - Remove Character from Each Side",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.email",
+    "title": "Extract - Extract Email",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.email.replace",
+    "title": "Extract - Extract Email (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.url",
+    "title": "Extract - Extract URL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.url.replace",
+    "title": "Extract - Extract URL (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.ip",
+    "title": "Extract - Extract IP",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.ip.replace",
+    "title": "Extract - Extract IP (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.cowsay",
+    "title": "ASCII Art - Cowsay",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.cowsay.replace",
+    "title": "ASCII Art - Cowsay (Replace)",
+    "canMultiSelection": true
   }
 ];
 
