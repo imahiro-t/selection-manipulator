@@ -38,6 +38,7 @@ import { clientCredentialsFlowHandler } from './handler/clientCredentialsFlowHan
 import { aesHandler } from './handler/aesHandler';
 import { randomHandler } from './handler/randomHandler';
 import { escapeHandler } from './handler/escapeHandler';
+import { asciiArtHandler } from './handler/asciiArtHandler';
 import { dataExtractionHandler } from './handler/dataExtractionHandler';
 import {
   jsonToYamlHandler,
@@ -214,6 +215,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-katakana.replace', hiraganaToKatakanaHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.katakana-to-hiragana', katakanaToHiraganaHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.katakana-to-hiragana.replace', katakanaToHiraganaHandler(true)));
+
+  // ASCII Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay', asciiArtHandler('cowsay', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay.replace', asciiArtHandler('cowsay', true)));
 }
 
 export function deactivate() { }

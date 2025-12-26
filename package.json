@@ -801,6 +801,16 @@
         "command": "selection-manipulator.extract.ip.replace",
         "title": "Extract IP (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.cowsay",
+        "title": "Cowsay",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.cowsay.replace",
+        "title": "Cowsay (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -955,6 +965,10 @@
       {
         "id": "selection-manipulator.text.replace.submenu",
         "label": "Text Escape"
+      },
+      {
+        "id": "selection-manipulator.ascii.submenu",
+        "label": "ASCII Art"
       }
     ],
     "menus": {
@@ -2250,6 +2264,20 @@
         {
           "submenu": "selection-manipulator.text.submenu",
           "group": "selection-manipulator@9"
+        },
+        {
+          "submenu": "selection-manipulator.ascii.submenu",
+          "group": "selection-manipulator@10"
+        }
+      ],
+      "selection-manipulator.ascii.submenu": [
+        {
+          "command": "selection-manipulator.ascii.cowsay",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.ascii.cowsay.replace",
+          "group": "selection-manipulator@1"
         }
       ]
     }

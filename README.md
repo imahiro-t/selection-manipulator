@@ -52,6 +52,18 @@
 *   **Hashing**: MD5, SHA1, SHA256, SHA512 (Insert or Replace).
 *   **Extraction**: Emails, URLs, IPs (New Tab or Replace).
 
+### Security Tools
+- **Password**: Random UUID
+- **Encryption**: AES Encryption / Decryption
+- **Hashing**: MD5, SHA1, SHA256, SHA512, HMAC (with Replace option)
+- **Certificates**: Decode X.509
+- **Encoding**: Base64 Encode/Decode/Deflate/Inflate
+- **Extraction**: Extract Email, URL, IP Address, etc.
+- **Fun / Utilities**:
+    - **ASCII Art**: Cowsay (Balloon speech)
+    - **Random**: UUID Generation
+(New Tab or Replace).
+
 ## ⌨️ Key Commands
 
 | Category | Command Example | Description |
@@ -66,10 +78,9 @@
 
 ## 📅 Release Notes
 
-## 0.0.27
+## 0.0.29
 
-- ✨ Add Random UUID generation
-- ✨ Add Text Escape and Unescape tools (JSON style)
+- ✨ Add ASCII Art / Cowsay generator
 
 ## 0.0.28
 
@@ -79,6 +90,11 @@
 - ✨ Add Programmatic Tools (JSON<->YAML, Hex<->RGB, Toggle Quotes)
 
 ## 0.0.27
+
+- ✨ Add Random UUID generation
+- ✨ Add Text Escape and Unescape tools (JSON style)
+
+## 0.0.26
 
 - ✨ Add Unix timestamp (seconds) to date calculation output
 
