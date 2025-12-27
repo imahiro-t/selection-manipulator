@@ -22,7 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✨ Add URL tools (URL Params to JSON)
 - ✨ Add Text Cleanup tools (Remove Empty Lines, Remove Line Numbers, Join Lines, Split Lines, Trim Lines)
 - ✨ Add Math Statistics tools (Sum, Average, Min, Max)
-- ✨ Add Random Generators (Password, IPv4, IPv6)
+- ✨ Add Random Generators (Password, IPv4, IPv6, Lorem Ipsum)
+- ✨ Add Quote Enclosure tools (Single, Double, Backtick)
+- ✨ Add Markdown Link tool
+- ✨ Add Insert Date tools (ISO, Locale, Timestamp)
+- ✨ Add Text Cleanup tools (Trim Trailing Whitespace, Remove Duplicate Lines)
 
 ## [0.0.31] - 2025-12-26
 

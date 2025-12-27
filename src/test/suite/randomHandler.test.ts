@@ -1,23 +1,13 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { randomHandler } from '../../handler/randomHandler';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, getDocumentText } from './testUtils';
 
 suite('Random Handler Test Suite', () => {
   test('Insert UUID at cursor', async () => {
     const editor = await createTextEditor('');
     const handler = randomHandler('uuid');
-    handler(editor);
-
-    // Wait for edit to apply (though run synchronously usually, edit builder is async-ish?)
-    // In extension host, edit returns thenable, but handler is void.
-    // We might need to wait a small bit or ensure handler returns promise.
-    // Checking source: handler returns void. textEditor.edit returns Thenable.
-    // We can't await it easily without modifying handler.
-    // Standard workaround: sleep or modify handler to return promise.
-    // Since we can't modify handler easily without breaking signature, we might need a small delay.
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.match(text, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
@@ -28,9 +18,7 @@ suite('Random Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 0, 10);
 
     const handler = randomHandler('uuid');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.notStrictEqual(text, 'replace me');
@@ -79,14 +67,18 @@ suite('Random Handler Test Suite', () => {
     assert.match(text, /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
   });
 
-  test('Insert IPv6', async () => {
+  test('Generate IPv6', async () => {
     const editor = await createTextEditor('');
-    const handler = randomHandler('ipv6');
-    handler(editor);
+    await randomHandler('ipv6')(editor);
+    const text = getDocumentText(editor);
+    assert.strictEqual(text.split(':').length, 8);
+  });
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const text = editor.document.getText();
-    assert.match(text, /^[0-9a-f]{1,4}(:[0-9a-f]{1,4}){7}$/);
+  test('Generate Lorem Ipsum', async () => {
+    const editor = await createTextEditor('');
+    await randomHandler('lorem-ipsum')(editor);
+    const text = getDocumentText(editor);
+    assert.ok(text.startsWith('Lorem ipsum'));
+    assert.ok(text.length > 100);
   });
 });

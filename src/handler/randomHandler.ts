@@ -3,8 +3,8 @@ import {
 } from 'vscode';
 import * as crypto from 'crypto';
 
-export const randomHandler: (command: 'uuid' | 'password' | 'ipv4' | 'ipv6') => (textEditor: TextEditor) => void = (command) => (textEditor) => {
-  textEditor.edit((editBuilder) => {
+export const randomHandler: (command: 'uuid' | 'password' | 'ipv4' | 'ipv6' | 'lorem-ipsum') => (textEditor: TextEditor) => Thenable<boolean> = (command) => (textEditor) => {
+  return textEditor.edit((editBuilder) => {
     const generate = () => {
       switch (command) {
         case 'uuid':
@@ -15,6 +15,8 @@ export const randomHandler: (command: 'uuid' | 'password' | 'ipv4' | 'ipv6') => 
           return generateIPv4();
         case 'ipv6':
           return generateIPv6();
+        case 'lorem-ipsum':
+          return generateLoremIpsum();
       }
     };
 
@@ -46,4 +48,8 @@ const generateIPv4 = (): string => {
 
 const generateIPv6 = (): string => {
   return Array.from({ length: 8 }, () => Math.floor(Math.random() * 65536).toString(16)).join(':');
+};
+
+const generateLoremIpsum = (): string => {
+  return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 };

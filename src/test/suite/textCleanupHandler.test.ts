@@ -30,6 +30,24 @@ suite('Text Cleanup Handler Test Suite', () => {
     assert.strictEqual(text, 'line1\nline2\nline3');
   });
 
+  test('Unsmart Quotes', async () => {
+    const editor = await createTextEditor('“Hello” ‘World’');
+    await textCleanupHandler('unsmart-quotes')(editor);
+    assert.strictEqual(editor.document.getText(), '"Hello" \'World\'');
+  });
+
+  test('Trim Trailing Whitespace', async () => {
+    const editor = await createTextEditor('a   \nb\t\n c ');
+    await textCleanupHandler('trim-lines-trailing')(editor);
+    assert.strictEqual(editor.document.getText(), 'a\nb\n c');
+  });
+
+  test('Remove Duplicate Lines', async () => {
+    const editor = await createTextEditor('a\nb\na\nc\nb');
+    await textCleanupHandler('remove-duplicate-lines')(editor);
+    assert.strictEqual(editor.document.getText(), 'a\nb\nc');
+  });
+
   test('Trim Lines', async () => {
     const editor = await createTextEditor('  line1  \n\tline2');
     editor.selection = new vscode.Selection(0, 0, 1, 6);

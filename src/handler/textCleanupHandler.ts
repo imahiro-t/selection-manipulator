@@ -2,12 +2,10 @@ import {
   TextEditor,
 } from 'vscode';
 
-export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma' | 'normalize-whitespace' | 'strip-html-tags' | 'unsmart-quotes') => (textEditor: TextEditor) => void = (command) => (textEditor) => {
-  if (textEditor.selections.length === 0) {
-    return;
-  }
+export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma' | 'normalize-whitespace' | 'strip-html-tags' | 'unsmart-quotes' | 'trim-lines-trailing' | 'remove-duplicate-lines') => (textEditor: TextEditor) => Thenable<boolean> = (command) => (textEditor) => {
+  const document = textEditor.document;
 
-  textEditor.edit((editBuilder) => {
+  return textEditor.edit((editBuilder) => {
     textEditor.selections.forEach((selection) => {
       const text = textEditor.document.getText(selection);
       let newText = text;
@@ -73,6 +71,15 @@ export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-n
           newText = text
             .replace(/[\u2018\u2019]/g, "'") // Left/Right single quotes
             .replace(/[\u201C\u201D]/g, '"'); // Left/Right double quotes
+          break;
+        case 'trim-lines-trailing':
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .map((line) => line.replace(/\s+$/, ''))
+            .join('\n');
+          break;
+        case 'remove-duplicate-lines':
+          newText = [...new Set(text.split(/\r\n|\r|\n/))].join('\n');
           break;
       }
 

@@ -47,6 +47,9 @@ import { mathHandler } from './handler/mathHandler';
 import { csvHandler } from './handler/csvHandler';
 import { dataStructHandler } from './handler/dataStructHandler';
 import { unitConvertHandler } from './handler/unitConvertHandler';
+import { quoteHandler } from './handler/quoteHandler';
+import { markdownHandler } from './handler/markdownHandler';
+import { insertDateHandler } from './handler/insertDateHandler';
 import {
   jsonToYamlHandler,
   yamlToJsonHandler,
@@ -248,6 +251,18 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.full-to-half.replace', fullWidthToHalfWidthHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.half-to-full', halfWidthToFullWidthHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.half-to-full.replace', halfWidthToFullWidthHandler(true)));
+
+  // New Features (Items 62-94)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.single', quoteHandler('single')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.double', quoteHandler('double')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.backtick', quoteHandler('backtick')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.link', markdownHandler('link')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.insert.date.iso', insertDateHandler('iso')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.insert.date.locale', insertDateHandler('locale')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.insert.date.timestamp', insertDateHandler('timestamp')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.lorem-ipsum', randomHandler('lorem-ipsum')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.trim-lines-trailing', textCleanupHandler('trim-lines-trailing')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-duplicate-lines', textCleanupHandler('remove-duplicate-lines')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-katakana', hiraganaToKatakanaHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-katakana.replace', hiraganaToKatakanaHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.katakana-to-hiragana', katakanaToHiraganaHandler(false)));

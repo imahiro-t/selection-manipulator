@@ -40,11 +40,30 @@ const b = 'World';
 const a = 'Hello';
 const b = "World";
 ```
+const b = "World";
+```
 
-### Text Cleanup
+### Quote Enclosure
+Encloses selected text in quotes.
+*   **Single Quote**: `'text'`
+*   **Double Quote**: `"text"`
+*   **Backtick**: `` `text` ``
+
+### Markdown Link
+Creates a Markdown link from selected text and clipboard URL (or vice versa).
+*   **Selection**: `Google` + **Clipboard**: `https://google.com` -> `[Google](https://google.com)`
+
+### Insert Date
+Inserts current date/time.
+*   **ISO 8601**: `2023-12-27T12:00:00.000Z`
+*   **Locale String**: `12/27/2023, 12:00:00 PM` (varies by system)
+*   **Unix Timestamp**: `1703678400`
+
 *   **Remove Empty Lines**: Removes lines containing only whitespace.
 *   **Remove Line Numbers**: Removes leading numbering (e.g., `1.`, `[1]`, `1)`).
 *   **Trim All Lines**: Removes leading/trailing whitespace from each line.
+*   **Trim Trailing Whitespace**: Removes trailing whitespace from each line.
+*   **Remove Duplicate Lines**: Removes textually identical lines (keeps first occurrence).
 *   **Join Lines**: Joins selected lines with spaces or commas.
 *   **Split Lines**: Splits selected text by spaces or commas into new lines.
 
@@ -279,6 +298,7 @@ Converts timestamps to ISO strings or performs simple date math.
     *   **UUID**: Generates a random UUID v4.
     *   **Password**: Generates a secure 16-character password.
     *   **IPv4 / IPv6**: Generates random IP addresses.
+    *   **Lorem Ipsum**: Generates a paragraph of Lorem Ipsum text.
 *   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
 *   **Regex**: Applies a regular expression to the selection.
 *   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.

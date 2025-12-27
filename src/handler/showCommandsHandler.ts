@@ -939,6 +939,56 @@ const myCommands = [
     "command": "selection-manipulator.sort-line.length.descending",
     "title": "Sort Lines Descending by length",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.single",
+    "title": "Quote - Enclose in Single Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.double",
+    "title": "Quote - Enclose in Double Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.backtick",
+    "title": "Quote - Enclose in Backticks",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.link",
+    "title": "Markdown - Create Link",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.insert.date.iso",
+    "title": "Insert - Date (ISO 8601)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.insert.date.locale",
+    "title": "Insert - Date (Locale String)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.insert.date.timestamp",
+    "title": "Insert - Date (Unix Timestamp)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.lorem-ipsum",
+    "title": "Random - Lorem Ipsum",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.trim-lines-trailing",
+    "title": "Text Cleanup - Trim Trailing Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-duplicate-lines",
+    "title": "Text Cleanup - Remove Duplicate Lines",
+    "canMultiSelection": true
   }
 ];
 

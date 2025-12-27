@@ -2,7 +2,7 @@
 
 **The Ultimate Text Processing Toolkit for VS Code**
 
-Selection Manipulator offers over **150 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
+Selection Manipulator offers over **200 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
@@ -11,8 +11,9 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 *   **Unique**: Instantly remove duplicate lines.
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
+*   **Insert**: Date (ISO, Locale, Timestamp), Markdown Link, Quoted Text (Single, Double, Backtick).
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
-*   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines, normalize whitespace, strip HTML, unsmart quotes.
+*   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.
 *   **Math**: Sum, Average, Min, Max, Hex <-> Decimal.
 *   **Unit Conversion**: px <-> rem, kg <-> lb.
@@ -43,7 +44,7 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 *   **Kana Conversion**: Convert between Hiragana and Katakana.
 
 ### 🎨 Fun & Generators
-*   **Mock Data**: Generate Random UUIDs, Passwords, IPv4, IPv6.
+*   **Mock Data**: Generate Random UUIDs, Passwords, IPv4, IPv6, Lorem Ipsum.
 *   **ASCII Art**: Generate "Cowsay" speech bubbles.
 *   **Math**: Evaluate expressions, calculate Sum/Average/Min/Max.
 
