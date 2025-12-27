@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 200 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -1026,6 +1026,121 @@
         "command": "selection-manipulator.ascii.cowsay.replace",
         "title": "Cowsay (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.single",
+        "title": "Quote: Single ('')",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.double",
+        "title": "Quote: Double (\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.backtick",
+        "title": "Quote: Backtick (``)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.link",
+        "title": "Markdown: Link",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.insert.date.iso",
+        "title": "Insert Date: ISO 8601",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.insert.date.locale",
+        "title": "Insert Date: Locale String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.insert.date.timestamp",
+        "title": "Insert Date: Unix Timestamp",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.lorem-ipsum",
+        "title": "Random: Lorem Ipsum",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.trim-lines-trailing",
+        "title": "Text: Trim Trailing Whitespace",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-duplicate-lines",
+        "title": "Text: Remove Duplicate Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.px-to-rem",
+        "title": "Unit: px to rem",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.rem-to-px",
+        "title": "Unit: rem to px",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.kg-to-lb",
+        "title": "Unit: kg to lb",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.lb-to-kg",
+        "title": "Unit: lb to kg",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.normalize-whitespace",
+        "title": "Text: Normalize Whitespace",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.strip-html-tags",
+        "title": "Text: Strip HTML Tags",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unsmart-quotes",
+        "title": "Text: Unsmart Quotes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.title-smart",
+        "title": "Change Case Title (Smart)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.spongebob",
+        "title": "Change Case SpongeBob",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.screaming-snake",
+        "title": "Change Case Screaming Snake (Constant)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.humanize",
+        "title": "Change Case Humanize (Sentence)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.slugify",
+        "title": "Change Case Slugify (Kebab)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-accents",
+        "title": "Text: Remove Accents",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1186,54 +1301,20 @@
         "label": "ASCII Art"
       },
       {
-        "command": "selection-manipulator.quote.single",
-        "title": "Quote: Single ('')",
-        "category": "Selection Manipulator"
+        "id": "selection-manipulator.quote.submenu",
+        "label": "Quote"
       },
       {
-        "command": "selection-manipulator.quote.double",
-        "title": "Quote: Double (\"\")",
-        "category": "Selection Manipulator"
+        "id": "selection-manipulator.unit.submenu",
+        "label": "Unit Conversion"
       },
       {
-        "command": "selection-manipulator.quote.backtick",
-        "title": "Quote: Backtick (``)",
-        "category": "Selection Manipulator"
+        "id": "selection-manipulator.markdown.submenu",
+        "label": "Markdown"
       },
       {
-        "command": "selection-manipulator.markdown.link",
-        "title": "Markdown: Link",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.insert.date.iso",
-        "title": "Insert Date: ISO 8601",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.insert.date.locale",
-        "title": "Insert Date: Locale String",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.insert.date.timestamp",
-        "title": "Insert Date: Unix Timestamp",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.random.lorem-ipsum",
-        "title": "Random: Lorem Ipsum",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.text.trim-lines-trailing",
-        "title": "Text: Trim Trailing Whitespace",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.text.remove-duplicate-lines",
-        "title": "Text: Remove Duplicate Lines",
-        "category": "Selection Manipulator"
+        "id": "selection-manipulator.insert.submenu",
+        "label": "Insert"
       }
     ],
     "menus": {
@@ -1709,6 +1790,18 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.regex.gi"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.normalize-whitespace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.strip-html-tags"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.unsmart-quotes"
         }
       ],
       "editor/context": [
@@ -1969,6 +2062,18 @@
         {
           "submenu": "selection-manipulator.japanese.submenu",
           "group": "selection-manipulator@12"
+        },
+        {
+          "submenu": "selection-manipulator.quote.submenu",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "submenu": "selection-manipulator.unit.submenu",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "submenu": "selection-manipulator.markdown.submenu",
+          "group": "selection-manipulator@15"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -2161,6 +2266,26 @@
         {
           "command": "selection-manipulator.case.no",
           "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.case.title-smart",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.case.spongebob",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.case.screaming-snake",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.case.humanize",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.case.slugify",
+          "group": "selection-manipulator@18"
         },
         {
           "command": "selection-manipulator.case.pascal",
@@ -2418,6 +2543,10 @@
         {
           "command": "selection-manipulator.random.uuid",
           "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.random.lorem-ipsum",
+          "group": "selection-manipulator@1"
         }
       ],
       "selection-manipulator.programmatic.submenu": [
@@ -2512,6 +2641,18 @@
         {
           "command": "selection-manipulator.text.unsmart-quotes",
           "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.text.trim-lines-trailing",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.text.remove-duplicate-lines",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.text.remove-accents",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.text.replace.submenu": [
@@ -2569,6 +2710,10 @@
         {
           "submenu": "selection-manipulator.ascii.submenu",
           "group": "selection-manipulator@10"
+        },
+        {
+          "submenu": "selection-manipulator.insert.submenu",
+          "group": "selection-manipulator@11"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -2579,6 +2724,58 @@
         {
           "command": "selection-manipulator.ascii.cowsay.replace",
           "group": "selection-manipulator@1"
+        }
+      ],
+      "selection-manipulator.quote.submenu": [
+        {
+          "command": "selection-manipulator.quote.single",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.quote.double",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.quote.backtick",
+          "group": "selection-manipulator@2"
+        }
+      ],
+      "selection-manipulator.unit.submenu": [
+        {
+          "command": "selection-manipulator.unit.px-to-rem",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.unit.rem-to-px",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.unit.kg-to-lb",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unit.lb-to-kg",
+          "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.markdown.submenu": [
+        {
+          "command": "selection-manipulator.markdown.link",
+          "group": "selection-manipulator@0"
+        }
+      ],
+      "selection-manipulator.insert.submenu": [
+        {
+          "command": "selection-manipulator.insert.date.iso",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.insert.date.locale",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.insert.date.timestamp",
+          "group": "selection-manipulator@2"
         }
       ]
     }

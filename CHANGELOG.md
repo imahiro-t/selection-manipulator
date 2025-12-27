@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.33] - 2025-12-27
+
+- 🐛 Fix `package.json` command registration and menus
+
 ## [0.0.32] - 2025-12-27
 
 - ✨ Add Unit Conversion tools (px <-> rem, kg <-> lb)
