@@ -41,6 +41,8 @@ import { randomHandler } from './handler/randomHandler';
 import { escapeHandler } from './handler/escapeHandler';
 import { asciiArtHandler } from './handler/asciiArtHandler';
 import { dataExtractionHandler } from './handler/dataExtractionHandler';
+import { textCleanupHandler } from './handler/textCleanupHandler';
+import { mathHandler } from './handler/mathHandler';
 import {
   jsonToYamlHandler,
   yamlToJsonHandler,
@@ -227,6 +229,26 @@ export function activate(context: vscode.ExtensionContext) {
   // ASCII Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay', asciiArtHandler('cowsay', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay.replace', asciiArtHandler('cowsay', true)));
+
+  // Text Cleanup Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-empty-lines', textCleanupHandler('remove-empty-lines')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-line-numbers', textCleanupHandler('remove-line-numbers')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.trim-lines', textCleanupHandler('trim-lines')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.join-lines.space', textCleanupHandler('join-lines-space')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.join-lines.comma', textCleanupHandler('join-lines-comma')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.space', textCleanupHandler('split-lines-space')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.comma', textCleanupHandler('split-lines-comma')));
+
+  // Math Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.sum', mathHandler('sum')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.average', mathHandler('average')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.min', mathHandler('min')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.max', mathHandler('max')));
+
+  // Random Handlers (New)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.password', randomHandler('password')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.ipv4', randomHandler('ipv4')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.ipv6', randomHandler('ipv6')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

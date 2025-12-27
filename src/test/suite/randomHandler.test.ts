@@ -56,4 +56,37 @@ suite('Random Handler Test Suite', () => {
     assert.match(lines[0], /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
     assert.match(lines[1], /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
   });
+
+  test('Insert Password', async () => {
+    const editor = await createTextEditor('');
+    const handler = randomHandler('password');
+    handler(editor);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const text = editor.document.getText();
+    assert.strictEqual(text.length, 16);
+  });
+
+  test('Insert IPv4', async () => {
+    const editor = await createTextEditor('');
+    const handler = randomHandler('ipv4');
+    handler(editor);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const text = editor.document.getText();
+    assert.match(text, /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);
+  });
+
+  test('Insert IPv6', async () => {
+    const editor = await createTextEditor('');
+    const handler = randomHandler('ipv6');
+    handler(editor);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const text = editor.document.getText();
+    assert.match(text, /^[0-9a-f]{1,4}(:[0-9a-f]{1,4}){7}$/);
+  });
 });

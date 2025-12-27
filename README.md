@@ -12,6 +12,7 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
+*   **Cleanup**: Remove empty lines, remove line numbers, join lines (space/comma), split lines (space/comma), trim whitespace.
 
 ### 💻 Developer Utilities
 *   **JSON & XML**: Format (Pretty Print), Minify, Stringify, and Parse with ease.
@@ -37,9 +38,9 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 *   **Kana Conversion**: Convert between Hiragana and Katakana.
 
 ### 🎨 Fun & Generators
-*   **Mock Data**: Generate Random UUIDs.
+*   **Mock Data**: Generate Random UUIDs, Passwords, IPv4, IPv6.
 *   **ASCII Art**: Generate "Cowsay" speech bubbles.
-*   **Math**: Evaluate mathematical expressions instantly.
+*   **Math**: Evaluate expressions, calculate Sum/Average/Min/Max.
 
 ## 🚀 Key Usage
 

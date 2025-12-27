@@ -679,7 +679,77 @@
       },
       {
         "command": "selection-manipulator.text.unescape",
-        "title": "Unescape Text (JSON Parse)",
+        "title": "Text - Unescape Text (JSON Parse)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-empty-lines",
+        "title": "Text - Remove Empty Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-line-numbers",
+        "title": "Text - Remove Line Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.trim-lines",
+        "title": "Text - Trim All Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.join-lines.space",
+        "title": "Text - Join Lines (Space)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.join-lines.comma",
+        "title": "Text - Join Lines (Comma)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.split-lines.space",
+        "title": "Text - Split Lines (Space)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.split-lines.comma",
+        "title": "Text - Split Lines (Comma)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.sum",
+        "title": "Math - Sum",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.average",
+        "title": "Math - Average",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.min",
+        "title": "Math - Min",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.max",
+        "title": "Math - Max",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.password",
+        "title": "Random - Random Password",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.ipv4",
+        "title": "Random - Random IPv4",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.ipv6",
+        "title": "Random - Random IPv6",
         "category": "Selection Manipulator"
       },
       {

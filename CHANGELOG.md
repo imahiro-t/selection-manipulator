@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.32] - 2025-12-27
+
+- ✨ Add Text Cleanup tools (Remove Empty Lines, Remove Line Numbers, Join Lines, Split Lines, Trim Lines)
+- ✨ Add Math Statistics tools (Sum, Average, Min, Max)
+- ✨ Add Random Generators (Password, IPv4, IPv6)
+
 ## [0.0.31] - 2025-12-26
 
 - ✨ Add Extract Lines by Length (Equal, Less, Greater)

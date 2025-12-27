@@ -41,6 +41,13 @@ const a = 'Hello';
 const b = "World";
 ```
 
+### Text Cleanup
+*   **Remove Empty Lines**: Removes lines containing only whitespace.
+*   **Remove Line Numbers**: Removes leading numbering (e.g., `1.`, `[1]`, `1)`).
+*   **Trim All Lines**: Removes leading/trailing whitespace from each line.
+*   **Join Lines**: Joins selected lines with spaces or commas.
+*   **Split Lines**: Splits selected text by spaces or commas into new lines.
+
 ## 2. Sort, Unique & Shuffle
 
 ### Sort Lines
@@ -204,6 +211,19 @@ Evaluates mathematical expressions.
 *Before:* `1 + 2 * 3`
 *After:* `7`
 
+### Calculation
+Evaluates mathematical expressions.
+**Example:**
+*Before:* `1 + 2 * 3`
+*After:* `7`
+
+### Math Statistics
+Calculates statistics for numbers found in the selection.
+*   **Sum**: Sum of all numbers.
+*   **Average**: Average of numbers.
+*   **Min**: Minimum number.
+*   **Max**: Maximum number.
+
 ### Date Calculation
 Converts timestamps to ISO strings or performs simple date math.
 
@@ -221,7 +241,10 @@ Converts timestamps to ISO strings or performs simple date math.
 *   **IP Geolocation**: Shows geographical info for an IP address.
 
 ## 11. Other Utilities
-*   **Random UUID**: Generates a random UUID v4.
+*   **Random Generators**:
+    *   **UUID**: Generates a random UUID v4.
+    *   **Password**: Generates a secure 16-character password.
+    *   **IPv4 / IPv6**: Generates random IP addresses.
 *   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
 *   **Regex**: Applies a regular expression to the selection.
 

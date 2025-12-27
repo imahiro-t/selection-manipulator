@@ -1,0 +1,73 @@
+import {
+  TextEditor,
+} from 'vscode';
+
+export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma') => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+  if (textEditor.selections.length === 0) {
+    return;
+  }
+
+  textEditor.edit((editBuilder) => {
+    textEditor.selections.forEach((selection) => {
+      const text = textEditor.document.getText(selection);
+      let newText = text;
+
+      switch (command) {
+        case 'remove-empty-lines':
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .filter((line) => line.trim() !== '')
+            .join('\n');
+          break;
+        case 'remove-line-numbers':
+          // Removes leading numbers like "1. ", " 12: ", "  [3] " etc.
+          // Regex breakdown:
+          // ^\s*       : Start of line, optional whitespace
+          // [\[\(]?    : Optional opening bracket or parenthesis
+          // \d+        : One or more digits
+          // [\]\)]?    : Optional closing bracket or parenthesis
+          // [:.]?      : Optional separator (colon or dot)
+          // \s+        : At least one whitespace character
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .map((line) => line.replace(/^\s*[\[\(]?\d+[\]\)]?[:.]?\s+/, ''))
+            .join('\n');
+          break;
+        case 'trim-lines':
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .map((line) => line.trim())
+            .join('\n');
+          break;
+        case 'join-lines-space':
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0)
+            .join(' ');
+          break;
+        case 'join-lines-comma':
+          newText = text
+            .split(/\r\n|\r|\n/)
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0)
+            .join(',');
+          break;
+        case 'split-lines-space':
+          newText = text
+            .split(' ')
+            .join('\n');
+          break;
+        case 'split-lines-comma':
+          newText = text
+            .split(',')
+            .join('\n');
+          break;
+      }
+
+      if (text !== newText) {
+        editBuilder.replace(selection, newText);
+      }
+    });
+  });
+};

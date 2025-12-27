@@ -709,6 +709,76 @@ const myCommands = [
     "command": "selection-manipulator.ascii.cowsay.replace",
     "title": "ASCII Art - Cowsay (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-empty-lines",
+    "title": "Text - Remove Empty Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-line-numbers",
+    "title": "Text - Remove Line Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.trim-lines",
+    "title": "Text - Trim All Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.join-lines.space",
+    "title": "Text - Join Lines (Space)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.join-lines.comma",
+    "title": "Text - Join Lines (Comma)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.split-lines.space",
+    "title": "Text - Split Lines (Space)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.split-lines.comma",
+    "title": "Text - Split Lines (Comma)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.sum",
+    "title": "Math - Sum",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.average",
+    "title": "Math - Average",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.min",
+    "title": "Math - Min",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.max",
+    "title": "Math - Max",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.password",
+    "title": "Random - Random Password",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.ipv4",
+    "title": "Random - Random IPv4",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.ipv6",
+    "title": "Random - Random IPv6",
+    "canMultiSelection": true
   }
 ];
 
