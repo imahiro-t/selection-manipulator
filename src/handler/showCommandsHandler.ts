@@ -191,6 +191,16 @@ const myCommands = [
     "canMultiSelection": false
   },
   {
+    "command": "selection-manipulator.json.flatten",
+    "title": "Transform - JSON - Flatten JSON",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.json.unflatten",
+    "title": "Transform - JSON - Unflatten JSON",
+    "canMultiSelection": false
+  },
+  {
     "command": "selection-manipulator.json.format.replace",
     "title": "Transform - JSON - Format JSON (Pretty Print) (Replace)",
     "canMultiSelection": true
@@ -211,6 +221,16 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.json.flatten.replace",
+    "title": "Transform - JSON - Flatten JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.unflatten.replace",
+    "title": "Transform - JSON - Unflatten JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.xml.format",
     "title": "Transform - XML - Format XML (Pretty Print)",
     "canMultiSelection": false
@@ -221,6 +241,11 @@ const myCommands = [
     "canMultiSelection": false
   },
   {
+    "command": "selection-manipulator.xml.to-json",
+    "title": "Transform - XML - Convert XML to JSON",
+    "canMultiSelection": false
+  },
+  {
     "command": "selection-manipulator.xml.format.replace",
     "title": "Transform - XML - Format XML (Pretty Print) (Replace)",
     "canMultiSelection": true
@@ -228,6 +253,11 @@ const myCommands = [
   {
     "command": "selection-manipulator.xml.minify.replace",
     "title": "Transform - XML - Minify XML (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.to-json.replace",
+    "title": "Transform - XML - Convert XML to JSON (Replace)",
     "canMultiSelection": true
   },
   {
@@ -273,6 +303,11 @@ const myCommands = [
   {
     "command": "selection-manipulator.url.parse",
     "title": "Transform - URL - Parse URL to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.parse-params",
+    "title": "Transform - URL - Parse URL Parameters to JSON",
     "canMultiSelection": true
   },
   {
@@ -778,6 +813,36 @@ const myCommands = [
   {
     "command": "selection-manipulator.random.ipv6",
     "title": "Random - Random IPv6",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-markdown",
+    "title": "Transform - CSV - Convert to Markdown Table",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.csv.to-markdown.replace",
+    "title": "Transform - CSV - Convert to Markdown Table (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-markdown",
+    "title": "Transform - CSV - Convert from Markdown Table",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.csv.from-markdown.replace",
+    "title": "Transform - CSV - Convert from Markdown Table (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.data.env-to-json",
+    "title": "Transform - Data - Convert Env to JSON",
+    "canMultiSelection": false
+  },
+  {
+    "command": "selection-manipulator.data.env-to-json.replace",
+    "title": "Transform - Data - Convert Env to JSON (Replace)",
     "canMultiSelection": true
   }
 ];

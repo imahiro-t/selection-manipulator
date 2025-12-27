@@ -134,6 +134,8 @@ Converts text between various cases.
 *   **Minify**: Compresses code into a single line.
 *   **JSON <-> YAML**: Converts between JSON and YAML formats.
 *   **Stringify/Parse JSON**: Escapes or unescapes JSON strings.
+*   **Flatten/Unflatten**: Converts nested JSON to dot-notation keys and vice versa.
+*   **XML to JSON**: Converts XML structure to JSON object.
 
 **Example (JSON to YAML):**
 *Before:*

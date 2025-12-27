@@ -43,6 +43,8 @@ import { asciiArtHandler } from './handler/asciiArtHandler';
 import { dataExtractionHandler } from './handler/dataExtractionHandler';
 import { textCleanupHandler } from './handler/textCleanupHandler';
 import { mathHandler } from './handler/mathHandler';
+import { csvHandler } from './handler/csvHandler';
+import { dataStructHandler } from './handler/dataStructHandler';
 import {
   jsonToYamlHandler,
   yamlToJsonHandler,
@@ -117,6 +119,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.minify.replace', jsonHandler('minify', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.parse.replace', jsonHandler('parse', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.stringify.replace', jsonHandler('stringify', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.flatten', jsonHandler('flatten', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.flatten.replace', jsonHandler('flatten', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.unflatten', jsonHandler('unflatten', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.unflatten.replace', jsonHandler('unflatten', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.regex.g', regexpHandler('g')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.regex.gi', regexpHandler('gi')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.encode', base64Handler('encode', false)));
@@ -129,8 +135,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.unzip.replace', base64Handler('inflate', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.format', xmlHandler('format', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.minify', xmlHandler('minify', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.to-json', xmlHandler('to-json', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.format.replace', xmlHandler('format', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.minify.replace', xmlHandler('minify', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.to-json.replace', xmlHandler('to-json', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-up-list', countUpListHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.zero-padding', zeroPaddingHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.increment-from-1', incrementFromHandler(1)));
@@ -169,6 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.lookup', dnsHandler('LOOKUP')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.dns.reverse', dnsHandler('REVERSE')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.parse', urlHandler('PARSE_TO_JSON')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.parse-params', urlHandler('PARSE_PARAMS_TO_JSON')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri', urlHandler('ENCODE_URI')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-uri', urlHandler('DECODE_URI')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-uri-component', urlHandler('ENCODE_URI_COMPONENT')));
@@ -249,6 +258,16 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.password', randomHandler('password')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.ipv4', randomHandler('ipv4')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.ipv6', randomHandler('ipv6')));
+
+  // CSV Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-markdown', csvHandler('csv-to-markdown', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-markdown.replace', csvHandler('csv-to-markdown', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-markdown', csvHandler('markdown-to-csv', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-markdown.replace', csvHandler('markdown-to-csv', true)));
+
+  // Data Struct Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.data.env-to-json', dataStructHandler('env-to-json', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.data.env-to-json.replace', dataStructHandler('env-to-json', true)));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

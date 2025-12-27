@@ -3,7 +3,7 @@ import {
 } from 'vscode';
 import { openTextDocumentWithTitles } from '../common';
 
-type Command = 'PARSE_TO_JSON' | 'ENCODE_URI' | 'DECODE_URI' | 'ENCODE_URI_COMPONENT' | 'DECODE_URI_COMPONENT';
+type Command = 'PARSE_TO_JSON' | 'PARSE_PARAMS_TO_JSON' | 'ENCODE_URI' | 'DECODE_URI' | 'ENCODE_URI_COMPONENT' | 'DECODE_URI_COMPONENT';
 
 export const urlHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -37,6 +37,17 @@ export const urlHandler: (command: Command) => (textEditor: TextEditor) => void 
           password: url.password,
         };
         return [selectedText, JSON.stringify(parsed, null, 2)];
+      } else if (command === 'PARSE_PARAMS_TO_JSON') {
+        // Check if it's a full URL or just params
+        let queryString = selectedText;
+        if (selectedText.includes('?')) {
+          queryString = selectedText.split('?')[1];
+        }
+        // If it has #, remove it (assuming params are before hash or we just want search params)
+        if (queryString.includes('#')) {
+          queryString = queryString.split('#')[0];
+        }
+        return [selectedText, JSON.stringify(querystring.parse(queryString), null, 2)];
       } else if (command === 'ENCODE_URI') {
         return [selectedText, encodeURI(selectedText)];
       } else if (command === 'DECODE_URI') {

@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 150 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -228,6 +228,16 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.json.flatten",
+        "title": "Flatten JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.unflatten",
+        "title": "Unflatten JSON",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.json.format.replace",
         "title": "Format JSON (Pretty Print) (Replace)",
         "category": "Selection Manipulator"
@@ -248,6 +258,16 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.json.flatten.replace",
+        "title": "Flatten JSON (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.unflatten.replace",
+        "title": "Unflatten JSON (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.xml.format",
         "title": "Format XML (Pretty Print)",
         "category": "Selection Manipulator"
@@ -265,6 +285,16 @@
       {
         "command": "selection-manipulator.xml.minify.replace",
         "title": "Minify XML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.to-json",
+        "title": "Convert XML to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.to-json.replace",
+        "title": "Convert XML to JSON (Replace)",
         "category": "Selection Manipulator"
       },
       {
@@ -310,6 +340,11 @@
       {
         "command": "selection-manipulator.url.parse",
         "title": "Parse URL to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.parse-params",
+        "title": "Parse URL Parameters to JSON",
         "category": "Selection Manipulator"
       },
       {
@@ -750,6 +785,36 @@
       {
         "command": "selection-manipulator.random.ipv6",
         "title": "Random - Random IPv6",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-markdown",
+        "title": "CSV - Convert to Markdown Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-markdown.replace",
+        "title": "CSV - Convert to Markdown Table (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-markdown",
+        "title": "CSV - Convert from Markdown Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-markdown.replace",
+        "title": "CSV - Convert from Markdown Table (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.data.env-to-json",
+        "title": "Data - Convert Env to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.data.env-to-json.replace",
+        "title": "Data - Convert Env to JSON (Replace)",
         "category": "Selection Manipulator"
       },
       {
