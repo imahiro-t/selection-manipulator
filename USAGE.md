@@ -117,7 +117,8 @@ sales@test.co.jp
 
 ## 4. Case Conversion
 Converts text between various cases.
-*   **Supported Cases**: Camel, Pascal, Snake, Kebab, Upper, Lower, Capital, Sentence, Constant, Dot, Path, etc.
+*   **Supported Cases**: Camel, Pascal, Snake, Kebab, Upper, Lower, Capital, Sentence, Constant, Dot, Path, Title (Smart), SpongeBob, Screaming Snake, Humanize, Slugify.
+*   **Styles**: Remove Accents (Diacritics).
 
 **Example (Snake to Camel):**
 *Before:* `user_id`
@@ -126,6 +127,18 @@ Converts text between various cases.
 **Example (Upper):**
 *Before:* `hello`
 *After:* `HELLO`
+
+**Example (Title Case - Smart):**
+*Before:* `the quick brown fox`
+*After:* `The Quick Brown Fox`
+
+**Example (SpongeBob):**
+*Before:* `hello world`
+*After:* `hElLo wOrLd`
+
+**Example (Remove Accents):**
+*Before:* `Crème Brûlée`
+*After:* `Creme Brulee`
 
 ## 5. Data Transformation
 

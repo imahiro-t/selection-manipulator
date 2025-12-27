@@ -844,6 +844,36 @@ const myCommands = [
     "command": "selection-manipulator.data.env-to-json.replace",
     "title": "Transform - Data - Convert Env to JSON (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.title-smart",
+    "title": "Change Case Title (Smart)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.spongebob",
+    "title": "Change Case SpongeBob",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.screaming-snake",
+    "title": "Change Case Screaming Snake (Constant)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.humanize",
+    "title": "Change Case Humanize (Sentence)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.slugify",
+    "title": "Change Case Slugify (Kebab)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-accents",
+    "title": "Text - Remove Accents",
+    "canMultiSelection": true
   }
 ];
 

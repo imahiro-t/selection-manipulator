@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.32] - 2025-12-27
 
+- ✨ Add Advanced Case tools (Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify)
+- ✨ Add Text Style tools (Remove Accents)
 - ✨ Add CSV tools (CSV <-> Markdown Table)
 - ✨ Add Data Structure tools (Env to JSON)
 - ✨ Add JSON tools (Flatten, Unflatten)

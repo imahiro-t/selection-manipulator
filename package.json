@@ -478,6 +478,36 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.case.title-smart",
+        "title": "Change Case Title (Smart)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.spongebob",
+        "title": "Change Case SpongeBob",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.screaming-snake",
+        "title": "Change Case Screaming Snake (Constant)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.humanize",
+        "title": "Change Case Humanize (Sentence)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.slugify",
+        "title": "Change Case Slugify (Kebab)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-accents",
+        "title": "Text - Remove Accents",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.case.camel",
         "title": "Change Case Camel",
         "category": "Selection Manipulator"
