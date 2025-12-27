@@ -5,9 +5,9 @@ import { openTextDocument } from '../common';
 
 type SortType = 'count' | 'word';
 
-export const countOccurrencesHandler: (sortType: SortType) => (textEditor: TextEditor) => void = (sortType) => (textEditor) => {
+export const countOccurrencesHandler: (sortType: SortType) => (textEditor: TextEditor) => Thenable<void> = (sortType) => (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return Promise.resolve();
   }
   const occurrences =
     countOccurrences(
@@ -20,7 +20,7 @@ export const countOccurrencesHandler: (sortType: SortType) => (textEditor: TextE
     );
   const content = occurrences.map(occurrence => sortType === 'count' ? `${occurrence[1]}\t${occurrence[0]}` : `${occurrence[0]}\t${occurrence[1]}`)
     .join("\n");
-  openTextDocument(content);
+  return openTextDocument(content).then(() => { });
 };
 
 const countOccurrences: (array: Array<string>, sortType: SortType) => Array<Array<string>> = (array, sortType) => {

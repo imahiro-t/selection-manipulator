@@ -5,27 +5,21 @@ import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
 type CompareType = 'number' | 'string' | 'occurrence' | 'length';
-type CompareObject = {
-  text: string,
-  line: TextLine
-};
+// type CompareObject removed as we use strings now
 
 export const sortLineHandler: (compareType: CompareType, isAscending: boolean, isClipboard: boolean) => (textEditor: TextEditor) => Thenable<void> = (compareType, isAscending, isClipboard) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return Promise.resolve();
   }
-  const selections = textEditor.selections
-    .map(selection => ({
-      text: textEditor.document.getText(selection),
-      line: textEditor.document.lineAt(selection.start)
-    }));
+  const lines = textEditor.selections
+    .flatMap(selection => textEditor.document.getText(selection).split(/\r?\n/));
+
   const content =
-    compareType === 'occurrence' ? sortByOccurrence(selections, isAscending).map(textLine => textLine.text).join("\n") : sort(
-      selections,
+    compareType === 'occurrence' ? sortByOccurrence(lines, isAscending).join("\n") : sort(
+      lines,
       compareType,
       isAscending
     )
-      .map(compareObject => compareObject.line.text)
       .join("\n");
   if (isClipboard) {
     return vscode.env.clipboard.writeText(content);
@@ -34,28 +28,23 @@ export const sortLineHandler: (compareType: CompareType, isAscending: boolean, i
   }
 };
 
-const sort: (array: Array<CompareObject>, compareType: CompareType, isAscending: boolean) => Array<CompareObject> = (array, compareType, isAscending) => {
+const sort: (array: Array<string>, compareType: CompareType, isAscending: boolean) => Array<string> = (array, compareType, isAscending) => {
   let sorted;
   if (compareType === 'number') {
-    sorted = array.sort((a, b) => Number(a.text) - Number(b.text));
+    sorted = array.sort((a, b) => Number(a) - Number(b));
   } else if (compareType === 'length') {
-    sorted = array.sort((a, b) => a.text.length - b.text.length);
+    sorted = array.sort((a, b) => a.length - b.length);
   } else {
-    sorted = array.sort((a, b) => a.text.localeCompare(b.text));
+    sorted = array.sort((a, b) => a.localeCompare(b));
   }
   return isAscending ? sorted : sorted.reverse();
 };
 
-const sortByOccurrence: (array: Array<CompareObject>, isAscending: boolean) => Array<TextLine> = (array, isAscending) => {
+const sortByOccurrence: (array: Array<string>, isAscending: boolean) => Array<string> = (array, isAscending) => {
   const countObject: any = {};
-  const groupObject: any = {};
   for (var i = 0; i < array.length; i++) {
-    const selected = array[i].text;
+    const selected = array[i];
     countObject[selected] = (countObject[selected] || 0) + 1;
-    if (!groupObject[selected]) {
-      groupObject[selected] = [];
-    }
-    groupObject[selected].push(array[i].line);
   }
   const sorted = [];
   for (const selected in countObject) {
@@ -71,12 +60,13 @@ const sortByOccurrence: (array: Array<CompareObject>, isAscending: boolean) => A
       return 0;
     }
   });
-  const sortedByOccurrence: Array<TextLine> = [];
+  const sortedByOccurrence: Array<string> = [];
   sorted.forEach(ss => {
-    const lines = groupObject[ss[0]];
-    lines.forEach((line: TextLine) => {
-      sortedByOccurrence.push(line);
-    });
+    const key = ss[0];
+    const count = ss[1];
+    for (let j = 0; j < count; j++) {
+      sortedByOccurrence.push(key);
+    }
   });
   return isAscending ? sortedByOccurrence : sortedByOccurrence.reverse();
 };

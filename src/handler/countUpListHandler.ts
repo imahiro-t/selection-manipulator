@@ -3,10 +3,10 @@ import {
 } from 'vscode';
 import { openTextDocument } from '../common';
 
-export const countUpListHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const countUpListHandler: (textEditor: TextEditor) => Thenable<void> = (textEditor) => {
   let selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
-    return;
+    return Promise.resolve();
   }
   const ranges = selectedText.split('-');
   let from;
@@ -19,12 +19,12 @@ export const countUpListHandler: (textEditor: TextEditor) => void = (textEditor)
     to = Number(ranges[0].trim());
   }
   if (to - from > 99999) {
-    return;
+    return Promise.resolve();
   }
   const array = [];
   for (let i = from; i <= to; i++) {
     array.push(i.toString());
   }
   const content = array.join('\n');
-  openTextDocument(content);
+  return openTextDocument(content).then(() => { });
 };

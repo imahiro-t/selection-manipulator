@@ -1,18 +1,24 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { calcDateHandler } from '../../handler/calcDateHandler';
-import { createTextEditor, waitForNewDocument } from './testUtils';
+import { createTextEditor, selectAll } from './testUtils';
 
 suite('Calc Date Handler Test Suite', () => {
   test('Calc Timestamp', async () => {
-    const editor = await createTextEditor('1609459200000'); // 2021-01-01
-    editor.selection = new vscode.Selection(0, 0, 0, 13);
+    // 2021-01-01T00:00:00.000Z is 1609459200000
+    const editor = await createTextEditor('1609459200000');
+    await selectAll(editor);
 
-    const waitPromise = waitForNewDocument();
-    calcDateHandler(editor);
-    const doc = await waitPromise;
+    let result: string[][] = [];
+    const originalOpen = require('../../common').openTextDocumentWithTitles;
+    require('../../common').openTextDocumentWithTitles = async (zip: string[][]) => {
+      result = zip;
+    };
 
-    const text = doc.getText();
-    assert.ok(text.includes('2021'));
+    await calcDateHandler(editor);
+    require('../../common').openTextDocumentWithTitles = originalOpen;
+
+    assert.strictEqual(result.length, 1);
+    assert.ok(result[0][1].includes('2021'));
   });
 });

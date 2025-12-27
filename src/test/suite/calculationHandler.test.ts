@@ -1,19 +1,25 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { calculationHandler } from '../../handler/calculationHandler';
-import { createTextEditor, waitForNewDocument } from './testUtils';
+import { createTextEditor, selectAll } from './testUtils';
 
 suite('Calculation Handler Test Suite', () => {
   test('Calculate Expression', async () => {
     const editor = await createTextEditor('1+1');
-    editor.selection = new vscode.Selection(0, 0, 0, 3);
+    await selectAll(editor);
 
-    const waitPromise = waitForNewDocument();
-    calculationHandler(editor);
-    const doc = await waitPromise;
+    let result: string[][] = [];
+    const originalOpen = require('../../common').openTextDocumentWithTitles;
+    require('../../common').openTextDocumentWithTitles = async (zip: string[][]) => {
+      result = zip;
+    };
 
-    const text = doc.getText();
-    assert.ok(text.includes('1+1'));
-    assert.ok(text.includes('2'));
+    await calculationHandler(editor);
+    require('../../common').openTextDocumentWithTitles = originalOpen;
+
+    // result should be [['1+1', '2']]
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0][0], '1+1');
+    assert.strictEqual(result[0][1], '2');
   });
 });

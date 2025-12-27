@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { textCleanupHandler } from '../../handler/textCleanupHandler';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, getDocumentText, selectAll } from './testUtils';
 
 suite('Text Cleanup Handler Test Suite', () => {
   test('Remove Empty Lines', async () => {
@@ -32,18 +32,21 @@ suite('Text Cleanup Handler Test Suite', () => {
 
   test('Unsmart Quotes', async () => {
     const editor = await createTextEditor('“Hello” ‘World’');
+    await selectAll(editor);
     await textCleanupHandler('unsmart-quotes')(editor);
     assert.strictEqual(editor.document.getText(), '"Hello" \'World\'');
   });
 
   test('Trim Trailing Whitespace', async () => {
     const editor = await createTextEditor('a   \nb\t\n c ');
+    await selectAll(editor);
     await textCleanupHandler('trim-lines-trailing')(editor);
     assert.strictEqual(editor.document.getText(), 'a\nb\n c');
   });
 
   test('Remove Duplicate Lines', async () => {
     const editor = await createTextEditor('a\nb\na\nc\nb');
+    await selectAll(editor);
     await textCleanupHandler('remove-duplicate-lines')(editor);
     assert.strictEqual(editor.document.getText(), 'a\nb\nc');
   });

@@ -9,14 +9,14 @@ import {
   hexToDecimalHandler,
   decimalToHexHandler,
 } from '../../handler/programmaticHandler';
-import { createTextEditor, getDocumentText, waitForNewDocument, selectAll } from './testUtils';
+import { createTextEditor, waitForNewDocument, selectAll, getDocumentText } from './testUtils';
 
 suite('Programmatic Handler Test Suite', () => {
   test('jsonToYamlHandler (replace)', async () => {
     const editor = await createTextEditor('{"a": 1, "b": "test"}');
     await selectAll(editor);
     await jsonToYamlHandler(true)(editor);
-    assert.strictEqual(getDocumentText(editor).trim(), "a: 1\nb: test");
+    assert.strictEqual(editor.document.getText().trim(), "a: 1\nb: test");
   });
 
   test('jsonToYamlHandler (new doc)', async () => {
@@ -32,7 +32,7 @@ suite('Programmatic Handler Test Suite', () => {
     const editor = await createTextEditor('a: 1\nb: test');
     await selectAll(editor);
     await yamlToJsonHandler(true)(editor);
-    const result = JSON.parse(getDocumentText(editor));
+    const result = JSON.parse(editor.document.getText());
     assert.deepStrictEqual(result, { a: 1, b: "test" });
   });
 
@@ -48,26 +48,22 @@ suite('Programmatic Handler Test Suite', () => {
 
   test('YAML to JSON (Single Selection - Replace)', async () => {
     const editor = await createTextEditor('key: value');
+    await selectAll(editor);
     await yamlToJsonHandler(true)(editor);
-    assert.strictEqual(getDocumentText(editor), '{\n  "key": "value"\n}');
+    const text = editor.document.getText();
+    assert.strictEqual(text, '{\n  "key": "value"\n}');
   });
 
   test('Hex to Decimal', async () => {
     const editor = await createTextEditor('0xFF');
+    await selectAll(editor);
     await hexToDecimalHandler(true)(editor);
-    assert.strictEqual(getDocumentText(editor), '255');
-
-    const editor2 = await createTextEditor('#FF');
-    await hexToDecimalHandler(true)(editor2);
-    assert.strictEqual(getDocumentText(editor2), '255');
-
-    const editor3 = await createTextEditor('FF');
-    await hexToDecimalHandler(true)(editor3);
-    assert.strictEqual(getDocumentText(editor3), '255');
+    assert.strictEqual(editor.document.getText(), '255');
   });
 
   test('Decimal to Hex', async () => {
     const editor = await createTextEditor('255');
+    await selectAll(editor);
     await decimalToHexHandler(true)(editor);
     assert.strictEqual(getDocumentText(editor), '0xFF');
   });

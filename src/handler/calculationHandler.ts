@@ -3,9 +3,9 @@ import {
 } from 'vscode';
 import { openTextDocumentWithTitles } from '../common';
 
-export const calculationHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const calculationHandler: (textEditor: TextEditor) => Thenable<void> = (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return Promise.resolve();
   }
   const zip =
     textEditor.selections
@@ -15,7 +15,7 @@ export const calculationHandler: (textEditor: TextEditor) => void = (textEditor)
       .map(selectedText => selectedText.trim())
       .filter(selectedText => selectedText.length > 0)
       .map(expression => [expression, calc(expression)]);
-  openTextDocumentWithTitles(zip);
+  return openTextDocumentWithTitles(zip).then(() => { });
 };
 
 const calc: (expression: string) => string = (expression) => {

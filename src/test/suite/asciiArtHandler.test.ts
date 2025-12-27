@@ -8,16 +8,18 @@ suite('ASCII Art Handler Test Suite', () => {
   test('Cowsay Single Line', async () => {
     const editor = await createTextEditor('Hello World');
     await selectAll(editor);
-    const newDocPromise = waitForNewDocument();
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
     await asciiArtHandler('cowsay', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
 
-    const activeEditor = await newDocPromise;
-    assert.ok(activeEditor);
-    const text = activeEditor.getText();
-
-    // Check for bubble structure
-    assert.ok(text.includes('< Hello World >'), 'Text should be wrapped in single line bubble');
-    assert.ok(text.includes('^__^'), 'Should contain cow face');
+    assert.ok(result.includes('< Hello World >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('^__^'), 'Should contain cow face');
 
     await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
   });

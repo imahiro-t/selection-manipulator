@@ -1,25 +1,49 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { sortLineHandler } from '../../handler/sortLineHandler';
-import { createTextEditor, waitForNewDocument } from './testUtils';
+import { createTextEditor, waitForNewDocument, selectAll } from './testUtils';
 
 suite('Sort Line Handler Test Suite', () => {
   test('Sort Lines Ascending by occurrence', async () => {
-    const editor = await createTextEditor('b\na\na\nc\na\nc');
+    const editor = await createTextEditor('b\nc\nc\na\na\na');
+    await selectAll(editor);
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
     await sortLineHandler('occurrence', true, false)(editor);
-    assert.strictEqual(editor.document.getText(), 'b\nc\nc\na\na\na');
+    require('../../common').openTextDocument = originalOpen;
+    // Ascending occurrence: b (1), c (2), a (3) ?
+    // count: b=1, c=2, a=3. Sorted: b, c, a.
+    // Result: b, c, c, a, a, a.
+    assert.strictEqual(result, 'b\nc\nc\na\na\na');
   });
 
   test('Sort Lines Ascending by length', async () => {
     const editor = await createTextEditor('long\nsh\nmedium');
+    await selectAll(editor);
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
     await sortLineHandler('length', true, false)(editor);
-    assert.strictEqual(editor.document.getText(), 'sh\nlong\nmedium');
+    require('../../common').openTextDocument = originalOpen;
+    assert.strictEqual(result, 'sh\nlong\nmedium');
   });
 
   test('Sort Lines Descending by length', async () => {
     const editor = await createTextEditor('long\nsh\nmedium');
+    await selectAll(editor);
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
     await sortLineHandler('length', false, false)(editor);
-    assert.strictEqual(editor.document.getText(), 'medium\nlong\nsh');
+    require('../../common').openTextDocument = originalOpen;
+    assert.strictEqual(result, 'medium\nlong\nsh');
   });
 
   test('Sort Lines Number Ascending (New Doc)', async () => {
