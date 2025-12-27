@@ -40,8 +40,6 @@ const b = 'World';
 const a = 'Hello';
 const b = "World";
 ```
-const b = "World";
-```
 
 ### Quote Enclosure
 Encloses selected text in quotes.
@@ -245,11 +243,7 @@ Evaluates mathematical expressions.
 *Before:* `1 + 2 * 3`
 *After:* `7`
 
-### Calculation
-Evaluates mathematical expressions.
-**Example:**
-*Before:* `1 + 2 * 3`
-*After:* `7`
+
 
 ### Math Statistics
 Calculates statistics for numbers found in the selection.
@@ -301,8 +295,7 @@ Converts timestamps to ISO strings or performs simple date math.
     *   **Lorem Ipsum**: Generates a paragraph of Lorem Ipsum text.
 *   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
 *   **Regex**: Applies a regular expression to the selection.
-*   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
-*   **Regex**: Applies a regular expression to the selection.
+
 
 ## 12. ASCII Art / Fun
 *   **Cowsay**: Wraps text in a balloon with an ASCII cow.
