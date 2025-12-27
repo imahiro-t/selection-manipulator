@@ -12,8 +12,10 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
-*   **Cleanup**: Remove empty lines, remove line numbers, join lines (space/comma), split lines (space/comma), trim whitespace.
+*   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines, normalize whitespace, strip HTML, unsmart quotes.
 *   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.
+*   **Math**: Sum, Average, Min, Max, Hex <-> Decimal.
+*   **Unit Conversion**: px <-> rem, kg <-> lb.
 *   **CSV**: Convert between CSV and Markdown Table.
 
 ### 💻 Developer Utilities
@@ -59,7 +61,7 @@ Selection Manipulator offers over **150 powerful tools** to manipulate, transfor
 | Task | Command | Description |
 | :--- | :--- | :--- |
 | **Case** | `Change Case ...` | Camel, Snake, Kebab, Pascal, Title (Smart), SpongeBob, etc. |
-| **Sort** | `Sort Lines Ascending` | Alphabetize your selection. |
+| **Sort** | `Sort Lines ...` | Ascending/Descending by String, Number, Occurrence, Length. |
 | **Format** | `Format JSON` | Prettify minified JSON. |
 | **Hash** | `Create Hash (SHA-256)` | Hash your selection. |
 | **UUID** | `Random UUID` | Insert a new UUID. |

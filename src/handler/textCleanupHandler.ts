@@ -2,7 +2,7 @@ import {
   TextEditor,
 } from 'vscode';
 
-export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma') => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma' | 'normalize-whitespace' | 'strip-html-tags' | 'unsmart-quotes') => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -62,6 +62,17 @@ export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-n
           newText = text
             .split(',')
             .join('\n');
+          break;
+        case 'normalize-whitespace':
+          newText = text.replace(/\s+/g, ' ');
+          break;
+        case 'strip-html-tags':
+          newText = text.replace(/<[^>]*>/g, '');
+          break;
+        case 'unsmart-quotes':
+          newText = text
+            .replace(/[\u2018\u2019]/g, "'") // Left/Right single quotes
+            .replace(/[\u201C\u201D]/g, '"'); // Left/Right double quotes
           break;
       }
 

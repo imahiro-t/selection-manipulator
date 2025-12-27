@@ -46,12 +46,15 @@ import { diacriticHandler } from './handler/diacriticHandler';
 import { mathHandler } from './handler/mathHandler';
 import { csvHandler } from './handler/csvHandler';
 import { dataStructHandler } from './handler/dataStructHandler';
+import { unitConvertHandler } from './handler/unitConvertHandler';
 import {
   jsonToYamlHandler,
   yamlToJsonHandler,
   hexToRgbHandler,
   rgbToHexHandler,
   toggleQuotesHandler,
+  hexToDecimalHandler,
+  decimalToHexHandler,
 } from './handler/programmaticHandler';
 import {
   fullWidthToHalfWidthHandler,
@@ -106,6 +109,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.occurrence.ascending.clipboard', sortLineHandler('occurrence', true, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.occurrence.descending', sortLineHandler('occurrence', false, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.occurrence.descending.clipboard', sortLineHandler('occurrence', false, true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.length.ascending', sortLineHandler('length', true, false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.length.ascending.clipboard', sortLineHandler('length', true, true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.length.descending', sortLineHandler('length', false, false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort-line.length.descending.clipboard', sortLineHandler('length', false, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unique', uniqueHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unique.clipboard', uniqueHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.count-occurrences.count', countOccurrencesHandler('count')));
@@ -231,6 +238,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.rgb-to-hex', rgbToHexHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.rgb-to-hex.replace', rgbToHexHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.toggle-quotes', toggleQuotesHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-decimal', hexToDecimalHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-decimal.replace', hexToDecimalHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.decimal-to-hex', decimalToHexHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.decimal-to-hex.replace', decimalToHexHandler(true)));
 
   // Japanese Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.full-to-half', fullWidthToHalfWidthHandler(false)));
@@ -254,6 +265,15 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.join-lines.comma', textCleanupHandler('join-lines-comma')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.space', textCleanupHandler('split-lines-space')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.comma', textCleanupHandler('split-lines-comma')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.normalize-whitespace', textCleanupHandler('normalize-whitespace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.strip-html-tags', textCleanupHandler('strip-html-tags')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unsmart-quotes', textCleanupHandler('unsmart-quotes')));
+
+  // Unit Conversion Handlers
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.px-to-rem', unitConvertHandler('px-to-rem')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.rem-to-px', unitConvertHandler('rem-to-px')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.kg-to-lb', unitConvertHandler('kg-to-lb')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.lb-to-kg', unitConvertHandler('lb-to-kg')));
 
   // Math Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.sum', mathHandler('sum')));

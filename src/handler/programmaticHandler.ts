@@ -140,3 +140,41 @@ export const toggleQuotesHandler: (textEditor: TextEditor) => Thenable<boolean> 
     });
   });
 };
+
+export const hexToDecimalHandler: (replace: boolean) => (textEditor: TextEditor) => Thenable<boolean | void> = (replace) => (textEditor) => {
+  const convert = (text: string) => {
+    const result = parseInt(text.replace(/^#|^0x/, ''), 16);
+    return isNaN(result) ? text : result.toString();
+  };
+
+  if (replace) {
+    return textEditor.edit(editBuilder => {
+      textEditor.selections.forEach(selection => {
+        const text = textEditor.document.getText(selection);
+        editBuilder.replace(selection, convert(text));
+      });
+    });
+  } else {
+    const result = textEditor.selections.map(selection => convert(textEditor.document.getText(selection))).join('\n');
+    return openTextDocument(result).then(() => { });
+  }
+};
+
+export const decimalToHexHandler: (replace: boolean) => (textEditor: TextEditor) => Thenable<boolean | void> = (replace) => (textEditor) => {
+  const convert = (text: string) => {
+    const result = parseInt(text, 10);
+    return isNaN(result) ? text : '0x' + result.toString(16).toUpperCase();
+  };
+
+  if (replace) {
+    return textEditor.edit(editBuilder => {
+      textEditor.selections.forEach(selection => {
+        const text = textEditor.document.getText(selection);
+        editBuilder.replace(selection, convert(text));
+      });
+    });
+  } else {
+    const result = textEditor.selections.map(selection => convert(textEditor.document.getText(selection))).join('\n');
+    return openTextDocument(result).then(() => { });
+  }
+};

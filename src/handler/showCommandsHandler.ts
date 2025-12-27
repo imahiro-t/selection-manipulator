@@ -874,6 +874,71 @@ const myCommands = [
     "command": "selection-manipulator.text.remove-accents",
     "title": "Text - Remove Accents",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.px-to-rem",
+    "title": "Unit - Px to Rem",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.rem-to-px",
+    "title": "Unit - Rem to Px",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.kg-to-lb",
+    "title": "Unit - Kg to Lb",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.lb-to-kg",
+    "title": "Unit - Lb to Kg",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-to-decimal",
+    "title": "Math - Hex to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-to-decimal.replace",
+    "title": "Math - Hex to Decimal (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.decimal-to-hex",
+    "title": "Math - Decimal to Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.decimal-to-hex.replace",
+    "title": "Math - Decimal to Hex (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.normalize-whitespace",
+    "title": "Text - Normalize Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.strip-html-tags",
+    "title": "Text - Strip HTML Tags",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unsmart-quotes",
+    "title": "Text - Unsmart Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.length.ascending",
+    "title": "Sort Lines Ascending by length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.length.descending",
+    "title": "Sort Lines Descending by length",
+    "canMultiSelection": true
   }
 ];
 

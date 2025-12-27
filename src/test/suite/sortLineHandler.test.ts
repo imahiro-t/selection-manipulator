@@ -4,6 +4,24 @@ import { sortLineHandler } from '../../handler/sortLineHandler';
 import { createTextEditor, waitForNewDocument } from './testUtils';
 
 suite('Sort Line Handler Test Suite', () => {
+  test('Sort Lines Ascending by occurrence', async () => {
+    const editor = await createTextEditor('b\na\na\nc\na\nc');
+    await sortLineHandler('occurrence', true, false)(editor);
+    assert.strictEqual(editor.document.getText(), 'b\nc\nc\na\na\na');
+  });
+
+  test('Sort Lines Ascending by length', async () => {
+    const editor = await createTextEditor('long\nsh\nmedium');
+    await sortLineHandler('length', true, false)(editor);
+    assert.strictEqual(editor.document.getText(), 'sh\nlong\nmedium');
+  });
+
+  test('Sort Lines Descending by length', async () => {
+    const editor = await createTextEditor('long\nsh\nmedium');
+    await sortLineHandler('length', false, false)(editor);
+    assert.strictEqual(editor.document.getText(), 'medium\nlong\nsh');
+  });
+
   test('Sort Lines Number Ascending (New Doc)', async () => {
     const editor = await createTextEditor('10\n2\n1');
     editor.selections = [

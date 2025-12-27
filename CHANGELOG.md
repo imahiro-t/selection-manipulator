@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.32] - 2025-12-27
 
+- ✨ Add Unit Conversion tools (px <-> rem, kg <-> lb)
+- ✨ Add Math tools (Hex <-> Decimal)
+- ✨ Add Text Cleanup tools (Normalize Whitespace, Strip HTML Tags, Unsmart Quotes)
+- ✨ Add Sort features (Sort by Line Length)
 - ✨ Add Advanced Case tools (Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify)
 - ✨ Add Text Style tools (Remove Accents)
 - ✨ Add CSV tools (CSV <-> Markdown Table)

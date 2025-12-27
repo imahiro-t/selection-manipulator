@@ -4,7 +4,7 @@ import {
 import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
-type CompareType = 'number' | 'string' | 'occurrence';
+type CompareType = 'number' | 'string' | 'occurrence' | 'length';
 type CompareObject = {
   text: string,
   line: TextLine
@@ -35,7 +35,14 @@ export const sortLineHandler: (compareType: CompareType, isAscending: boolean, i
 };
 
 const sort: (array: Array<CompareObject>, compareType: CompareType, isAscending: boolean) => Array<CompareObject> = (array, compareType, isAscending) => {
-  const sorted = compareType === 'number' ? array.sort((a: CompareObject, b: CompareObject) => Number(a.text) - Number(b.text)) : array.sort((a: CompareObject, b: CompareObject) => a.text.localeCompare(b.text));
+  let sorted;
+  if (compareType === 'number') {
+    sorted = array.sort((a, b) => Number(a.text) - Number(b.text));
+  } else if (compareType === 'length') {
+    sorted = array.sort((a, b) => a.text.length - b.text.length);
+  } else {
+    sorted = array.sort((a, b) => a.text.localeCompare(b.text));
+  }
   return isAscending ? sorted : sorted.reverse();
 };
 

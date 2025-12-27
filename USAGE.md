@@ -255,11 +255,32 @@ Converts timestamps to ISO strings or performs simple date math.
 *   **Whois**: Retrieves WHOIS information.
 *   **IP Geolocation**: Shows geographical info for an IP address.
 
-## 11. Other Utilities
+## 11. Text Cleanup
+*   **Remove Empty Lines**
+*   **Remove Line Numbers** (e.g. `1. code` -> `code`)
+*   **Trim All Lines**
+*   **Join Lines** (Space / Comma)
+*   **Split Lines** (Space / Comma)
+*   **Normalize Whitespace**: `a   b` -> `a b`
+*   **Strip HTML Tags**: `<b>bold</b>` -> `bold`
+*   **Unsmart Quotes**: `“quote”` -> `"quote"`
+
+## 12. Calculation & Unit
+*   **Math Statistics**: Sum, Average, Min, Max.
+*   **Base Conversion**: Hex <-> Decimal.
+*   **Date**: Calculate days between dates.
+*   **Unit Conversion**:
+    *   **Length**: px <-> rem (Base 16).
+    *   **Weight**: kg <-> lb.
+
+## 13. Other Utilities
+*   **Sort**: Sort lines by String, Number, Occurrence, or **Length**.
 *   **Random Generators**:
     *   **UUID**: Generates a random UUID v4.
     *   **Password**: Generates a secure 16-character password.
     *   **IPv4 / IPv6**: Generates random IP addresses.
+*   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
+*   **Regex**: Applies a regular expression to the selection.
 *   **HAR to Mermaid**: Converts HAR (HTTP Archive) text to a Mermaid sequence diagram.
 *   **Regex**: Applies a regular expression to the selection.
 

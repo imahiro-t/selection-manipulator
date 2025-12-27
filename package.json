@@ -188,6 +188,26 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.length.ascending",
+        "title": "Sort Lines Ascending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.length.ascending.clipboard",
+        "title": "Sort Lines Ascending by length (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.length.descending",
+        "title": "Sort Lines Descending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.length.descending.clipboard",
+        "title": "Sort Lines Descending by length (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.sort-line.occurrence.ascending",
         "title": "Sort Lines Ascending by occurrence",
         "category": "Selection Manipulator"
@@ -2430,6 +2450,18 @@
         {
           "command": "selection-manipulator.text.unescape",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.text.normalize-whitespace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.text.strip-html-tags",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.text.unsmart-quotes",
+          "group": "selection-manipulator@4"
         }
       ],
       "selection-manipulator.text.replace.submenu": [
