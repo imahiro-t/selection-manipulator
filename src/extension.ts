@@ -273,6 +273,16 @@ export function activate(context: vscode.ExtensionContext) {
   // ASCII Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay', asciiArtHandler('cowsay', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.cowsay.replace', asciiArtHandler('cowsay', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.tux', asciiArtHandler('tux', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.tux.replace', asciiArtHandler('tux', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.ghost', asciiArtHandler('ghost', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.ghost.replace', asciiArtHandler('ghost', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.meow', asciiArtHandler('meow', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.meow.replace', asciiArtHandler('meow', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.pig', asciiArtHandler('pig', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.pig.replace', asciiArtHandler('pig', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.face', asciiArtHandler('face', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.face.replace', asciiArtHandler('face', true)));
 
   // Text Cleanup Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-empty-lines', textCleanupHandler('remove-empty-lines')));

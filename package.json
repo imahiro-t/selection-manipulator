@@ -1029,12 +1029,62 @@
       },
       {
         "command": "selection-manipulator.ascii.cowsay",
-        "title": "Cowsay",
+        "title": "ASCII Art - Cow (cowsay)",
         "category": "Selection Manipulator"
       },
       {
         "command": "selection-manipulator.ascii.cowsay.replace",
-        "title": "Cowsay (Replace)",
+        "title": "ASCII Art - Cow (cowsay) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.tux",
+        "title": "ASCII Art - Penguin",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.tux.replace",
+        "title": "ASCII Art - Penguin (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.ghost",
+        "title": "ASCII Art - Ghost",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.ghost.replace",
+        "title": "ASCII Art - Ghost (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.meow",
+        "title": "ASCII Art - Cat",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.meow.replace",
+        "title": "ASCII Art - Cat (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.pig",
+        "title": "ASCII Art - Pig",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.pig.replace",
+        "title": "ASCII Art - Pig (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.face",
+        "title": "ASCII Art - Face",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.face.replace",
+        "title": "ASCII Art - Face (Replace)",
         "category": "Selection Manipulator"
       },
       {
@@ -1120,36 +1170,6 @@
       {
         "command": "selection-manipulator.text.unsmart-quotes",
         "title": "Text: Unsmart Quotes",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.title-smart",
-        "title": "Change Case Title (Smart)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.spongebob",
-        "title": "Change Case SpongeBob",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.screaming-snake",
-        "title": "Change Case Screaming Snake (Constant)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.humanize",
-        "title": "Change Case Humanize (Sentence)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.case.slugify",
-        "title": "Change Case Slugify (Kebab)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.text.remove-accents",
-        "title": "Text: Remove Accents",
         "category": "Selection Manipulator"
       }
     ],
@@ -2734,6 +2754,46 @@
         {
           "command": "selection-manipulator.ascii.cowsay.replace",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.ascii.tux",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.ascii.tux.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.ascii.ghost",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.ascii.ghost.replace",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.ascii.meow",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.ascii.meow.replace",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.ascii.pig",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.ascii.pig.replace",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.ascii.face",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.ascii.face.replace",
+          "group": "selection-manipulator@11"
         }
       ],
       "selection-manipulator.quote.submenu": [

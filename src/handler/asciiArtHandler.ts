@@ -8,7 +8,57 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
     return Promise.resolve();
   }
 
-  const generateCowsay = (text: string): string => {
+  const arts: { [key: string]: string } = {
+    cowsay: `
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||`,
+    tux: `
+        \\
+         \\
+             .--.
+            |o_o |
+            |:_/ |
+           //   \\ \\
+          (|     | )
+         /'\\_   _/\`\\
+         \\___)=(___/`,
+    ghost: `
+        \\
+         \\
+          \\
+              .-.
+             (o o)
+             | O \\
+             \\   \\
+              \`~~~\``,
+    meow: `
+        \\
+         \\
+          \\
+             |\\_/|
+             (o.o)
+              =^=`,
+    pig: `
+        \\
+         \\
+           _//| .-~~~-.
+         _/oo  }       }-@
+        (  _  ,}       |
+         \`---' \\_(\\/)_/`,
+    face: `
+        \\
+         \\
+          \\
+            (o)(o)
+           /      \\
+           \\  ()  /
+            \\ -- /`,
+  };
+
+  const generateAsciiArt = (text: string, charName: string): string => {
     const lines = text.split(/\r?\n/);
     const maxLength = Math.max(...lines.map(line => line.length));
 
@@ -44,24 +94,20 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
 
     bubble += ' ' + '-'.repeat(maxLength + 2) + ' \n';
 
-    const cow = `        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
-                ||----w |
-                ||     ||`;
+    const art = arts[charName] || arts['cowsay'];
 
-    return bubble + cow;
+    return bubble + art;
   };
 
   if (replace) {
     return textEditor.edit(editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
-        editBuilder.replace(selection, generateCowsay(text));
+        editBuilder.replace(selection, generateAsciiArt(text, character));
       });
     });
   } else {
-    const result = textEditor.selections.map(selection => generateCowsay(textEditor.document.getText(selection))).join('\n\n');
+    const result = textEditor.selections.map(selection => generateAsciiArt(textEditor.document.getText(selection), character)).join('\n\n');
     return openTextDocument(result).then(() => { });
   }
 };

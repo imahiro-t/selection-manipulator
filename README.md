@@ -358,7 +358,7 @@ Converts timestamps to ISO strings or performs simple date math.
 
 
 ### 12. ASCII Art / Fun
-*   **Cowsay**: Wraps text in a balloon with an ASCII cow.
+*   **ASCII Art**: Wraps text in a balloon with an ASCII character (Cowsay, Tux, Ghost, Meow, Pig, Face, etc.).
 
 **Example:**
 *Before:*

@@ -747,12 +747,62 @@ const myCommands = [
   },
   {
     "command": "selection-manipulator.ascii.cowsay",
-    "title": "ASCII Art - Cowsay",
+    "title": "ASCII Art - Cow (cowsay)",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.ascii.cowsay.replace",
-    "title": "ASCII Art - Cowsay (Replace)",
+    "title": "ASCII Art - Cow (cowsay) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.tux",
+    "title": "ASCII Art - Penguin",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.tux.replace",
+    "title": "ASCII Art - Penguin (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.ghost",
+    "title": "ASCII Art - Ghost",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.ghost.replace",
+    "title": "ASCII Art - Ghost (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.meow",
+    "title": "ASCII Art - Cat",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.meow.replace",
+    "title": "ASCII Art - Cat (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.pig",
+    "title": "ASCII Art - Pig",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.pig.replace",
+    "title": "ASCII Art - Pig (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.face",
+    "title": "ASCII Art - Face",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.face.replace",
+    "title": "ASCII Art - Face (Replace)",
     "canMultiSelection": true
   },
   {

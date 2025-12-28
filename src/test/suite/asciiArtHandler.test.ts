@@ -36,4 +36,58 @@ suite('ASCII Art Handler Test Suite', () => {
     assert.ok(text.includes('\\ Line 2 /'), 'Last line should have bottom borders');
     assert.ok(text.includes('(oo)'), 'Should contain cow eyes');
   });
+
+  test('Tux Single Line', async () => {
+    const editor = await createTextEditor('Hello Tux');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('tux', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Tux >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('o_o'), 'Should contain tux eyes');
+    assert.ok(result.includes('.--.'), 'Should contain tux head');
+  });
+
+  test('Ghost Multi Line', async () => {
+    const editor = await createTextEditor('Boo\nHa');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('ghost', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    // Ghost definition in handler has 'boxy' word inside (o o)
+    // Actually wait, looking at my implementation in Step 90:
+    // It has `(o o)` and `.-.` but no 'boxy'.
+    // Step 87 had 'boxy' in my THOUGHT process but my CODE in Step 90 removed it or maybe I didn't verify.
+    // Let's check Step 90 content.
+    // Step 90: Ghost definition:
+    // ghost: `
+    //     \
+    //      \
+    //       \
+    //           .-.
+    //          (o o)
+    //          | O \
+    //          \   \
+    //           `~~~`
+
+    // It does NOT have 'boxy'.
+    // So I should assert on `(o o)`.
+
+    assert.ok(result.includes('(o o)'), 'Should contain ghost eyes');
+    assert.ok(result.includes('| O \\'), 'Should contain ghost body');
+  });
 });

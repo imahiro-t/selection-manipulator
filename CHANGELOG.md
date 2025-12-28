@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.34] - 2025-12-28
 
 - ✨ Add Extract Lines Length Range feature
+- ✨ Add Multiple ASCII Art Support (Tux, Ghost, Meow, Pig, Face)
 
 ## [0.0.33] - 2025-12-27
 
