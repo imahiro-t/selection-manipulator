@@ -686,6 +686,16 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.extract.line-by-length.range",
+    "title": "Extract - Extract Lines Length Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.extract.line-by-length.range.clipboard",
+    "title": "Extract - Extract Lines Length Range (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.unescape.replace",
     "title": "Text - Unescape Text (JSON Parse) (Replace)",
     "canMultiSelection": true

@@ -88,6 +88,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.less.clipboard', extractLineByLengthHandler('less', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.greater', extractLineByLengthHandler('greater', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.greater.clipboard', extractLineByLengthHandler('greater', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.range', extractLineByLengthHandler('range', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.range.clipboard', extractLineByLengthHandler('range', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.clipboard', reverseHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler(false)));

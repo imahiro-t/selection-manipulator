@@ -5,7 +5,7 @@ import {
 import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
-type CompareMode = 'equal' | 'less' | 'greater';
+type CompareMode = 'equal' | 'less' | 'greater' | 'range';
 
 export const extractLineByLengthHandler: (mode: CompareMode, isClipboard: boolean, testInput?: string) => (textEditor: TextEditor) => void = (mode, isClipboard, testInput) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -14,10 +14,19 @@ export const extractLineByLengthHandler: (mode: CompareMode, isClipboard: boolea
 
   let lengthInput = testInput;
   if (lengthInput === undefined) {
+    const prompt = mode === 'range' ? 'Enter the length range (min,max or min-max)' : `Enter the length to filter lines (${mode})`;
     lengthInput = await window.showInputBox({
-      prompt: `Enter the length to filter lines (${mode})`,
+      prompt: prompt,
       validateInput: (value) => {
-        return isNaN(Number(value)) ? 'Please enter a valid number' : null;
+        if (mode === 'range') {
+          const parts = value.split(/[,-]/).map(s => s.trim());
+          if (parts.length !== 2 || parts.some(p => isNaN(Number(p)))) {
+            return 'Please enter a valid range (min,max or min-max)';
+          }
+        } else {
+          return isNaN(Number(value)) ? 'Please enter a valid number' : null;
+        }
+        return null;
       }
     });
   }
@@ -26,7 +35,17 @@ export const extractLineByLengthHandler: (mode: CompareMode, isClipboard: boolea
     return;
   }
 
-  const length = Number(lengthInput);
+  let minLength = 0;
+  let maxLength = 0;
+  let targetLength = 0;
+
+  if (mode === 'range') {
+    const parts = lengthInput.split(/[,-]/).map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+    minLength = Number(parts[0]);
+    maxLength = Number(parts[1]);
+  } else {
+    targetLength = Number(lengthInput);
+  }
 
   const linesToExtract: string[] = [];
 
@@ -39,13 +58,16 @@ export const extractLineByLengthHandler: (mode: CompareMode, isClipboard: boolea
       let match = false;
       switch (mode) {
         case 'equal':
-          match = lineText.length === length;
+          match = lineText.length === targetLength;
           break;
         case 'less':
-          match = lineText.length <= length;
+          match = lineText.length <= targetLength;
           break;
         case 'greater':
-          match = lineText.length >= length;
+          match = lineText.length >= targetLength;
+          break;
+        case 'range':
+          match = lineText.length >= minLength && lineText.length <= maxLength;
           break;
       }
 

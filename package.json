@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 200 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -750,6 +750,16 @@
       {
         "command": "selection-manipulator.extract.line-by-length.greater.clipboard",
         "title": "Extract Lines Greater Than Length (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.range",
+        "title": "Extract Lines Length Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.extract.line-by-length.range.clipboard",
+        "title": "Extract Lines Length Range (Clipboard)",
         "category": "Selection Manipulator"
       },
       {

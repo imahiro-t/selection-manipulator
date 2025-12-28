@@ -38,4 +38,26 @@ suite('Extract Line By Length Handler Test Suite', () => {
 
     assert.ok(true);
   });
+
+  test('Extract Lines Range (Comma)', async () => {
+    const text = '1\n12\n123\n1234\n12345';
+    const editor = await createTextEditor(text);
+    selectAll(editor);
+
+    // Simulate user input '2,4'
+    await extractLineByLengthHandler('range', false, '2,4')(editor);
+
+    assert.ok(true);
+  });
+
+  test('Extract Lines Range (Hyphen)', async () => {
+    const text = '1\n12\n123\n1234\n12345';
+    const editor = await createTextEditor(text);
+    selectAll(editor);
+
+    // Simulate user input '2-4'
+    await extractLineByLengthHandler('range', false, '2-4')(editor);
+
+    assert.ok(true);
+  });
 });

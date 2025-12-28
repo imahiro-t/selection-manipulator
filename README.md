@@ -172,7 +172,8 @@ Extracts lines that satisfy a condition (like regex match) or simply extracts th
 Extracts lines based on character count.
 *   **Equal**: Lines with exactly N characters.
 *   **Less Than or Equal**: Lines with N or fewer characters.
-*   **Greater Than or Equal**: Lines with N or more characters. This filters the *lines* within the selection, not just the selection itself.
+*   **Greater Than or Equal**: Lines with N or more characters.
+*   **Range**: Lines with length between X and Y characters (inclusive). Input format: `min,max` or `min-max`.
 
 #### Extract Specific Data
 Extracts specific formats from the text.
