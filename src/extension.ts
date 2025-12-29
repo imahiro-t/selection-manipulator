@@ -47,7 +47,7 @@ import { mathHandler } from './handler/mathHandler';
 import { csvHandler } from './handler/csvHandler';
 import { dataStructHandler } from './handler/dataStructHandler';
 import { unitConvertHandler } from './handler/unitConvertHandler';
-import { quoteHandler } from './handler/quoteHandler';
+import { encloseHandler } from './handler/encloseHandler';
 import { markdownHandler } from './handler/markdownHandler';
 import { insertDateHandler } from './handler/insertDateHandler';
 import {
@@ -255,9 +255,20 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.half-to-full.replace', halfWidthToFullWidthHandler(true)));
 
   // New Features (Items 62-94)
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.single', quoteHandler('single')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.double', quoteHandler('double')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.backtick', quoteHandler('backtick')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.single', encloseHandler('single')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.double', encloseHandler('double')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quote.backtick', encloseHandler('backtick')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.paren', encloseHandler('paren')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.square', encloseHandler('square')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.curly', encloseHandler('curly')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.angle', encloseHandler('angle')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.quote-single', encloseHandler('japanese-quote-single')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.quote-double', encloseHandler('japanese-quote-double')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.bracket', encloseHandler('japanese-bracket')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.angle', encloseHandler('japanese-angle')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.paren', encloseHandler('japanese-paren')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.square', encloseHandler('japanese-square')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.enclose.japanese.curly', encloseHandler('japanese-curly')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.link', markdownHandler('link')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.insert.date.iso', insertDateHandler('iso')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.insert.date.locale', insertDateHandler('locale')));

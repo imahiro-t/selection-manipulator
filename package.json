@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 200 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -1171,6 +1171,61 @@
         "command": "selection-manipulator.text.unsmart-quotes",
         "title": "Text: Unsmart Quotes",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.paren",
+        "title": "Enclose: Parentheses (())",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.square",
+        "title": "Enclose: Square Brackets ([])",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.curly",
+        "title": "Enclose: Curly Brackets ({})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.angle",
+        "title": "Enclose: Angle Brackets (<>)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.quote-single",
+        "title": "Enclose: Japanese Single Quote (「」)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.quote-double",
+        "title": "Enclose: Japanese Double Quote (『』)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.bracket",
+        "title": "Enclose: Japanese Bracket (【】)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.angle",
+        "title": "Enclose: Japanese Angle Bracket (＜＞)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.paren",
+        "title": "Enclose: Japanese Parentheses (（）)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.square",
+        "title": "Enclose: Japanese Square Brackets (［］)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.curly",
+        "title": "Enclose: Japanese Curly Brackets (｛｝)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1332,7 +1387,7 @@
       },
       {
         "id": "selection-manipulator.quote.submenu",
-        "label": "Quote"
+        "label": "Enclose"
       },
       {
         "id": "selection-manipulator.unit.submenu",
@@ -2808,6 +2863,50 @@
         {
           "command": "selection-manipulator.quote.backtick",
           "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.enclose.paren",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.enclose.square",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.enclose.curly",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.enclose.angle",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.quote-single",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.quote-double",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.bracket",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.angle",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.paren",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.square",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.curly",
+          "group": "selection-manipulator@13"
         }
       ],
       "selection-manipulator.unit.submenu": [

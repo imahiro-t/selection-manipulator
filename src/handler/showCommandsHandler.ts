@@ -1002,17 +1002,72 @@ const myCommands = [
   },
   {
     "command": "selection-manipulator.quote.single",
-    "title": "Quote - Enclose in Single Quotes",
+    "title": "Enclose - Enclose in Single Quotes",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.quote.double",
-    "title": "Quote - Enclose in Double Quotes",
+    "title": "Enclose - Enclose in Double Quotes",
     "canMultiSelection": true
   },
   {
     "command": "selection-manipulator.quote.backtick",
-    "title": "Quote - Enclose in Backticks",
+    "title": "Enclose - Enclose in Backticks",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.paren",
+    "title": "Enclose - Enclose in Parentheses (())",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.square",
+    "title": "Enclose - Enclose in Square Brackets ([])",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.curly",
+    "title": "Enclose - Enclose in Curly Brackets ({})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.angle",
+    "title": "Enclose - Enclose in Angle Brackets (<>)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.quote-single",
+    "title": "Enclose - Enclose in Japanese Single Quote (「」)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.quote-double",
+    "title": "Enclose - Enclose in Japanese Double Quote (『』)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.bracket",
+    "title": "Enclose - Enclose in Japanese Bracket (【】)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.angle",
+    "title": "Enclose - Enclose in Japanese Angle Bracket (＜＞)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.paren",
+    "title": "Enclose - Enclose in Japanese Parentheses (（）)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.square",
+    "title": "Enclose - Enclose in Japanese Square Brackets (［］)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.curly",
+    "title": "Enclose - Enclose in Japanese Curly Brackets (｛｝)",
     "canMultiSelection": true
   },
   {

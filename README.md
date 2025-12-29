@@ -11,7 +11,7 @@ Selection Manipulator offers over **200 powerful tools** to manipulate, transfor
 *   **Unique**: Instantly remove duplicate lines.
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, and separate multi-selections.
-*   **Insert**: Date (ISO, Locale, Timestamp), Markdown Link, Quoted Text (Single, Double, Backtick).
+*   **Insert**: Date (ISO, Locale, Timestamp), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.
@@ -100,11 +100,11 @@ const a = 'Hello';
 const b = "World";
 ```
 
-#### Quote Enclosure
-Encloses selected text in quotes.
-*   **Single Quote**: `'text'`
-*   **Double Quote**: `"text"`
-*   **Backtick**: `` `text` ``
+#### Enclose Text
+Encloses selected text with various characters.
+*   **Quotes**: `'Single'`, `"Double"`, `` `Backtick` ``
+*   **Brackets**: `(Paren)`, `[Square]`, `{Curly}`, `<Angle>`
+*   **Japanese**: `「Single」`, `『Double』`, `【Bracket】`, `＜Angle＞`, `（Paren）`, `［Square］`, `｛Curly｝`
 
 #### Markdown Link
 Creates a Markdown link from selected text and clipboard URL (or vice versa).
