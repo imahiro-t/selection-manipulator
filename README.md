@@ -110,6 +110,10 @@ Encloses selected text with various characters.
 Creates a Markdown link from selected text and clipboard URL (or vice versa).
 *   **Selection**: `Google` + **Clipboard**: `https://google.com` -> `[Google](https://google.com)`
 
+#### Mask with Asterisk
+Masks the selected text with asterisks (`*`).
+*   **Selection**: `password123` -> `***********`
+
 #### Insert Date
 Inserts current date/time.
 *   **ISO 8601**: `2023-12-27T12:00:00.000Z`

@@ -65,6 +65,8 @@ import {
   hiraganaToKatakanaHandler,
   katakanaToHiraganaHandler,
 } from './handler/japaneseHandler';
+
+import { maskHandler } from './handler/maskHandler';
 import { ResultProvider } from './provider/resultProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -247,6 +249,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-decimal.replace', hexToDecimalHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.decimal-to-hex', decimalToHexHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.decimal-to-hex.replace', decimalToHexHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.mask', maskHandler));
 
   // Japanese Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.full-to-half', fullWidthToHalfWidthHandler(false)));

@@ -991,6 +991,11 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.text.mask",
+    "title": "Text - Mask with Asterisk (*)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.sort-line.length.ascending",
     "title": "Sort Lines Ascending by length",
     "canMultiSelection": true

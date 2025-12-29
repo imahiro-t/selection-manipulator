@@ -1173,6 +1173,11 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.text.mask",
+        "title": "Text: Mask with Asterisk (*)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.enclose.paren",
         "title": "Enclose: Parentheses (())",
         "category": "Selection Manipulator"
@@ -2748,6 +2753,10 @@
         {
           "command": "selection-manipulator.text.unescape.replace",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.text.mask",
+          "group": "selection-manipulator@2"
         }
       ],
       "selection-manipulator.submenu": [

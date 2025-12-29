@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ✨ Add Enclose Text tools (Parentheses, Square/Curly/Angle Brackets)
 - ✨ Add Japanese Enclose tools (「」, 『』, 【】, etc.)
+- ✨ Add Mask with Asterisk tool
 
 ## [0.0.34] - 2025-12-28
 
