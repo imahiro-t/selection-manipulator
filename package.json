@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -743,6 +743,66 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.date.to-iso",
+        "title": "Date - Convert to ISO 8601",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-iso.replace",
+        "title": "Date - Convert to ISO 8601 (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-iso.clipboard",
+        "title": "Date - Convert to ISO 8601 (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-locale",
+        "title": "Date - Convert to Locale String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-locale.replace",
+        "title": "Date - Convert to Locale String (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-locale.clipboard",
+        "title": "Date - Convert to Locale String (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp",
+        "title": "Date - Convert to Timestamp (Seconds)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp.replace",
+        "title": "Date - Convert to Timestamp (Seconds) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp.clipboard",
+        "title": "Date - Convert to Timestamp (Seconds) (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp-ms",
+        "title": "Date - Convert to Timestamp (Milliseconds)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp-ms.replace",
+        "title": "Date - Convert to Timestamp (Milliseconds) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timestamp-ms.clipboard",
+        "title": "Date - Convert to Timestamp (Milliseconds) (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.extract.line-by-length.greater",
         "title": "Extract Lines Greater Than Length",
         "category": "Selection Manipulator"
@@ -1465,6 +1525,10 @@
       {
         "id": "selection-manipulator.insert.submenu",
         "label": "Insert"
+      },
+      {
+        "id": "selection-manipulator.date.submenu",
+        "label": "Date Conversion"
       }
     ],
     "menus": {
@@ -2868,6 +2932,10 @@
         {
           "submenu": "selection-manipulator.insert.submenu",
           "group": "selection-manipulator@11"
+        },
+        {
+          "submenu": "selection-manipulator.date.submenu",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -3062,6 +3130,56 @@
         {
           "command": "selection-manipulator.insert.date.timestamp",
           "group": "selection-manipulator@2"
+        }
+      ],
+      "selection-manipulator.date.submenu": [
+        {
+          "command": "selection-manipulator.date.to-iso",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.date.to-iso.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.date.to-iso.clipboard",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.date.to-locale",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.date.to-locale.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.date.to-locale.clipboard",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp.replace",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp.clipboard",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp-ms",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp-ms.replace",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.date.to-timestamp-ms.clipboard",
+          "group": "selection-manipulator@11"
         }
       ]
     }

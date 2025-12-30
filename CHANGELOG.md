@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.37] - 2025-12-30
+
+- ✨ Add Date Conversion Feature (ISO 8601, Locale String, Timestamp)
+- ✨ Add Date Conversion Output Modes (Standard, Replace, Clipboard)
+
 ## [0.0.36] - 2025-12-30
 
 - 🐛 Fix ASCII Art alignment and remove extra empty lines

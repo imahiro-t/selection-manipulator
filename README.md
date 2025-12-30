@@ -12,6 +12,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, separate multi-selections, remove characters from edges, mask text.
 *   **Insert**: Date (ISO, Locale, Timestamp), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
+*   **Convert Date**: Convert between ISO 8601, Locale String, and Timestamp (Seconds/Milliseconds).
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.

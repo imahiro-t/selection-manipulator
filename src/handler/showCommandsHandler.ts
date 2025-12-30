@@ -616,6 +616,66 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.date.to-iso",
+    "title": "Date - Convert to ISO 8601",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-iso.replace",
+    "title": "Date - Convert to ISO 8601 (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-iso.clipboard",
+    "title": "Date - Convert to ISO 8601 (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-locale",
+    "title": "Date - Convert to Locale String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-locale.replace",
+    "title": "Date - Convert to Locale String (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-locale.clipboard",
+    "title": "Date - Convert to Locale String (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp",
+    "title": "Date - Convert to Timestamp (Seconds)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp.replace",
+    "title": "Date - Convert to Timestamp (Seconds) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp.clipboard",
+    "title": "Date - Convert to Timestamp (Seconds) (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp-ms",
+    "title": "Date - Convert to Timestamp (Milliseconds)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp-ms.replace",
+    "title": "Date - Convert to Timestamp (Milliseconds) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timestamp-ms.clipboard",
+    "title": "Date - Convert to Timestamp (Milliseconds) (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.regex.g",
     "title": "Regular Expression - Regex (/PATTERN/g)",
     "canMultiSelection": true
