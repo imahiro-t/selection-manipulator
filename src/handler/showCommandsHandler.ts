@@ -806,6 +806,66 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.ascii.daemon",
+    "title": "ASCII Art - Daemon",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.daemon.replace",
+    "title": "ASCII Art - Daemon (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.dragon",
+    "title": "ASCII Art - Dragon",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.dragon.replace",
+    "title": "ASCII Art - Dragon (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.stegosaurus",
+    "title": "ASCII Art - Stegosaurus",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.stegosaurus.replace",
+    "title": "ASCII Art - Stegosaurus (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.turkey",
+    "title": "ASCII Art - Turkey",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.turkey.replace",
+    "title": "ASCII Art - Turkey (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.turtle",
+    "title": "ASCII Art - Turtle",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.turtle.replace",
+    "title": "ASCII Art - Turtle (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.elephant",
+    "title": "ASCII Art - Elephant",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii.elephant.replace",
+    "title": "ASCII Art - Elephant (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.remove-empty-lines",
     "title": "Text - Remove Empty Lines",
     "canMultiSelection": true

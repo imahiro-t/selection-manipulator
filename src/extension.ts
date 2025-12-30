@@ -297,6 +297,18 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.pig.replace', asciiArtHandler('pig', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.face', asciiArtHandler('face', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.face.replace', asciiArtHandler('face', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.daemon', asciiArtHandler('daemon', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.daemon.replace', asciiArtHandler('daemon', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.dragon', asciiArtHandler('dragon', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.dragon.replace', asciiArtHandler('dragon', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.stegosaurus', asciiArtHandler('stegosaurus', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.stegosaurus.replace', asciiArtHandler('stegosaurus', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.turkey', asciiArtHandler('turkey', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.turkey.replace', asciiArtHandler('turkey', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.turtle', asciiArtHandler('turtle', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.turtle.replace', asciiArtHandler('turtle', true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.elephant', asciiArtHandler('elephant', false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii.elephant.replace', asciiArtHandler('elephant', true)));
 
   // Text Cleanup Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-empty-lines', textCleanupHandler('remove-empty-lines')));

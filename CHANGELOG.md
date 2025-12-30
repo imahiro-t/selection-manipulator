@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 🐛 Fix ASCII Art alignment and remove extra empty lines
 - 💄 Adjust ASCII Art character positioning
+- ✨ Add 6 new ASCII Art characters (Daemon, Dragon, Stegosaurus, Turkey, Turtle, Elephant)
 
 ## [0.0.35] - 2025-12-29
 

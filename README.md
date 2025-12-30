@@ -2,7 +2,7 @@
 
 **The Ultimate Text Processing Toolkit for VS Code**
 
-Selection Manipulator offers over **200 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
+Selection Manipulator offers over **250 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
@@ -362,7 +362,7 @@ Converts timestamps to ISO strings or performs simple date math.
 
 
 ### 12. ASCII Art / Fun
-*   **ASCII Art**: Wraps text in a balloon with an ASCII character (Cowsay, Tux, Ghost, Meow, Pig, Face, etc.).
+*   **ASCII Art**: Wraps text in a balloon with an ASCII character (Cowsay, Tux, Ghost, Meow, Pig, Face, Daemon, Dragon, Stegosaurus, Turkey, Turtle, Elephant, etc.).
 
 **Example:**
 *Before:*

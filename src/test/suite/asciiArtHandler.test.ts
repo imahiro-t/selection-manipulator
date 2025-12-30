@@ -90,6 +90,109 @@ suite('ASCII Art Handler Test Suite', () => {
     assert.ok(result.includes('(o o)'), 'Should contain ghost eyes');
     assert.ok(result.includes('| O \\'), 'Should contain ghost body');
   });
+
+  test('Daemon Single Line', async () => {
+    const editor = await createTextEditor('Hello Daemon');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('daemon', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Daemon >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('/(        )`'), 'Should contain daemon horns');
+  });
+
+  test('Dragon Single Line', async () => {
+    const editor = await createTextEditor('Hello Dragon');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('dragon', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Dragon >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('@_^_@'), 'Should contain dragon face');
+  });
+
+  test('Stegosaurus Single Line', async () => {
+    const editor = await createTextEditor('Hello Stegosaurus');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('stegosaurus', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Stegosaurus >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('.   .\' "'), 'Should contain stegosaurus plates');
+  });
+
+  test('Turkey Single Line', async () => {
+    const editor = await createTextEditor('Hello Turkey');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('turkey', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Turkey >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('{ (@)    }'), 'Should contain turkey head');
+  });
+
+  test('Turtle Single Line', async () => {
+    const editor = await createTextEditor('Hello Turtle');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('turtle', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Turtle >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('/^\\__/^\\'), 'Should contain turtle shell top');
+  });
+
+  test('Elephant Single Line', async () => {
+    const editor = await createTextEditor('Hello Elephant');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('elephant', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    assert.ok(result.includes('< Hello Elephant >'), 'Text should be wrapped in single line bubble');
+    assert.ok(result.includes('o   |'), 'Should contain elephant trunk');
+  });
+
   test('Check empty line removal', async () => {
     const editor = await createTextEditor('Test');
     await selectAll(editor);

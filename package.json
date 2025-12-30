@@ -1,7 +1,7 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "The ultimate text processing toolkit for VS Code. Over 200 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
+  "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
   "version": "0.0.36",
   "publisher": "erintheblack",
   "author": {
@@ -1230,6 +1230,66 @@
       {
         "command": "selection-manipulator.enclose.japanese.curly",
         "title": "Enclose: Japanese Curly Brackets (｛｝)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.daemon",
+        "title": "ASCII Art - Daemon",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.daemon.replace",
+        "title": "ASCII Art - Daemon (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.dragon",
+        "title": "ASCII Art - Dragon",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.dragon.replace",
+        "title": "ASCII Art - Dragon (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.stegosaurus",
+        "title": "ASCII Art - Stegosaurus",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.stegosaurus.replace",
+        "title": "ASCII Art - Stegosaurus (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.turkey",
+        "title": "ASCII Art - Turkey",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.turkey.replace",
+        "title": "ASCII Art - Turkey (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.turtle",
+        "title": "ASCII Art - Turtle",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.turtle.replace",
+        "title": "ASCII Art - Turtle (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.elephant",
+        "title": "ASCII Art - Elephant",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii.elephant.replace",
+        "title": "ASCII Art - Elephant (Replace)",
         "category": "Selection Manipulator"
       }
     ],
@@ -2858,6 +2918,54 @@
         {
           "command": "selection-manipulator.ascii.face.replace",
           "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.ascii.daemon",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.ascii.daemon.replace",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.ascii.dragon",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.ascii.dragon.replace",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.ascii.stegosaurus",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.ascii.stegosaurus.replace",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.ascii.turkey",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.ascii.turkey.replace",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.ascii.turtle",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.ascii.turtle.replace",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.ascii.elephant",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.ascii.elephant.replace",
+          "group": "selection-manipulator@23"
         }
       ],
       "selection-manipulator.quote.submenu": [
