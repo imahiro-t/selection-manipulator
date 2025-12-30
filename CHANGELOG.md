@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.36] - 2025-12-30
+
+- 🐛 Fix ASCII Art alignment and remove extra empty lines
+- 💄 Adjust ASCII Art character positioning
+
 ## [0.0.35] - 2025-12-29
 
 - ✨ Add Enclose Text tools (Parentheses, Square/Curly/Angle Brackets)

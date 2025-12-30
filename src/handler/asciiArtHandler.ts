@@ -16,44 +16,31 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
                 ||----w |
                 ||     ||`,
     tux: `
-        \\
-         \\
-             .--.
-            |o_o |
-            |:_/ |
-           //   \\ \\
-          (|     | )
-         /'\\_   _/\`\\
-         \\___)=(___/`,
+        \\   .--.
+         \\ |o_o |
+           |:_/ |
+          //   \\ \\
+         (|     | )
+        /'\\_   _/\`\\
+        \\___)=(___/`,
     ghost: `
-        \\
-         \\
-          \\
-              .-.
-             (o o)
-             | O \\
+        \\     .-.
+         \\   (o o)
+          \\  | O \\
              \\   \\
               \`~~~\``,
     meow: `
-        \\
-         \\
-          \\
-             |\\_/|
-             (o.o)
+        \\    |\\_/|
+         \\   (o.o)
               =^=`,
     pig: `
-        \\
-         \\
-           _//| .-~~~-.
-         _/oo  }       }-@
-        (  _  ,}       |
-         \`---' \\_(\\/)_/`,
+        \\   _//| .-~~~-.
+         \\ _/oo  }       }-@
+         (  _  ,}       |
+          \`---' \\_(\\/)_/`,
     face: `
-        \\
-         \\
-          \\
-            (o)(o)
-           /      \\
+        \\   (o)(o)
+         \\ /      \\
            \\  ()  /
             \\ -- /`,
   };
@@ -96,7 +83,7 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
 
     const art = arts[charName] || arts['cowsay'];
 
-    return bubble + art;
+    return bubble + art.replace(/^\n/, '');
   };
 
   if (replace) {

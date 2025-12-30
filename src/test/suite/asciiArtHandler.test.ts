@@ -90,4 +90,33 @@ suite('ASCII Art Handler Test Suite', () => {
     assert.ok(result.includes('(o o)'), 'Should contain ghost eyes');
     assert.ok(result.includes('| O \\'), 'Should contain ghost body');
   });
+  test('Check empty line removal', async () => {
+    const editor = await createTextEditor('Test');
+    await selectAll(editor);
+
+    let result = '';
+    const originalOpen = require('../../common').openTextDocument;
+    require('../../common').openTextDocument = async (content: string) => {
+      result = content;
+    };
+
+    await asciiArtHandler('cowsay', false)(editor);
+    require('../../common').openTextDocument = originalOpen;
+
+    // The bubble ends with a dashed line followed by a newline.
+    // The art should start immediately on the next line (indentation allowed).
+    // We want to ensure there is NO double newline between bubble and art.
+    // Bubble bottom:  ---------- 
+    // Art start:      \   ^__^
+
+    // Split key parts
+    const lines = result.split('\n');
+    const bubbleBottomIndex = lines.findIndex(line => line.trim().startsWith('-----'));
+
+    assert.notStrictEqual(bubbleBottomIndex, -1, 'Bubble bottom found');
+
+    // The next line should be the start of the art (containing backslash)
+    const nextLine = lines[bubbleBottomIndex + 1];
+    assert.ok(nextLine.trim().startsWith('\\'), 'Art should start on the line immediately after bubble bottom');
+  });
 });
