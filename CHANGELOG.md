@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.38] - 2025-12-31
+
+- ✨ Add Japanese Era Conversion Feature (AD <-> Wareki)
+- ✨ Add Morse Code Feature (Text <-> Morse Code, Japanese Kana Support)
+
 ## [0.0.37] - 2025-12-30
 
 - ✨ Add Date Conversion Feature (ISO 8601, Locale String, Timestamp)

@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -1351,6 +1351,46 @@
         "command": "selection-manipulator.ascii.elephant.replace",
         "title": "ASCII Art - Elephant (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.era-conversion",
+        "title": "Date - Convert AD <-> Wareki",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.era-conversion.replace",
+        "title": "Date - Convert AD <-> Wareki (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.to-morse",
+        "title": "Morse - Text to Morse Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.to-morse.replace",
+        "title": "Morse - Text to Morse Code (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.from-morse",
+        "title": "Morse - Morse Code to Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.from-morse.replace",
+        "title": "Morse - Morse Code to Text (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.from-morse.kana",
+        "title": "Morse - Morse Code to Text (Kana)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.morse.from-morse.kana.replace",
+        "title": "Morse - Morse Code to Text (Kana) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1529,6 +1569,10 @@
       {
         "id": "selection-manipulator.date.submenu",
         "label": "Date Conversion"
+      },
+      {
+        "id": "selection-manipulator.morse.submenu",
+        "label": "Morse Code"
       }
     ],
     "menus": {
@@ -2936,6 +2980,10 @@
         {
           "submenu": "selection-manipulator.date.submenu",
           "group": "selection-manipulator@12"
+        },
+        {
+          "submenu": "selection-manipulator.morse.submenu",
+          "group": "selection-manipulator@13"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -3180,6 +3228,40 @@
         {
           "command": "selection-manipulator.date.to-timestamp-ms.clipboard",
           "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.date.era-conversion",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.date.era-conversion.replace",
+          "group": "selection-manipulator@13"
+        }
+      ],
+      "selection-manipulator.morse.submenu": [
+        {
+          "command": "selection-manipulator.morse.to-morse",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.morse.to-morse.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.morse.from-morse",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.morse.from-morse.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.morse.from-morse.kana",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.morse.from-morse.kana.replace",
+          "group": "selection-manipulator@5"
         }
       ]
     }

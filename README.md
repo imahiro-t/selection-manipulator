@@ -11,8 +11,9 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Unique**: Instantly remove duplicate lines.
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content, remove cursors, separate multi-selections, remove characters from edges, mask text.
-*   **Insert**: Date (ISO, Locale, Timestamp), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
-*   **Convert Date**: Convert between ISO 8601, Locale String, and Timestamp (Seconds/Milliseconds).
+*   **Insert**: Date (ISO, Locale, Timestamp, Era), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
+*   **Convert Date**: Convert between ISO 8601, Locale String, and Timestamp (Seconds/Milliseconds), AD <-> Wareki.
+*   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.
@@ -189,6 +190,18 @@ Convert text between naming conventions and cases.
 
 ### 12. ASCII Art / Fun
 *   **ASCII Art**: Wraps text in a balloon with an ASCII character (Cowsay, Tux, Ghost, Meow, Pig, Face, Daemon, Dragon, Stegosaurus, Turkey, Turtle, Elephant, etc.).
+
+### 13. Date Conversion
+Convert selected date strings between various formats.
+*   **Formats**: ISO 8601, Locale String, Unix Timestamp (Seconds / Milliseconds).
+*   **Japanese Era (Wareki)**: Convert AD Year to Japanese Era (e.g., `2025` <-> `令和7年`).
+    *   Supports: Meiji, Taisho, Showa, Heisei, Reiwa.
+
+### 14. Morse Code
+Convert text to dots and dashes, and vice versa.
+*   **Text to Morse**: Supports Alphanumeric (International) and Japanese Kana (Wabun).
+*   **Morse to Text**: Decodes Morse code to text.
+*   **Morse to Text (Kana)**: Explicitly decodes as Japanese Kana (Wabun Code) to resolve ambiguities.
 
 **Example:**
 *Before:*

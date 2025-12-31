@@ -676,6 +676,46 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.date.era-conversion",
+    "title": "Date - Convert AD <-> Wareki",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.era-conversion.replace",
+    "title": "Date - Convert AD <-> Wareki (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.to-morse",
+    "title": "Morse - Text to Morse Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.to-morse.replace",
+    "title": "Morse - Text to Morse Code (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.from-morse",
+    "title": "Morse - Morse Code to Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.from-morse.replace",
+    "title": "Morse - Morse Code to Text (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.from-morse.kana",
+    "title": "Morse - Morse Code to Text (Kana)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.morse.from-morse.kana.replace",
+    "title": "Morse - Morse Code to Text (Kana) (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.regex.g",
     "title": "Regular Expression - Regex (/PATTERN/g)",
     "canMultiSelection": true
