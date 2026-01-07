@@ -10,7 +10,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Sort**: Organize lines or selections by string, number, occurrence, or length (Ascending/Descending).
 *   **Unique**: Instantly remove duplicate lines.
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
-*   **Edit**: Reverse text, shuffle content, remove cursors, separate multi-selections, remove characters from edges, mask text.
+*   **Edit**: Reverse text, shuffle content (lines or characters), remove cursors, separate multi-selections, remove characters from edges, mask text.
 *   **Insert**: Date (ISO, Locale, Timestamp, Era), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
 *   **Convert Date**: Convert between ISO 8601, Locale String, and Timestamp (Seconds/Milliseconds), AD <-> Wareki.
 *   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
@@ -108,7 +108,9 @@ Sorts selected lines based on various criteria.
 
 #### Unique & Shuffle
 *   **Unique Selections**: Removes duplicate lines.
-*   **Shuffle**: Randomly shuffles the selected lines or selections.
+*   **Unique Selections**: Removes duplicate lines.
+*   **Shuffle**: Randomly shuffles the selected lines, selections, or characters.
+*   **Diff Selection**: Shows the difference between two selections.
 
 ### 4. Extraction
 Filter and move data to a new tab or clipboard.
@@ -191,18 +193,6 @@ Convert text between naming conventions and cases.
 ### 12. ASCII Art / Fun
 *   **ASCII Art**: Wraps text in a balloon with an ASCII character (Cowsay, Tux, Ghost, Meow, Pig, Face, Daemon, Dragon, Stegosaurus, Turkey, Turtle, Elephant, etc.).
 
-### 13. Date Conversion
-Convert selected date strings between various formats.
-*   **Formats**: ISO 8601, Locale String, Unix Timestamp (Seconds / Milliseconds).
-*   **Japanese Era (Wareki)**: Convert AD Year to Japanese Era (e.g., `2025` <-> `令和7年`).
-    *   Supports: Meiji, Taisho, Showa, Heisei, Reiwa.
-
-### 14. Morse Code
-Convert text to dots and dashes, and vice versa.
-*   **Text to Morse**: Supports Alphanumeric (International) and Japanese Kana (Wabun).
-*   **Morse to Text**: Decodes Morse code to text.
-*   **Morse to Text (Kana)**: Explicitly decodes as Japanese Kana (Wabun Code) to resolve ambiguities.
-
 **Example:**
 *Before:*
 ```text
@@ -219,4 +209,19 @@ Hello World
                 ||----w |
                 ||     ||
 ```
+
+
+### 13. Date Conversion
+Convert selected date strings between various formats.
+*   **Formats**: ISO 8601, Locale String, Unix Timestamp (Seconds / Milliseconds).
+*   **Japanese Era (Wareki)**: Convert AD Year to Japanese Era (e.g., `2025` <-> `令和7年`).
+    *   Supports: Meiji, Taisho, Showa, Heisei, Reiwa.
+
+### 14. Morse Code
+Convert text to dots and dashes, and vice versa.
+*   **Text to Morse**: Supports Alphanumeric (International) and Japanese Kana (Wabun).
+*   **Morse to Text**: Decodes Morse code to text.
+*   **Morse to Text (Kana)**: Explicitly decodes as Japanese Kana (Wabun Code) to resolve ambiguities.
+
+
 

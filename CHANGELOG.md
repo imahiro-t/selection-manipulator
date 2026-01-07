@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.39] - 2025-01-07
+
+- ✨ Add Shuffle Selection Character tool (Replace, Clipboard, New Tab)
+- ✨ Add Diff Selection tool (Show difference between two selections)
+
 ## [0.0.38] - 2025-12-31
 
 - ✨ Add Japanese Era Conversion Feature (AD <-> Wareki)

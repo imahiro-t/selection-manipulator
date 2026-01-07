@@ -1269,6 +1269,26 @@ const myCommands = [
     "command": "selection-manipulator.text.remove-duplicate-lines",
     "title": "Text Cleanup - Remove Duplicate Lines",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.shuffle.character",
+    "title": "Extract - Shuffle Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.shuffle.character.replace",
+    "title": "Extract - Shuffle Characters (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.shuffle.character.clipboard",
+    "title": "Extract - Shuffle Characters (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.diff",
+    "title": "Diff - Diff Selections",
+    "canMultiSelection": true
   }
 ];
 

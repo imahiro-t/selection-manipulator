@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { shuffleHandler } from '../../handler/shuffleHandler';
+import { shuffleHandler, shuffleCharacterHandler } from '../../handler/shuffleHandler';
 import { createTextEditor, waitForNewDocument } from './testUtils';
 
 suite('Shuffle Handler Test Suite', () => {
@@ -26,5 +26,24 @@ suite('Shuffle Handler Test Suite', () => {
     for (let item of originalSet) {
       assert.ok(shuffledSet.has(item));
     }
+  });
+
+
+
+  test('Shuffle Characters (Replace)', async () => {
+    const original = 'abcde';
+    const editor = await createTextEditor(original);
+    editor.selection = new vscode.Selection(0, 0, 0, 5);
+
+    // Call the handler
+    await shuffleCharacterHandler('replace')(editor);
+
+    const shuffled = editor.document.getText();
+    assert.strictEqual(shuffled.length, original.length);
+    assert.notStrictEqual(shuffled, original); // Flaky if it shuffles to same order (1/120 chance). 
+    // Maybe checking characters are same set?
+    const originalSet = original.split('').sort().join('');
+    const shuffledSet = shuffled.split('').sort().join('');
+    assert.strictEqual(shuffledSet, originalSet);
   });
 });

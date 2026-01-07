@@ -3,7 +3,7 @@ import { extractHandler } from './handler/extractHandler';
 import { extractLineHandler } from './handler/extractLineHandler';
 import { extractLineByLengthHandler } from './handler/extractLineByLengthHandler';
 import { reverseHandler } from './handler/reverseHandler';
-import { shuffleHandler } from './handler/shuffleHandler';
+import { shuffleHandler, shuffleCharacterHandler } from './handler/shuffleHandler';
 import { sortHandler } from './handler/sortHandler';
 import { sortLineHandler } from './handler/sortLineHandler';
 import { uniqueHandler } from './handler/uniqueHandler';
@@ -71,6 +71,7 @@ import {
 
 import { maskHandler } from './handler/maskHandler';
 import { ResultProvider } from './provider/resultProvider';
+import { diffHandler } from './handler/diffHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -99,6 +100,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.clipboard', reverseHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.clipboard', shuffleHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.character', shuffleCharacterHandler('new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.character.replace', shuffleCharacterHandler('replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.character.clipboard', shuffleCharacterHandler('clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.diff', diffHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.ascending', sortHandler('string', true, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.ascending.clipboard', sortHandler('string', true, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.sort.string.descending', sortHandler('string', false, false)));

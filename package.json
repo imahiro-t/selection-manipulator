@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -1391,6 +1391,26 @@
         "command": "selection-manipulator.morse.from-morse.kana.replace",
         "title": "Morse - Morse Code to Text (Kana) (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.shuffle.character",
+        "title": "Shuffle Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.shuffle.character.replace",
+        "title": "Shuffle Characters (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.shuffle.character.clipboard",
+        "title": "Shuffle Characters (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.diff",
+        "title": "Diff Selections",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1586,6 +1606,10 @@
           "command": "selection-manipulator.multi-selection"
         },
         {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.diff"
+        },
+        {
           "when": "editorHasSelection",
           "command": "selection-manipulator.extract"
         },
@@ -1624,6 +1648,18 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.shuffle.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.shuffle.character"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.shuffle.character.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.shuffle.character.clipboard"
         },
         {
           "when": "editorHasSelection",
@@ -2122,6 +2158,18 @@
         },
         {
           "command": "selection-manipulator.shuffle.clipboard",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.shuffle.character",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.shuffle.character.replace",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.shuffle.character.clipboard",
           "group": "selection-manipulator@11"
         },
         {
@@ -3276,6 +3324,7 @@
     "test": "npm run test-compile && node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/diff": "^7.0.2",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
@@ -3293,6 +3342,7 @@
   "dependencies": {
     "axios": "^1.7.2",
     "change-case": "^4.1.2",
+    "diff": "^8.0.2",
     "js-yaml": "^4.1.1",
     "whois": "^2.14.0",
     "xml-formatter": "^3.6.0"
