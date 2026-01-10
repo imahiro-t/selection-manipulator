@@ -3,6 +3,7 @@ import { extractHandler } from './handler/extractHandler';
 import { extractLineHandler } from './handler/extractLineHandler';
 import { extractLineByLengthHandler } from './handler/extractLineByLengthHandler';
 import { reverseHandler } from './handler/reverseHandler';
+import { reverseStringHandler } from './handler/reverseStringHandler';
 import { shuffleHandler, shuffleCharacterHandler } from './handler/shuffleHandler';
 import { sortHandler } from './handler/sortHandler';
 import { sortLineHandler } from './handler/sortLineHandler';
@@ -45,6 +46,7 @@ import { escapeHandler } from './handler/escapeHandler';
 import { asciiArtHandler } from './handler/asciiArtHandler';
 import { dataExtractionHandler } from './handler/dataExtractionHandler';
 import { textCleanupHandler } from './handler/textCleanupHandler';
+import { splitJoinHandler } from './handler/splitJoinHandler';
 import { diacriticHandler } from './handler/diacriticHandler';
 import { mathHandler } from './handler/mathHandler';
 import { csvHandler } from './handler/csvHandler';
@@ -75,7 +77,8 @@ import { diffHandler } from './handler/diffHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection', multiSelectionHandler('all')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.multi-selection.interval', multiSelectionHandler('interval')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract', extractHandler(true, false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.clipboard', extractHandler(true, true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.exclude-blank-rows', extractHandler(false, false)));
@@ -98,6 +101,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.extract.line-by-length.range.clipboard', extractLineByLengthHandler('range', true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse', reverseHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.clipboard', reverseHandler(true)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.string', reverseStringHandler(false)));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.reverse.string.clipboard', reverseStringHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle', shuffleHandler(false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.clipboard', shuffleHandler(true)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.shuffle.character', shuffleCharacterHandler('new-tab')));
@@ -349,6 +354,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.normalize-whitespace', textCleanupHandler('normalize-whitespace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.strip-html-tags', textCleanupHandler('strip-html-tags')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unsmart-quotes', textCleanupHandler('unsmart-quotes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.custom', splitJoinHandler('split', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.join-lines.custom', splitJoinHandler('join', 'replace')));
 
   // Unit Conversion Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.px-to-rem', unitConvertHandler('px-to-rem')));

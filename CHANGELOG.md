@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.40] - 2026-01-10
+
+- ✨ Add Reverse String tools (Reverse characters in selection)
+- ✨ Add Convert to Multi Selection with Interval (Select every Nth line)
+- ✨ Add Split/Join Lines with Custom Delimiter
+
 ## [0.0.39] - 2025-01-07
 
 - ✨ Add Shuffle Selection Character tool (Replace, Clipboard, New Tab)

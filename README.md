@@ -71,10 +71,11 @@ Many commands come in two variables:
 #### Remove Cursor / Characters
 *   **Remove Cursor Above/Below**: Helps align multi-cursor selections.
 *   **Remove Character from Each Side**: Trims one character from both start and end of selection.
-*   **Convert to Multi Selection**: Splits a multi-line selection into individual cursors (one per line).
+*   **Convert to Multi Selection**: Splits a multi-line selection into individual cursors (one per line). Supports interval (every Nth line).
 
 #### Edit & Enclose
 *   **Reverse Selections**: Reverses the order of characters in the selection.
+*   **Reverse String**: Reverses the characters within the selection (e.g., `abc` -> `cba`).
 *   **Mask with Asterisk**: Masks the selected text with asterisks (`*`) (e.g., `pass` -> `****`).
 *   **Toggle Quotes**: Toggles between single (`'`) and double (`"`) quotes.
 *   **Enclose Text**: Wrap text with:
@@ -97,6 +98,7 @@ Comprehensive tools to clean up and normalize code or text.
 *   **Strip HTML Tags**: Removes HTML tags, keeping inner text (`<b>bold</b>` -> `bold`).
 *   **Unsmart Quotes**: Converts smart quotes (`“`, `”`) to straight quotes (`"`).
 *   **Remove Duplicate Lines**: Keeps only the first occurrence of identical lines.
+*   **Split/Join Lines (Custom)**: Split or join text using a custom delimiter.
 
 ### 3. Sort, Unique & Shuffle
 

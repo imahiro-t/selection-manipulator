@@ -11,6 +11,11 @@ const myCommands = [
     "canMultiSelection": false
   },
   {
+    "command": "selection-manipulator.multi-selection.interval",
+    "title": "Select - Convert to Multi Selection (Interval)",
+    "canMultiSelection": false
+  },
+  {
     "command": "selection-manipulator.extract",
     "title": "Extract - Extract Selections",
     "canMultiSelection": true
@@ -58,6 +63,16 @@ const myCommands = [
   {
     "command": "selection-manipulator.reverse.clipboard",
     "title": "Extract - Reverse Selections (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.reverse.string",
+    "title": "Extract - Reverse Strings in Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.reverse.string.clipboard",
+    "title": "Extract - Reverse Strings in Selection (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -991,6 +1006,11 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.text.join-lines.custom",
+    "title": "Text - Join Lines (Custom Delimiter)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.split-lines.space",
     "title": "Text - Split Lines (Space)",
     "canMultiSelection": true
@@ -998,6 +1018,11 @@ const myCommands = [
   {
     "command": "selection-manipulator.text.split-lines.comma",
     "title": "Text - Split Lines (Comma)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.split-lines.custom",
+    "title": "Text - Split Lines (Custom Delimiter)",
     "canMultiSelection": true
   },
   {

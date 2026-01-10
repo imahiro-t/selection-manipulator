@@ -8,7 +8,7 @@ suite('Multi Selection Handler Test Suite', () => {
     const editor = await createTextEditor('line1\nline2\nline3');
     editor.selection = new vscode.Selection(0, 0, 2, 5); // Select all 3 lines
 
-    multiSelectionHandler(editor);
+    await multiSelectionHandler('all')(editor);
 
     assert.strictEqual(editor.selections.length, 3);
     assert.strictEqual(editor.selections[0].start.line, 0);
