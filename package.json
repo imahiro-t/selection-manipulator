@@ -1,9 +1,9 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "Smart Selection and Text Manipulation Tools for VS Code",
+  "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
   "version": "0.0.40",
-  "publisher": "imahiro-t",
+  "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
   },
