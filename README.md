@@ -72,6 +72,7 @@ Many commands come in two variables:
 *   **Remove Cursor Above/Below**: Helps align multi-cursor selections.
 *   **Remove Character from Each Side**: Trims one character from both start and end of selection.
 *   **Convert to Multi Selection**: Splits a multi-line selection into individual cursors (one per line). Supports interval (every Nth line).
+*   **Select Matches**: Select all occurrences of a specific string within the current selection(s).
 
 #### Edit & Enclose
 *   **Reverse Selections**: Reverses the order of characters in the selection.

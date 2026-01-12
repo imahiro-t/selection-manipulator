@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.41]
+- Add `Text - Select Matches` command
+
 ## [0.0.40] - 2026-01-10
 
 - ✨ Add Reverse String tools (Reverse characters in selection)

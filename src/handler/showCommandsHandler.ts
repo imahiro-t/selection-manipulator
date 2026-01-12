@@ -1314,6 +1314,11 @@ const myCommands = [
     "command": "selection-manipulator.diff",
     "title": "Diff - Diff Selections",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.select-matches",
+    "title": "Text - Select Matches",
+    "canMultiSelection": true
   }
 ];
 

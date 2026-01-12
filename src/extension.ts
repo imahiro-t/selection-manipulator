@@ -47,6 +47,7 @@ import { asciiArtHandler } from './handler/asciiArtHandler';
 import { dataExtractionHandler } from './handler/dataExtractionHandler';
 import { textCleanupHandler } from './handler/textCleanupHandler';
 import { splitJoinHandler } from './handler/splitJoinHandler';
+import { selectMatchesHandler } from './handler/selectMatchesHandler';
 import { diacriticHandler } from './handler/diacriticHandler';
 import { mathHandler } from './handler/mathHandler';
 import { csvHandler } from './handler/csvHandler';
@@ -356,6 +357,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unsmart-quotes', textCleanupHandler('unsmart-quotes')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.split-lines.custom', splitJoinHandler('split', 'replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.join-lines.custom', splitJoinHandler('join', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.select-matches', selectMatchesHandler));
 
   // Unit Conversion Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.px-to-rem', unitConvertHandler('px-to-rem')));

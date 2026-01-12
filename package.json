@@ -2,7 +2,7 @@
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
   "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -380,6 +380,11 @@
       {
         "command": "selection-manipulator.text.join-lines.custom",
         "title": "Text - Join Lines (Custom Delimiter)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.select-matches",
+        "title": "Text - Select Matches",
         "category": "Selection Manipulator"
       },
       {
