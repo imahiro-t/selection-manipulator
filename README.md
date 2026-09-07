@@ -37,8 +37,6 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 ### 🌐 Network & Analysis
 *   **URL**: Parse URL to JSON, Parse URL Parameters to JSON.
 *   **DNS**: Perform comprehensive DNS lookups (A, AAAA, MX, NS, TXT, etc.).
-*   **Whois**: Quick domain Whois lookups.
-*   **IP Geolocation**: Get location data for IP addresses.
 *   **HAR Visualization**: Visualize HTTP Archive (HAR) logs as Mermaid Sequence Diagrams.
 
 ### 🇯🇵 Japanese Text Support
@@ -165,8 +163,6 @@ Convert text between naming conventions and cases.
 
 ### 8. Network & Analysis
 *   **DNS Lookup**: A, AAAA, MX, NS, TXT, etc.
-*   **Whois**: Domain registration info.
-*   **IP Geolocation**: Country, City, ISP data.
 *   **HAR Visualization**: Convert HTTP Archive (HAR) logs to Mermaid sequence diagrams.
 
 ### 9. Generators & Random

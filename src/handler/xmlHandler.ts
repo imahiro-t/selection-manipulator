@@ -56,6 +56,10 @@ function xmlToJson(xml: string): any {
   while ((match = regex.exec(xml)) !== null) {
     const [_, isClosing, tagName, attributes, textContent] = match;
 
+    if (tagName === '__proto__' || tagName === 'constructor' || tagName === 'prototype') {
+      continue;
+    }
+
     if (isClosing) {
       const parent = stack.pop();
       current = stack[stack.length - 1];
@@ -67,6 +71,9 @@ function xmlToJson(xml: string): any {
         const attrRegex = /([a-zA-Z0-9_\-:]+)="([^"]*)"/g;
         let attrMatch;
         while ((attrMatch = attrRegex.exec(attributes)) !== null) {
+          if (attrMatch[1] === '__proto__' || attrMatch[1] === 'constructor' || attrMatch[1] === 'prototype') {
+            continue;
+          }
           newNode[`@${attrMatch[1]}`] = attrMatch[2];
         }
       }

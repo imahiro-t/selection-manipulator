@@ -546,11 +546,6 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
-    "command": "selection-manipulator.whois",
-    "title": "Lookup - WHOIS - whois",
-    "canMultiSelection": true
-  },
-  {
     "command": "selection-manipulator.dns.a",
     "title": "Lookup - DNS - A Record",
     "canMultiSelection": true
@@ -739,16 +734,6 @@ const myCommands = [
     "command": "selection-manipulator.regex.gi",
     "title": "Regular Expression - Regex (/PATTERN/gi)",
     "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.geo-ip",
-    "title": "IP Geolocation",
-    "canMultiSelection": true
-  },
-  {
-    "command": "selection-manipulator.client-credentials-flow",
-    "title": "Client Credentials Flow",
-    "canMultiSelection": false
   },
   {
     "command": "selection-manipulator.random.uuid",

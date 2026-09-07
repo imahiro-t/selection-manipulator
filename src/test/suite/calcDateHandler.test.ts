@@ -21,4 +21,23 @@ suite('Calc Date Handler Test Suite', () => {
     assert.strictEqual(result.length, 1);
     assert.ok(result[0][1].includes('2021'));
   });
+
+  test('Calc Now and Offset', async () => {
+    const editor = await createTextEditor('now\nnow+3600\nnow+process.exit()');
+    await selectAll(editor);
+
+    let result: string[][] = [];
+    const originalOpen = require('../../common').openTextDocumentWithTitles;
+    require('../../common').openTextDocumentWithTitles = async (zip: string[][]) => {
+      result = zip;
+    };
+
+    await calcDateHandler(editor);
+    require('../../common').openTextDocumentWithTitles = originalOpen;
+
+    assert.strictEqual(result.length, 3);
+    assert.ok(result[0][1].length > 0);
+    assert.ok(result[1][1].length > 0);
+    assert.strictEqual(result[2][1], '');
+  });
 });

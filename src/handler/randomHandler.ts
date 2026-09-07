@@ -36,18 +36,18 @@ const generatePassword = (length: number): string => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
   let password = "";
   for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
+    const randomIndex = crypto.randomInt(0, chars.length);
     password += chars[randomIndex];
   }
   return password;
 };
 
 const generateIPv4 = (): string => {
-  return Array.from({ length: 4 }, () => Math.floor(Math.random() * 256)).join('.');
+  return Array.from({ length: 4 }, () => crypto.randomInt(0, 256)).join('.');
 };
 
 const generateIPv6 = (): string => {
-  return Array.from({ length: 8 }, () => Math.floor(Math.random() * 65536).toString(16)).join(':');
+  return Array.from({ length: 8 }, () => crypto.randomInt(0, 65536).toString(16)).join(':');
 };
 
 const generateLoremIpsum = (): string => {

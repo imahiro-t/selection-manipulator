@@ -152,18 +152,32 @@ const openWebView: (content: string) => void = (content) => {
   panel.webview.html = getWebviewContent(content.replace(DIAGRAM_HEADER, '').replace(DIAGRAM_FOOTER, ''), theme);
 };
 
+const escapeHtml = (unsafe: string): string => {
+  return unsafe
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+};
+
 const getWebviewContent: (content: string, theme: string) => string = (content, theme) => {
+  const safeContent = escapeHtml(content);
   return `<!DOCTYPE html>
   <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'unsafe-inline';">
+    </head>
     <body>
       <pre class="mermaid">
-      ${content}
+${safeContent}
       </pre>
       <script type="module">
         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
         var config = {
-          startOnLoad:true,
-          theme:'${theme}'
+          startOnLoad: true,
+          theme: '${escapeHtml(theme)}'
         };
         mermaid.initialize(config);
       </script>

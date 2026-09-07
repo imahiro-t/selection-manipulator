@@ -42,7 +42,6 @@ const change: (command: Command) => (value: string) => string = (command) => (va
       return JSON.stringify(unflatten(JSON.parse(value)), null, 2);
     default:
       return '';
-      return '';
   }
 };
 
@@ -70,30 +69,21 @@ const flatten = (data: any): any => {
   return result;
 };
 
+const isDangerousKey = (key: string): boolean => {
+  return key === '__proto__' || key === 'constructor' || key === 'prototype';
+};
+
 const unflatten = (data: any): any => {
   if (Object(data) !== data || Array.isArray(data)) return data;
-  const result: any = {};
-  for (const p in data) {
-    let cur = result;
-    let prop = "";
-    let m;
-    while (m = p.match(/^([^.]+)\./)) { // Match first part key.nested
-      prop = m[1];
-      const remaining = p.slice(prop.length + 1);
-      // Determine if next key is array index
-      const isArray = !isNaN(parseInt(remaining.split('.')[0]));
-      // Issue: This simple regex based unflattening might not be perfect for arrays vs objects. 
-      // But let's try a standard approach.
-      // Actually, a simpler loop over keys is better.
-      break;
-    }
-  }
-
-  // Alternative Unflatten Implementation
   const res: any = {};
   for (const i in data) {
+    if (!Object.prototype.hasOwnProperty.call(data, i)) continue;
     const keys = i.split('.');
+    if (keys.some(isDangerousKey)) {
+      continue;
+    }
     keys.reduce((acc, value, index) => {
+      if (acc === null || typeof acc !== 'object') return acc;
       return acc[value] || (acc[value] = (isNaN(Number(keys[index + 1])) ? (keys.length - 1 === index ? data[i] : {}) : []));
     }, res);
   }

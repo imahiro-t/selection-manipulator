@@ -50,16 +50,32 @@ const encrypt = (src: string, secret: string) => {
   const crypto = require('crypto');
   const algorithm = 'aes-256-cbc';
   const key = crypto.scryptSync(secret, 'salt', 32);
-  const iv = Buffer.alloc(16, 0);
+  const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(algorithm, key, iv);
-  return cipher.update(src, 'utf8', 'hex') + cipher.final('hex');
+  const encrypted = cipher.update(src, 'utf8', 'hex') + cipher.final('hex');
+  return `${iv.toString('hex')}:${encrypted}`;
 };
 
 const decrypt = (encrypted: string, secret: string) => {
-  const crypto = require('crypto');
-  const algorithm = 'aes-256-cbc';
-  const key = crypto.scryptSync(secret, 'salt', 32);
-  const iv = Buffer.alloc(16, 0);
-  const decipher = crypto.createDecipheriv(algorithm, key, iv);
-  return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
+  try {
+    const crypto = require('crypto');
+    const algorithm = 'aes-256-cbc';
+    const key = crypto.scryptSync(secret, 'salt', 32);
+    let iv: Buffer;
+    let cipherText: string;
+
+    if (encrypted.includes(':')) {
+      const parts = encrypted.split(':');
+      iv = Buffer.from(parts[0], 'hex');
+      cipherText = parts.slice(1).join(':');
+    } else {
+      iv = Buffer.alloc(16, 0);
+      cipherText = encrypted;
+    }
+
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    return decipher.update(cipherText, 'hex', 'utf8') + decipher.final('utf8');
+  } catch (_e) {
+    return '';
+  }
 };

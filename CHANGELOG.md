@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.42] - 2026-09-08
+
+- 🔒 Remove insecure features (`client-credentials-flow`, `geo-ip`, `whois`) and remove vulnerable dependencies (`axios`, `whois`)
+- 🔒 Replace `eval` with a safe mathematical expression parser in `Calculate Mathematical Expression` and `Date Calculation`
+- 🔒 Prevent XSS in HAR Webview with HTML escaping and Content Security Policy
+- 🔒 Use cryptographically secure random number generator (`crypto.randomInt`) for password generation
+- 🔒 Guard against Prototype Pollution in JSON `unflatten` and XML to JSON parsing
+- 🔒 Improve AES encryption/decryption with random IV generation per encryption
+- 🔒 Remediate all npm audit vulnerabilities (0 vulnerabilities)
 
 ## [0.0.41]
 - Add `Text - Select Matches` command

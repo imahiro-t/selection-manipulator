@@ -31,12 +31,14 @@ suite('JSON Handler Test Suite', () => {
     assert.strictEqual(JSON.parse(text)["a.b"], 1);
   });
 
-  test('Unflatten JSON', async () => {
-    const editor = await createTextEditor('{"a.b": 1}');
-    editor.selection = new vscode.Selection(0, 0, 0, 10);
+  test('Unflatten JSON Prototype Pollution Protection', async () => {
+    const editor = await createTextEditor('{"__proto__.polluted": "yes", "a.b": 1}');
+    editor.selection = new vscode.Selection(0, 0, 0, 39);
     await jsonHandler('unflatten', true)(editor);
     await new Promise(resolve => setTimeout(resolve, 200));
     const text = getDocumentText(editor);
-    assert.strictEqual(JSON.parse(text).a.b, 1);
+    const parsed = JSON.parse(text);
+    assert.strictEqual(parsed.a.b, 1);
+    assert.strictEqual((({} as any).polluted), undefined);
   });
 });

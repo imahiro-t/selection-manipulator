@@ -1,8 +1,8 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS/Whois), Japanese text conversion, and ASCII art.",
-  "version": "0.0.41",
+  "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS), Japanese text conversion, and ASCII art.",
+  "version": "0.0.42",
   "publisher": "erintheblack",
   "author": {
     "name": "Takashi Imahiro"
@@ -428,11 +428,6 @@
         "category": "Selection Manipulator"
       },
       {
-        "command": "selection-manipulator.whois",
-        "title": "Lookup whois",
-        "category": "Selection Manipulator"
-      },
-      {
         "command": "selection-manipulator.dns.a",
         "title": "Lookup DNS A Record",
         "category": "Selection Manipulator"
@@ -740,16 +735,6 @@
       {
         "command": "selection-manipulator.crypto.decrypt.replace",
         "title": "Decrypt by AES (Replace)",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.geo-ip",
-        "title": "IP Geolocation",
-        "category": "Selection Manipulator"
-      },
-      {
-        "command": "selection-manipulator.client-credentials-flow",
-        "title": "Client Credentials Flow",
         "category": "Selection Manipulator"
       },
       {
@@ -1553,18 +1538,6 @@
         "label": "Lookup"
       },
       {
-        "id": "selection-manipulator.whois.submenu",
-        "label": "WHOIS"
-      },
-      {
-        "id": "selection-manipulator.geo-ip.submenu",
-        "label": "IP Geolocation"
-      },
-      {
-        "id": "selection-manipulator.token.submenu",
-        "label": "Token"
-      },
-      {
         "id": "selection-manipulator.dns.submenu",
         "label": "DNS"
       },
@@ -1922,18 +1895,6 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.crypto.decrypt.replace"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.whois"
-        },
-        {
-          "when": "editorHasSelection",
-          "command": "selection-manipulator.geo-ip"
-        },
-        {
-          "when": "editorHasSelection && !editorHasMultipleSelections",
-          "command": "selection-manipulator.client-credentials-flow"
         },
         {
           "when": "editorHasSelection",
@@ -2765,29 +2726,7 @@
       "selection-manipulator.lookup.submenu": [
         {
           "when": "editorHasSelection",
-          "submenu": "selection-manipulator.whois.submenu",
-          "group": "selection-manipulator@0"
-        },
-        {
-          "when": "editorHasSelection",
-          "submenu": "selection-manipulator.geo-ip.submenu",
-          "group": "selection-manipulator@1"
-        },
-        {
-          "when": "editorHasSelection",
           "submenu": "selection-manipulator.dns.submenu",
-          "group": "selection-manipulator@2"
-        }
-      ],
-      "selection-manipulator.whois.submenu": [
-        {
-          "command": "selection-manipulator.whois",
-          "group": "selection-manipulator@0"
-        }
-      ],
-      "selection-manipulator.geo-ip.submenu": [
-        {
-          "command": "selection-manipulator.geo-ip",
           "group": "selection-manipulator@0"
         }
       ],
@@ -2867,12 +2806,6 @@
         {
           "command": "selection-manipulator.regex.gi",
           "group": "selection-manipulator@1"
-        }
-      ],
-      "selection-manipulator.token.submenu": [
-        {
-          "command": "selection-manipulator.client-credentials-flow",
-          "group": "selection-manipulator@0"
         }
       ],
       "selection-manipulator.random.submenu": [
@@ -3036,32 +2969,28 @@
           "group": "selection-manipulator@6"
         },
         {
-          "submenu": "selection-manipulator.token.submenu",
+          "submenu": "selection-manipulator.random.submenu",
           "group": "selection-manipulator@7"
         },
         {
-          "submenu": "selection-manipulator.random.submenu",
+          "submenu": "selection-manipulator.text.submenu",
           "group": "selection-manipulator@8"
         },
         {
-          "submenu": "selection-manipulator.text.submenu",
+          "submenu": "selection-manipulator.ascii.submenu",
           "group": "selection-manipulator@9"
         },
         {
-          "submenu": "selection-manipulator.ascii.submenu",
+          "submenu": "selection-manipulator.insert.submenu",
           "group": "selection-manipulator@10"
         },
         {
-          "submenu": "selection-manipulator.insert.submenu",
+          "submenu": "selection-manipulator.date.submenu",
           "group": "selection-manipulator@11"
         },
         {
-          "submenu": "selection-manipulator.date.submenu",
-          "group": "selection-manipulator@12"
-        },
-        {
           "submenu": "selection-manipulator.morse.submenu",
-          "group": "selection-manipulator@13"
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -3370,11 +3299,9 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "axios": "^1.7.2",
     "change-case": "^4.1.2",
     "diff": "^9.0.0",
     "js-yaml": "^4.1.1",
-    "whois": "^2.14.0",
     "xml-formatter": "^3.6.0"
   },
   "overrides": {

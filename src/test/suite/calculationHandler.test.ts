@@ -22,4 +22,22 @@ suite('Calculation Handler Test Suite', () => {
     assert.strictEqual(result[0][0], '1+1');
     assert.strictEqual(result[0][1], '2');
   });
+
+  test('Calculate Complex and Safe Expressions', async () => {
+    const editor = await createTextEditor('2 * (3 + 4) / 2\nprocess.mainModule');
+    await selectAll(editor);
+
+    let result: string[][] = [];
+    const originalOpen = require('../../common').openTextDocumentWithTitles;
+    require('../../common').openTextDocumentWithTitles = async (zip: string[][]) => {
+      result = zip;
+    };
+
+    await calculationHandler(editor);
+    require('../../common').openTextDocumentWithTitles = originalOpen;
+
+    assert.strictEqual(result.length, 2);
+    assert.strictEqual(result[0][1], '7');
+    assert.strictEqual(result[1][1], 'NaN');
+  });
 });

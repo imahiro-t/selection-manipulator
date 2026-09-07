@@ -22,4 +22,20 @@ suite('AES Handler Test Suite', () => {
 
     assert.strictEqual(decrypted, 'hello');
   });
+
+  test('AES generates different ciphertexts with random IV', async () => {
+    const editor1 = await createTextEditor('hello');
+    editor1.selection = new vscode.Selection(0, 0, 0, 5);
+    aesHandler('encrypt', true, 'secret')(editor1);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const encrypted1 = editor1.document.getText();
+
+    const editor2 = await createTextEditor('hello');
+    editor2.selection = new vscode.Selection(0, 0, 0, 5);
+    aesHandler('encrypt', true, 'secret')(editor2);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const encrypted2 = editor2.document.getText();
+
+    assert.notStrictEqual(encrypted1, encrypted2);
+  });
 });

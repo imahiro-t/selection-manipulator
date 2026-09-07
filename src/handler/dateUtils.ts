@@ -2,14 +2,6 @@ export const parseDate = (expression: string): Date | null => {
   const trimmed = expression.trim();
   if (trimmed.toLowerCase().startsWith('now')) {
     try {
-      // Evaluate 'now' with offset like 'now+3600'
-      // Security note: eval is used in original code, but here we just need to handle the time offset logic.
-      // Original code: eval(`${(new Date()).getTime()}${expression.substring(3)}`)
-      // We can preserve this logic or try to make it safer if possible, but for consistency let's stick to the logic 
-      // but maybe strict parsing if possible. 
-      // Actually, 'now' handling in original code allows arbitrary math like 'now+1000'.
-      // Let's implement logic to handle 'now' base.
-
       const nowTime = new Date().getTime();
       const offsetExpression = trimmed.substring(3).trim();
 
@@ -17,12 +9,14 @@ export const parseDate = (expression: string): Date | null => {
         return new Date(nowTime);
       }
 
-      // If use eval, we must be careful. 
-      // The original code uses eval. 
-      // Let's replicate original behavior for now as it seems to be a feature.
-      const resultTime = (0, eval)(`${nowTime}${offsetExpression}`);
-      return new Date(Number(resultTime));
-
+      // Safely parse offset like '+1000' or '-3600' or '+ 5000'
+      const match = offsetExpression.match(/^([+-])\s*(\d+(?:\.\d+)?)$/);
+      if (match) {
+        const sign = match[1] === '-' ? -1 : 1;
+        const value = Number(match[2]);
+        return new Date(nowTime + sign * value);
+      }
+      return null;
     } catch (_e) {
       return null;
     }
