@@ -751,13 +751,20 @@ const singularizeAcronym: Inflection = (line, start, end, humpStart) => {
 /** True when `text` is all lower-case or all upper-case. */
 const isSingleCase = (text: string): boolean => text === text.toLowerCase() || text === text.toUpperCase();
 
-/** Longest entry of `FILE_EXTENSIONS` / `S_ENDING_ACRONYMS`, to skip slicing long runs. */
-const MAX_GUARD_WORD_LENGTH = 6;
+/**
+ * Length of the longest entry of `FILE_EXTENSIONS` / `S_ENDING_ACRONYMS`, so
+ * longer runs are skipped without slicing. Derived from the lists so it stays
+ * in sync when an entry is added.
+ */
+export const MAX_GUARD_WORD_LENGTH: number = Math.max(
+  ...[...FILE_EXTENSIONS, ...S_ENDING_ACRONYMS].map((word) => word.length));
 
 /**
  * True when the last word must be left unchanged in both directions:
  * a known file extension right after a `.` (`file.ts`, `index.json`), or a
  * last hump that is an acronym ending with `S` (`DNS`, `HTTPS`, `iOS`).
+ * An acronym plural with a lower-case `s` (`DTOs`, `TODOs`, `myDTOs`, whose last
+ * hump is `Os`) is not an S-ending acronym and is left to the acronym rules.
  */
 const isProtectedWord = (line: string, start: number, end: number, humpStart: number): boolean => {
   if (start > 0 && line.charAt(start - 1) === '.' && end - start <= MAX_GUARD_WORD_LENGTH) {
@@ -766,7 +773,8 @@ const isProtectedWord = (line: string, start: number, end: number, humpStart: nu
       return true;
     }
   }
-  return end - humpStart <= MAX_GUARD_WORD_LENGTH && S_ENDING_ACRONYMS.has(line.slice(humpStart, end).toLowerCase());
+  return end - humpStart <= MAX_GUARD_WORD_LENGTH && !isLowerSAcronymPlural(line, start, end)
+    && S_ENDING_ACRONYMS.has(line.slice(humpStart, end).toLowerCase());
 };
 
 const inflectLines = (value: string, inflect: (word: string) => string, special: Inflection): string =>

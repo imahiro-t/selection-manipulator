@@ -433,6 +433,44 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       });
     });
 
+    test('acronym plurals whose last hump is Os are not treated as S-ending acronyms', () => {
+      [['DTO', 'DTOs'], ['TODO', 'TODOs'], ['DAO', 'DAOs'], ['CEO', 'CEOs'], ['GPIO', 'GPIOs'], ['myDTO', 'myDTOs']]
+        .forEach(([singular, plural]) => {
+          assert.strictEqual(t.singularize(plural), singular);
+          assert.strictEqual(t.pluralize(plural), plural);
+        });
+      ['iOS', 'macOS', 'getHTTPS', 'OS', 'os'].forEach((word) => {
+        assert.strictEqual(t.pluralize(word), word);
+        assert.strictEqual(t.singularize(word), word);
+      });
+    });
+
+    test('all-caps words ending with S follow the same already-plural check as lower-case words', () => {
+      [['CLASS', 'CLASSES'], ['STATUS', 'STATUSES'], ['BUS', 'BUSES'], ['GAS', 'GASES'], ['USER_STATUS', 'USER_STATUSES']]
+        .forEach(([singular, plural]) => {
+          assert.strictEqual(t.pluralize(singular), plural);
+          assert.strictEqual(t.singularize(singular), singular);
+        });
+      assert.strictEqual(t.pluralize('ABS'), 'ABS');
+      assert.strictEqual(t.singularize('ABS'), 'AB');
+    });
+
+    test('the guard length covers every file extension and S-ending acronym', () => {
+      [...t.FILE_EXTENSIONS, ...t.S_ENDING_ACRONYMS].forEach((word) => {
+        assert.ok(word.length <= t.MAX_GUARD_WORD_LENGTH, word);
+        const text = `file.${word}`;
+        if (t.FILE_EXTENSIONS.has(word)) {
+          assert.strictEqual(t.pluralize(text), text);
+          assert.strictEqual(t.singularize(text), text);
+        }
+      });
+      t.S_ENDING_ACRONYMS.forEach((word) => {
+        const upper = word.toUpperCase();
+        assert.strictEqual(t.pluralize(upper), upper);
+        assert.strictEqual(t.singularize(upper), upper);
+      });
+    });
+
     test('already plural words do not change with pluralize', () => {
       ['users', 'IDs', 'APIs', 'categories', 'children', 'boxes', 'userIds', 'USER_IDS', 'APIS', 'Users', 'statuses', 'classes']
         .forEach((word) => assert.strictEqual(t.pluralize(word), word));
@@ -536,6 +574,8 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
         'x'.repeat(200000) + '.ts',
         's'.repeat(200000),
         'USER_ID\n'.repeat(100000),
+        'foo.' + 'x'.repeat(200000),
+        '_'.repeat(200000) + 'API',
       ];
       inputs.forEach((input, index) => {
         within(`pluralize #${index}`, () => t.pluralize(input));
