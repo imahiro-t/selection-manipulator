@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import {
   compareSemver,
   isNumericKey,
+  toCellKey,
   parseDateKey,
   parseHexKey,
   parseIp,
@@ -194,6 +195,13 @@ suite('Sort Transforms (SORT-001..030) Test Suite', () => {
       assert.ok(Date.now() - start < 1000, `${Date.now() - start} ms`);
     });
 
+    test('toCellKey classifies a key once (number / text / no key)', () => {
+      assert.deepStrictEqual(toCellKey('-1.5'), { numeric: true, value: -1.5 });
+      assert.deepStrictEqual(toCellKey('abc'), { numeric: false, text: 'abc' });
+      assert.strictEqual(toCellKey(undefined), undefined);
+      assert.strictEqual(toCellKey(null), undefined);
+    });
+
     test('a huge number that is not finite as a Number is text', () => {
       assert.strictEqual(isNumericKey('9'.repeat(400)), false);
     });
@@ -226,6 +234,19 @@ suite('Sort Transforms (SORT-001..030) Test Suite', () => {
       ['2026-02-30', '2025-02-29', '2026-13-01', '2026-00-10', '2026-03-01T24:00', '2026-03/01',
         '12026-03-01', 'no date', '03/01/2026', '2026-3-1'].forEach((line) =>
         assert.strictEqual(parseDateKey(line), undefined, line));
+    });
+
+    test('a zone after a fraction of 10 or more digits is still applied', () => {
+      assert.strictEqual(parseDateKey('2026-03-01T10:00:00.123456789+09:00'), Date.UTC(2026, 2, 1, 1, 0, 0, 123));
+      assert.strictEqual(parseDateKey('2026-03-01T10:00:00.1234567890+09:00'), Date.UTC(2026, 2, 1, 1, 0, 0, 123));
+      assert.strictEqual(parseDateKey('2026-03-01T10:00:00.12345678901234567890Z'), Date.UTC(2026, 2, 1, 10, 0, 0, 123));
+      assert.strictEqual(parseDateKey('2026-03-01T10:00:00.1234567890-0130'), Date.UTC(2026, 2, 1, 11, 30, 0, 123));
+    });
+
+    test('a very long fraction is parsed in linear time', () => {
+      const line = `2026-03-01T10:00:00.${'9'.repeat(200_000)}x`;
+      assert.strictEqual(parseDateKey(line), Date.UTC(2026, 2, 1, 10, 0, 0, 999));
+      assert.strictEqual(parseDateKey(`2026-03-01T10:00:00.${'9'.repeat(200_000)}+09:001`), Date.UTC(2026, 2, 1, 10, 0, 0, 999));
     });
 
     test('dates in different time zones are compared as instants', () => {
@@ -330,6 +351,21 @@ suite('Sort Transforms (SORT-001..030) Test Suite', () => {
     test('parents without children and input without non-blank lines', () => {
       assert.strictEqual(sortText('b\na\nc', 'indent-block'), 'a\nb\nc');
       assert.strictEqual(sortText('\n  ', 'indent-block'), '\n  ');
+    });
+  });
+
+  suite('SORT-020 large input', () => {
+    test('more than 200k non-blank lines do not overflow the call stack', () => {
+      const lines: string[] = [];
+      for (let i = 200_000; i > 0; i--) {
+        lines.push(i % 2 === 0 ? `p${String(i).padStart(6, '0')}` : `  c${i}`);
+      }
+      const sorted = sortLines(lines, 'indent-block', false);
+      assert.strictEqual(sorted.length, lines.length);
+      assert.strictEqual(sorted[0], 'p000002');
+      assert.strictEqual(sorted[1], '  c1');
+      assert.strictEqual(sorted[sorted.length - 2], 'p200000');
+      assert.strictEqual(sorted[sorted.length - 1], '  c199999');
     });
   });
 

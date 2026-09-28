@@ -160,21 +160,30 @@ const NUMERIC_KEY = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 export const isNumericKey = (key: string): boolean => NUMERIC_KEY.test(key) && Number.isFinite(Number(key));
 
+/** A SORT-008 / 009 / 010 key, classified once per line (not once per comparison). */
+export type CellKey = { numeric: true; value: number } | { numeric: false; text: string };
+
+/** Classifies a cell / capture as a number or text; undefined (no key) stays undefined. */
+export const toCellKey = (key: string | null | undefined): CellKey | undefined => {
+  if (key === undefined || key === null) {
+    return undefined;
+  }
+  return isNumericKey(key) ? { numeric: true, value: Number(key) } : { numeric: false, text: key };
+};
+
 /**
  * Order of SORT-008 / 009 / 010 keys: numbers (by value) before other text (natural order).
  * Keeping the two groups apart makes the order consistent (transitive) when a column mixes
  * numbers and text.
  */
-export const compareCellKeys: Compare<string> = (a, b) => {
-  const aNumeric = isNumericKey(a);
-  const bNumeric = isNumericKey(b);
-  if (aNumeric && bNumeric) {
-    return compareNumbers(Number(a), Number(b));
+export const compareCellKeys: Compare<CellKey> = (a, b) => {
+  if (a.numeric && b.numeric) {
+    return compareNumbers(a.value, b.value);
   }
-  if (aNumeric !== bNumeric) {
-    return aNumeric ? -1 : 1;
+  if (a.numeric !== b.numeric) {
+    return a.numeric ? -1 : 1;
   }
-  return naturalCollator.compare(a, b);
+  return naturalCollator.compare((a as { text: string }).text, (b as { text: string }).text);
 };
 
 /** SORT-007: half-width kana to full-width (NFKC), then katakana to hiragana. */
@@ -195,10 +204,12 @@ const daysInMonth = (year: number, month: number): number =>
 /**
  * First year-first date of a line (`YYYY-MM-DD`, `YYYY/MM/DD`, `YYYY.MM.DD`), optionally with a
  * time (`T` or a space, `HH:MM[:SS[.fraction]]`) and a time zone (`Z`, `±HH:MM`, `±HHMM`).
- * Every quantifier is bounded, so the search is linear in the length of the line.
+ * The fraction takes every digit (only the first three count) so that a zone after a long
+ * fraction is still read. Nothing after `\d+` can match a digit except the zone's own `[+-]`
+ * prefix, so backtracking stays linear in the length of the line.
  */
 const DATE_PATTERN =
-  /(?<!\d)(\d{4})([-/.])(\d{2})\2(\d{2})(?!\d)(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|[+-]\d{2}:?\d{2})?(?!\d))?/;
+  /(?<!\d)(\d{4})([-/.])(\d{2})\2(\d{2})(?!\d)(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?(?!\d))?/;
 
 /**
  * SORT-011 / 012: the first date of the line as epoch milliseconds (a date without a time zone
@@ -385,13 +396,16 @@ const parseIpv6 = (text: string): bigint | undefined => {
   return groups.reduce((value, group) => (value << 16n) | BigInt(group), 0n);
 };
 
+/** The first white-space separated token of the trimmed line (SORT-014 / SORT-021). */
+const leadingToken = (line: string): string => line.trim().split(/\s/)[0];
+
 /**
  * SORT-014: the IPv4 / IPv6 address (optionally with a `/prefix` and, for IPv6, a zone ID
  * `%...` that is ignored) at the start of the trimmed line. The `net` module is not used
  * (SECURITY.md forbids network modules).
  */
 export const parseIp = (line: string): IpKey | undefined => {
-  const token = line.trim().split(/\s/)[0];
+  const token = leadingToken(line);
   const slash = token.split('/');
   if (slash.length > 2) {
     return undefined;
@@ -427,7 +441,7 @@ const HEX_TOKEN = /^(?:0[xX])?[0-9a-fA-F]+$/;
  * of hex letters (`bad`, `face`) do.
  */
 export const parseHexKey = (line: string): bigint | undefined => {
-  const token = line.trim().split(/\s/)[0];
+  const token = leadingToken(line);
   if (!HEX_TOKEN.test(token)) {
     return undefined;
   }
@@ -483,7 +497,11 @@ const sortIndentBlocks = (lines: string[], descending: boolean): string[] => {
   if (nonBlank.length === 0) {
     return lines;
   }
-  const minIndent = Math.min(...nonBlank.map(indentWidth));
+  // A loop, not Math.min(...spread): spreading >~100k arguments throws a RangeError.
+  let minIndent = Infinity;
+  for (const line of nonBlank) {
+    minIndent = Math.min(minIndent, indentWidth(line));
+  }
   const isParent = (line: string) => !isBlank(line) && indentWidth(line) === minIndent;
   const first = lines.findIndex(isParent);
   const header = lines.slice(0, first);
@@ -528,11 +546,11 @@ export const sortLines = (
     case 'column': {
       const delimiter = options.delimiter ?? ',';
       const column = options.column ?? 1;
-      return by((line) => columnKey(line, delimiter, column), compareCellKeys);
+      return by((line) => toCellKey(columnKey(line, delimiter, column)), compareCellKeys);
     }
     case 'regex-key': {
       const keys = options.regexKeys ?? [];
-      return by((_line, index) => keys[index] ?? undefined, compareCellKeys);
+      return by((_line, index) => toCellKey(keys[index]), compareCellKeys);
     }
     case 'date':
       return by(parseDateKey, compareNumbers);
