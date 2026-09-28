@@ -1629,6 +1629,206 @@ export const myCommands = [
     "command": "selection-manipulator.whitespace.clear-blank-only-lines",
     "title": "Whitespace: Clear Whitespace-only Lines",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-contains",
+    "title": "Line: Keep Lines Containing Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-not-contains",
+    "title": "Line: Remove Lines Containing Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-regex",
+    "title": "Line: Keep Lines Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-not-regex",
+    "title": "Line: Remove Lines Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.add-numbers",
+    "title": "Line: Add Line Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.add-numbers-padded",
+    "title": "Line: Add Line Numbers (Zero Padded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-duplicates",
+    "title": "Line: Keep Only Duplicated Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-unique-only",
+    "title": "Line: Keep Lines Appearing Once",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-ignore-case",
+    "title": "Line: Remove Duplicate Lines (Ignore Case)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+    "title": "Line: Remove Duplicate Lines (Ignore Whitespace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-adjacent",
+    "title": "Line: Remove Adjacent Duplicate Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.reverse-words",
+    "title": "Line: Reverse Word Order in Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.rotate",
+    "title": "Line: Rotate Lines Down",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-every-nth",
+    "title": "Line: Keep Every Nth Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-every-nth",
+    "title": "Line: Remove Every Nth Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-odd",
+    "title": "Line: Keep Odd Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-even",
+    "title": "Line: Keep Even Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.head",
+    "title": "Line: Keep First N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.tail",
+    "title": "Line: Keep Last N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.duplicate-each",
+    "title": "Line: Duplicate Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.swap-pairs",
+    "title": "Line: Swap Adjacent Line Pairs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-continuation",
+    "title": "Line: Join Backslash-continued Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.move-matching-to-top",
+    "title": "Line: Move Lines Containing Text to Top",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-prefix",
+    "title": "Line: Remove Prefix from Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-suffix",
+    "title": "Line: Remove Suffix from Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.interleave-halves",
+    "title": "Line: Interleave First and Second Half",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-every-n",
+    "title": "Line: Join Every N Lines (Custom Delimiter)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-sentences",
+    "title": "Line: Split Sentences into Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-fixed-width",
+    "title": "Line: Split into Fixed-width Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-comment-lines",
+    "title": "Line: Remove Comment Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.count-stats",
+    "title": "Line: Count Lines, Words and Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-between-markers",
+    "title": "Line: Extract Lines Between Markers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-longest",
+    "title": "Line: Extract Longest Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-shortest",
+    "title": "Line: Extract Shortest Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-contains.clipboard",
+    "title": "Line: Keep Lines Containing Text (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-regex.clipboard",
+    "title": "Line: Keep Lines Matching Regex (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-duplicates.clipboard",
+    "title": "Line: Keep Only Duplicated Lines (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-unique-only.clipboard",
+    "title": "Line: Keep Lines Appearing Once (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+    "title": "Line: Remove Adjacent Duplicate Lines (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-between-markers.clipboard",
+    "title": "Line: Extract Lines Between Markers (Clipboard)",
+    "canMultiSelection": true
   }
 ];
 

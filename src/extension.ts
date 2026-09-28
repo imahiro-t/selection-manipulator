@@ -76,6 +76,7 @@ import { maskHandler } from './handler/maskHandler';
 import { ResultProvider } from './provider/resultProvider';
 import { diffHandler } from './handler/diffHandler';
 import { whitespaceHandler, whitespaceInputHandler } from './handler/whitespaceHandler';
+import { lineCountStatsHandler, lineHandler } from './handler/lineHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -450,6 +451,48 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.expand-tabs', whitespaceHandler('expand-tabs')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.unexpand-tabs', whitespaceHandler('unexpand-tabs')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.clear-blank-only-lines', whitespaceHandler('clear-blank-only-lines')));
+
+  // Line Handlers (LINE-001..LINE-040)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-contains', lineHandler('filter-contains', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-not-contains', lineHandler('filter-not-contains', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-regex', lineHandler('filter-regex', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-not-regex', lineHandler('filter-not-regex', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.add-numbers', lineHandler('add-numbers', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.add-numbers-padded', lineHandler('add-numbers-padded', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-duplicates', lineHandler('keep-duplicates', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-unique-only', lineHandler('keep-unique-only', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-ignore-case', lineHandler('dedupe-ignore-case', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-ignore-whitespace', lineHandler('dedupe-ignore-whitespace', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-adjacent', lineHandler('dedupe-adjacent', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.reverse-words', lineHandler('reverse-words', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.rotate', lineHandler('rotate', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-every-nth', lineHandler('keep-every-nth', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.remove-every-nth', lineHandler('remove-every-nth', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-odd', lineHandler('keep-odd', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-even', lineHandler('keep-even', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.head', lineHandler('head', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.tail', lineHandler('tail', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.duplicate-each', lineHandler('duplicate-each', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.swap-pairs', lineHandler('swap-pairs', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.join-continuation', lineHandler('join-continuation', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.move-matching-to-top', lineHandler('move-matching-to-top', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.remove-prefix', lineHandler('remove-prefix', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.remove-suffix', lineHandler('remove-suffix', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.interleave-halves', lineHandler('interleave-halves', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.join-every-n', lineHandler('join-every-n', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.split-sentences', lineHandler('split-sentences', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.split-fixed-width', lineHandler('split-fixed-width', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.remove-comment-lines', lineHandler('remove-comment-lines', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.count-stats', lineCountStatsHandler));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.extract-between-markers', lineHandler('extract-between-markers', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.extract-longest', lineHandler('extract-longest', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.extract-shortest', lineHandler('extract-shortest', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-contains.clipboard', lineHandler('filter-contains', 'clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.filter-regex.clipboard', lineHandler('filter-regex', 'clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-duplicates.clipboard', lineHandler('keep-duplicates', 'clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-unique-only.clipboard', lineHandler('keep-unique-only', 'clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-adjacent.clipboard', lineHandler('dedupe-adjacent', 'clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.extract-between-markers.clipboard', lineHandler('extract-between-markers', 'clipboard')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

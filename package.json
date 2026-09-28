@@ -1751,6 +1751,206 @@
         "command": "selection-manipulator.whitespace.clear-blank-only-lines",
         "title": "Whitespace: Clear Whitespace-only Lines",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-contains",
+        "title": "Line: Keep Lines Containing Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-not-contains",
+        "title": "Line: Remove Lines Containing Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-regex",
+        "title": "Line: Keep Lines Matching Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-not-regex",
+        "title": "Line: Remove Lines Matching Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.add-numbers",
+        "title": "Line: Add Line Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.add-numbers-padded",
+        "title": "Line: Add Line Numbers (Zero Padded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-duplicates",
+        "title": "Line: Keep Only Duplicated Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-unique-only",
+        "title": "Line: Keep Lines Appearing Once",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-ignore-case",
+        "title": "Line: Remove Duplicate Lines (Ignore Case)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+        "title": "Line: Remove Duplicate Lines (Ignore Whitespace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-adjacent",
+        "title": "Line: Remove Adjacent Duplicate Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.reverse-words",
+        "title": "Line: Reverse Word Order in Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.rotate",
+        "title": "Line: Rotate Lines Down",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-every-nth",
+        "title": "Line: Keep Every Nth Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-every-nth",
+        "title": "Line: Remove Every Nth Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-odd",
+        "title": "Line: Keep Odd Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-even",
+        "title": "Line: Keep Even Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.head",
+        "title": "Line: Keep First N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.tail",
+        "title": "Line: Keep Last N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.duplicate-each",
+        "title": "Line: Duplicate Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.swap-pairs",
+        "title": "Line: Swap Adjacent Line Pairs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-continuation",
+        "title": "Line: Join Backslash-continued Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.move-matching-to-top",
+        "title": "Line: Move Lines Containing Text to Top",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-prefix",
+        "title": "Line: Remove Prefix from Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-suffix",
+        "title": "Line: Remove Suffix from Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.interleave-halves",
+        "title": "Line: Interleave First and Second Half",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-every-n",
+        "title": "Line: Join Every N Lines (Custom Delimiter)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-sentences",
+        "title": "Line: Split Sentences into Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-fixed-width",
+        "title": "Line: Split into Fixed-width Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-comment-lines",
+        "title": "Line: Remove Comment Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.count-stats",
+        "title": "Line: Count Lines, Words and Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-between-markers",
+        "title": "Line: Extract Lines Between Markers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-longest",
+        "title": "Line: Extract Longest Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-shortest",
+        "title": "Line: Extract Shortest Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-contains.clipboard",
+        "title": "Line: Keep Lines Containing Text (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-regex.clipboard",
+        "title": "Line: Keep Lines Matching Regex (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-duplicates.clipboard",
+        "title": "Line: Keep Only Duplicated Lines (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-unique-only.clipboard",
+        "title": "Line: Keep Lines Appearing Once (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+        "title": "Line: Remove Adjacent Duplicate Lines (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-between-markers.clipboard",
+        "title": "Line: Extract Lines Between Markers (Clipboard)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1925,6 +2125,10 @@
       {
         "id": "selection-manipulator.whitespace.submenu",
         "label": "Whitespace"
+      },
+      {
+        "id": "selection-manipulator.line.submenu",
+        "label": "Line"
       }
     ],
     "menus": {
@@ -2676,6 +2880,166 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.whitespace.clear-blank-only-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-contains"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-not-contains"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-not-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.add-numbers"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.add-numbers-padded"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-duplicates"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-unique-only"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-ignore-case"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-ignore-whitespace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-adjacent"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.reverse-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.rotate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-every-nth"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-every-nth"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-odd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-even"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.head"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.tail"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.duplicate-each"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.swap-pairs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-continuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.move-matching-to-top"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-prefix"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-suffix"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.interleave-halves"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-sentences"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-fixed-width"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-comment-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.count-stats"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-between-markers"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-longest"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-shortest"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-contains.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-regex.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-duplicates.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-unique-only.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-adjacent.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-between-markers.clipboard"
         }
       ],
       "editor/context": [
@@ -3704,6 +4068,10 @@
         {
           "submenu": "selection-manipulator.whitespace.submenu",
           "group": "selection-manipulator@13"
+        },
+        {
+          "submenu": "selection-manipulator.line.submenu",
+          "group": "selection-manipulator@14"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -4125,12 +4493,174 @@
           "command": "selection-manipulator.whitespace.clear-blank-only-lines",
           "group": "selection-manipulator@34"
         }
+      ],
+      "selection-manipulator.line.submenu": [
+        {
+          "command": "selection-manipulator.line.filter-contains",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.line.filter-not-contains",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.line.filter-regex",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.line.filter-not-regex",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.line.add-numbers",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.line.add-numbers-padded",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.line.keep-duplicates",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.line.keep-unique-only",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-ignore-case",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-adjacent",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.line.reverse-words",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.line.rotate",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.line.keep-every-nth",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.line.remove-every-nth",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.line.keep-odd",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.line.keep-even",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.line.head",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.line.tail",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.line.duplicate-each",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.line.swap-pairs",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.line.join-continuation",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.line.move-matching-to-top",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.line.remove-prefix",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.line.remove-suffix",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.line.interleave-halves",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.line.join-every-n",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.line.split-sentences",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.line.split-fixed-width",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.line.remove-comment-lines",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.line.count-stats",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.line.extract-between-markers",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.line.extract-longest",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.line.extract-shortest",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.line.filter-contains.clipboard",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.line.filter-regex.clipboard",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.line.keep-duplicates.clipboard",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.line.keep-unique-only.clipboard",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.line.extract-between-markers.clipboard",
+          "group": "selection-manipulator@39"
+        }
       ]
     }
   },
   "scripts": {
     "vscode:prepublish": "npm run esbuild-base -- --minify",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild main=./src/extension.ts lineRegexWorker=./src/handler/lineRegexWorker.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "watch": "npm run esbuild-watch",
