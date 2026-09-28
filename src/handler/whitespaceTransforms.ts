@@ -64,11 +64,23 @@ export interface WhitespaceOptions {
   /** Literal delimiter (WS-023). */
   delimiter?: string;
   /**
-   * WS-025: true when the selection ends at the start of a line and more text follows it
-   * (e.g. whole lines selected in the middle of a document). One final line break is then
-   * kept so that the following line is not joined to the last kept line.
+   * WS-025 only (the handler sets it for WS-025 alone): true when the selection ends at the
+   * start of a line and more text follows it (e.g. whole lines selected in the middle of a
+   * document). For selections that start at the start of a line, one final line break is
+   * then kept so that the following line is not joined to the last kept line.
    */
   followedByLine?: boolean;
+  /**
+   * WS-025 / WS-026: true when the selection starts after column 0, i.e. its first line is
+   * the rest of a line that begins before the selection.
+   */
+  precededByText?: boolean;
+  /**
+   * WS-025 / WS-026: true when more characters of the same line follow the end of the
+   * selection (also when it ends at the start of a non-empty line). False when it ends at
+   * the start of an empty line, at the end of a line or at the end of the document.
+   */
+  followedByText?: boolean;
   /**
    * Maximum number of characters a padding / indenting command may add (defaults to
    * MAX_ADDED_LENGTH). The handler lowers it so that all selections share one budget.
@@ -85,10 +97,19 @@ export type WhitespaceTransform = (text: string, options: WhitespaceOptions) => 
 /** Maximum number of characters that padding / indenting may add in one command run. */
 export const MAX_ADDED_LENGTH = 10_000_000;
 
+/**
+ * Describes an output that is too large, e.g.
+ * `the result would add 12,345 characters (limit: 10,000,000)`.
+ * Shared by `WhitespaceOutputTooLargeError` and the handler's warning.
+ */
+export const describeAddedLength = (added: number, limit: number): string =>
+  `the result would add ${added.toLocaleString('en-US')} characters (limit: ${limit.toLocaleString('en-US')})`;
+
 /** Thrown (before the result is built) when a command would add more characters than allowed. */
 export class WhitespaceOutputTooLargeError extends Error {
   constructor(readonly added: number, readonly limit: number) {
-    super(`The result would add ${added} characters (limit: ${limit})`);
+    const description = describeAddedLength(added, limit);
+    super(description.charAt(0).toUpperCase() + description.slice(1));
     this.name = 'WhitespaceOutputTooLargeError';
   }
 }
@@ -436,12 +457,27 @@ const blankLineBetween: WhitespaceTransform = (text, { eol }) => lineWise(text, 
  * end of the document, e.g. whole lines selected with Shift+Down or Cmd+L), one final line
  * break is kept so that the next line is not joined: `a⏎⏎⏎` + `z` becomes `a⏎` + `z`, and
  * `a⏎b⏎` + `z` is unchanged.
+ *
+ * When the selection starts in the middle of a line (`precededByText`) and more text of the
+ * same line follows it (`followedByText`), its first segment is the rest of a line outside
+ * the selection: it is never removed, and one line break is kept after the last kept line so
+ * that the lines before and after the selection are not joined (`ab|⏎⏎⏎|z` becomes `ab⏎z`).
  */
-const removeTrailingBlankLines: WhitespaceTransform = (text, { eol, followedByLine }) => {
+const removeTrailingBlankLines: WhitespaceTransform = (
+  text,
+  { eol, followedByLine, precededByText, followedByText }
+) => {
   if (text === '') {
     return text;
   }
   const lines = text.split(LINE_BREAK);
+  if (precededByText === true && followedByText === true && lines.length > 1) {
+    let end = lines.length;
+    while (end > 1 && isBlankLine(lines[end - 1])) {
+      end--;
+    }
+    return end === lines.length ? text : lines.slice(0, end).join(eol) + eol;
+  }
   let end = lines.length;
   while (end > 0 && isBlankLine(lines[end - 1])) {
     end--;
@@ -454,14 +490,41 @@ const removeTrailingBlankLines: WhitespaceTransform = (text, { eol, followedByLi
   return keepBreak ? kept + eol : kept;
 };
 
-/** WS-026: removes the blank lines at the start of the selection together with the line break after them. */
-const removeLeadingBlankLines: WhitespaceTransform = (text, { eol }) => {
+/**
+ * WS-026: removes the blank lines at the start of the selection together with the line break
+ * after them. Nothing is removed when the first line of the selection is not blank.
+ *
+ * When the selection starts in the middle of a line (`precededByText`), its first segment is
+ * the rest of a line outside the selection: it is kept, and the blank lines after it are
+ * removed while keeping one line break, so that the lines before and after the selection are
+ * not joined (`ab|⏎⏎⏎|z` becomes `ab⏎z`, `ab|⏎⏎c|` becomes `ab⏎c`). When only blank lines
+ * follow it and nothing of the same line follows the selection (e.g. it reaches the end of
+ * the document), everything is removed as before (`ab|⏎⏎⏎|` becomes `ab`).
+ */
+const removeLeadingBlankLines: WhitespaceTransform = (text, { eol, precededByText, followedByText }) => {
   if (text === '') {
     return text;
   }
   const breakLength = trailingBreakLength(text);
   const body = breakLength > 0 ? text.slice(0, text.length - breakLength) : text;
   const lines = body.split(LINE_BREAK);
+  if (precededByText === true && (lines.length > 1 || breakLength > 0) && isBlankLine(lines[0])) {
+    const head = lines[0];
+    let start = 1;
+    while (start < lines.length && isBlankLine(lines[start])) {
+      start++;
+    }
+    if (start === lines.length && followedByText !== true) {
+      return '';
+    }
+    if (start === 1) {
+      return text;
+    }
+    if (start === lines.length) {
+      return head + eol;
+    }
+    return head + eol + lines.slice(start).join(eol) + (breakLength > 0 ? eol : '');
+  }
   let start = 0;
   while (start < lines.length && isBlankLine(lines[start])) {
     start++;

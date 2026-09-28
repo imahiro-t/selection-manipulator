@@ -250,6 +250,66 @@ suite('Whitespace Commands (WS-001..035) Test Suite', () => {
     });
   });
 
+  suite('WS-025 / WS-026 selections starting in the middle of a line (lines are never joined)', () => {
+    const runOn = async (
+      command: 'remove-trailing-blank-lines' | 'remove-leading-blank-lines',
+      text: string,
+      selections: vscode.Selection[],
+      crlf = false
+    ): Promise<string> => {
+      const editor = await createTextEditor(text);
+      if (crlf) {
+        await toCrlf(editor);
+      }
+      editor.selections = selections;
+      await whitespaceHandler(command)(editor);
+      return editor.document.getText();
+    };
+    const trailing = 'remove-trailing-blank-lines';
+    const leading = 'remove-leading-blank-lines';
+
+    test('WS-025: blank lines between two lines keep one line break', async () => {
+      assert.strictEqual(await runOn(trailing, 'ab\n\n\nz', [new vscode.Selection(0, 2, 3, 0)]), 'ab\nz');
+      assert.strictEqual(await runOn(trailing, 'a\nz', [new vscode.Selection(0, 1, 1, 0)]), 'a\nz');
+      assert.strictEqual(await runOn(trailing, 'ab\n\n  z', [new vscode.Selection(0, 2, 2, 2)]), 'ab\nz');
+      assert.strictEqual(await runOn(trailing, 'xab\n\n  z', [new vscode.Selection(0, 1, 2, 2)]), 'xab\nz');
+    });
+
+    test('WS-025: selections not followed by text on the same line behave as before', async () => {
+      assert.strictEqual(await runOn(trailing, 'ab\n\n\n', [new vscode.Selection(0, 2, 3, 0)]), 'ab');
+      assert.strictEqual(await runOn(trailing, 'ab\n\n\nz', [new vscode.Selection(0, 2, 2, 0)]), 'ab\nz');
+    });
+
+    test('WS-026: blank lines between two lines keep one line break', async () => {
+      assert.strictEqual(await runOn(leading, 'ab\n\n\nz', [new vscode.Selection(0, 2, 3, 0)]), 'ab\nz');
+      assert.strictEqual(await runOn(leading, 'a\nz', [new vscode.Selection(0, 1, 1, 0)]), 'a\nz');
+      assert.strictEqual(await runOn(leading, 'ab\n\nc', [new vscode.Selection(0, 2, 2, 1)]), 'ab\nc');
+      assert.strictEqual(await runOn(leading, 'ab\n\n\nc\nz', [new vscode.Selection(0, 2, 4, 0)]), 'ab\nc\nz');
+    });
+
+    test('WS-026: unchanged when the first selected line is not blank; as before up to the end of the document', async () => {
+      assert.strictEqual(await runOn(leading, 'xab\n\nc', [new vscode.Selection(0, 1, 2, 1)]), 'xab\n\nc');
+      assert.strictEqual(await runOn(leading, 'ab\n\n\n', [new vscode.Selection(0, 2, 3, 0)]), 'ab');
+    });
+
+    test('CRLF documents keep CRLF', async () => {
+      assert.strictEqual(await runOn(trailing, 'ab\n\n\nz', [new vscode.Selection(0, 2, 3, 0)], true), 'ab\r\nz');
+      assert.strictEqual(await runOn(leading, 'ab\n\n\nz', [new vscode.Selection(0, 2, 3, 0)], true), 'ab\r\nz');
+    });
+
+    test('WS-025: the options are computed for each selection', async () => {
+      const result = await runOn(trailing, 'ab\n\n\nz\ncd\n\n\nw', [
+        new vscode.Selection(0, 2, 3, 0),
+        new vscode.Selection(4, 2, 7, 0),
+      ]);
+      assert.strictEqual(result, 'ab\nz\ncd\nw');
+    });
+
+    test('WS-026: a reversed selection gives the same result', async () => {
+      assert.strictEqual(await runOn(leading, 'ab\n\n\nz', [new vscode.Selection(3, 0, 0, 2)]), 'ab\nz');
+    });
+  });
+
   suite('output size limit', () => {
     const recordingNotifier = () => {
       const warnings: string[] = [];
@@ -276,6 +336,12 @@ suite('Whitespace Commands (WS-001..035) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), explosive);
       assert.strictEqual(warnings.length, 1);
       assert.ok(warnings[0].includes(MAX_ADDED_LENGTH.toLocaleString('en-US')), warnings[0]);
+      // 2,000 lines of `a` are each padded to 100,000 characters.
+      assert.strictEqual(
+        warnings[0],
+        'The selection was not changed: the result would add 199,998,000 characters (limit: 10,000,000). '
+        + 'Select fewer or shorter lines.'
+      );
       assert.deepStrictEqual(errors, []);
     });
 

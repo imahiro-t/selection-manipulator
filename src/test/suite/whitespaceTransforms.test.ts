@@ -204,6 +204,66 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       check('remove-leading-blank-lines', '⏎··⏎a', 'a');
     });
 
+    // Selections starting in the middle of a non-empty line: the first segment is the rest of
+    // a line outside the selection and must not be joined with the lines after the selection.
+    const midLine = { precededByText: true, followedByText: true };
+    const midLineToEnd = { precededByText: true };
+
+    test('remove-trailing-blank-lines: a selection starting mid-line and followed by text keeps one line break', () => {
+      check('remove-trailing-blank-lines', '⏎⏎⏎', '⏎', midLine); // ab|⏎⏎⏎|z -> ab⏎z
+      check('remove-trailing-blank-lines', '⏎', '⏎', midLine); // a|⏎|z unchanged
+      check('remove-trailing-blank-lines', '··⏎', '··⏎', midLine);
+      check('remove-trailing-blank-lines', '··⏎⏎', '··⏎', midLine); // the first segment is never removed
+      check('remove-trailing-blank-lines', '⏎⏎··', '⏎', midLine); // ends in the middle of a line
+      check('remove-trailing-blank-lines', 'ab⏎⏎··', 'ab⏎', midLine); // x|ab⏎⏎··|z -> xab⏎z
+      check('remove-trailing-blank-lines', '⏎c', '⏎c', midLine);
+      check('remove-trailing-blank-lines', '··', '', midLine); // no line break: as before
+    });
+
+    test('remove-trailing-blank-lines: a selection starting mid-line and not followed by text behaves as before', () => {
+      check('remove-trailing-blank-lines', '⏎⏎⏎', '', midLineToEnd);
+      check('remove-trailing-blank-lines', '⏎⏎··', '', midLineToEnd);
+      check('remove-trailing-blank-lines', '··⏎', '', midLineToEnd);
+      // Ends at the start of an empty line.
+      check('remove-trailing-blank-lines', '⏎⏎⏎', '', { precededByText: true, followedByLine: true });
+    });
+
+    test('remove-leading-blank-lines: a selection starting mid-line and followed by text keeps one line break', () => {
+      check('remove-leading-blank-lines', '⏎⏎⏎', '⏎', midLine); // ab|⏎⏎⏎|z -> ab⏎z
+      check('remove-leading-blank-lines', '⏎', '⏎', midLine); // a|⏎|z unchanged
+      check('remove-leading-blank-lines', '··⏎', '··⏎', midLine);
+      check('remove-leading-blank-lines', '··⏎⏎', '··⏎', midLine);
+      check('remove-leading-blank-lines', '⏎⏎··', '⏎', midLine);
+      check('remove-leading-blank-lines', '⏎⏎⏎c⏎', '⏎c⏎', midLine);
+      check('remove-leading-blank-lines', '⏎⏎c', '⏎c', midLine);
+      check('remove-leading-blank-lines', 'ab⏎⏎⏎', 'ab⏎⏎⏎', midLine); // the first line is not blank
+      check('remove-leading-blank-lines', '··', '', midLine); // no line break: as before
+    });
+
+    test('remove-leading-blank-lines: a selection starting mid-line and not followed by text', () => {
+      // Only blank lines up to the end of the document / line: as before.
+      check('remove-leading-blank-lines', '⏎⏎⏎', '', midLineToEnd);
+      check('remove-leading-blank-lines', '⏎', '', midLineToEnd);
+      check('remove-leading-blank-lines', '··⏎⏎', '', midLineToEnd);
+      // Non-blank lines follow: they are not joined to the line before the selection.
+      check('remove-leading-blank-lines', '⏎c', '⏎c', midLineToEnd);
+      check('remove-leading-blank-lines', '⏎⏎c', '⏎c', midLineToEnd);
+      check('remove-leading-blank-lines', '··⏎⏎c', '··⏎c', midLineToEnd);
+      check('remove-leading-blank-lines', '⏎⏎⏎c⏎', '⏎c⏎', midLineToEnd);
+      check('remove-leading-blank-lines', 'ab⏎⏎c', 'ab⏎⏎c', midLineToEnd);
+    });
+
+    test('remove-trailing / leading-blank-lines: selections starting mid-line keep CRLF', () => {
+      checkCrlf('remove-trailing-blank-lines', '⏎⏎⏎', '⏎', midLine);
+      checkCrlf('remove-leading-blank-lines', '⏎⏎⏎', '⏎', midLine);
+    });
+
+    test('remove-trailing / leading-blank-lines: selections starting mid-line return the text as is when nothing is removed', () => {
+      assert.strictEqual(run('remove-leading-blank-lines', '\r\nc', midLineToEnd), '\r\nc');
+      assert.strictEqual(run('remove-leading-blank-lines', '\r\n', midLine), '\r\n');
+      assert.strictEqual(run('remove-trailing-blank-lines', '\r\nc', midLine), '\r\nc');
+    });
+
     test('clear-blank-only-lines keeps the number of lines', () => {
       check('clear-blank-only-lines', '··⏎a⏎⇥', '⏎a⏎');
     });

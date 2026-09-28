@@ -9,6 +9,7 @@ import {
   COLUMN_MAX,
   COLUMN_MIN,
   DELIMITER_MAX_LENGTH,
+  describeAddedLength,
   INDENT_MAX,
   INDENT_MIN,
   MAX_ADDED_LENGTH,
@@ -32,13 +33,38 @@ export interface WhitespaceNotifier {
 }
 
 /**
- * WS-025: the selection ends at the start of a line and the document goes on after it
+ * WS-025 only: the selection ends at the start of a line and the document goes on after it
  * (typical for whole-line selections), so its final line break must be kept.
  */
 const isFollowedByLine = (textEditor: TextEditor, selection: Selection): boolean => {
   const document = textEditor.document;
   const documentEnd = document.lineAt(document.lineCount - 1).range.end;
   return selection.end.character === 0 && !selection.end.isEqual(documentEnd);
+};
+
+/**
+ * Per-selection options that depend on where the selection sits in its lines. Only computed
+ * for the commands that use them: WS-025 (`followedByLine`, `precededByText`,
+ * `followedByText`) and WS-026 (`precededByText`, `followedByText`).
+ * `selection.start` / `selection.end` are ordered, so reversed selections give the same result.
+ */
+const lineContextOptions = (
+  command: WhitespaceCommand,
+  textEditor: TextEditor,
+  selection: Selection
+): Partial<WhitespaceOptions> => {
+  if (command !== 'remove-trailing-blank-lines' && command !== 'remove-leading-blank-lines') {
+    return {};
+  }
+  const document = textEditor.document;
+  const context: Partial<WhitespaceOptions> = {
+    precededByText: selection.start.character > 0,
+    followedByText: selection.end.character < document.lineAt(selection.end.line).text.length,
+  };
+  if (command === 'remove-trailing-blank-lines') {
+    context.followedByLine = isFollowedByLine(textEditor, selection);
+  }
+  return context;
 };
 
 /**
@@ -68,7 +94,7 @@ const applyTransform = async (
       const result = transform(text, {
         ...options,
         eol,
-        followedByLine: isFollowedByLine(textEditor, selection),
+        ...lineContextOptions(command, textEditor, selection),
         maxAddedLength: budget,
       });
       budget -= Math.max(0, result.length - text.length);
@@ -80,8 +106,9 @@ const applyTransform = async (
     // Not awaited: the returned Thenable only settles when the notification is dismissed.
     if (error instanceof WhitespaceOutputTooLargeError) {
       void notifier.showWarningMessage(
-        `The selection was not changed: the result would add ${error.added.toLocaleString('en-US')} characters `
-        + `(limit: ${MAX_ADDED_LENGTH.toLocaleString('en-US')}). Select fewer or shorter lines.`
+        // The overall limit, not error.limit (the budget left for this selection).
+        `The selection was not changed: ${describeAddedLength(error.added, MAX_ADDED_LENGTH)}. `
+        + 'Select fewer or shorter lines.'
       );
     } else {
       void notifier.showErrorMessage(
