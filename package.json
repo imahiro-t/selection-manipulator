@@ -3670,7 +3670,7 @@
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "watch": "npm run esbuild-watch",
     "test-compile": "tsc -p ./",
-    "test": "npm run test-compile && node ./out/test/runTest.js"
+    "test": "npm run test-compile && npm run esbuild && node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",
@@ -3681,7 +3681,7 @@
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-electron": "~3.1.0",
     "esbuild": "^0.27.2",
     "eslint": "^8.54.0",
     "glob": "^13.0.0",
