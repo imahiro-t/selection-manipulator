@@ -120,9 +120,9 @@ In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break (exce
     *   **Unwrap Paragraphs**: `a⏎b⏎⏎c⏎d` -> `a b⏎⏎c d` (blank lines between paragraphs are kept).
     *   **Hard Wrap at 80 / N Columns**: Wraps at word boundaries. The N version asks for N (1-1000, default `80`) once: `aa bb cc` (N=5) -> `aa bb⏎cc`.
 *   **Spaces Inside Lines**:
-    *   **Remove All Whitespace**: `a b⇥c⏎d` -> `abcd`.
+    *   **Remove All Whitespace**: `a·b⇥c⏎d` -> `abcd`.
     *   **Collapse Inline Spaces (Keep Indent)**: `··a···b` -> `··a b`.
-    *   **Special Spaces to Normal Space**: `a{U+00A0}b` -> `a b` (NBSP, thin space and similar spaces).
+    *   **Special Spaces to Normal Space**: `a{U+00A0}b` -> `a·b` (NBSP, thin space and similar spaces).
     *   **Add Spaces Around Operators**: `a=b+c` -> `a = b + c`. Strings, template literals and comments are not changed.
     *   **Remove Space Before Punctuation**: `hello , world !` -> `hello, world!` (`,` `.` `!` `?` `;` `:`).
     *   **Ensure Space After Comma**: `a,b,c` -> `a, b, c`.
@@ -162,7 +162,7 @@ In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break (exce
 > *   **Remove Space Before Punctuation**: Spaces at the start of a line (indentation such as `··.foo()`) and at the start of the selection are kept. It also changes code such as `a ? b : c` -> `a? b: c`.
 > *   **Ensure Space After Comma**: Digit grouping is not recognized (`1,000` -> `1, 000`), and `a,,b` becomes `a, , b`.
 > *   **Remove Trailing Blank Lines**: When the selection ends at the start of a line and more lines follow (a selection made with `Shift+Down`, `Cmd+L` / `Ctrl+L` or a triple click), one line break is kept so the next line is not joined. Only when the selection reaches the end of the document is the last line break removed too (`a⏎b⏎⏎⏎` -> `a⏎b`).
-> *   **Remove Trailing / Leading Blank Lines**: If the selection starts at the end of a non-empty line, the selected line breaks are removed and the lines are joined (selecting from the end of `ab` to the start of `z` in `ab⏎⏎⏎z` gives `abz`). Select whole lines instead.
+> *   **Remove Trailing / Leading Blank Lines**: If the selection starts in the middle of a line (for example at the end of `ab`), the start of the selection is treated as the rest of that line, not as a blank line, and one line break is kept so that line is not joined with the text after the selection (selecting from the end of `ab` to the start of `z` in `ab⏎⏎⏎z` gives `ab⏎z`). Remove Trailing Blank Lines still joins the lines when the selection starts at the start of a line and ends in the middle of a line (selecting from the start of `a` to just before `z` in `a⏎⏎··z` gives `az`). Select whole lines instead.
 
 ### 3. Sort, Unique & Shuffle
 
