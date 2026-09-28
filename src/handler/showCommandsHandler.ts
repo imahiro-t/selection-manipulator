@@ -186,6 +186,156 @@ export const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.sort-line.natural.ascending",
+    "title": "Extract - Sort Lines Ascending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.natural.descending",
+    "title": "Extract - Sort Lines Descending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.ascending",
+    "title": "Extract - Sort Lines Ascending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.descending",
+    "title": "Extract - Sort Lines Descending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.locale.ascending",
+    "title": "Extract - Sort Lines Ascending by locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.locale.descending",
+    "title": "Extract - Sort Lines Descending by locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.japanese.ascending",
+    "title": "Extract - Sort Lines Ascending by kana order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.ascending",
+    "title": "Extract - Sort Lines Ascending by column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.descending",
+    "title": "Extract - Sort Lines Descending by column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.regex-key.ascending",
+    "title": "Extract - Sort Lines Ascending by regex capture",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.date.ascending",
+    "title": "Extract - Sort Lines Ascending by date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.date.descending",
+    "title": "Extract - Sort Lines Descending by date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.semver.ascending",
+    "title": "Extract - Sort Lines Ascending by semantic version",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ip.ascending",
+    "title": "Extract - Sort Lines Ascending by IP address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.word-count.ascending",
+    "title": "Extract - Sort Lines Ascending by word count",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.last-word.ascending",
+    "title": "Extract - Sort Lines Ascending by last word",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.suffix.ascending",
+    "title": "Extract - Sort Lines Ascending by reversed string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.unique.ascending",
+    "title": "Extract - Sort Lines Ascending and remove duplicates",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.paragraph.ascending",
+    "title": "Extract - Sort Paragraphs Ascending",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.indent-block.ascending",
+    "title": "Extract - Sort Lines Ascending keeping indented children",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.hex.ascending",
+    "title": "Extract - Sort Lines Ascending by hex number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.natural.ascending",
+    "title": "Extract - Sort Selections Ascending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.ignore-case.ascending",
+    "title": "Extract - Sort Selections Ascending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.length.ascending",
+    "title": "Extract - Sort Selections Ascending by length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.length.descending",
+    "title": "Extract - Sort Selections Descending by length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by natural order (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending ignoring case (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by column (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by semantic version (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.natural.ascending.clipboard",
+    "title": "Extract - Sort Selections Ascending by natural order (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.json.format",
     "title": "Transform - JSON - Format JSON (Pretty Print)",
     "canMultiSelection": false

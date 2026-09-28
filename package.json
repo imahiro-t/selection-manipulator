@@ -228,6 +228,156 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.natural.ascending",
+        "title": "Sort Lines Ascending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.natural.descending",
+        "title": "Sort Lines Descending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.ascending",
+        "title": "Sort Lines Ascending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.descending",
+        "title": "Sort Lines Descending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.locale.ascending",
+        "title": "Sort Lines Ascending by locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.locale.descending",
+        "title": "Sort Lines Descending by locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.japanese.ascending",
+        "title": "Sort Lines Ascending by kana order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.ascending",
+        "title": "Sort Lines Ascending by column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.descending",
+        "title": "Sort Lines Descending by column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.regex-key.ascending",
+        "title": "Sort Lines Ascending by regex capture",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.date.ascending",
+        "title": "Sort Lines Ascending by date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.date.descending",
+        "title": "Sort Lines Descending by date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.semver.ascending",
+        "title": "Sort Lines Ascending by semantic version",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ip.ascending",
+        "title": "Sort Lines Ascending by IP address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.word-count.ascending",
+        "title": "Sort Lines Ascending by word count",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.last-word.ascending",
+        "title": "Sort Lines Ascending by last word",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.suffix.ascending",
+        "title": "Sort Lines Ascending by reversed string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.unique.ascending",
+        "title": "Sort Lines Ascending and remove duplicates",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.paragraph.ascending",
+        "title": "Sort Paragraphs Ascending",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.indent-block.ascending",
+        "title": "Sort Lines Ascending keeping indented children",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.hex.ascending",
+        "title": "Sort Lines Ascending by hex number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.natural.ascending",
+        "title": "Sort Selections Ascending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.ignore-case.ascending",
+        "title": "Sort Selections Ascending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.length.ascending",
+        "title": "Sort Selections Ascending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.length.descending",
+        "title": "Sort Selections Descending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+        "title": "Sort Lines Ascending by natural order (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+        "title": "Sort Lines Ascending ignoring case (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+        "title": "Sort Lines Ascending by column (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+        "title": "Sort Lines Ascending by semantic version (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.natural.ascending.clipboard",
+        "title": "Sort Selections Ascending by natural order (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.json.format",
         "title": "Format JSON (Pretty Print)",
         "category": "Selection Manipulator"
@@ -2278,6 +2428,126 @@
           "command": "selection-manipulator.sort-line.occurrence.descending.clipboard"
         },
         {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.locale.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.locale.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.japanese.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.regex-key.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.date.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.date.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.semver.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ip.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.word-count.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.last-word.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.suffix.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.unique.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.paragraph.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.indent-block.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.hex.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.natural.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.ignore-case.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.length.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.length.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.semver.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.natural.ascending.clipboard"
+        },
+        {
           "when": "editorHasSelection && !editorHasMultipleSelections",
           "command": "selection-manipulator.json.format"
         },
@@ -3205,6 +3475,26 @@
         {
           "command": "selection-manipulator.sort.number.descending.clipboard",
           "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.sort.natural.ascending",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.sort.natural.ascending.clipboard",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.sort.ignore-case.ascending",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.sort.length.ascending",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.sort.length.descending",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.sort-line.submenu": [
@@ -3255,6 +3545,106 @@
         {
           "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
           "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.ascending",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.descending",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.ascending",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.descending",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.sort-line.locale.ascending",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.sort-line.locale.descending",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.sort-line.japanese.ascending",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.ascending",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.descending",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.sort-line.regex-key.ascending",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.sort-line.date.ascending",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.sort-line.date.descending",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.sort-line.semver.ascending",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ip.ascending",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.sort-line.word-count.ascending",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.sort-line.last-word.ascending",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.sort-line.suffix.ascending",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.sort-line.unique.ascending",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.sort-line.paragraph.ascending",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.sort-line.indent-block.ascending",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.sort-line.hex.ascending",
+          "group": "selection-manipulator@36"
         }
       ],
       "selection-manipulator.transform.submenu": [
