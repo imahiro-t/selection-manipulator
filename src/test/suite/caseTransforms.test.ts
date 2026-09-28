@@ -426,6 +426,56 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       assert.strictEqual(t.singularize('URLS'), 'URL');
     });
 
+    test('acronyms ending with S do not change in either direction', () => {
+      ['DNS', 'HTTPS', 'CSS', 'OS', 'iOS', 'macOS', 'SMS', 'GPS', 'AWS', 'USER_DNS', 'getHTTPS', 'dns'].forEach((word) => {
+        assert.strictEqual(t.pluralize(word), word);
+        assert.strictEqual(t.singularize(word), word);
+      });
+    });
+
+    test('already plural words do not change with pluralize', () => {
+      ['users', 'IDs', 'APIs', 'categories', 'children', 'boxes', 'userIds', 'USER_IDS', 'APIS', 'Users', 'statuses', 'classes']
+        .forEach((word) => assert.strictEqual(t.pluralize(word), word));
+    });
+
+    test('singular -s / -ss / -us / -is words are still pluralized', () => {
+      assert.strictEqual(t.pluralize('class'), 'classes');
+      assert.strictEqual(t.pluralize('status'), 'statuses');
+      assert.strictEqual(t.pluralize('bus'), 'buses');
+      assert.strictEqual(t.pluralize('gas'), 'gases');
+    });
+
+    test('all-caps identifiers take an upper-case suffix', () => {
+      [['USER_ID', 'USER_IDS'], ['USER_API', 'USER_APIS'], ['USER_BOX', 'USER_BOXES'], ['HTTP_API', 'HTTP_APIS']]
+        .forEach(([singular, plural]) => {
+          assert.strictEqual(t.pluralize(singular), plural);
+          assert.strictEqual(t.singularize(plural), singular);
+        });
+      assert.strictEqual(t.pluralize('USER-ID'), 'USER-IDS');
+      assert.strictEqual(t.singularize('APIS'), 'API');
+    });
+
+    test('stand-alone acronyms and acronyms in mixed-case identifiers keep a lower-case s', () => {
+      [['API', 'APIs'], ['userID', 'userIDs'], ['the API', 'the APIs'], ['_API', '_APIs']].forEach(([singular, plural]) => {
+        assert.strictEqual(t.pluralize(singular), plural);
+        assert.strictEqual(t.singularize(plural), singular);
+      });
+    });
+
+    test('known file extensions at the end of a line do not change', () => {
+      ['file.ts', 'index.json', 'src/app.test.tsx', 'archive.tar.gz', 'index.js', '*.ts', 'FILE.TS'].forEach((text) => {
+        assert.strictEqual(t.pluralize(text), text);
+        assert.strictEqual(t.singularize(text), text);
+      });
+    });
+
+    test('property access is still converted', () => {
+      assert.strictEqual(t.pluralize('this.user'), 'this.users');
+      assert.strictEqual(t.singularize('this.users'), 'this.user');
+      assert.strictEqual(t.pluralize('obj.item;'), 'obj.items;');
+      assert.strictEqual(t.pluralize('console.log'), 'console.logs');
+    });
+
     test('a single letter is never changed', () => {
       ['s', 'a', 'I', 'x'].forEach((word) => {
         assert.strictEqual(t.pluralize(word), word);
@@ -477,7 +527,16 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
     };
 
     test('CASE-028/029 long inputs', () => {
-      const inputs = ['a'.repeat(200000) + ' x', 'a'.repeat(200000) + '1'.repeat(200000), 'item\n'.repeat(100000)];
+      const inputs = [
+        'a'.repeat(200000) + ' x',
+        'a'.repeat(200000) + '1'.repeat(200000),
+        'item\n'.repeat(100000),
+        'A_'.repeat(100000) + 'ID',
+        'A'.repeat(200000) + 'S',
+        'x'.repeat(200000) + '.ts',
+        's'.repeat(200000),
+        'USER_ID\n'.repeat(100000),
+      ];
       inputs.forEach((input, index) => {
         within(`pluralize #${index}`, () => t.pluralize(input));
         within(`singularize #${index}`, () => t.singularize(input));

@@ -496,10 +496,50 @@ const SINGULAR_TO_PLURAL: ReadonlyMap<string, string> = new Map(IRREGULAR_PLURAL
 const PLURAL_TO_SINGULAR: ReadonlyMap<string, string> = new Map(
   IRREGULAR_PLURALS.map(([singular, plural]) => [plural, singular] as [string, string]));
 
+/**
+ * Acronyms ending with `S` (lower-case), left unchanged by both Pluralize and
+ * Singularize (`DNS`, `HTTPS`, `iOS` / `macOS` via their last hump `OS`).
+ * `dos` is not listed because it clashes with `to-dos`.
+ */
+export const S_ENDING_ACRONYMS: ReadonlySet<string> = new Set([
+  'aws', 'cms', 'cors', 'css', 'dns', 'fps', 'gps', 'https', 'ios', 'os', 'qps', 'rss', 'sass', 'scss', 'sms',
+  'tps', 'xss',
+]);
+
+/**
+ * File extensions (lower-case): a last word right after a `.` that is one of
+ * these (`file.ts`, `index.json`) is left unchanged. Extensions that are also
+ * common words or member names (`log`, `go`, `less`, `lock`, `env`, `map`,
+ * `data`) are not listed, so `console.log` is still converted.
+ */
+export const FILE_EXTENSIONS: ReadonlySet<string> = new Set([
+  'ts', 'tsx', 'mts', 'cts', 'js', 'jsx', 'mjs', 'cjs', 'json', 'jsonc', 'md', 'mdx', 'txt', 'html', 'htm',
+  'css', 'scss', 'sass', 'vue', 'svelte', 'yml', 'yaml', 'toml', 'ini', 'xml', 'csv', 'tsv', 'py', 'rb', 'rs',
+  'java', 'kt', 'swift', 'cpp', 'hpp', 'cs', 'php', 'sh', 'bash', 'zsh', 'ps', 'sql', 'png', 'jpg', 'jpeg',
+  'gif', 'svg', 'webp', 'ico', 'pdf', 'zip', 'gz', 'tgz', 'tar',
+]);
+
 const isVowel = (ch: string): boolean => ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u';
 const isConsonant = (ch: string): boolean => ch.length === 1 && isAsciiLower(ch.charCodeAt(0)) && !isVowel(ch);
 
-/** Plural of a lower-case word. */
+/** Plural of a lower-case singular word by the suffix rules only (no dictionary). */
+const pluralizeRegular = (word: string): string => {
+  if (word.endsWith('s') || word.endsWith('x') || word.endsWith('z') || word.endsWith('ch') || word.endsWith('sh')) {
+    return `${word}es`;
+  }
+  if (word.length >= 2 && word.endsWith('y') && isConsonant(word.charAt(word.length - 2))) {
+    return `${word.slice(0, -1)}ies`;
+  }
+  return `${word}s`;
+};
+
+/**
+ * Plural of a lower-case word. A word that is already plural is returned as is:
+ * a dictionary plural (`children`), or a word ending in `s` whose singular
+ * pluralizes back to it by the suffix rules (`users` -> `user` -> `users`,
+ * `categories`, `boxes`). Singular -ss / -us / -is words (`class`, `status`,
+ * `bus`) are kept by `singularizeWord`, so they still get a suffix.
+ */
 export const pluralizeWord = (word: string): string => {
   if (UNCOUNTABLE_WORDS.has(word)) {
     return word;
@@ -511,13 +551,13 @@ export const pluralizeWord = (word: string): string => {
   if (PLURAL_TO_SINGULAR.has(word)) {
     return word;
   }
-  if (word.endsWith('s') || word.endsWith('x') || word.endsWith('z') || word.endsWith('ch') || word.endsWith('sh')) {
-    return `${word}es`;
+  if (word.endsWith('s')) {
+    const singular = singularizeWord(word);
+    if (singular !== word && pluralizeRegular(singular) === word) {
+      return word;
+    }
   }
-  if (word.length >= 2 && word.endsWith('y') && isConsonant(word.charAt(word.length - 2))) {
-    return `${word.slice(0, -1)}ies`;
-  }
-  return `${word}s`;
+  return pluralizeRegular(word);
 };
 
 /** Singular of a lower-case word. */
@@ -620,34 +660,113 @@ const touchesApostrophe = (line: string, start: number, end: number): boolean =>
 
 /**
  * True when the all-caps hump `target` of the letter run [start, end) is an
- * acronym whose plural takes a lower-case `s` (`API` -> `APIs`, `userID` ->
- * `userIDs`): a known acronym, or any all-caps hump at the end of a mixed-case
- * identifier. A stand-alone all-caps word that is not a known acronym (`BOX`)
- * is pluralized in upper case (`BOXES`).
+ * acronym: a known acronym, or any all-caps hump at the end of a mixed-case
+ * identifier (`userID`, `fooXYZ`). A stand-alone all-caps word that is not a
+ * known acronym (`BOX`) is inflected by the generic rules (`BOXES`).
  */
 const isAcronymHump = (line: string, start: number, humpStart: number, target: string): boolean =>
   target.length >= 2 && target === target.toUpperCase()
   && (KNOWN_ACRONYMS.has(target.toLowerCase()) || (humpStart > start && isAsciiLower(line.charCodeAt(humpStart - 1))));
 
-type Inflection = (line: string, start: number, end: number) => string | null;
+/**
+ * `IDs` / `APIs` / `userIDs`: the letter run [start, end) ends with a lone
+ * lower-case `s` right after an upper-case run of two or more letters.
+ */
+const isLowerSAcronymPlural = (line: string, start: number, end: number): boolean =>
+  end - start >= 3 && line.charAt(end - 1) === 's'
+  && isAsciiUpper(line.charCodeAt(end - 2)) && isAsciiUpper(line.charCodeAt(end - 3));
 
-/** Replacement text for [humpStart, end) when pluralizing, or null to use the generic rule. */
-const pluralizeAcronym: Inflection = (line, start, end) => {
-  const humpStart = findLastHumpStart(line, start, end);
+/**
+ * `APIS` / `IDS` / `URLS`: an all-caps hump of three or more letters ending with
+ * `S` whose stem is a known acronym.
+ *
+ * On its own this also matches `HTTPS` (as the plural of `HTTP`). That is fine
+ * only because `inflectLines` checks `S_ENDING_ACRONYMS` first and leaves such
+ * words unchanged before this is ever evaluated; keep that order.
+ */
+const isUpperSAcronymPlural = (target: string): boolean =>
+  target.length >= 3 && target.endsWith('S') && target === target.toUpperCase()
+  && KNOWN_ACRONYMS.has(target.slice(0, -1).toLowerCase());
+
+const isIdentifierChar = (code: number): boolean =>
+  isAsciiAlpha(code) || (code >= 48 && code <= 57) || code === 95 /* _ */ || code === 45 /* - */;
+
+/**
+ * True when the hump starting at `humpStart` ends an all-caps identifier with
+ * something before it (`USER_ID`, `HTTP_API`, `USER-ID`): the identifier
+ * characters ([A-Za-z0-9_-]) right before the hump contain no lower-case letter
+ * and at least one letter or digit. A stand-alone acronym (`API`, `the API`,
+ * `_API`) or one inside a mixed-case identifier (`userID`) gives false.
+ * Scans backwards at most once per line, so it stays linear.
+ */
+const isAllCapsIdentifier = (line: string, humpStart: number): boolean => {
+  let hasAlnum = false;
+  for (let i = humpStart - 1; i >= 0; i--) {
+    const code = line.charCodeAt(i);
+    if (!isIdentifierChar(code)) {
+      break;
+    }
+    if (isAsciiLower(code)) {
+      return false;
+    }
+    if (code !== 95 && code !== 45) {
+      hasAlnum = true;
+    }
+  }
+  return hasAlnum;
+};
+
+type Inflection = (line: string, start: number, end: number, humpStart: number) => string | null;
+
+/** Pluralized line for an acronym (or an already plural acronym), or null to use the generic rule. */
+const pluralizeAcronym: Inflection = (line, start, end, humpStart) => {
+  // Already plural acronyms stay: `IDs`, `userIDs`, `APIS`, `USER_IDS`.
+  if (isLowerSAcronymPlural(line, start, end)) {
+    return line;
+  }
   const target = line.slice(humpStart, end);
-  return isAcronymHump(line, start, humpStart, target) ? line.slice(0, end) + 's' + line.slice(end) : null;
+  if (isUpperSAcronymPlural(target)) {
+    return line;
+  }
+  if (!isAcronymHump(line, start, humpStart, target)) {
+    return null;
+  }
+  // All-caps identifiers take an upper-case suffix (`USER_ID` -> `USER_IDS`); others a lower-case one (`API` -> `APIs`).
+  const suffix = isAllCapsIdentifier(line, humpStart) ? 'S' : 's';
+  return line.slice(0, end) + suffix + line.slice(end);
 };
 
 /**
- * `APIs` / `userIDs` -> `API` / `userID`: a lone lower-case `s` right after an
- * upper-case run of two or more letters is an acronym plural.
+ * Singularized line for an acronym plural, or null to use the generic rule:
+ * `APIs` / `userIDs` -> `API` / `userID` (lower-case `s`), and
+ * `APIS` / `USER_IDS` -> `API` / `USER_ID` (upper-case `S` after a known acronym).
  */
-const singularizeAcronym: Inflection = (line, start, end) => {
-  if (end - start >= 3 && line.charAt(end - 1) === 's'
-    && isAsciiUpper(line.charCodeAt(end - 2)) && isAsciiUpper(line.charCodeAt(end - 3))) {
+const singularizeAcronym: Inflection = (line, start, end, humpStart) => {
+  if (isLowerSAcronymPlural(line, start, end) || isUpperSAcronymPlural(line.slice(humpStart, end))) {
     return line.slice(0, end - 1) + line.slice(end);
   }
   return null;
+};
+
+/** True when `text` is all lower-case or all upper-case. */
+const isSingleCase = (text: string): boolean => text === text.toLowerCase() || text === text.toUpperCase();
+
+/** Longest entry of `FILE_EXTENSIONS` / `S_ENDING_ACRONYMS`, to skip slicing long runs. */
+const MAX_GUARD_WORD_LENGTH = 6;
+
+/**
+ * True when the last word must be left unchanged in both directions:
+ * a known file extension right after a `.` (`file.ts`, `index.json`), or a
+ * last hump that is an acronym ending with `S` (`DNS`, `HTTPS`, `iOS`).
+ */
+const isProtectedWord = (line: string, start: number, end: number, humpStart: number): boolean => {
+  if (start > 0 && line.charAt(start - 1) === '.' && end - start <= MAX_GUARD_WORD_LENGTH) {
+    const word = line.slice(start, end);
+    if (isSingleCase(word) && FILE_EXTENSIONS.has(word.toLowerCase())) {
+      return true;
+    }
+  }
+  return end - humpStart <= MAX_GUARD_WORD_LENGTH && S_ENDING_ACRONYMS.has(line.slice(humpStart, end).toLowerCase());
 };
 
 const inflectLines = (value: string, inflect: (word: string) => string, special: Inflection): string =>
@@ -659,11 +778,15 @@ const inflectLines = (value: string, inflect: (word: string) => string, special:
       if (range === null || range.end - range.start < 2 || touchesApostrophe(line, range.start, range.end)) {
         return line;
       }
-      const specialResult = special(line, range.start, range.end);
+      const humpStart = findLastHumpStart(line, range.start, range.end);
+      // Must run before `special`: `isUpperSAcronymPlural` relies on S-ending acronyms being handled here.
+      if (isProtectedWord(line, range.start, range.end, humpStart)) {
+        return line;
+      }
+      const specialResult = special(line, range.start, range.end, humpStart);
       if (specialResult !== null) {
         return specialResult;
       }
-      const humpStart = findLastHumpStart(line, range.start, range.end);
       const target = line.slice(humpStart, range.end);
       const replaced = applyShape(target, inflect(target.toLowerCase()));
       return line.slice(0, humpStart) + replaced + line.slice(range.end);
