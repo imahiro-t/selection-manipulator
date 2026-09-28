@@ -1,11 +1,13 @@
 import * as assert from 'assert';
 import {
+  MAX_ADDED_LENGTH,
   validateColumnInput,
   validateDelimiterInput,
   validateIndentInput,
   WHITESPACE_COMMANDS,
   WhitespaceCommand,
   WhitespaceOptions,
+  WhitespaceOutputTooLargeError,
   whitespaceTransforms,
 } from '../../handler/whitespaceTransforms';
 
@@ -177,6 +179,26 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       check('remove-trailing-blank-lines', 'a⏎b', 'a⏎b');
     });
 
+    test('remove-trailing-blank-lines: a selection followed by more lines keeps one final line break', () => {
+      const followed = { followedByLine: true };
+      // Whole lines `a` and `b` selected with `z` below: nothing to remove, `z` is not joined.
+      check('remove-trailing-blank-lines', 'a⏎b⏎', 'a⏎b⏎', followed);
+      check('remove-trailing-blank-lines', 'a⏎⏎⏎', 'a⏎', followed);
+      check('remove-trailing-blank-lines', 'a⏎··⏎⇥⏎', 'a⏎', followed);
+      // Only blank whole lines selected: they are removed completely.
+      check('remove-trailing-blank-lines', '⏎··⏎', '', followed);
+      // A selection that does not end with a line break is not affected by the flag.
+      check('remove-trailing-blank-lines', 'a⏎··', 'a', followed);
+      checkCrlf('remove-trailing-blank-lines', 'a⏎⏎', 'a⏎', followed);
+    });
+
+    test('a BOM (U+FEFF) is not whitespace for the line-wise commands', () => {
+      assert.strictEqual(run('trim-leading', '\ufeffa'), '\ufeffa');
+      assert.strictEqual(run('clear-blank-only-lines', 'a\n\ufeff\nb'), 'a\n\ufeff\nb');
+      assert.strictEqual(run('remove-trailing-blank-lines', 'a\n\ufeff'), 'a\n\ufeff');
+      assert.strictEqual(run('collapse-blank-lines', 'a\n\ufeff\n\ufeff\nb'), 'a\n\ufeff\n\ufeff\nb');
+    });
+
     test('remove-leading-blank-lines: all blank gives an empty string', () => {
       check('remove-leading-blank-lines', '··⏎⏎', '');
       check('remove-leading-blank-lines', '⏎··⏎a', 'a');
@@ -193,9 +215,11 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
     });
 
     test('nbsp-to-space replaces the documented special spaces only', () => {
-      const targets = '               ';
+      const targets = '\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f';
+      assert.strictEqual(targets.length, 15);
       assert.strictEqual(run('nbsp-to-space', targets), ' '.repeat(targets.length));
-      assert.strictEqual(run('nbsp-to-space', 'a　b​c﻿d'), 'a　b​c﻿d');
+      // Ideographic space, zero width space and BOM are not targets.
+      assert.strictEqual(run('nbsp-to-space', 'a\u3000b\u200bc\ufeffd'), 'a\u3000b\u200bc\ufeffd');
     });
 
     test('visualize leaves line breaks and other whitespace alone', () => {
@@ -274,6 +298,14 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       check('align-comma', 'a·,·b⏎no·commas', 'a,b⏎no·commas');
     });
 
+    test('align-comma: empty trailing cells do not create trailing whitespace', () => {
+      check('align-comma', 'a,⏎ccc,d', 'a,⏎ccc,d');
+      check('align-comma', 'a,b,⏎ccc,dddd,e', 'a,··b,⏎ccc,dddd,e');
+      check('align-comma', 'a,b,,⏎ccc,dddd,e,f', 'a,··b,,⏎ccc,dddd,e,f');
+      // An empty cell in the middle is still padded.
+      check('align-comma', 'a,,b⏎ccc,dd,e', 'a,··,··b⏎ccc,dd,e');
+    });
+
     test('align-custom treats the delimiter literally', () => {
       check('align-custom', 'a.*b⏎cc.*d', 'a··.*b⏎cc·.*d', { delimiter: '.*' });
       // Documented limitation: a literal `=` delimiter can split `+=` (use align-equals for code).
@@ -286,6 +318,7 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       ['align-colon', 'a: 1\nbbb: 2\nstd::x: 3'],
       ['align-comma', 'a,bb,c\nccc,d,e'],
       ['align-comma', 'a,b\nccc,d,e'],
+      ['align-comma', 'a,b,\nccc,dddd,e'],
       ['align-custom', 'a => 1\nbb => 2', { delimiter: '=>' }],
     ];
     idempotent.forEach(([command, input, options]) => {
@@ -308,6 +341,10 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       ['return·-1', 'return·-1'],
       ['case·-1:', 'case·-1:'],
       ['yield·*gen', 'yield·*gen'],
+      ['function*·g(){}', 'function*·g(){}'],
+      ['function·*g(){}', 'function·*g(){}'],
+      ['async·function*·g(){}', 'async·function*·g(){}'],
+      ['f=function*(){}', 'f·=·function*(){}'],
       ['typeof·-x', 'typeof·-x'],
       ['x=a·in·-b', 'x·=·a·in·-b'],
       ['ret·-1', 'ret·-·1'],
@@ -365,7 +402,9 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       ['indent-n', 'a⏎', '····a⏎', { n: 4 }],
       ['pad-to-longest', 'a⏎abc⏎', 'a··⏎abc⏎'],
       ['dedent', '··a⏎····b⏎', 'a⏎··b⏎'],
+      // WS-025 exception: the selection reaches the end of the document (see the followedByLine tests).
       ['remove-trailing-blank-lines', 'a⏎b⏎', 'a⏎b'],
+      ['remove-trailing-blank-lines', 'a⏎b⏎', 'a⏎b⏎', { followedByLine: true }],
       ['center-align', 'a⏎abc⏎', '·a⏎abc⏎'],
       ['right-align', 'a⏎abc⏎', '··a⏎abc⏎'],
       ['align-equals', 'a=1⏎bb=2⏎', 'a··=1⏎bb·=2⏎'],
@@ -407,7 +446,7 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       checkCrlf('blank-line-between', 'a⏎b⏎', 'a⏎⏎b⏎');
       checkCrlf('hard-wrap-n', 'aa·bb·cc', 'aa·bb⏎cc', { n: 5 });
       checkCrlf('collapse-blank-lines', 'a⏎⏎⏎b', 'a⏎⏎b');
-      checkCrlf('remove-trailing-blank-lines', 'a⏎⏎', 'a');
+      checkCrlf('remove-trailing-blank-lines', 'a⏎⏎', 'a'); // selection reaching the end of the document
       checkCrlf('remove-leading-blank-lines', '⏎a⏎', 'a⏎');
       checkCrlf('unwrap-paragraphs', 'a⏎b⏎⏎c', 'a·b⏎⏎c');
       checkCrlf('align-equals', 'a=1⏎bb=2', 'a··=1⏎bb·=2');
@@ -430,6 +469,46 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
     test('validateDelimiterInput rejects empty, whitespace-only, multi-line and too long delimiters', () => {
       ['=>', ':', '.*', 'x'.repeat(100)].forEach((value) => assert.strictEqual(validateDelimiterInput(value), undefined, value));
       ['', '  ', '\t', 'a\nb', 'a\rb', 'x'.repeat(101)].forEach((value) => assert.notStrictEqual(validateDelimiterInput(value), undefined, JSON.stringify(value)));
+    });
+  });
+
+  suite('output size limit (WS-017..WS-023, WS-031)', () => {
+    const longLine = 'k'.repeat(100000);
+    const manyLines = (line: string) => `\n${line}`.repeat(2000);
+    const explosive: [WhitespaceCommand, string, Partial<WhitespaceOptions>?][] = [
+      ['center-align', `${longLine}${manyLines('a')}`],
+      ['right-align', `${longLine}${manyLines('a')}`],
+      ['pad-to-longest', `${longLine}${manyLines('a')}`],
+      ['align-equals', `${longLine}=1${manyLines('a=1')}`],
+      ['align-colon', `${longLine}:1${manyLines('a:1')}`],
+      ['align-comma', `${longLine},1${manyLines('a,1')}`],
+      ['align-custom', `${longLine}=>1${manyLines('a=>1')}`, { delimiter: '=>' }],
+      ['indent-n', 'a\n'.repeat(200000), { n: 100 }],
+    ];
+    explosive.forEach(([command, input, options]) => {
+      test(`${command} refuses to add more than ${MAX_ADDED_LENGTH} characters, quickly`, () => {
+        const start = Date.now();
+        assert.throws(() => run(command, input, options), (error: unknown) => {
+          assert.ok(error instanceof WhitespaceOutputTooLargeError, String(error));
+          assert.ok(error.added > MAX_ADDED_LENGTH, String(error.added));
+          assert.strictEqual(error.limit, MAX_ADDED_LENGTH);
+          return true;
+        });
+        const elapsed = Date.now() - start;
+        assert.ok(elapsed < 1000, `${command} took ${elapsed} ms`);
+      });
+    });
+
+    test('maxAddedLength lowers the limit; a result exactly at the limit is allowed', () => {
+      assert.strictEqual(run('pad-to-longest', 'a\nabc', { maxAddedLength: 2 }), 'a  \nabc');
+      assert.throws(() => run('pad-to-longest', 'a\nabc', { maxAddedLength: 1 }), WhitespaceOutputTooLargeError);
+      assert.strictEqual(run('indent-n', 'a\nb', { n: 3, maxAddedLength: 6 }), '   a\n   b');
+      assert.throws(() => run('indent-n', 'a\nb', { n: 3, maxAddedLength: 5 }), WhitespaceOutputTooLargeError);
+    });
+
+    test('commands that do not pad ignore the limit', () => {
+      assert.strictEqual(run('trim-leading', '  a', { maxAddedLength: 0 }), 'a');
+      assert.strictEqual(run('expand-tabs', 'a\tb', { maxAddedLength: 0 }), 'a   b');
     });
   });
 

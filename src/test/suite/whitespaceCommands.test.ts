@@ -2,9 +2,15 @@ import * as assert from 'assert';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { whitespaceHandler, whitespaceInputHandlerInternal } from '../../handler/whitespaceHandler';
+import {
+  whitespaceHandler,
+  whitespaceHandlerInternal,
+  whitespaceInputHandlerInternal,
+  WhitespaceNotifier,
+} from '../../handler/whitespaceHandler';
 import { myCommands } from '../../handler/showCommandsHandler';
 import {
+  MAX_ADDED_LENGTH,
   WHITESPACE_COMMANDS,
   WHITESPACE_INPUT_COMMANDS,
   WhitespaceCommand,
@@ -68,7 +74,8 @@ const cases: CommandCase[] = [
   { id: 'WS-022', name: 'align-comma', input: 'a,bb,c\nccc,d,e', expected: 'a,  bb,c\nccc,d, e', multiInput: ['a,b\ncc,d', 'e,f\nggg,h'], multiExpected: ['a, b\ncc,d', 'e,  f\nggg,h'] },
   { id: 'WS-023', name: 'align-custom', answer: '=>', input: 'a => 1\nbb => 2', expected: 'a  => 1\nbb => 2', multiInput: ['a => 1\nbb => 2', 'c => 3\nddd => 4'], multiExpected: ['a  => 1\nbb => 2', 'c   => 3\nddd => 4'] },
   { id: 'WS-024', name: 'blank-line-between', input: 'a\nb', expected: 'a\n\nb', multiInput: ['a\nb', 'c\nd'], multiExpected: ['a\n\nb', 'c\n\nd'] },
-  { id: 'WS-025', name: 'remove-trailing-blank-lines', input: 'a\nb\n\n\n', expected: 'a\nb', multiInput: ['a\n\n', 'b\n  '], multiExpected: ['a', 'b'] },
+  // The first block ends at the start of a line followed by `---`, so one line break is kept.
+  { id: 'WS-025', name: 'remove-trailing-blank-lines', input: 'a\nb\n\n\n', expected: 'a\nb', multiInput: ['a\n\n', 'b\n  '], multiExpected: ['a\n', 'b'] },
   { id: 'WS-026', name: 'remove-leading-blank-lines', input: '\n\na\nb', expected: 'a\nb', multiInput: ['\na', '  \nb'], multiExpected: ['a', 'b'] },
   { id: 'WS-027', name: 'collapse-inline', input: '  a   b', expected: '  a b', multiInput: ['  a   b', 'c    d'], multiExpected: ['  a b', 'c d'] },
   { id: 'WS-028', name: 'space-around-operators', input: 'a=b+c', expected: 'a = b + c', multiInput: ['a=b', 'c+d'], multiExpected: ['a = b', 'c + d'] },
@@ -204,12 +211,103 @@ suite('Whitespace Commands (WS-001..035) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), 'a\r\n\r\nb\r\n\r\nc');
     });
 
-    test('WS-025 remove-trailing-blank-lines on a selection ending with a line break', async () => {
+    test('WS-025 remove-trailing-blank-lines on whole lines followed by another line keeps CRLF', async () => {
       const editor = await createTextEditor('a\n\n\nz');
       await toCrlf(editor);
       editor.selection = new vscode.Selection(0, 0, 3, 0);
       await whitespaceHandler('remove-trailing-blank-lines')(editor);
-      assert.strictEqual(editor.document.getText(), 'az');
+      assert.strictEqual(editor.document.getText(), 'a\r\nz');
+    });
+  });
+
+  suite('WS-025 whole-line selections (the next line is never joined)', () => {
+    test('whole lines without trailing blank lines are unchanged', async () => {
+      const editor = await createTextEditor('a\nb\nz');
+      editor.selection = new vscode.Selection(0, 0, 2, 0);
+      await whitespaceHandler('remove-trailing-blank-lines')(editor);
+      assert.strictEqual(editor.document.getText(), 'a\nb\nz');
+    });
+
+    test('trailing blank lines are removed and the next line stays on its own line', async () => {
+      const editor = await createTextEditor('a\n\n\nz');
+      editor.selection = new vscode.Selection(0, 0, 3, 0);
+      await whitespaceHandler('remove-trailing-blank-lines')(editor);
+      assert.strictEqual(editor.document.getText(), 'a\nz');
+    });
+
+    test('selected blank lines between two lines are removed completely', async () => {
+      const editor = await createTextEditor('x\n\n  \nz');
+      editor.selection = new vscode.Selection(1, 0, 3, 0);
+      await whitespaceHandler('remove-trailing-blank-lines')(editor);
+      assert.strictEqual(editor.document.getText(), 'x\nz');
+    });
+
+    test('a selection reaching the end of the document removes the final line break too', async () => {
+      const editor = await createTextEditor('a\nb\n\n');
+      editor.selection = new vscode.Selection(0, 0, 3, 0);
+      await whitespaceHandler('remove-trailing-blank-lines')(editor);
+      assert.strictEqual(editor.document.getText(), 'a\nb');
+    });
+  });
+
+  suite('output size limit', () => {
+    const recordingNotifier = () => {
+      const warnings: string[] = [];
+      const errors: string[] = [];
+      const notifier: WhitespaceNotifier = {
+        showWarningMessage: (message) => {
+          warnings.push(message);
+          return Promise.resolve(undefined);
+        },
+        showErrorMessage: (message) => {
+          errors.push(message);
+          return Promise.resolve(undefined);
+        },
+      };
+      return { notifier, warnings, errors };
+    };
+    const explosive = `${'k'.repeat(100000)}${'\na'.repeat(2000)}`;
+
+    test('WS-019 pad-to-longest over the limit leaves the document unchanged and warns once', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const editor = await createTextEditor(explosive);
+      selectWholeDocument(editor);
+      await whitespaceHandlerInternal(notifier)('pad-to-longest')(editor);
+      assert.strictEqual(editor.document.getText(), explosive);
+      assert.strictEqual(warnings.length, 1);
+      assert.ok(warnings[0].includes(MAX_ADDED_LENGTH.toLocaleString('en-US')), warnings[0]);
+      assert.deepStrictEqual(errors, []);
+    });
+
+    test('WS-023 align-custom (input command) over the limit leaves the document unchanged and warns once', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = `${'k'.repeat(100000)}=>1${'\na=>1'.repeat(2000)}`;
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await whitespaceInputHandlerInternal(() => Promise.resolve('=>'), notifier)('align-custom')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.strictEqual(warnings.length, 1);
+      assert.deepStrictEqual(errors, []);
+    });
+
+    test('the limit is shared by all selections: nothing is edited when they exceed it together', async () => {
+      const { notifier, warnings } = recordingNotifier();
+      // Each block adds about 6,000,000 characters (below the limit alone, above it together).
+      const block = `${'k'.repeat(60000)}${'\na'.repeat(100)}`;
+      const editor = await createTextEditor([block, block].join(SEPARATOR));
+      selectBlocks(editor, [block, block]);
+      await whitespaceHandlerInternal(notifier)('pad-to-longest')(editor);
+      assert.strictEqual(editor.document.getText(), [block, block].join(SEPARATOR));
+      assert.strictEqual(warnings.length, 1);
+    });
+
+    test('a result within the limit is applied without notifications', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const editor = await createTextEditor('a\nabc');
+      selectWholeDocument(editor);
+      await whitespaceHandlerInternal(notifier)('pad-to-longest')(editor);
+      assert.strictEqual(editor.document.getText(), 'a  \nabc');
+      assert.deepStrictEqual([warnings, errors], [[], []]);
     });
   });
 
