@@ -304,6 +304,54 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       assert.throws(() => t.convertJsonKeys('{"x":{"a-b":1,"a_b":2}}', changeCase.camelCase), t.JsonKeyCollisionError);
     });
 
+    test('the collision message quotes short keys in full', () => {
+      assert.throws(
+        () => t.convertJsonKeys('{"user_id":1,"userId":2}', changeCase.camelCase),
+        (error: Error) => error.message === '"user_id" and "userId" both become "userId"',
+      );
+    });
+
+    test('quoteKeyForMessage keeps up to 60 characters and adds an ellipsis beyond that', () => {
+      assert.strictEqual(t.COLLISION_KEY_DISPLAY_LIMIT, 60);
+      assert.strictEqual(t.quoteKeyForMessage(''), '""');
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(60)), `"${'a'.repeat(60)}"`);
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(61)), `"${'a'.repeat(60)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('a\nb"c'), JSON.stringify('a\nb"c'));
+    });
+
+    test('quoteKeyForMessage never splits a surrogate pair', () => {
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(58) + '😀b'), `"${'a'.repeat(58)}😀…"`);
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '😀b'), `"${'a'.repeat(59)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('😀'.repeat(40)), `"${'😀'.repeat(30)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '\ud800'), `"${'a'.repeat(59)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('\ud800'), '"\\ud800"');
+    });
+
+    test('quoteKeyForMessage bounds the escaped form and never splits an escape sequence', () => {
+      const quoted = t.quoteKeyForMessage('\u0001'.repeat(100));
+      assert.strictEqual(quoted, `"${'\\u0001'.repeat(10)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '\n'), `"${'a'.repeat(59)}…"`);
+      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(58) + '\n'), JSON.stringify('a'.repeat(58) + '\n'));
+    });
+
+    test('colliding huge keys give a short message but keep the full keys on the error', () => {
+      const first = `${'x'.repeat(100000)}_y`;
+      const second = `${'x'.repeat(100000)}Y`;
+      let caught: unknown;
+      try {
+        t.convertJsonKeys(JSON.stringify({ [first]: 1, [second]: 2 }), changeCase.camelCase);
+      } catch (error) {
+        caught = error;
+      }
+      assert.ok(caught instanceof t.JsonKeyCollisionError);
+      assert.ok(caught.message.length <= 300, `length ${caught.message.length}`);
+      const shown = `"${'x'.repeat(60)}…"`;
+      assert.strictEqual(caught.message, `${shown} and ${shown} both become ${shown}`);
+      assert.strictEqual(caught.first, first);
+      assert.strictEqual(caught.second, second);
+      assert.strictEqual(caught.converted, second);
+    });
+
     test('the same name in different objects, and duplicate original keys, are not collisions', () => {
       assert.strictEqual(t.convertJsonKeys('[{"a_b":1},{"a_b":2}]', changeCase.camelCase), '[{"aB":1},{"aB":2}]');
       assert.strictEqual(t.convertJsonKeys('{"a_b":{"a_b":1}}', changeCase.camelCase), '{"aB":{"aB":1}}');

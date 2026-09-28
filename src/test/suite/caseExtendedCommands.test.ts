@@ -239,6 +239,21 @@ suite('Extended Case Commands (CASE-001..030) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), '{"user_id":1,"userId":2}\n{"bigId":12345678901234567890,"n":1.0}');
       assert.deepStrictEqual(errors, ['Cannot convert JSON keys: "user_id" and "userId" both become "userId"']);
     });
+
+    test('colliding huge keys give a notification of bounded length', async () => {
+      const text = JSON.stringify({ [`${'x'.repeat(100000)}_y`]: 1, [`${'x'.repeat(100000)}Y`]: 2 });
+      const editor = await createTextEditor(text);
+      editor.selection = new vscode.Selection(0, 0, 0, text.length);
+      const errors: string[] = [];
+      await caseJsonKeysHandlerInternal((message) => {
+        errors.push(message);
+        return Promise.resolve(undefined);
+      })('camel')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.strictEqual(errors.length, 1);
+      assert.ok(errors[0].startsWith('Cannot convert JSON keys: '), errors[0].slice(0, 100));
+      assert.ok(errors[0].length <= 300, `length ${errors[0].length}`);
+    });
   });
 
   test('package.json registers all 30 commands exactly once in each place', () => {

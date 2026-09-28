@@ -339,10 +339,35 @@ export const lowerLocale = (value: string, locale: string): string => value.toLo
 // CASE-022 .. CASE-025: JSON keys
 // ---------------------------------------------------------------------------
 
+/** Maximum number of characters of each key shown in a `JsonKeyCollisionError` message. */
+export const COLLISION_KEY_DISPLAY_LIMIT = 60;
+
+/**
+ * Quotes `key` like `JSON.stringify` for use in an error message, cutting it off
+ * after `maxLength` characters of the escaped form and appending `…` inside the
+ * quotes when it was cut. Keys that fit are returned exactly as `JSON.stringify(key)`.
+ *
+ * The limit counts UTF-16 code units of the escaped text (so `\n` counts as 2 and
+ * `\u0001` as 6), which keeps the result bounded even for keys full of control
+ * characters; surrogate pairs and escape sequences are never split. Only the first
+ * few code points are examined, so huge keys cost constant time.
+ */
+export const quoteKeyForMessage = (key: string, maxLength = COLLISION_KEY_DISPLAY_LIMIT): string => {
+  let shown = '';
+  for (const ch of key) {
+    const escaped = JSON.stringify(ch).slice(1, -1);
+    if (shown.length + escaped.length > maxLength) {
+      return `"${shown}\u2026"`;
+    }
+    shown += escaped;
+  }
+  return `"${shown}"`;
+};
+
 /** Thrown when two different keys of one object would get the same converted name. */
 export class JsonKeyCollisionError extends Error {
   constructor(readonly first: string, readonly second: string, readonly converted: string) {
-    super(`${JSON.stringify(first)} and ${JSON.stringify(second)} both become ${JSON.stringify(converted)}`);
+    super(`${quoteKeyForMessage(first)} and ${quoteKeyForMessage(second)} both become ${quoteKeyForMessage(converted)}`);
     this.name = 'JsonKeyCollisionError';
   }
 }
