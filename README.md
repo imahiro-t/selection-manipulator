@@ -12,6 +12,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content (lines or characters), remove cursors, separate multi-selections, remove characters from edges, mask text.
 *   **Insert**: Date (ISO, Locale, Timestamp, Era), Markdown Link, Enclosed Text (Quotes, Brackets, Japanese Symbols).
+*   **Enclose**: Enclose with a custom prefix/suffix or HTML tag, quote each line or word, build SQL IN lists and array literals, triple/smart quotes, guillemets, escaped double quotes, Japanese brackets, HTML/block comments, `${}` / `{{ }}` / `%%` placeholders, ASCII box, Markdown code span with an automatic fence, add lines before/after, unquote each line, cycle or remove outer brackets.
 *   **Convert Date**: Convert between ISO 8601, Locale String, and Timestamp (Seconds/Milliseconds), AD <-> Wareki.
 *   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
@@ -83,6 +84,43 @@ Many commands come in two variables:
     *   **Quotes**: `'Single'`, `"Double"`, `` `Backtick` ``
     *   **Brackets**: `(Paren)`, `[Square]`, `{Curly}`, `<Angle>`
     *   **Japanese**: `「Single」`, `『Double』`, `【Bracket】`, `＜Angle＞`, `（Paren）`, `［Square］`, `｛Curly｝`
+
+#### Extended Enclose & Quote Commands
+These commands replace each selection in place. With multiple selections, each selection is processed on its own, and a command that asks for input asks only once. They are added to the **Enclose** submenu of the context menu, after the existing Enclose / Quote commands.
+In the examples, `·` is a space and `⏎` is a line break. A value in parentheses is the value you enter.
+
+*   **Enclose the whole selection** (like the existing Enclose / Quote commands, an empty selection gets the pair inserted at the cursor):
+    *   **Enclose: Custom (Prefix / Suffix)**: Asks for a prefix and then a suffix: `abc` (`<<`, `>>`) -> `<<abc>>`. If both are empty, nothing is changed.
+    *   **Quote: Triple Double (""" """)**: `abc` -> `"""abc"""`.
+    *   **Quote: Guillemets («»)**, **Smart Double (“”)**, **Smart Single (‘’)**: `abc` -> `«abc»`, `“abc”`, `‘abc’`.
+    *   **Quote: Double with Escaping**: Escapes `\` as `\\` and `"` as `\"`, then adds double quotes: `say "hi"` -> `"say \"hi\""`. Line breaks are not escaped.
+    *   **Enclose: Japanese White Lenticular (〖〗) / Tortoise Shell (〔〕) / Double Angle (《》) / Single Angle (〈〉) Bracket**: `注意` -> `〖注意〗`, `注` -> `〔注〕`, `書名` -> `《書名》`, `論文` -> `〈論文〉`.
+    *   **Enclose: HTML Tag (Custom)**: Asks for a tag name (1-64 letters, digits and hyphens): `abc` (`b`) -> `<b>abc</b>`.
+    *   **Enclose: HTML Comment**: `abc` -> `<!--·abc·-->`. **Block Comment (/\* \*/)**: `abc` -> `/*·abc·*/`.
+    *   **Enclose: Placeholder (${})**: `name` -> `${name}`. **Mustache ({{ }})**: `name` -> `{{·name·}}`. **Percent (%%)**: `PATH` -> `%PATH%`. **Pipes (||)**: `abc` -> `|abc|`.
+    *   **Enclose: Backtick Code (Auto Fence)**: Encloses the text in one more backtick than the longest run of backticks inside, so the result is a valid Markdown code span: `` a`b `` -> ``` ``a`b`` ```. A space is added on both sides when the text starts or ends with a backtick (`` `a `` -> ``` ``·`a·`` ```), or when it starts and ends with a space or line break and is not only spaces (`·a·` -> `` `··a··` ``), as CommonMark removes one such space.
+*   **Process the lines, words or brackets of the selection** (an empty selection is not changed, and no input box is shown):
+    *   **Enclose Each Line: Custom**: Asks for a prefix and then a suffix: `a⏎b` (`[`, `]`) -> `[a]⏎[b]`. If both are empty, nothing is changed.
+    *   **Quote Each Line: Double ("") / Single ('')**: `a⏎b` -> `"a"⏎"b"` / `'a'⏎'b'`.
+    *   **Quote Each Word: Double ("")**, **Enclose Each Word: Parentheses (())**: Every run of non-whitespace characters is a word; the whitespace and line breaks between the words are kept: `a·b` -> `"a"·"b"` / `(a)·(b)`.
+    *   **Quote: SQL IN List**: Quotes each line in single quotes (an inner `'` becomes `''`) and joins them with `, ` in parentheses on one line: `a⏎O'Neil` -> `('a', 'O''Neil')`.
+    *   **Quote: Array Literal**: Quotes each line in double quotes (an inner `\` becomes `\\` and `"` becomes `\"`) and joins them with `, ` in square brackets on one line: `a⏎b` -> `["a", "b"]`.
+    *   **Unquote Each Line**: Removes one pair of matching quotes (`"` `'` `` ` ``) around the text of each line: `"a"⏎'b'` -> `a⏎b`. Whitespace before and after the quotes is kept (`··"a"` -> `··a`).
+    *   **Enclose: ASCII Box**: Draws a box as wide as the longest line: `abc` -> `+-----+⏎|·abc·|⏎+-----+`. Shorter lines are padded with spaces.
+    *   **Enclose: Lines Block (Before / After Lines)**: Asks for a line to insert before and then a line to insert after the selection: `a⏎b` (`BEGIN`, `END`) -> `BEGIN⏎a⏎b⏎END`. If the selection ends with a line break (for example a selection of whole lines), the after line is added after that line break and followed by another one, so the next line is not joined: `a⏎b⏎` -> `BEGIN⏎a⏎b⏎END⏎`. Either line may be empty (an empty line is inserted).
+    *   **Enclose: Cycle Brackets**: Changes the outer brackets `()` -> `[]` -> `{}` -> `()`: `(a)` -> `[a]`.
+    *   **Enclose: Remove Matching Outer Brackets**: Removes the outer pair only: `((a))` -> `(a)`. Handles `()` `[]` `{}` `<>` and `「」` `『』` `【】` `（）` `［］` `｛｝` `＜＞` `〔〕` `〖〗` `《》` `〈〉`.
+*   Line-wise commands (Enclose Each Line, Quote Each Line, Unquote Each Line, ASCII Box) do not count one trailing line break of a selection as a line and keep it, and join the lines with the document's line ending (LF or CRLF).
+
+> **Limitations of the extended enclose & quote commands**
+> *   **Empty and blank lines**: Enclose Each Line and Quote Each Line leave empty lines as they are but enclose lines that contain only whitespace (`a⏎⏎··` -> `"a"⏎⏎"··"`). SQL IN List and Array Literal skip empty and whitespace-only lines, use the other lines as they are (leading and trailing spaces are not trimmed: `·a` -> `('·a')`), keep one trailing line break of the selection after the list, and change nothing if every line is blank.
+> *   **Unquote Each Line**: Only straight quotes are removed (not `“”` or `‘’`), only when the same quote character is at both ends of the trimmed line text (`"a'` and a lone `"` are not changed), and only one pair (`""a""` -> `"a"`).
+> *   **ASCII Box**: The width is counted in code points. Full-width characters, emoji and tabs count as one column, so the box is not aligned when they are displayed wider.
+> *   **HTML Tag**: Attributes are not supported (`b onclick=x` is rejected), and the selected text is not HTML-escaped (`<script>` becomes `<b><script></b>`).
+> *   **HTML Comment / Block Comment**: A `-->` or `*/` inside the selection is not changed, so the comment can end early.
+> *   **Cycle Brackets / Remove Matching Outer Brackets**: The text must start with an opening bracket and end with the matching closing bracket (no surrounding spaces). Only brackets of the same kind are counted to find the match, and brackets inside quotes are counted too. Text where the first bracket closes before the end (`(a)(b)`) is not changed, while a mix of kinds such as `(a])` is treated as enclosed. Cycle Brackets handles only `()`, `[]` and `{}`.
+> *   **Input**: Prefixes, suffixes and the before / after lines can be 0-1,000 characters without line breaks; tag names 1-64 characters. If you cancel an input box, nothing is changed. The selections are read again after the input boxes close, so an edit made while an input box is shown does not make the command change an outdated range.
+> *   **Output size**: A run that would add more than 10,000,000 characters in total (shared by all selections, for example a long prefix on many lines or an ASCII Box around many lines of different lengths) is refused with a warning and leaves the text unchanged.
 
 #### Format & Insert
 *   **Zero Padding**: Pads numbers with leading zeros (e.g., `1` -> `001`).

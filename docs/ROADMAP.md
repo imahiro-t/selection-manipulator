@@ -486,36 +486,36 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| WRAP-001 | WRAP | 基本 | `selection-manipulator.enclose.custom` | Enclose: Custom (Prefix / Suffix) | 入力した前置文字列と後置文字列で選択テキストを囲む | `abc（<<, >>）` → `<<abc>>` | なし | なし |
-| WRAP-002 | WRAP | 基本 | `selection-manipulator.enclose.each-line.custom` | Enclose Each Line: Custom | 各行を入力した前置・後置文字列で囲む | `a⏎b（[, ]）` → `[a]⏎[b]` | なし | なし |
-| WRAP-003 | WRAP | 基本 | `selection-manipulator.quote.each-line.double` | Quote Each Line: Double ("") | 各行をダブルクォートで囲む | `a⏎b` → `"a"⏎"b"` | なし | なし |
-| WRAP-004 | WRAP | 基本 | `selection-manipulator.quote.each-line.single` | Quote Each Line: Single ('') | 各行をシングルクォートで囲む | `a⏎b` → `'a'⏎'b'` | なし | なし |
-| WRAP-005 | WRAP | 基本 | `selection-manipulator.quote.each-word.double` | Quote Each Word: Double ("") | 空白区切りの各単語をダブルクォートで囲む | `a b` → `"a" "b"` | なし | なし |
-| WRAP-006 | WRAP | 基本 | `selection-manipulator.quote.list.sql-in` | Quote: SQL IN List | 各行をシングルクォートで囲み、カンマ区切りで括弧に入れる（内部の ' は '' にエスケープ） | `a⏎O'Neil` → `('a', 'O''Neil')` | なし | なし |
-| WRAP-007 | WRAP | 基本 | `selection-manipulator.quote.list.array` | Quote: Array Literal | 各行をダブルクォートで囲み、配列リテラルにする | `a⏎b` → `["a", "b"]` | なし | なし |
+| WRAP-001 | WRAP | 基本 | `selection-manipulator.enclose.custom` | Enclose: Custom (Prefix / Suffix) | 入力した前置文字列と後置文字列で選択テキストを囲む（前置・後置は各 0〜1,000 文字で改行不可。両方空なら変更しない。空選択ではカーソル位置に組を挿入する） | `abc（<<, >>）` → `<<abc>>` | なし | なし |
+| WRAP-002 | WRAP | 基本 | `selection-manipulator.enclose.each-line.custom` | Enclose Each Line: Custom | 各行を入力した前置・後置文字列で囲む（長さ 0 の行はそのまま、空白のみの行は囲む。末尾の改行 1 つは行として数えずに残す。前置・後置の制限は WRAP-001 と同じで、両方空なら変更しない） | `a⏎b（[, ]）` → `[a]⏎[b]` | なし | なし |
+| WRAP-003 | WRAP | 基本 | `selection-manipulator.quote.each-line.double` | Quote Each Line: Double ("") | 各行をダブルクォートで囲む（長さ 0 の行はそのまま、空白のみの行は囲む。末尾の改行 1 つは行として数えずに残す） | `a⏎b` → `"a"⏎"b"` | なし | なし |
+| WRAP-004 | WRAP | 基本 | `selection-manipulator.quote.each-line.single` | Quote Each Line: Single ('') | 各行をシングルクォートで囲む（空行・末尾改行の扱いは WRAP-003 と同じ） | `a⏎b` → `'a'⏎'b'` | なし | なし |
+| WRAP-005 | WRAP | 基本 | `selection-manipulator.quote.each-word.double` | Quote Each Word: Double ("") | 空白区切りの各単語をダブルクォートで囲む（空白以外の文字の連続を単語とし、単語間の空白・改行はそのまま残す） | `a b` → `"a" "b"` | なし | なし |
+| WRAP-006 | WRAP | 基本 | `selection-manipulator.quote.list.sql-in` | Quote: SQL IN List | 各行をシングルクォートで囲み、カンマ区切りで括弧に入れる（内部の ' は '' にエスケープ。空行・空白のみの行は除き、行の前後の空白はトリムしない。結果は 1 行で、選択末尾の改行 1 つはリストの後ろに残す。対象行がなければ変更しない） | `a⏎O'Neil` → `('a', 'O''Neil')` | なし | なし |
+| WRAP-007 | WRAP | 基本 | `selection-manipulator.quote.list.array` | Quote: Array Literal | 各行をダブルクォートで囲み、配列リテラルにする（内部の \\ と " はエスケープする。空行・空白のみの行と末尾改行の扱いは WRAP-006 と同じ） | `a⏎b` → `["a", "b"]` | なし | なし |
 | WRAP-008 | WRAP | 基本 | `selection-manipulator.quote.triple-double` | Quote: Triple Double (""" """) | Python などの三重引用符で囲む | `abc` → `"""abc"""` | なし | なし |
 | WRAP-009 | WRAP | 基本 | `selection-manipulator.quote.guillemets` | Quote: Guillemets («») | ギュメ（« »）で囲む | `abc` → `«abc»` | なし | なし |
 | WRAP-010 | WRAP | 基本 | `selection-manipulator.quote.smart-double` | Quote: Smart Double (“”) | 曲がった二重引用符で囲む | `abc` → `“abc”` | なし | なし |
 | WRAP-011 | WRAP | 基本 | `selection-manipulator.quote.smart-single` | Quote: Smart Single (‘’) | 曲がった一重引用符で囲む | `abc` → `‘abc’` | なし | なし |
-| WRAP-012 | WRAP | 基本 | `selection-manipulator.quote.double-escaped` | Quote: Double with Escaping | 内部の " と \\ をエスケープしてからダブルクォートで囲む | `say "hi"` → `"say \"hi\""` | なし | なし |
-| WRAP-013 | WRAP | 基本 | `selection-manipulator.unquote.each-line` | Unquote Each Line | 各行の両端にある対応した引用符（" ' \`）を取り除く | `"a"⏎'b'` → `a⏎b` | なし | なし |
+| WRAP-012 | WRAP | 基本 | `selection-manipulator.quote.double-escaped` | Quote: Double with Escaping | 内部の " と \\ をエスケープしてからダブルクォートで囲む（改行はエスケープしない） | `say "hi"` → `"say \"hi\""` | なし | なし |
+| WRAP-013 | WRAP | 基本 | `selection-manipulator.unquote.each-line` | Unquote Each Line | 各行の両端にある対応した引用符（" ' \`）を取り除く（行の前後の空白を除いた部分の両端が同じ引用符のときだけ 1 組を除き、前後の空白は残す。曲がった引用符は対象外） | `"a"⏎'b'` → `a⏎b` | なし | なし |
 | WRAP-014 | WRAP | 基本 | `selection-manipulator.enclose.japanese.white-lenticular` | Enclose: Japanese White Lenticular Bracket (〖〗) | 〖〗で囲む | `注意` → `〖注意〗` | なし | なし |
 | WRAP-015 | WRAP | 基本 | `selection-manipulator.enclose.japanese.tortoise-shell` | Enclose: Japanese Tortoise Shell Bracket (〔〕) | 〔〕で囲む | `注` → `〔注〕` | なし | なし |
 | WRAP-016 | WRAP | 基本 | `selection-manipulator.enclose.japanese.double-angle` | Enclose: Japanese Double Angle Bracket (《》) | 《》で囲む | `書名` → `《書名》` | なし | なし |
 | WRAP-017 | WRAP | 基本 | `selection-manipulator.enclose.japanese.single-angle` | Enclose: Japanese Single Angle Bracket (〈〉) | 〈〉で囲む | `論文` → `〈論文〉` | なし | なし |
-| WRAP-018 | WRAP | 基本 | `selection-manipulator.enclose.html-tag` | Enclose: HTML Tag (Custom) | 入力したタグ名の開始タグと終了タグで囲む（タグ名は英数字とハイフンのみ許可） | `abc（b）` → `<b>abc</b>` | なし | なし |
-| WRAP-019 | WRAP | 基本 | `selection-manipulator.enclose.html-comment` | Enclose: HTML Comment | HTML コメントで囲む | `abc` → `<!-- abc -->` | なし | なし |
-| WRAP-020 | WRAP | 基本 | `selection-manipulator.enclose.block-comment` | Enclose: Block Comment (/\* \*/) | C 系のブロックコメントで囲む | `abc` → `/* abc */` | なし | なし |
+| WRAP-018 | WRAP | 基本 | `selection-manipulator.enclose.html-tag` | Enclose: HTML Tag (Custom) | 入力したタグ名の開始タグと終了タグで囲む（タグ名は 1〜64 文字の英数字とハイフンのみ許可し、属性は非対応。選択テキストは HTML エスケープしない） | `abc（b）` → `<b>abc</b>` | なし | なし |
+| WRAP-019 | WRAP | 基本 | `selection-manipulator.enclose.html-comment` | Enclose: HTML Comment | HTML コメントで囲む（内部の --> は変換しない） | `abc` → `<!-- abc -->` | なし | なし |
+| WRAP-020 | WRAP | 基本 | `selection-manipulator.enclose.block-comment` | Enclose: Block Comment (/\* \*/) | C 系のブロックコメントで囲む（内部の \*/ は変換しない） | `abc` → `/* abc */` | なし | なし |
 | WRAP-021 | WRAP | 基本 | `selection-manipulator.enclose.placeholder` | Enclose: Placeholder (${}) | テンプレートリテラルやシェル変数の形式で囲む | `name` → `${name}` | なし | なし |
 | WRAP-022 | WRAP | 基本 | `selection-manipulator.enclose.mustache` | Enclose: Mustache ({{ }}) | Mustache / Handlebars のプレースホルダ形式で囲む | `name` → `{{ name }}` | なし | なし |
 | WRAP-023 | WRAP | 基本 | `selection-manipulator.enclose.percent` | Enclose: Percent (%%) | Windows の環境変数形式で囲む | `PATH` → `%PATH%` | なし | なし |
 | WRAP-024 | WRAP | 基本 | `selection-manipulator.enclose.pipes` | Enclose: Pipes (\|\|) | 縦棒で囲む | `abc` → `\|abc\|` | なし | なし |
-| WRAP-025 | WRAP | 基本 | `selection-manipulator.enclose.ascii-box` | Enclose: ASCII Box | テキストを ASCII の枠線で囲む | `abc` → `+-----+⏎\| abc \|⏎+-----+` | なし | なし |
-| WRAP-026 | WRAP | 基本 | `selection-manipulator.enclose.each-word.paren` | Enclose Each Word: Parentheses (()) | 空白区切りの各単語を丸括弧で囲む | `a b` → `(a) (b)` | なし | なし |
-| WRAP-027 | WRAP | 基本 | `selection-manipulator.enclose.lines-block` | Enclose: Lines Block (Before / After Lines) | 選択した行群の前後に、入力した行を 1 行ずつ追加する | `a⏎b（BEGIN, END）` → `BEGIN⏎a⏎b⏎END` | なし | なし |
-| WRAP-028 | WRAP | 基本 | `selection-manipulator.enclose.cycle-brackets` | Enclose: Cycle Brackets | 外側の括弧を () → \[\] → {} → () の順に切り替える | `(a)` → `[a]` | なし | なし |
-| WRAP-029 | WRAP | 基本 | `selection-manipulator.enclose.remove-outer-brackets` | Enclose: Remove Matching Outer Brackets | 両端が対応する括弧の組のときだけ外側の 1 組を取り除く | `((a))` → `(a)` | なし | なし |
-| WRAP-030 | WRAP | 基本 | `selection-manipulator.enclose.markdown-inline-code` | Enclose: Backtick Code (Auto Fence) | 内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。常に 1 個のバッククォートで囲む既存の Quote: Backtick と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる | ``a`b`` → ``` ``a`b`` ``` | なし | なし |
+| WRAP-025 | WRAP | 基本 | `selection-manipulator.enclose.ascii-box` | Enclose: ASCII Box | テキストを ASCII の枠線で囲む（幅は最長行のコードポイント数で、全角文字・タブの表示幅は考慮しない。短い行は空白で埋める） | `abc` → `+-----+⏎\| abc \|⏎+-----+` | なし | なし |
+| WRAP-026 | WRAP | 基本 | `selection-manipulator.enclose.each-word.paren` | Enclose Each Word: Parentheses (()) | 空白区切りの各単語を丸括弧で囲む（単語の区切り方は WRAP-005 と同じ） | `a b` → `(a) (b)` | なし | なし |
+| WRAP-027 | WRAP | 基本 | `selection-manipulator.enclose.lines-block` | Enclose: Lines Block (Before / After Lines) | 選択した行群の前後に、入力した行を 1 行ずつ追加する（選択が改行で終わる場合は、後ろの行をその改行の後に置き改行を付けて次の行と連結しない。入力は各 0〜1,000 文字で改行不可、空も可。空選択では何もしない） | `a⏎b（BEGIN, END）` → `BEGIN⏎a⏎b⏎END` | なし | なし |
+| WRAP-028 | WRAP | 基本 | `selection-manipulator.enclose.cycle-brackets` | Enclose: Cycle Brackets | 外側の括弧を () → \[\] → {} → () の順に切り替える（先頭と末尾の括弧が対応する場合のみ。対応は同種の括弧だけを数えて判定し、引用符内の括弧も数える。`(a)(b)` などは変更しない） | `(a)` → `[a]` | なし | なし |
+| WRAP-029 | WRAP | 基本 | `selection-manipulator.enclose.remove-outer-brackets` | Enclose: Remove Matching Outer Brackets | 両端が対応する括弧の組のときだけ外側の 1 組を取り除く（対象は () \[\] {} <> と全角・日本語括弧 11 種。対応の判定は WRAP-028 と同じ） | `((a))` → `(a)` | なし | なし |
+| WRAP-030 | WRAP | 基本 | `selection-manipulator.enclose.markdown-inline-code` | Enclose: Backtick Code (Auto Fence) | 内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。内容の先頭か末尾がバッククォートの場合、または先頭と末尾がともに空白・改行で全体が空白ではない場合は、CommonMark の規則に合わせて両側に空白を 1 つ足す。常に 1 個のバッククォートで囲む既存の Quote: Backtick と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる | ``a`b`` → ``` ``a`b`` ``` | なし | なし |
 
 ### ENC
 
