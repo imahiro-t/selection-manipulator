@@ -4,7 +4,7 @@ import {
   commands,
 } from 'vscode';
 
-const myCommands = [
+export const myCommands = [
   {
     "command": "selection-manipulator.multi-selection",
     "title": "Select - Convert to Multi Selection",
@@ -1453,6 +1453,181 @@ const myCommands = [
   {
     "command": "selection-manipulator.text.select-matches",
     "title": "Text - Select Matches",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.tabs-to-spaces-2",
+    "title": "Whitespace: Leading Tabs to Spaces (2)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.tabs-to-spaces-4",
+    "title": "Whitespace: Leading Tabs to Spaces (4)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.spaces-to-tabs-2",
+    "title": "Whitespace: Leading Spaces to Tabs (2)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.spaces-to-tabs-4",
+    "title": "Whitespace: Leading Spaces to Tabs (4)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.reindent-2-to-4",
+    "title": "Whitespace: Re-indent 2 to 4 Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.reindent-4-to-2",
+    "title": "Whitespace: Re-indent 4 to 2 Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.dedent",
+    "title": "Whitespace: Remove Common Indent (Dedent)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.trim-leading",
+    "title": "Whitespace: Trim Leading Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.collapse-blank-lines",
+    "title": "Whitespace: Collapse Consecutive Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-all",
+    "title": "Whitespace: Remove All Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unwrap-paragraphs",
+    "title": "Whitespace: Unwrap Paragraphs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.hard-wrap-80",
+    "title": "Whitespace: Hard Wrap at 80 Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.hard-wrap-n",
+    "title": "Whitespace: Hard Wrap at N Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.nbsp-to-space",
+    "title": "Whitespace: Special Spaces to Normal Space",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.visualize",
+    "title": "Whitespace: Visualize Spaces and Tabs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unvisualize",
+    "title": "Whitespace: Restore Visualized Spaces and Tabs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.center-align",
+    "title": "Whitespace: Center Align Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.right-align",
+    "title": "Whitespace: Right Align Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.pad-to-longest",
+    "title": "Whitespace: Pad Lines to Same Length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-equals",
+    "title": "Whitespace: Align by Equals Sign (=)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-colon",
+    "title": "Whitespace: Align by Colon (:)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-comma",
+    "title": "Whitespace: Align Columns by \",\"",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-custom",
+    "title": "Whitespace: Align by Custom Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.blank-line-between",
+    "title": "Whitespace: Insert Blank Line Between Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-trailing-blank-lines",
+    "title": "Whitespace: Remove Trailing Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-leading-blank-lines",
+    "title": "Whitespace: Remove Leading Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.collapse-inline",
+    "title": "Whitespace: Collapse Inline Spaces (Keep Indent)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.space-around-operators",
+    "title": "Whitespace: Add Spaces Around Operators",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-space-before-punctuation",
+    "title": "Whitespace: Remove Space Before Punctuation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.space-after-comma",
+    "title": "Whitespace: Ensure Space After Comma",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.indent-n",
+    "title": "Whitespace: Indent Lines by N Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.outdent-n",
+    "title": "Whitespace: Outdent Lines by N Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.expand-tabs",
+    "title": "Whitespace: Expand All Tabs (Tab Stops)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unexpand-tabs",
+    "title": "Whitespace: Unexpand Spaces to Tabs (Tab Stops)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.clear-blank-only-lines",
+    "title": "Whitespace: Clear Whitespace-only Lines",
     "canMultiSelection": true
   }
 ];

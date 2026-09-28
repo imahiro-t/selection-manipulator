@@ -75,6 +75,7 @@ import {
 import { maskHandler } from './handler/maskHandler';
 import { ResultProvider } from './provider/resultProvider';
 import { diffHandler } from './handler/diffHandler';
+import { whitespaceHandler, whitespaceInputHandler } from './handler/whitespaceHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -412,6 +413,43 @@ export function activate(context: vscode.ExtensionContext) {
   // Data Struct Handlers
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.data.env-to-json', dataStructHandler('env-to-json', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.data.env-to-json.replace', dataStructHandler('env-to-json', true)));
+
+  // Whitespace Handlers (WS-001..WS-035)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.tabs-to-spaces-2', whitespaceHandler('tabs-to-spaces-2')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.tabs-to-spaces-4', whitespaceHandler('tabs-to-spaces-4')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.spaces-to-tabs-2', whitespaceHandler('spaces-to-tabs-2')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.spaces-to-tabs-4', whitespaceHandler('spaces-to-tabs-4')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.reindent-2-to-4', whitespaceHandler('reindent-2-to-4')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.reindent-4-to-2', whitespaceHandler('reindent-4-to-2')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.dedent', whitespaceHandler('dedent')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.trim-leading', whitespaceHandler('trim-leading')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.collapse-blank-lines', whitespaceHandler('collapse-blank-lines')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.remove-all', whitespaceHandler('remove-all')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.unwrap-paragraphs', whitespaceHandler('unwrap-paragraphs')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.hard-wrap-80', whitespaceHandler('hard-wrap-80')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.hard-wrap-n', whitespaceInputHandler('hard-wrap-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.nbsp-to-space', whitespaceHandler('nbsp-to-space')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.visualize', whitespaceHandler('visualize')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.unvisualize', whitespaceHandler('unvisualize')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.center-align', whitespaceHandler('center-align')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.right-align', whitespaceHandler('right-align')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.pad-to-longest', whitespaceHandler('pad-to-longest')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.align-equals', whitespaceHandler('align-equals')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.align-colon', whitespaceHandler('align-colon')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.align-comma', whitespaceHandler('align-comma')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.align-custom', whitespaceInputHandler('align-custom')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.blank-line-between', whitespaceHandler('blank-line-between')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.remove-trailing-blank-lines', whitespaceHandler('remove-trailing-blank-lines')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.remove-leading-blank-lines', whitespaceHandler('remove-leading-blank-lines')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.collapse-inline', whitespaceHandler('collapse-inline')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.space-around-operators', whitespaceHandler('space-around-operators')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.remove-space-before-punctuation', whitespaceHandler('remove-space-before-punctuation')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.space-after-comma', whitespaceHandler('space-after-comma')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.indent-n', whitespaceInputHandler('indent-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.outdent-n', whitespaceInputHandler('outdent-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.expand-tabs', whitespaceHandler('expand-tabs')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.unexpand-tabs', whitespaceHandler('unexpand-tabs')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.whitespace.clear-blank-only-lines', whitespaceHandler('clear-blank-only-lines')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));
