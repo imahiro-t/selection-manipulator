@@ -7,7 +7,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 ## ✨ Features
 
 ### 📝 Text Manipulation
-*   **Sort**: Organize lines or selections by string, number, occurrence, or length (Ascending/Descending).
+*   **Sort**: Organize lines or selections by string, number, occurrence, or length (Ascending/Descending), and by natural order, ignoring case, locale, kana order, a column, a regex capture, date, semantic version, IP address, hex number, word count, last word or reversed string; sort and remove duplicates, sort paragraphs, or sort lines keeping their indented children (several with a Clipboard version).
 *   **Unique**: Instantly remove duplicate lines.
 *   **Extract**: Filter and extract matching text, lines, emails, URLs, IPs, or lines by length (equal/less/greater) to a new tab or clipboard.
 *   **Edit**: Reverse text, shuffle content (lines or characters), remove cursors, separate multi-selections, remove characters from edges, mask text.
@@ -229,6 +229,46 @@ Sorts selected lines based on various criteria.
 *   **Criteria**: String, Number, Line Length, Occurrence Count.
 *   **Order**: Ascending, Descending.
 *   **Variations**: Sort the entire line or just the selection.
+
+#### Extended Sort Commands
+These commands never change the editor: like the existing sort commands, they open the result in a new editor, and the (Clipboard) versions copy it to the clipboard instead. They are in the **Sort Lines** and **Sort Selections** submenus of the context menu.
+In the examples, `·` is a space and `⏎` is a line break. A value in parentheses is the value you enter, and `[a]` is a selection.
+
+*   **Sort Lines** (the lines of all selections are sorted as one list; one trailing line break of each selection is not counted as a line):
+    *   **Natural Order (Ascending / Descending)**: Numbers in the text are compared as numbers: `file10⏎file2` -> `file2⏎file10`. Letters are compared linguistically (`a` < `B`), not by code point.
+    *   **Ignoring Case (Ascending / Descending)**: `b⏎A⏎a` -> `A⏎a⏎b`. Lines that differ only in case keep their order, also in the descending order (`A⏎b⏎a` -> `b⏎A⏎a`).
+    *   **Locale (Ascending / Descending)**: Asks for a locale (a BCP 47 tag such as `en`, `fr` or `ja`, up to 64 characters; the default is the VS Code display language) and sorts with `Intl.Collator`: `f⏎é⏎e` (`en`) -> `e⏎é⏎f`. A malformed or unsupported locale is rejected when you enter it.
+    *   **Kana Order**: Sorts in Japanese syllabary order, treating hiragana, katakana and half-width katakana as the same: `カ⏎あ⏎き` -> `あ⏎カ⏎き`.
+    *   **Column (Ascending / Descending)**: Asks for a delimiter (literal text of 1-100 characters, default `,`; enter `\t` for a tab) and then a column number (1-1,000, default `1`): `b,2⏎a,1` (`,`, `2`) -> `a,1⏎b,2`. The cell is trimmed; numbers are compared by value and other text in natural order.
+    *   **Regex Capture**: Asks for a regular expression and uses its first capture group (or the whole match if the pattern has no group) as the key: `id=10⏎id=9` (`id=(\d+)`) -> `id=9⏎id=10`. Numbers are compared by value and other text in natural order.
+    *   **Date (Ascending / Descending)**: Uses the first year-first date of each line (`2026-03-01`, `2026/03/01` or `2026.03.01`, optionally with a time such as `T10:00:00.123` or `·10:00` and a time zone `Z`, `+09:00` or `+0900`): `2026-03-01 b⏎2025-12-31 a` -> `2025-12-31 a⏎2026-03-01 b`.
+    *   **Semantic Version**: SemVer 2.0.0 precedence, with an optional leading `v`: `1.10.0⏎1.2.0⏎1.2.0-rc.1` -> `1.2.0-rc.1⏎1.2.0⏎1.10.0`. Build metadata (`+build`) does not change the order.
+    *   **IP Address**: Uses the IPv4 / IPv6 address at the start of each line (a `/prefix` and an IPv6 zone ID `%eth0` are allowed): `10.0.0.10⏎10.0.0.9` -> `10.0.0.9⏎10.0.0.10`. IPv4 addresses come before IPv6 addresses, and the same address sorts without a prefix first, then by prefix length.
+    *   **Hex Number**: Uses the first token of each line as a hex number (`0x` is optional): `0x1F⏎0xA` -> `0xA⏎0x1F`.
+    *   **Word Count**: `a b c⏎a` -> `a⏎a b c`.
+    *   **Last Word**: `Ann Smith⏎Bob Adams` -> `Bob Adams⏎Ann Smith`.
+    *   **Reversed String**: Sorts by the line read backwards, so lines with the same ending (such as a file extension) are grouped: `a.ts⏎b.js⏎c.ts` -> `b.js⏎a.ts⏎c.ts`.
+    *   **Remove Duplicates**: Sorts ascending and removes duplicate lines (like `sort -u`): `b⏎a⏎b` -> `a⏎b`.
+    *   **Paragraphs**: Sorts blocks of lines separated by blank lines: `b⏎b2⏎⏎a⏎a2` -> `a⏎a2⏎⏎b⏎b2`.
+    *   **Keeping Indented Children**: The least indented lines are sorted, and the lines below each of them (more deeply indented lines and blank lines) move with it: `b⏎··b1⏎a⏎··a1` -> `a⏎··a1⏎b⏎··b1`.
+*   **Sort Selections** (the non-blank lines of all selections are sorted, like the existing Sort Selections commands):
+    *   **Natural Order**: `[v10] [v2]` -> `v2⏎v10`.
+    *   **Ignoring Case**: `[b] [A]` -> `A⏎b`.
+    *   **Length (Ascending / Descending)**: Counted in code points: `[ccc] [a]` -> `a⏎ccc`.
+*   **Clipboard versions**: Natural Order, Ignoring Case, Column and Semantic Version of Sort Lines, and Natural Order of Sort Selections also have a **(Clipboard)** version.
+*   The result is joined with LF (`⏎`), also in a CRLF document. If the result is empty (for example, only blank lines are selected for Paragraphs), no editor is opened and the clipboard is not changed; a notification is shown instead (`No lines to sort. No document was opened.` / `No lines to copy. The clipboard was not changed.`).
+*   The sorts are stable: lines with the same key keep their original order.
+
+> **Limitations of the extended sort commands**
+> *   **Lines without a key**: Lines without a key (no date, no semantic version, no IP address, no hex number, no match of the regular expression, or too few columns) are put last in their original order, in both the ascending and the descending order.
+> *   **Column and Regex Capture**: Numbers and text are kept apart so that the order stays consistent when they are mixed: in the ascending order all numbers come first (by value) and then the text (in natural order), and the descending order is the exact reverse (text first): `b,10⏎a,9⏎c,x` (`,`, `2`) -> `a,9⏎b,10⏎c,x` / `c,x⏎b,10⏎a,9`. A number is a decimal such as `1`, `-1.5`, `.5` or `1e3`. The Column sort splits each line at the literal delimiter and does not handle quoted CSV fields (`"a,b"`).
+> *   **Regular expressions** (Regex Capture): JavaScript syntax with the `u` flag, case-sensitive, 1-500 characters, checked when you enter it. It runs in a separate worker thread and is stopped after 2 seconds (for example `^(a+)+$` on a long line), and the selections can be up to 10,000,000 characters in total. In both cases a warning is shown and nothing is opened. A line where the first group does not take part in the match (the line `b` for `(a)?b`) has no key.
+> *   **Date**: Only year-first dates are read (`MM/DD/YYYY` and `DD/MM/YYYY` cannot be told apart). Only the first date of a line is used; if it is not a valid date (`2026-02-30`, `25:00`), the line has no key. A date or time without a time zone is taken as UTC, and so is one with a malformed time zone such as `+09:001` (the time zone is ignored). Only the first three digits of a fraction of a second are used.
+> *   **Hex Number**: The first token counts as a hex number whenever the whole token is hex digits (with an optional `0x`), so words such as `face`, `bad` or `add` also get a hex key. Tokens with other characters (`deadline`, `bad-name`, `0xZZ`) and `0x` alone have no key.
+> *   **Remove Duplicates**: Only lines that are exactly the same are duplicates. Lines that differ only in case or in Unicode normalization (NFC / NFD) are all kept.
+> *   **Paragraphs**: Lines with only whitespace separate paragraphs. The result has exactly one empty line between paragraphs; leading, trailing and repeated blank lines are removed. With several selections, the boundaries between selections do not separate paragraphs.
+> *   **Keeping Indented Children**: Only the top level is sorted; the children keep their order. Indentation is counted in characters (a tab counts as one). Lines before the first least indented line (leading blank lines or more deeply indented lines) stay at the top in their order.
+> *   **Locale and kana order**: The order comes from `Intl.Collator` of the VS Code runtime and may differ slightly between versions.
 
 #### Unique & Shuffle
 *   **Unique Selections**: Removes duplicate lines.
