@@ -61,7 +61,8 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 ### 外部通信・依存の方針
 
-- `外部通信` はすべて「なし」とする。外部通信が必要な候補は採用しない（既存の DNS Lookup 系は既知の例外であり、同じ種類のコマンドは新しく追加しない）。
+- `外部通信` はすべて「なし」とする。外部通信が必要な候補は採用しない。既存の DNS Lookup 系（`dns.*` 14 件）と、Webview で CDN（cdn.jsdelivr.net）から mermaid を読み込む `har-to-image`（1 件）は v0.0.42 時点の既知の例外であり、同じ種類のコマンドは新しく追加しない。
+- Webview を使う候補は、リモートのスクリプト・スタイル・画像などを読み込まない（必要なライブラリは拡張に同梱する）。CSP は `default-src 'none'` を基本に nonce 付きのスクリプトだけを許可し、リモートのオリジンや `'unsafe-inline'` を許可しない。`localResourceRoots` は必要なディレクトリに限定し、選択テキストはエスケープしてから埋め込む（[SECURITY.md](../SECURITY.md) 参照）。
 - `新規依存` は原則「なし」とする。実装に使う API は Node.js 標準（`crypto`・`zlib`・`Intl`・`String.prototype.normalize`・`node:url` の `domainToASCII` など）と既存の依存（`change-case`・`diff`・`js-yaml`・`xml-formatter`）の範囲にとどめる。
 - 依存がどうしても必要になりそうな候補だけ「あり（理由・代替案）」と書く。採否は子チケットで判断し、追加する場合は [SECURITY.md](../SECURITY.md) の手順（必要性・メンテ状況・脆弱性・ライセンスの確認）に従う。
 - `eval` / `new Function` による任意コード実行、シェル実行、処理対象以外のファイルアクセスを伴う候補は採用しない。SQL・シェル・curl などを扱う候補は「文字列を変換・生成するだけで実行しない」。
@@ -72,6 +73,8 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 - 候補表の列は `ID`・`カテゴリ`・`種別`・`提案コマンド ID`・`タイトル`・`概要`・`入出力例`・`外部通信`・`新規依存` の 9 列とする。
 - セルの中の `|` は、コードスパンの中でも外でも `\|` とエスケープする。
 - セルの中に改行は入れない。複数行は `⏎`、タブは `⇥`、意味のある空白は `·` で表す。不可視文字は `{U+XXXX}` と書く。
+- 例外: 空白やタブを記号に置き換えて可視化するコマンド（WS-015 など）では、出力側の `·` などが実際に挿入される文字になる。その場合は、行の `概要` にその旨を注記する。
+- 出力が文字列リテラルなどの場合、`\n` のようなエスケープ表記は「バックスラッシュ + n」の 2 文字を表す（実際の改行は `⏎`）。
 - `<br>` などの HTML タグは使わない。
 - `入出力例` は「`入力` → `出力`」の形で書く。入力の後ろの（ ）は、コマンド実行時に入力する値やカーソル数などの補足である。`[a]` は選択範囲、`|` はカーソル位置、「（通知）」は結果を通知で表示することを表す。
 
@@ -147,8 +150,8 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | 64 | `count-occurrences.count` | Count Occurrences sorting by count | — |  |
 | 65 | `count-occurrences.word` | Count Occurrences sorting by word | — |  |
 | 66 | `count-up-list` | Count Up to List | — |  |
-| 67 | `har-to-mermaid` | HAR to Sequence Diagram Mermaid | — |  |
-| 68 | `har-to-image` | HAR to Sequence Diagram Image | — |  |
+| 67 | `har-to-mermaid` | HAR to Sequence Diagram Mermaid | — | 外部通信なし（Mermaid のテキストを新しいエディタに出力するだけ）。ただし `har-to-image` と同じハンドラ `harToMermaidHandler.ts` で実装されている |
+| 68 | `har-to-image` | HAR to Sequence Diagram Image | — | 既存の例外（外部通信あり: Webview で cdn.jsdelivr.net から mermaid を読み込む。バージョンはメジャー指定 `@10`・SRI なし、CSP で外部オリジンと `'unsafe-inline'` を許可） |
 | 69 | `case.title-smart` | Change Case Title (Smart) | — |  |
 | 70 | `case.spongebob` | Change Case SpongeBob | — |  |
 | 71 | `case.screaming-snake` | Change Case Screaming Snake (Constant) | — |  |
@@ -279,7 +282,12 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | 196 | `shuffle.character` | Shuffle Characters | `.replace`, `.clipboard` |  |
 | 197 | `diff` | Diff Selections | — |  |
 
-> 既存コマンドのうち外部通信を伴うのは DNS Lookup 系の 14 件（`dns.*`）だけである。これは v0.0.42 時点の既知の例外であり、同じ種類のコマンドは新しく追加しない（[SECURITY.md](../SECURITY.md) 参照）。
+> 既存コマンドのうち外部通信を伴うのは次の **15 件**（コマンド ID 単位）である。いずれも v0.0.42 時点の既知の例外であり、同じ種類のコマンドは新しく追加しない。挙動の是正（mermaid の同梱、CSP の nonce 化、`localResourceRoots` の限定など）はこのロードマップの対象外で、別チケットで扱う（[SECURITY.md](../SECURITY.md) 参照）。
+>
+> - DNS Lookup 系 14 件（`dns.*`）: `node:dns/promises` で DNS に問い合わせる。
+> - HAR のシーケンス図の画像表示 1 件（`har-to-image`）: Webview の中で `https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs` を読み込んで実行する。
+>
+> 同じハンドラで実装されている `har-to-mermaid` は Mermaid のテキストをエディタに出力するだけで、外部通信は行わない（`harToMermaidHandler.ts` で Webview を開くのは `image` のときだけ）。
 
 ## 集計表
 
@@ -366,7 +374,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | WS-012 | WS | 基本 | `selection-manipulator.whitespace.hard-wrap-80` | Whitespace: Hard Wrap at 80 Columns | 単語境界で 80 桁ごとに改行を入れる | `（90 文字の 1 行）` → `（80 桁で折り返した 2 行）` | なし | なし |
 | WS-013 | WS | 基本 | `selection-manipulator.whitespace.hard-wrap-n` | Whitespace: Hard Wrap at N Columns | 単語境界で入力した桁数ごとに改行を入れる | `aa bb cc（N=5）` → `aa bb⏎cc` | なし | なし |
 | WS-014 | WS | 基本 | `selection-manipulator.whitespace.nbsp-to-space` | Whitespace: Special Spaces to Normal Space | NBSP（U+00A0）や細いスペースなど特殊な空白を通常の空白に置き換える | `a{U+00A0}b` → `a b` | なし | なし |
-| WS-015 | WS | 基本 | `selection-manipulator.whitespace.visualize` | Whitespace: Visualize Spaces and Tabs | 空白を「·」、タブを「→」に置き換えて見えるようにする | `a b⇥c` → `a·b→c` | なし | なし |
+| WS-015 | WS | 基本 | `selection-manipulator.whitespace.visualize` | Whitespace: Visualize Spaces and Tabs | 空白を「·」（U+00B7）、タブを「→」（U+2192）に置き換えて見えるようにする。この行の出力側の `·` と `→` は表記ルールの記号ではなく、実際に挿入される文字である | `a·b⇥c` → `a·b→c` | なし | なし |
 | WS-016 | WS | 基本 | `selection-manipulator.whitespace.unvisualize` | Whitespace: Restore Visualized Spaces and Tabs | 「·」「→」を空白・タブに戻す | `a·b→c` → `a b⇥c` | なし | なし |
 | WS-017 | WS | 基本 | `selection-manipulator.whitespace.center-align` | Whitespace: Center Align Lines | 最も長い行に合わせて各行を中央寄せする | `a⏎abc` → `·a⏎abc` | なし | なし |
 | WS-018 | WS | 基本 | `selection-manipulator.whitespace.right-align` | Whitespace: Right Align Lines | 最も長い行に合わせて各行を右寄せする | `a⏎abc` → `··a⏎abc` | なし | なし |
@@ -414,9 +422,9 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | LINE-018 | LINE | 基本 | `selection-manipulator.line.head` | Line: Keep First N Lines | 先頭から N 行だけを残す | `a⏎b⏎c（N=2）` → `a⏎b` | なし | なし |
 | LINE-019 | LINE | 基本 | `selection-manipulator.line.tail` | Line: Keep Last N Lines | 末尾から N 行だけを残す | `a⏎b⏎c（N=2）` → `b⏎c` | なし | なし |
 | LINE-020 | LINE | 基本 | `selection-manipulator.line.duplicate-each` | Line: Duplicate Each Line | 各行をその直後に複製する | `a⏎b` → `a⏎a⏎b⏎b` | なし | なし |
-| LINE-021 | LINE | 基本 | `selection-manipulator.line.repeat` | Line: Repeat Selection N Times | 選択テキストを N 回繰り返して改行でつなぐ | `ab（N=3）` → `ab⏎ab⏎ab` | なし | なし |
-| LINE-022 | LINE | 基本 | `selection-manipulator.line.add-prefix` | Line: Add Prefix to Each Line | 入力した文字列を各行の先頭に付ける | `a⏎b（- ）` → `- a⏎- b` | なし | なし |
-| LINE-023 | LINE | 基本 | `selection-manipulator.line.add-suffix` | Line: Add Suffix to Each Line | 入力した文字列を各行の末尾に付ける | `a⏎b（;）` → `a;⏎b;` | なし | なし |
+| LINE-021 | LINE | 基本 | `selection-manipulator.line.swap-pairs` | Line: Swap Adjacent Line Pairs | 1・2 行目、3・4 行目…のように隣り合う 2 行ずつを入れ替える（行数が奇数のときの最終行はそのまま） | `a⏎b⏎c⏎d⏎e` → `b⏎a⏎d⏎c⏎e` | なし | なし |
+| LINE-022 | LINE | 基本 | `selection-manipulator.line.join-continuation` | Line: Join Backslash-continued Lines | 行末が \\ で終わる行（シェルスクリプトや Makefile の継続行）について、\\ を取り除き、次の行の先頭の空白を詰めて連結する | `ls·\⏎··-l⏎pwd` → `ls·-l⏎pwd` | なし | なし |
+| LINE-023 | LINE | 基本 | `selection-manipulator.line.move-matching-to-top` | Line: Move Lines Containing Text to Top | 入力した文字列を含む行を元の順序のまま先頭に集め、残りの行を元の順序のままその後ろに続ける | `b⏎x1⏎c⏎x2（x）` → `x1⏎x2⏎b⏎c` | なし | なし |
 | LINE-024 | LINE | 基本 | `selection-manipulator.line.remove-prefix` | Line: Remove Prefix from Each Line | 入力した文字列で始まる行から、その接頭辞を取り除く | `- a⏎- b（- ）` → `a⏎b` | なし | なし |
 | LINE-025 | LINE | 基本 | `selection-manipulator.line.remove-suffix` | Line: Remove Suffix from Each Line | 入力した文字列で終わる行から、その接尾辞を取り除く | `a;⏎b;（;）` → `a⏎b` | なし | なし |
 | LINE-026 | LINE | 基本 | `selection-manipulator.line.interleave-halves` | Line: Interleave First and Second Half | 前半と後半の行を交互に並べる | `a⏎b⏎1⏎2` → `a⏎1⏎b⏎2` | なし | なし |
@@ -507,7 +515,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | WRAP-027 | WRAP | 基本 | `selection-manipulator.enclose.lines-block` | Enclose: Lines Block (Before / After Lines) | 選択した行群の前後に、入力した行を 1 行ずつ追加する | `a⏎b（BEGIN, END）` → `BEGIN⏎a⏎b⏎END` | なし | なし |
 | WRAP-028 | WRAP | 基本 | `selection-manipulator.enclose.cycle-brackets` | Enclose: Cycle Brackets | 外側の括弧を () → \[\] → {} → () の順に切り替える | `(a)` → `[a]` | なし | なし |
 | WRAP-029 | WRAP | 基本 | `selection-manipulator.enclose.remove-outer-brackets` | Enclose: Remove Matching Outer Brackets | 両端が対応する括弧の組のときだけ外側の 1 組を取り除く | `((a))` → `(a)` | なし | なし |
-| WRAP-030 | WRAP | 基本 | `selection-manipulator.enclose.markdown-inline-code` | Enclose: Backtick Code (Auto Fence) | 内部のバッククォート数より多いバッククォートで囲む（Markdown のインラインコード用） | ``a`b`` → ``` ``a`b`` ``` | なし | なし |
+| WRAP-030 | WRAP | 基本 | `selection-manipulator.enclose.markdown-inline-code` | Enclose: Backtick Code (Auto Fence) | 内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。常に 1 個のバッククォートで囲む既存の Quote: Backtick と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる | ``a`b`` → ``` ``a`b`` ``` | なし | なし |
 
 ### ENC
 
@@ -873,9 +881,9 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| DEV-001 | DEV | 基本 | `selection-manipulator.programmatic.to-js-string` | Convert to JS String Literal | JavaScript のシングルクォート文字列リテラルにする（' \\ 改行をエスケープ） | `it's⏎ok` → `'it\'s⏎ok'` | なし | なし |
+| DEV-001 | DEV | 基本 | `selection-manipulator.programmatic.to-js-string` | Convert to JS String Literal | JavaScript のシングルクォート文字列リテラルにする（' \\ 改行をエスケープし、改行は \\n にする） | `it's⏎ok` → `'it\'s\nok'` | なし | なし |
 | DEV-002 | DEV | 基本 | `selection-manipulator.programmatic.to-python-string` | Convert to Python String Literal | Python の文字列リテラルにする | `it's` → `"it's"` | なし | なし |
-| DEV-003 | DEV | 基本 | `selection-manipulator.programmatic.to-java-string` | Convert to Java String Concatenation | 複数行テキストを Java / C の文字列連結（行ごとの "…\\n" +）にする | `a⏎b` → `"a⏎" +⏎"b"` | なし | なし |
+| DEV-003 | DEV | 基本 | `selection-manipulator.programmatic.to-java-string` | Convert to Java String Concatenation | 複数行テキストを Java / C の文字列連結（行ごとの "…\\n" +）にする。改行は文字列リテラルの中では \\n と書き、連結の + の後ろで実際に改行する | `a⏎b` → `"a\n" +⏎"b"` | なし | なし |
 | DEV-004 | DEV | 基本 | `selection-manipulator.programmatic.to-go-raw-string` | Convert to Go Raw String | Go のバッククォート文字列にする（内部のバッククォートは連結で逃がす） | `a⏎b` → `` `a⏎b` `` | なし | なし |
 | DEV-005 | DEV | 基本 | `selection-manipulator.programmatic.to-template-literal` | Convert to JS Template Literal | JavaScript のテンプレートリテラルにする（\` と ${ をエスケープ） | `cost ${x}` → `` `cost \${x}` `` | なし | なし |
 | DEV-006 | DEV | 基本 | `selection-manipulator.programmatic.escape-regex` | Escape Regex Special Characters | 正規表現の特殊文字をエスケープする | `a.b*c?` → `a\.b\*c\?` | なし | なし |
@@ -902,7 +910,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | DEV-027 | DEV | 基本 | `selection-manipulator.programmatic.html-to-jsx` | Convert HTML to JSX | class → className、for → htmlFor、style 文字列 → オブジェクトなどの置き換えで HTML を JSX にする | `<label class="a" for="b">` → `<label className="a" htmlFor="b">` | なし | なし |
 | DEV-028 | DEV | 基本 | `selection-manipulator.programmatic.semver-bump` | Bump Semantic Version | バージョン番号の patch / minor / major を選んで 1 つ上げる | `1.2.3（minor）` → `1.3.0` | なし | なし |
 | DEV-029 | DEV | 基本 | `selection-manipulator.programmatic.chmod-convert` | Convert chmod Numeric / Symbolic | パーミッションの数値表記と記号表記を相互に変換する | `755` → `rwxr-xr-x` | なし | なし |
-| DEV-030 | DEV | 派生:DEV-001 | `selection-manipulator.programmatic.to-js-string.replace` | Convert to JS String Literal (Replace) | DEV-001 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `it's⏎ok` → `'it\'s⏎ok'` | なし | なし |
+| DEV-030 | DEV | 派生:DEV-001 | `selection-manipulator.programmatic.to-js-string.replace` | Convert to JS String Literal (Replace) | DEV-001 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `it's⏎ok` → `'it\'s\nok'` | なし | なし |
 | DEV-031 | DEV | 派生:DEV-006 | `selection-manipulator.programmatic.escape-regex.replace` | Escape Regex Special Characters (Replace) | DEV-006 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `a.b*c?` → `a\.b\*c\?` | なし | なし |
 | DEV-032 | DEV | 派生:DEV-007 | `selection-manipulator.programmatic.escape-sql.replace` | Escape SQL String Literal (Replace) | DEV-007 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `O'Reilly` → `O''Reilly` | なし | なし |
 | DEV-033 | DEV | 派生:DEV-012 | `selection-manipulator.programmatic.json-to-typescript.replace` | Convert JSON to TypeScript Interface (Replace) | DEV-012 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `{"id":1,"tags":["a"]}` → `interface Root { id: number; tags: string[]; }` | なし | なし |
@@ -964,7 +972,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | MD-010 | MD | 基本 | `selection-manipulator.markdown.bold` | Markdown: Bold | 選択テキストを太字記法で囲む | `abc` → `**abc**` | なし | なし |
 | MD-011 | MD | 基本 | `selection-manipulator.markdown.italic` | Markdown: Italic | 選択テキストを斜体記法で囲む | `abc` → `_abc_` | なし | なし |
 | MD-012 | MD | 基本 | `selection-manipulator.markdown.strikethrough` | Markdown: Strikethrough | 選択テキストを取り消し線記法で囲む | `abc` → `~~abc~~` | なし | なし |
-| MD-013 | MD | 基本 | `selection-manipulator.markdown.inline-code` | Markdown: Inline Code | 選択テキストをインラインコードにする | `npm i` → `` `npm i` `` | なし | なし |
+| MD-013 | MD | 基本 | `selection-manipulator.markdown.setext-to-atx` | Markdown: Convert Setext Headings to ATX | 下線（=== / ---）形式の見出しを # / ## 形式の見出しにする | `Title⏎=====⏎Sub⏎---` → `# Title⏎## Sub` | なし | なし |
 | MD-014 | MD | 基本 | `selection-manipulator.markdown.code-block` | Markdown: Wrap in Code Fence | 選択範囲を、入力した言語名付きのコードフェンスで囲む | `a = 1（python）` → ```` ```python⏎a = 1⏎``` ```` | なし | なし |
 | MD-015 | MD | 基本 | `selection-manipulator.markdown.blockquote` | Markdown: Blockquote | 各行の先頭に「&gt; 」を付けて引用にする | `a⏎b` → `> a⏎> b` | なし | なし |
 | MD-016 | MD | 基本 | `selection-manipulator.markdown.image` | Markdown: Image | URL を画像記法にする（代替テキストは入力） | `https://example.com/a.png` → `![alt](https://example.com/a.png)` | なし | なし |

@@ -1,6 +1,6 @@
 # Security Policy
 
-Selection Manipulator transforms, generates and extracts the text you select in VS Code. Because it runs inside your editor with access to whatever you are editing, we keep its behaviour deliberately narrow: every command works on the selected text locally and nothing else. This document describes how to report a vulnerability and the rules every new feature must follow.
+Selection Manipulator transforms, generates and extracts the text you select in VS Code. Because it runs inside your editor with access to whatever you are editing, we keep its behaviour deliberately narrow: commands work on the selected text locally. As of v0.0.42 there are a few existing commands that do communicate over the network; they are listed under [Known Exceptions](#known-exceptions) and no new commands of that kind will be added. This document describes how to report a vulnerability and the rules every new feature must follow.
 
 ## Supported Versions
 
@@ -25,7 +25,7 @@ Every new command (and every change to an existing one) must follow these rules.
 ### 1. Local processing of the selected text only
 
 - A command may only process the selected text (including every selection of a multi-cursor), plus values the user explicitly types into a prompt for that command (for example a delimiter, a column number or an HMAC key).
-- Results go back to the editor (replacing the selection or opening a new untitled document), to the clipboard, or to a notification — nowhere else.
+- Results go back to the editor (replacing the selection or opening a new untitled document), to the clipboard, to a notification, or to a Webview panel that follows the [Webview rules](#6-webviews) below — nowhere else.
 
 ### 2. Forbidden operations
 
@@ -33,7 +33,7 @@ New code must not perform any of the following:
 
 - **Arbitrary code execution**: `eval`, `new Function`, `setTimeout` / `setInterval` with a string argument, `vm` module, dynamic `require` / `import` of user-controlled paths, or any other way of executing text as code. Parsers for JavaScript-like input (for example JSON5 or object literals) must be hand-written or use an existing dependency, never evaluate the input.
 - **Shell or process execution**: `child_process` (`exec`, `spawn`, `execFile`, ...) or anything that starts another process. Commands that deal with shell, SQL or `curl` text only *convert or generate strings*; they never run them.
-- **Network access**: `http` / `https`, `fetch`, `net`, `tls`, `dgram`, `dns`, WebSocket or any other outbound communication.
+- **Network access**: `http` / `https`, `fetch`, `net`, `tls`, `dgram`, `dns`, WebSocket or any other outbound communication — including a Webview loading remote scripts, stylesheets, images or fonts (for example `<script src="https://...">`, `import ... from 'https://...'`, or a Content Security Policy that allows a remote origin).
 - **Unnecessary file access**: reading or writing files other than the document being edited. Use the VS Code editor and clipboard APIs instead of `fs`.
 
 ### 3. Dependencies
@@ -57,9 +57,25 @@ New code must not perform any of the following:
 - Weak hash algorithms may be offered only for checksum or compatibility purposes, and the command description must say so.
 - Use `crypto.randomBytes` / `crypto.getRandomValues` / `crypto.randomUUID` for anything random that could be used as an identifier, token or password.
 
-## Known Exception: DNS Lookup Commands
+### 6. Webviews
 
-The DNS Lookup commands (`selection-manipulator.dns.*`, 14 commands, implemented with `node:dns/promises`) existed as of v0.0.42 and send DNS queries over the network. They are a **known exception** to the "no network access" rule above. **No new commands of this kind will be added.** Any future change to these commands will be handled in a dedicated ticket.
+A command should normally return its result as text. If a command really needs a Webview (for example to render a preview), it must:
+
+- **Load no remote resources.** Do not load scripts, stylesheets, images or fonts from a CDN or any other remote origin. Bundle the libraries you need with the extension and load them through `webview.asWebviewUri`.
+- **Use a strict Content Security Policy.** Start from `default-src 'none'`, allow scripts only with a per-load `nonce` (`script-src 'nonce-...'`), and do not allow remote origins, `'unsafe-inline'` scripts or `'unsafe-eval'`.
+- **Limit `localResourceRoots`** to the directories the Webview actually needs (for example the bundled `media` directory), and enable scripts (`enableScripts: true`) only when they are required.
+- **Escape the selected text** (and any other user-controlled value) before embedding it in the Webview HTML, and pass data to scripts with `postMessage` or escaped values rather than by building script source from it.
+
+## Known Exceptions
+
+The following commands existed as of v0.0.42 and communicate over the network. They are **known exceptions** to the "no network access" rule above. **No new commands of these kinds will be added.** Any change to them (for example bundling mermaid, a nonce-based CSP and restricted `localResourceRoots` for the Webview) will be handled in a dedicated ticket.
+
+| Commands | What they do | Network access |
+|---|---|---|
+| DNS Lookup (`selection-manipulator.dns.*`, 14 commands) | Look up DNS records for the selected host name or IP address | DNS queries via `node:dns/promises` |
+| HAR to Sequence Diagram Image (`selection-manipulator.har-to-image`, 1 command) | Render a sequence diagram of the selected HAR in a Webview | The Webview imports mermaid from `https://cdn.jsdelivr.net/npm/mermaid@10/...` (major-version pin only, no Subresource Integrity), and its CSP allows `https://cdn.jsdelivr.net` and `'unsafe-inline'` scripts. This does not follow the [Webview rules](#6-webviews) above. |
+
+`selection-manipulator.har-to-mermaid` shares the same handler but only writes the Mermaid text to a new editor; it does not open a Webview or access the network.
 
 ## Dependency Vulnerabilities
 

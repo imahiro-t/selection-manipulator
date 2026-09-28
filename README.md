@@ -227,4 +227,4 @@ Convert text to dots and dashes, and vice versa.
 ## Roadmap & Security
 
 *   **[Roadmap](docs/ROADMAP.md)**: Planned new commands (550+ candidates across 17 categories) that fit the "transform, generate and extract the selected text in place" concept.
-*   **[Security Policy](SECURITY.md)**: How to report a vulnerability, and the implementation rules every new command must follow (local processing only, no code/shell execution, no network access, no new dependencies by default).
+*   **[Security Policy](SECURITY.md)**: How to report a vulnerability, and the implementation rules every new command must follow (local processing only, no code/shell execution, no network access, no remote resources in Webviews, no new dependencies by default).

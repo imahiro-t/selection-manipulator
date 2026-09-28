@@ -25,7 +25,8 @@ See [SECURITY.md](https://github.com/imahiro-t/selection-manipulator/blob/main/S
 - [ ] **Local processing only** — the change processes only the selected text and values the user explicitly enters.
 - [ ] **No arbitrary code execution** — no `eval`, `new Function`, string-based `setTimeout` / `setInterval`, `vm` or dynamic `require` / `import`.
 - [ ] **No shell execution** — no `child_process` or other process spawning; shell / SQL / `curl` text is only converted, never run.
-- [ ] **No network access** — no `http(s)`, `fetch`, `net`, `dns` or other outbound communication.
+- [ ] **No network access** — no `http(s)`, `fetch`, `net`, `dns` or other outbound communication, and no Webview that loads remote scripts or resources.
+- [ ] **Webview rules** (only if the change uses a Webview) — no remote scripts, stylesheets, images or fonts (libraries are bundled); strict CSP (`default-src 'none'`, nonce-based scripts, no remote origins or `'unsafe-inline'`); `localResourceRoots` limited to what is needed; the selected text is escaped before it is embedded.
 - [ ] **No unnecessary file access** — no reading or writing of files other than the document being edited.
 - [ ] **No new dependencies** — or, if one is added, its necessity, maintenance status, `npm audit` result and license are described below.
 - [ ] **ReDoS-safe** — user-supplied regular expressions and very large inputs are handled within a reasonable time (or the change does not use them).
