@@ -12,7 +12,7 @@
  *   starting before the selection (`precededByText`) and a last line that goes on after the
  *   selection (`followedByText`) are "anchors": they are left untouched and only the lines
  *   between them are transformed, so the text around the selection is never joined to
- *   another line (see `anchoredLineWise`).
+ *   another line (see `lineWiseWith`).
  * - Lengths and widths are counted in code points (a surrogate pair is one character).
  * - User input (text, markers, delimiters) is never embedded into a regular expression; it is
  *   matched with `includes` / `startsWith` / `endsWith`. The user-supplied regular expressions
@@ -151,7 +151,8 @@ export const LINE_REGEX_MAX_INPUT_LENGTH = 10_000_000;
 /** Time limit of one regular expression run (milliseconds). */
 export const LINE_REGEX_TIMEOUT_MS = 2000;
 
-const formatNumber = (n: number): string => n.toLocaleString('en-US');
+/** Formats a number with thousands separators for messages and prompts (e.g. 1,000,000). */
+export const formatNumber = (n: number): string => n.toLocaleString('en-US');
 
 const hasLineBreak = (value: string): boolean => value.includes('\n') || value.includes('\r');
 
@@ -190,7 +191,7 @@ export const validateLineTextInput = (value: string): string | undefined => {
 /** Delimiter of LINE-027: 0 to 100 characters without line breaks (empty joins without a delimiter). */
 export const validateLineDelimiterInput = (value: string): string | undefined => {
   if (value.length > LINE_JOIN_DELIMITER_MAX_LENGTH) {
-    return `The delimiter must be at most ${LINE_JOIN_DELIMITER_MAX_LENGTH} characters`;
+    return `The delimiter must be at most ${formatNumber(LINE_JOIN_DELIMITER_MAX_LENGTH)} characters`;
   }
   if (hasLineBreak(value)) {
     return 'The delimiter must not contain line breaks';
@@ -207,7 +208,7 @@ export const validateLineRegexInput = (value: string): string | undefined => {
     return 'Enter a regular expression';
   }
   if (value.length > LINE_REGEX_PATTERN_MAX_LENGTH) {
-    return `The regular expression must be at most ${LINE_REGEX_PATTERN_MAX_LENGTH} characters`;
+    return `The regular expression must be at most ${formatNumber(LINE_REGEX_PATTERN_MAX_LENGTH)} characters`;
   }
   try {
     new RegExp(value, 'u');
@@ -263,10 +264,12 @@ const ensureAddedLength = (added: number, options: LineOptions): void => {
 const LINE_BREAK = /\r\n|\r|\n/;
 
 /**
- * Unicode whitespace other than line breaks, except U+FEFF (as in the WS commands).
+ * Unicode whitespace other than line breaks, except U+FEFF (BOM / zero width no-break space):
+ * as in the WS commands, it has no width, so it is not treated as a space and a BOM is never
+ * trimmed away.
  */
 const isHorizontalWs = (ch: string): boolean =>
-  ch !== '\n' && ch !== '\r' && ch !== '﻿' && /^\s$/.test(ch);
+  ch !== '\n' && ch !== '\r' && ch !== '\ufeff' && /^\s$/.test(ch);
 
 const isSpaceOrTab = (ch: string): boolean => ch === ' ' || ch === '\t';
 

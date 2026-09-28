@@ -11,6 +11,7 @@ import { describeAddedLength } from './whitespaceTransforms';
 import {
   countLineStats,
   extractBetweenMarkers,
+  formatNumber,
   LINE_COUNT_MAX,
   LINE_COUNT_MIN,
   LINE_JOIN_DELIMITER_MAX_LENGTH,
@@ -95,23 +96,31 @@ interface InputStep {
 type AskedOptions = Partial<LineOptions> & { pattern?: string };
 
 const textStep = (prompt: string, key: 'text' | 'startMarker' | 'endMarker' = 'text', placeHolder?: string): InputStep => ({
-  options: { prompt: `${prompt} (case-sensitive, up to ${LINE_TEXT_MAX_LENGTH.toLocaleString('en-US')} characters)`, placeHolder },
+  options: { prompt: `${prompt} (case-sensitive, up to ${formatNumber(LINE_TEXT_MAX_LENGTH)} characters)`, placeHolder },
   validate: validateLineTextInput,
   toOptions: (value) => ({ [key]: value }),
 });
 
-const countStep = (prompt: string, value: string): InputStep => ({
-  options: {
-    prompt: `${prompt} (${LINE_COUNT_MIN}-${LINE_COUNT_MAX.toLocaleString('en-US')})`,
-    value,
-  },
-  validate: validateLineCountInput,
+/** An integer from `min` to `max` (checked by `validate`), stored as `n`. */
+const integerStep = (
+  prompt: string,
+  value: string,
+  min: number,
+  max: number,
+  validate: (value: string) => string | undefined
+): InputStep => ({
+  options: { prompt: `${prompt} (${formatNumber(min)}-${formatNumber(max)})`, value },
+  validate,
   toOptions: (input) => ({ n: Number(input.trim()) }),
 });
 
+/** N of LINE-014 / 015 / 018 / 019 / 027. */
+const countStep = (prompt: string, value: string): InputStep =>
+  integerStep(prompt, value, LINE_COUNT_MIN, LINE_COUNT_MAX, validateLineCountInput);
+
 const regexStep = (prompt: string): InputStep => ({
   options: {
-    prompt: `${prompt} (JavaScript syntax with the "u" flag, case-sensitive, up to ${LINE_REGEX_PATTERN_MAX_LENGTH} characters)`,
+    prompt: `${prompt} (JavaScript syntax with the "u" flag, case-sensitive, up to ${formatNumber(LINE_REGEX_PATTERN_MAX_LENGTH)} characters)`,
     placeHolder: 'e.g. \\d+',
   },
   validate: validateLineRegexInput,
@@ -135,18 +144,16 @@ const inputSpecs: Record<LineInputCommand, InputStep[]> = {
     countStep('Number of lines to join into one', '2'),
     {
       options: {
-        prompt: `Delimiter (literal text, up to ${LINE_JOIN_DELIMITER_MAX_LENGTH} characters; empty joins without a delimiter)`,
+        prompt: `Delimiter (literal text, up to ${formatNumber(LINE_JOIN_DELIMITER_MAX_LENGTH)} characters; empty joins without a delimiter)`,
         value: ',',
       },
       validate: validateLineDelimiterInput,
       toOptions: (value) => ({ delimiter: value }),
     },
   ],
-  'split-fixed-width': [{
-    options: { prompt: `Line width in characters (${LINE_WIDTH_MIN}-${LINE_WIDTH_MAX.toLocaleString('en-US')})`, value: '80' },
-    validate: validateLineWidthInput,
-    toOptions: (value) => ({ n: Number(value.trim()) }),
-  }],
+  'split-fixed-width': [
+    integerStep('Line width in characters', '80', LINE_WIDTH_MIN, LINE_WIDTH_MAX, validateLineWidthInput),
+  ],
   'extract-between-markers': [
     textStep('Start marker: lines after the line containing it are extracted', 'startMarker', 'e.g. BEGIN'),
     textStep('End marker: extraction stops at the line containing it', 'endMarker', 'e.g. END'),
@@ -219,6 +226,9 @@ const notifyFailure = (deps: LineHandlerDeps, output: LineOutput, error: unknown
   }
 };
 
+export const DOCUMENT_CHANGED_MESSAGE =
+  'The selection was not changed: the document was edited while the regular expression was running.';
+
 /** Drops ONE trailing line break (LINE-035..LINE-040 copy the same text with or without it). */
 const withoutTrailingBreak = (text: string): string => text.replace(/(?:\r\n|\r|\n)$/, '');
 
@@ -238,6 +248,9 @@ const runLineCommand = async (
   }
   const { pattern, ...inputOptions } = asked;
   const eol = documentEol(textEditor);
+  // The regex commands wait for the worker (up to the time limit) between reading the text and
+  // editing; the version tells whether the document changed meanwhile (stale ranges and results).
+  const version = textEditor.document.version;
   const texts = selections.map((selection) => textEditor.document.getText(selection));
   // undefined: LINE-032 / LINE-040 found no start marker in that selection.
   const results: (string | undefined)[] = [];
@@ -293,6 +306,10 @@ const runLineCommand = async (
   if (replacements.length === 0) {
     return;
   }
+  if (textEditor.document.version !== version) {
+    void deps.showWarningMessage(DOCUMENT_CHANGED_MESSAGE);
+    return;
+  }
   await textEditor.edit((editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result as string));
   });
@@ -308,10 +325,14 @@ export const lineHandlerInternal = (overrides: Partial<LineHandlerDeps> = {}) =>
     (textEditor: TextEditor): Promise<void> =>
       runLineCommand({ ...defaultDeps(), ...overrides }, command, output, textEditor);
 
-export const lineHandler: (
-  command: LineTransformCommand | LineClipboardCommand,
-  output: LineOutput
-) => (textEditor: TextEditor) => Promise<void> = lineHandlerInternal();
+const defaultLineHandler = lineHandlerInternal();
+
+/** Only LINE-035..LINE-040's six commands have a clipboard version. */
+export function lineHandler(command: LineClipboardCommand, output: 'clipboard'): (textEditor: TextEditor) => Promise<void>;
+export function lineHandler(command: LineTransformCommand, output: 'replace'): (textEditor: TextEditor) => Promise<void>;
+export function lineHandler(command: LineTransformCommand, output: LineOutput): (textEditor: TextEditor) => Promise<void> {
+  return defaultLineHandler(command, output);
+}
 
 /** LINE-031: shows the total number of lines, words and characters of all non-empty selections. */
 export const lineCountStatsHandlerInternal = (overrides: Partial<LineHandlerDeps> = {}) =>

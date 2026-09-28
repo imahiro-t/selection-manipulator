@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import {
   lineCountStatsHandlerInternal,
   LineHandlerDeps,
+  DOCUMENT_CHANGED_MESSAGE,
   lineHandlerInternal,
   NO_LINES_BETWEEN_MARKERS_MESSAGE,
   NO_LINES_TO_COPY_MESSAGE,
@@ -544,6 +545,27 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
       assert.strictEqual(calls, 1);
       assert.strictEqual(editor.document.getText(), `a1${SEPARATOR}d2`);
     });
+
+    for (const command of ['filter-regex', 'filter-not-regex'] as const) {
+      test(`${command}: a document edited while the worker runs is not overwritten and a warning is shown`, async () => {
+        const editor = await createTextEditor('x\na1\nb\nc2');
+        editor.selection = sel(1, 0, 3, 2);
+        let inWorker = false;
+        const { deps, record } = recorder(['\\d'], {
+          runRegex: async (pattern, lines) => {
+            inWorker = true;
+            // The user types above the selection while the regular expression is running.
+            await editor.edit((editBuilder) => editBuilder.insert(new vscode.Position(0, 0), 'new\n'));
+            return lines.map((line) => new RegExp(pattern, 'u').test(line));
+          },
+        });
+        await runnerFor({ name: command, output: 'replace' }, deps)(editor);
+        assert.ok(inWorker);
+        assert.strictEqual(editor.document.getText(), 'new\nx\na1\nb\nc2');
+        assert.deepStrictEqual(record.warnings, [DOCUMENT_CHANGED_MESSAGE]);
+        assert.deepStrictEqual(record.errors, []);
+      });
+    }
 
     test('an invalid pattern (bypassing validateInput) never reaches the worker', async () => {
       let calls = 0;
