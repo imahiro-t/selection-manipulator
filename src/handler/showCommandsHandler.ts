@@ -1101,6 +1101,156 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.case.swap",
+    "title": "Change Case Swap",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.sentence-preserve-acronyms",
+    "title": "Change Case Sentence (Preserve Acronyms)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.title-apa",
+    "title": "Change Case Title (APA Style)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-first",
+    "title": "Change Case Upper First",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-first",
+    "title": "Change Case Lower First",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.cobol",
+    "title": "Change Case Cobol",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.ada",
+    "title": "Change Case Ada",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.flat",
+    "title": "Change Case Flat",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-flat",
+    "title": "Change Case Upper Flat",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.camel-snake",
+    "title": "Change Case Camel Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.pascal-snake",
+    "title": "Change Case Pascal Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.alternating-words",
+    "title": "Change Case Alternating Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.acronym",
+    "title": "Change Case Acronym",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.detect",
+    "title": "Change Case Detect Style",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.cycle",
+    "title": "Change Case Cycle",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-acronyms",
+    "title": "Change Case Uppercase Known Acronyms",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.sentence-each",
+    "title": "Change Case Sentence (Each Sentence)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.capitalize-lines",
+    "title": "Change Case Capitalize Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-line-start",
+    "title": "Change Case Lowercase Each Line Start",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-locale",
+    "title": "Change Case Upper (Locale)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-locale",
+    "title": "Change Case Lower (Locale)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-camel",
+    "title": "Change Case JSON Keys to Camel",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-snake",
+    "title": "Change Case JSON Keys to Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-kebab",
+    "title": "Change Case JSON Keys to Kebab",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-pascal",
+    "title": "Change Case JSON Keys to Pascal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.css-variable",
+    "title": "Change Case CSS Custom Property",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.bem",
+    "title": "Change Case BEM",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.pluralize",
+    "title": "Change Case Pluralize",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.singularize",
+    "title": "Change Case Singularize",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.hashtag",
+    "title": "Change Case Hashtag",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.remove-accents",
     "title": "Text - Remove Accents",
     "canMultiSelection": true

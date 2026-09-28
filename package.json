@@ -618,6 +618,156 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.case.swap",
+        "title": "Change Case Swap",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.sentence-preserve-acronyms",
+        "title": "Change Case Sentence (Preserve Acronyms)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.title-apa",
+        "title": "Change Case Title (APA Style)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-first",
+        "title": "Change Case Upper First",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-first",
+        "title": "Change Case Lower First",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.cobol",
+        "title": "Change Case Cobol",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.ada",
+        "title": "Change Case Ada",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.flat",
+        "title": "Change Case Flat",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-flat",
+        "title": "Change Case Upper Flat",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.camel-snake",
+        "title": "Change Case Camel Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pascal-snake",
+        "title": "Change Case Pascal Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.alternating-words",
+        "title": "Change Case Alternating Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.acronym",
+        "title": "Change Case Acronym",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.detect",
+        "title": "Change Case Detect Style",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.cycle",
+        "title": "Change Case Cycle",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-acronyms",
+        "title": "Change Case Uppercase Known Acronyms",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.sentence-each",
+        "title": "Change Case Sentence (Each Sentence)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.capitalize-lines",
+        "title": "Change Case Capitalize Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-line-start",
+        "title": "Change Case Lowercase Each Line Start",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-locale",
+        "title": "Change Case Upper (Locale)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-locale",
+        "title": "Change Case Lower (Locale)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-camel",
+        "title": "Change Case JSON Keys to Camel",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-snake",
+        "title": "Change Case JSON Keys to Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-kebab",
+        "title": "Change Case JSON Keys to Kebab",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-pascal",
+        "title": "Change Case JSON Keys to Pascal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.css-variable",
+        "title": "Change Case CSS Custom Property",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.bem",
+        "title": "Change Case BEM",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pluralize",
+        "title": "Change Case Pluralize",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.singularize",
+        "title": "Change Case Singularize",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.hashtag",
+        "title": "Change Case Hashtag",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.zero-padding",
         "title": "Zero Padding",
         "category": "Selection Manipulator"
@@ -2026,6 +2176,126 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.case.swap"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.sentence-preserve-acronyms"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.title-apa"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-first"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-first"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.cobol"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.ada"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.flat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-flat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.camel-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pascal-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.alternating-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.acronym"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.detect"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.cycle"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-acronyms"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.sentence-each"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.capitalize-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-line-start"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-camel"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-kebab"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-pascal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.css-variable"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.bem"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pluralize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.singularize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.hashtag"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.zero-padding"
         },
         {
@@ -2611,6 +2881,126 @@
         {
           "command": "selection-manipulator.case.lower",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.case.swap",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.case.sentence-preserve-acronyms",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.case.title-apa",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.case.upper-first",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.case.lower-first",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.case.cobol",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.case.ada",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.case.flat",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.case.upper-flat",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.case.camel-snake",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.case.pascal-snake",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.case.alternating-words",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.case.acronym",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.case.detect",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.case.cycle",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.case.upper-acronyms",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.case.sentence-each",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.case.capitalize-lines",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.case.lower-line-start",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.case.upper-locale",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.case.lower-locale",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-camel",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-snake",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-kebab",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-pascal",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.case.css-variable",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.case.bem",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.case.pluralize",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.case.singularize",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.case.hashtag",
+          "group": "selection-manipulator@48"
         }
       ],
       "selection-manipulator.number.submenu": [

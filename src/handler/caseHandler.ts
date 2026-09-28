@@ -2,8 +2,13 @@ import {
   TextEditor,
 } from 'vscode';
 import * as changeCase from "change-case";
+import * as caseTransforms from './caseTransforms';
 
-type Command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower' | 'title-smart' | 'spongebob' | 'screaming-snake' | 'humanize' | 'slugify';
+type Command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower' | 'title-smart' | 'spongebob' | 'screaming-snake' | 'humanize' | 'slugify'
+  | 'swap' | 'sentence-preserve-acronyms' | 'title-apa' | 'upper-first' | 'lower-first'
+  | 'cobol' | 'ada' | 'flat' | 'upper-flat' | 'camel-snake' | 'pascal-snake' | 'alternating-words' | 'acronym'
+  | 'cycle' | 'upper-acronyms' | 'sentence-each' | 'capitalize-lines' | 'lower-line-start'
+  | 'css-variable' | 'bem' | 'pluralize' | 'singularize' | 'hashtag';
 
 export const caseHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
@@ -53,6 +58,52 @@ const change: (command: Command) => (value: string) => string = (command) => (va
       return toSmartTitleCase(value);
     case 'spongebob':
       return toSpongeBobCase(value);
+    case 'swap':
+      return caseTransforms.swapCase(value);
+    case 'sentence-preserve-acronyms':
+      return caseTransforms.sentenceCasePreserveAcronyms(value);
+    case 'title-apa':
+      return caseTransforms.titleCaseApa(value);
+    case 'upper-first':
+      return caseTransforms.upperFirst(value);
+    case 'lower-first':
+      return caseTransforms.lowerFirst(value);
+    case 'cobol':
+      return caseTransforms.cobolCase(value);
+    case 'ada':
+      return caseTransforms.adaCase(value);
+    case 'flat':
+      return caseTransforms.flatCase(value);
+    case 'upper-flat':
+      return caseTransforms.upperFlatCase(value);
+    case 'camel-snake':
+      return caseTransforms.camelSnakeCase(value);
+    case 'pascal-snake':
+      return caseTransforms.pascalSnakeCase(value);
+    case 'alternating-words':
+      return caseTransforms.alternatingWordsCase(value);
+    case 'acronym':
+      return caseTransforms.acronymCase(value);
+    case 'cycle':
+      return caseTransforms.cycleCase(value);
+    case 'upper-acronyms':
+      return caseTransforms.upperKnownAcronyms(value);
+    case 'sentence-each':
+      return caseTransforms.sentenceCaseEach(value);
+    case 'capitalize-lines':
+      return caseTransforms.capitalizeLines(value);
+    case 'lower-line-start':
+      return caseTransforms.lowerLineStart(value);
+    case 'css-variable':
+      return caseTransforms.cssVariableCase(value);
+    case 'bem':
+      return caseTransforms.bemCase(value);
+    case 'pluralize':
+      return caseTransforms.pluralize(value);
+    case 'singularize':
+      return caseTransforms.singularize(value);
+    case 'hashtag':
+      return caseTransforms.hashtagCase(value);
     default:
       return '';
   }
