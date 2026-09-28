@@ -570,23 +570,23 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| HASH-001 | HASH | 基本 | `selection-manipulator.crypto.hash-sha224` | Create Hash (SHA-224) | node:crypto で SHA-224 ハッシュ（16 進）を計算する | `abc` → `23097d223405d822…` | なし | なし |
+| HASH-001 | HASH | 基本 | `selection-manipulator.crypto.hash-sha224` | Create Hash (SHA-224) | node:crypto で SHA-224 ハッシュ（16 進）を計算する（新規エディタに選択テキストを見出しとして結果を出す。選択はトリムせず UTF-8 バイトで計算し、孤立サロゲートはエラー） | `abc` → `23097d223405d822…` | なし | なし |
 | HASH-002 | HASH | 基本 | `selection-manipulator.crypto.hash-sha384` | Create Hash (SHA-384) | node:crypto で SHA-384 ハッシュを計算する | `abc` → `cb00753f45a35e8b…` | なし | なし |
-| HASH-003 | HASH | 基本 | `selection-manipulator.crypto.hash-sha3-256` | Create Hash (SHA3-256) | node:crypto で SHA3-256 ハッシュを計算する | `abc` → `3a985da74fe225b2…` | なし | なし |
-| HASH-004 | HASH | 基本 | `selection-manipulator.crypto.hash-sha3-512` | Create Hash (SHA3-512) | node:crypto で SHA3-512 ハッシュを計算する | `abc` → `b751850b1a57168a…` | なし | なし |
+| HASH-003 | HASH | 基本 | `selection-manipulator.crypto.hash-sha3-256` | Create Hash (SHA3-256) | SHA3-256 ハッシュを計算する（VS Code の Electron の node:crypto が SHA-3 に対応していないため、FIPS 202 に沿って自前実装する） | `abc` → `3a985da74fe225b2…` | なし | なし |
+| HASH-004 | HASH | 基本 | `selection-manipulator.crypto.hash-sha3-512` | Create Hash (SHA3-512) | SHA3-512 ハッシュを計算する（VS Code の Electron の node:crypto が SHA-3 に対応していないため、FIPS 202 に沿って自前実装する） | `abc` → `b751850b1a57168a…` | なし | なし |
 | HASH-005 | HASH | 基本 | `selection-manipulator.crypto.hash-sha512-256` | Create Hash (SHA-512/256) | node:crypto で SHA-512/256 ハッシュを計算する | `abc` → `53048e2681941ef9…` | なし | なし |
-| HASH-006 | HASH | 基本 | `selection-manipulator.crypto.hash-blake2b512` | Create Hash (BLAKE2b-512) | node:crypto で BLAKE2b-512 ハッシュを計算する | `abc` → `ba80a53f981c4d0d…` | なし | なし |
-| HASH-007 | HASH | 基本 | `selection-manipulator.crypto.hash-blake2s256` | Create Hash (BLAKE2s-256) | node:crypto で BLAKE2s-256 ハッシュを計算する | `abc` → `508c5e8c327c14e2…` | なし | なし |
-| HASH-008 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha1` | Create HMAC (SHA-1) | 入力した鍵で HMAC-SHA1 を計算する（既存システムとの互換確認用。新規設計には SHA-256 以上を推奨と注記） | `abc（鍵: key）` → `4fd0b215276ef12f…` | なし | なし |
-| HASH-009 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha384` | Create HMAC (SHA-384) | 入力した鍵で HMAC-SHA384 を計算する | `abc（鍵: key）` → `30ddb9c8f347cffb…` | なし | なし |
-| HASH-010 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha3-256` | Create HMAC (SHA3-256) | 入力した鍵で HMAC-SHA3-256 を計算する | `abc（鍵: key）` → `09b6dbab8d11795c…` | なし | なし |
-| HASH-011 | HASH | 基本 | `selection-manipulator.checksum.crc32` | Checksum: CRC-32 | CRC-32（IEEE）を計算する。改ざん検知ではなく誤り検出用（自前実装。Node 20.10 の zlib には crc32 がないため） | `hello` → `3610a686` | なし | なし |
-| HASH-012 | HASH | 基本 | `selection-manipulator.checksum.adler32` | Checksum: Adler-32 | Adler-32 を計算する（誤り検出用、自前実装） | `hello` → `062c0215` | なし | なし |
-| HASH-013 | HASH | 基本 | `selection-manipulator.checksum.fnv1a-32` | Checksum: FNV-1a 32-bit | FNV-1a（32 ビット）ハッシュを計算する（非暗号用途、自前実装） | `hello` → `4f9f2cab` | なし | なし |
+| HASH-006 | HASH | 基本 | `selection-manipulator.crypto.hash-blake2b512` | Create Hash (BLAKE2b-512) | BLAKE2b-512 ハッシュを計算する（VS Code の Electron の node:crypto が BLAKE2 に対応していないため、RFC 7693 に沿って自前実装する） | `abc` → `ba80a53f981c4d0d…` | なし | なし |
+| HASH-007 | HASH | 基本 | `selection-manipulator.crypto.hash-blake2s256` | Create Hash (BLAKE2s-256) | BLAKE2s-256 ハッシュを計算する（VS Code の Electron の node:crypto が BLAKE2 に対応していないため、RFC 7693 に沿って自前実装する） | `abc` → `508c5e8c327c14e2…` | なし | なし |
+| HASH-008 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha1` | Create HMAC (SHA-1) | 入力した鍵で HMAC-SHA1 を計算する（既存システムとの互換確認用。新規設計には SHA-256 以上を推奨と README に注記。鍵はパスワード入力で 1 回だけ受け取り、キャンセル時は何もしない。空の鍵と孤立サロゲートを含む鍵は受け付けない。鍵は保存・表示しない） | `abc（鍵: key）` → `4fd0b215276ef12f…` | なし | なし |
+| HASH-009 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha384` | Create HMAC (SHA-384) | 入力した鍵で HMAC-SHA384 を計算する（鍵の扱いは HASH-008 と同じ） | `abc（鍵: key）` → `30ddb9c8f347cffb…` | なし | なし |
+| HASH-010 | HASH | 基本 | `selection-manipulator.crypto.hmac-sha3-256` | Create HMAC (SHA3-256) | 入力した鍵で HMAC-SHA3-256 を計算する（HMAC-SHA3-256 は自前実装の SHA3-256 を使う。ブロック長 136 バイト。鍵の扱いは HASH-008 と同じ） | `abc（鍵: key）` → `09b6dbab8d11795c…` | なし | なし |
+| HASH-011 | HASH | 基本 | `selection-manipulator.checksum.crc32` | Checksum: CRC-32 | CRC-32（IEEE）を計算する。改ざん検知ではなく誤り検出用（自前実装。Node 20.10 の zlib には crc32 がないため。16 進小文字 8 桁） | `hello` → `3610a686` | なし | なし |
+| HASH-012 | HASH | 基本 | `selection-manipulator.checksum.adler32` | Checksum: Adler-32 | Adler-32 を計算する（改ざん検知ではなく誤り検出用、自前実装。16 進小文字 8 桁） | `hello` → `062c0215` | なし | なし |
+| HASH-013 | HASH | 基本 | `selection-manipulator.checksum.fnv1a-32` | Checksum: FNV-1a 32-bit | FNV-1a（32 ビット）ハッシュを計算する（非暗号用途で改ざん検知には使えない、自前実装。16 進小文字 8 桁） | `hello` → `4f9f2cab` | なし | なし |
 | HASH-014 | HASH | 基本 | `selection-manipulator.crypto.hash-sha256-base64` | Create Hash (SHA-256, Base64) | SHA-256 を Base64 で出力する（CSP のハッシュ値などに使う） | `abc` → `ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=` | なし | なし |
 | HASH-015 | HASH | 基本 | `selection-manipulator.crypto.sri-sha384` | Create SRI Hash (sha384) | Subresource Integrity の integrity 属性値（sha384-Base64）を作る | `abc` → `sha384-ywB1P0WjXou1oD1pmsZQBycs…` | なし | なし |
-| HASH-016 | HASH | 基本 | `selection-manipulator.crypto.hash-sha256-each-line` | Create Hash per Line (SHA-256) | 各行を個別に SHA-256 でハッシュする | `a⏎b` → `ca978112…⏎3e23e816…` | なし | なし |
-| HASH-017 | HASH | 基本 | `selection-manipulator.checksum.luhn` | Checksum: Luhn Validate | Luhn アルゴリズムで数字列のチェックディジットを検証し、結果を通知する（ダミー番号で確認） | `79927398713` → `valid（通知）` | なし | なし |
+| HASH-016 | HASH | 基本 | `selection-manipulator.crypto.hash-sha256-each-line` | Create Hash per Line (SHA-256) | 各行を個別に SHA-256 でハッシュする（行区切り LF・CRLF・CR をそのまま保ち、空行は空のまま残す。見出しなしの新規エディタに出し、複数選択は文書の改行コードで連結する。出力は全選択で 10,000,000 文字まで） | `a⏎b` → `ca978112…⏎3e23e816…` | なし | なし |
+| HASH-017 | HASH | 基本 | `selection-manipulator.checksum.luhn` | Checksum: Luhn Validate | Luhn アルゴリズムで数字列のチェックディジットを検証し、結果を通知する（ダミー番号で確認。選択範囲は変えず、番号は通知に出さない。前後の空白・改行は無視し、数字と数字の間に 1 個だけ置いた半角スペースまたはハイフンを区切りとして無視する。先頭・末尾のハイフン、連続した区切り、+ などその他の文字は not a number、数字が 2 桁未満も not a number。選択 1 件は理由付き、2〜10 件は番号付きで理由なし、11 件以上は件数の要約で通知する） | `79927398713` → `valid（通知）` | なし | なし |
 | HASH-018 | HASH | 派生:HASH-002 | `selection-manipulator.crypto.hash-sha384.replace` | Create Hash (SHA-384) (Replace) | HASH-002 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `abc` → `cb00753f45a35e8b…` | なし | なし |
 | HASH-019 | HASH | 派生:HASH-003 | `selection-manipulator.crypto.hash-sha3-256.replace` | Create Hash (SHA3-256) (Replace) | HASH-003 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `abc` → `3a985da74fe225b2…` | なし | なし |
 | HASH-020 | HASH | 派生:HASH-006 | `selection-manipulator.crypto.hash-blake2b512.replace` | Create Hash (BLAKE2b-512) (Replace) | HASH-006 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `abc` → `ba80a53f981c4d0d…` | なし | なし |

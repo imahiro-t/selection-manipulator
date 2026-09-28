@@ -33,8 +33,9 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Programmatic**: Convert between JSON<->YAML, Hex<->RGB, Toggle quotes, Env file to JSON.
 
 ### 🔐 Cryptography & Security
-*   **Hashing**: Generate MD5, SHA-1, SHA-256, and SHA-512 hashes.
-*   **HMAC**: Create HMAC-SHA256, HMAC-SHA512, and HMAC-MD5 signatures.
+*   **Hashing**: Generate MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/256, SHA3-256, SHA3-512, BLAKE2b-512 and BLAKE2s-256 hashes, SHA-256 per line, SHA-256 as Base64 (CSP) and SRI (`sha384-…`) values.
+*   **HMAC**: Create HMAC-SHA256, HMAC-SHA512, HMAC-MD5, HMAC-SHA1 (for compatibility only), HMAC-SHA384 and HMAC-SHA3-256 signatures.
+*   **Checksum**: CRC-32, Adler-32 and FNV-1a 32-bit (error detection, not tamper detection), Luhn check digit validation.
 *   **Encryption**: Securely Encrypt and Decrypt text using AES.
 *   **Decoders**: Decode JWT, SAML Request/Response, and X.509 Certificates.
 
@@ -446,6 +447,32 @@ In the examples, `·` is a space and `⏎` is a line break. A value in parenthes
 *   **Hash**: MD5, SHA-1, SHA-256, SHA-512.
 *   **HMAC**: Keyed-hash for the above algorithms.
 *   **AES Encryption**: Encrypt/Decrypt text with a passphrase.
+
+#### Hash and Checksum Commands
+Every command hashes the selected text exactly as it is selected, as UTF-8 bytes: the text is not trimmed, and a CRLF line break is hashed as the two characters CR and LF. Hex output is lower case. The standard versions open a new read-only editor, like the existing Create Hash commands: for each selection, the selected text (trimmed, as a heading) followed by its result. The (Replace) versions replace each selection with its result. Multiple selections are processed in document order; empty selections are skipped, and nothing happens if every selection is empty. The **Crypto** submenu of the **Transform** context submenu has the Create Hash, Create HMAC and SRI commands, the new **Checksum** submenu of **Transform** has the four Checksum commands, and the **Crypto** submenu of the **Replace** context submenu has the (Replace) versions.
+In the examples, `⏎` is a line break, a value in parentheses is the value you enter, and a long result is shortened with `…`.
+
+*   **Create Hash**:
+    *   **SHA-224**, **SHA-384**, **SHA-512/256**: `abc` -> `23097d22…` (SHA-224), `cb00753f…` (SHA-384), `53048e26…` (SHA-512/256).
+    *   **SHA3-256**, **SHA3-512**, **BLAKE2b-512**, **BLAKE2s-256**: `abc` -> `3a985da7…` (SHA3-256), `b751850b…` (SHA3-512), `ba80a53f…` (BLAKE2b-512), `508c5e8c…` (BLAKE2s-256). The Node.js of VS Code does not provide these algorithms, so the extension computes them with its own implementation (FIPS 202 and RFC 7693, checked against OpenSSL); the results are the standard values.
+    *   **Create Hash (SHA-384) (Replace)**, **Create Hash (SHA3-256) (Replace)**, **Create Hash (BLAKE2b-512) (Replace)**: Replace each selection with its hash.
+*   **Hashes for the web**:
+    *   **Create Hash (SHA-256, Base64)**: SHA-256 as standard Base64, for example for a CSP `'sha256-…'` source: `abc` -> `ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=`.
+    *   **Create SRI Hash (sha384)**: A Subresource Integrity `integrity` value: `abc` -> `sha384-ywB1P0WjXou1oD1pmsZQBycs…`.
+*   **Create Hash per Line (SHA-256)**: Hashes each line on its own and keeps the line breaks (LF, CRLF or CR); empty lines stay empty, and a line break at the end is kept: `a⏎b` -> `ca978112…⏎3e23e816…`. The result opens in a new read-only editor without headings; with multiple selections, the results are joined with the document's line ending.
+*   **Create HMAC** (**SHA-1**, **SHA-384**, **SHA3-256**): Asks once for the key in a password input box and computes the HMAC of each selection: `abc` (`key`) -> `4fd0b215…` (SHA-1), `30ddb9c8…` (SHA-384), `09b6dbab…` (SHA3-256). If you cancel the input box, nothing is done. The key must not be empty or contain a lone surrogate. The key is not saved, logged or shown in the result or in a message. The input box is not shown if every selection is empty, and the selections are read again after it closes. HMAC-SHA3-256 uses the extension's own SHA3-256 (block size 136 bytes).
+    *   **HMAC-SHA1 is for checking compatibility with existing systems only.** For a new design, use HMAC-SHA256 or stronger.
+*   **Checksum** (**CRC-32** (IEEE), **Adler-32**, **FNV-1a 32-bit**): Eight lower-case hex digits: `hello` -> `3610a686` (CRC-32), `062c0215` (Adler-32), `4f9f2cab` (FNV-1a). The extension computes them itself, without new dependencies.
+    *   **These checksums detect accidental errors only; they cannot detect tampering.** Use a cryptographic hash or an HMAC for that.
+*   **Checksum: Luhn Validate**: Checks the check digit of a number with the Luhn algorithm and shows the result in a notification; the selection is not changed, and the number is not shown in the notification: `79927398713` -> `Luhn: valid`.
+    *   Spaces, tabs and line breaks at both ends are ignored, and a single space or hyphen between two digits is ignored as a separator (`4111 1111 1111 1111`, `4111-1111-1111-1111`). A leading or trailing hyphen (`-79927398713`), two separators in a row (`7--9927398713`), `+` and any other character make the text `not a number (only digits, spaces and hyphens are allowed)`, and fewer than two digits make it `not a number (at least 2 digits are required)`.
+    *   With one selection, the notification is `Luhn: valid`, `Luhn: invalid` or `Luhn: not a number (…)` with the reason. With 2 to 10 selections, it lists each selection by number without the reason: `Luhn: #1 valid, #2 invalid, #3 not a number`. With 11 or more, it shows only the counts: `Luhn: 12 selections: 5 valid, 4 invalid, 3 not a number`.
+
+> **Limitations of the hash and checksum commands**
+> *   **Lone surrogates**: A selection that contains a lone surrogate cannot be converted to UTF-8 and is an error, instead of being hashed as `�` (Luhn Validate reports it as `not a number`). If any selection fails, no selection is changed and no editor is opened.
+> *   **Output size**: A run whose results would exceed 10,000,000 characters in total (shared by all selections) is refused with a warning, and nothing is changed or opened. Only Create Hash per Line can get near this limit (64 characters per line).
+> *   **Create Hash per Line**: Each line break is kept in the result, but a line break of a single CR may be shown as the line ending of the new editor, because VS Code uses one kind of line ending per editor.
+> *   **Performance**: SHA-3, BLAKE2 and HMAC-SHA3-256 run in JavaScript and are much slower than the other hashes (about 0.1 to 0.7 seconds for 10 MB); a very large selection can make VS Code wait for a few seconds.
 
 #### Decoders
 *   **JWT**: Decode JSON Web Tokens header/payload.
