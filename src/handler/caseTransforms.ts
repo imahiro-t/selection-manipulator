@@ -111,10 +111,24 @@ const coreLetters = (token: string): string => {
   return token.slice(start, end).toLowerCase();
 };
 
-/** CASE-003: `a guide through the woods` -> `A Guide Through the Woods`. */
+/**
+ * True when `value` has upper-case letters, no lower-case letters and at least
+ * two words (`THE LORD OF THE RINGS`). Such input is lower-cased before title
+ * casing so that major and minor words end up consistent; a single all-caps
+ * word (`API`) is left alone.
+ */
+const isAllCapsSentence = (value: string): boolean =>
+  value === value.toUpperCase() && value !== value.toLowerCase() && value.trim().split(/\s+/).length >= 2;
+
+/**
+ * CASE-003: `a guide through the woods` -> `A Guide Through the Woods`.
+ * Every part of a hyphenated word is capitalized except minor words after the
+ * first part (`state-of-the-art` -> `State-of-the-Art`).
+ */
 export const titleCaseApa = (value: string): string => {
+  const source = isAllCapsSentence(value) ? value.toLowerCase() : value;
   let capitalizeNext = true;
-  return value
+  return source
     .split(/(\s+)/)
     .map((token) => {
       if (token.trim() === '') {
@@ -126,7 +140,10 @@ export const titleCaseApa = (value: string): string => {
       if (!forceCapital && APA_MINOR_WORDS.has(coreLetters(token))) {
         return token.toLowerCase();
       }
-      return token.split('-').map(upperFirstCased).join('-');
+      return token
+        .split('-')
+        .map((part, index) => (index > 0 && APA_MINOR_WORDS.has(coreLetters(part)) ? part.toLowerCase() : upperFirstCased(part)))
+        .join('-');
     })
     .join('');
 };
@@ -322,60 +339,85 @@ export const lowerLocale = (value: string, locale: string): string => value.toLo
 // CASE-022 .. CASE-025: JSON keys
 // ---------------------------------------------------------------------------
 
-/**
- * Sets an own, enumerable data property without going through `[[Set]]`, so a
- * key such as `__proto__` never swaps the prototype or pollutes Object.prototype.
- */
-export const defineSafeProperty = (target: object, key: string, value: unknown): void => {
-  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
-};
-
-const convertKeysDeep = (value: unknown, keyFn: (key: string) => string): unknown => {
-  if (Array.isArray(value)) {
-    return value.map((item) => convertKeysDeep(item, keyFn));
+/** Thrown when two different keys of one object would get the same converted name. */
+export class JsonKeyCollisionError extends Error {
+  constructor(readonly first: string, readonly second: string, readonly converted: string) {
+    super(`${JSON.stringify(first)} and ${JSON.stringify(second)} both become ${JSON.stringify(converted)}`);
+    this.name = 'JsonKeyCollisionError';
   }
-  if (value !== null && typeof value === 'object') {
-    const result = Object.create(null) as object;
-    for (const key of Object.keys(value)) {
-      const converted = keyFn(key);
-      defineSafeProperty(result, converted === '' ? key : converted, convertKeysDeep((value as Record<string, unknown>)[key], keyFn));
+}
+
+/** Index just past the closing quote of the JSON string literal that starts at `start`. */
+const endOfJsonString = (text: string, start: number): number => {
+  let i = start + 1;
+  while (i < text.length) {
+    const code = text.charCodeAt(i);
+    if (code === 92 /* backslash: skip the escaped character */) {
+      i += 2;
+    } else if (code === 34 /* " */) {
+      return i + 1;
+    } else {
+      i++;
     }
-    return result;
   }
-  return value;
-};
-
-/** Indentation of the second line: a tab, N spaces, or 2 spaces when undetectable. */
-const detectIndent = (text: string): string | number => {
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) {
-    return 2;
-  }
-  const line = lines[1];
-  if (line.startsWith('\t')) {
-    return '\t';
-  }
-  let spaces = 0;
-  while (spaces < line.length && line.charCodeAt(spaces) === 32) {
-    spaces++;
-  }
-  return spaces > 0 ? Math.min(spaces, 10) : 2;
+  return i;
 };
 
 /**
  * CASE-022..025: converts only the object keys of a JSON text, recursively.
- * Values are never changed. Throws when the text is not valid JSON.
- * Leading / trailing whitespace of the selection is preserved.
+ *
+ * The text is validated with `JSON.parse` (which throws on invalid JSON) and is
+ * then rewritten by a single linear, non-recursive scan that replaces only the
+ * string tokens in key position. Values, whitespace, indentation, key order and
+ * escapes are kept byte for byte, so big integers, `1.0`, `1e3` and `\u`
+ * escapes survive. A key is rewritten only when its converted name differs
+ * (a key whose conversion is empty is kept). Throws `JsonKeyCollisionError`
+ * when two different keys of the same object would end up with the same name,
+ * so that no value is silently lost.
  */
 export const convertJsonKeys = (json: string, keyFn: (key: string) => string): string => {
-  const body = json.trim();
-  const converted = convertKeysDeep(JSON.parse(body), keyFn);
-  const formatted = body.includes('\n')
-    ? JSON.stringify(converted, null, detectIndent(body))
-    : JSON.stringify(converted);
-  const leading = json.slice(0, json.length - json.trimStart().length);
-  const trailing = json.slice(leading.length + body.length);
-  return leading + formatted + trailing;
+  JSON.parse(json);
+  // One frame per open container: null for an array, a map converted -> original key for an object.
+  const frames: (Map<string, string> | null)[] = [];
+  let expectKey = false;
+  let result = '';
+  let copiedUpTo = 0;
+  let i = 0;
+  while (i < json.length) {
+    const ch = json.charAt(i);
+    if (ch === '"') {
+      const end = endOfJsonString(json, i);
+      const frame = frames.length > 0 ? frames[frames.length - 1] : null;
+      if (frame !== null && expectKey) {
+        const key = JSON.parse(json.slice(i, end)) as string;
+        const converted = keyFn(key) || key;
+        const owner = frame.get(converted);
+        if (owner !== undefined && owner !== key) {
+          throw new JsonKeyCollisionError(owner, key, converted);
+        }
+        frame.set(converted, key);
+        if (converted !== key) {
+          result += json.slice(copiedUpTo, i) + JSON.stringify(converted);
+          copiedUpTo = end;
+        }
+        expectKey = false;
+      }
+      i = end;
+      continue;
+    }
+    if (ch === '{') {
+      frames.push(new Map());
+      expectKey = true;
+    } else if (ch === '[') {
+      frames.push(null);
+    } else if (ch === '}' || ch === ']') {
+      frames.pop();
+    } else if (ch === ',') {
+      expectKey = frames.length > 0 && frames[frames.length - 1] !== null;
+    }
+    i++;
+  }
+  return result + json.slice(copiedUpTo);
 };
 
 // ---------------------------------------------------------------------------
@@ -421,7 +463,11 @@ export const UNCOUNTABLE_WORDS: ReadonlySet<string> = new Set([
   'money', 'moose', 'news', 'rice', 'series', 'sheep', 'software', 'species',
 ]);
 
-/** Irregular singular -> plural pairs. */
+/**
+ * Irregular singular -> plural pairs, plus regular-looking plurals whose
+ * singular the suffix rules would get wrong (`caches` -> `cach`, `aliases` ->
+ * `aliase`, `zombies` -> `zomby`, `excuses` -> `excus`).
+ */
 export const IRREGULAR_PLURALS: ReadonlyArray<readonly [string, string]> = [
   ['person', 'people'], ['man', 'men'], ['woman', 'women'], ['child', 'children'], ['tooth', 'teeth'],
   ['foot', 'feet'], ['mouse', 'mice'], ['goose', 'geese'], ['ox', 'oxen'], ['cactus', 'cacti'],
@@ -431,6 +477,19 @@ export const IRREGULAR_PLURALS: ReadonlyArray<readonly [string, string]> = [
   ['knife', 'knives'], ['wife', 'wives'], ['half', 'halves'], ['wolf', 'wolves'], ['calf', 'calves'],
   ['shelf', 'shelves'], ['quiz', 'quizzes'], ['potato', 'potatoes'], ['tomato', 'tomatoes'], ['hero', 'heroes'],
   ['echo', 'echoes'], ['movie', 'movies'], ['cookie', 'cookies'],
+  // -che + s (the -ches rule would drop the e)
+  ['cache', 'caches'], ['niche', 'niches'], ['ache', 'aches'], ['headache', 'headaches'], ['avalanche', 'avalanches'],
+  ['cliche', 'cliches'], ['psyche', 'psyches'], ['moustache', 'moustaches'], ['mustache', 'mustaches'],
+  // consonant + use + s (the -uses rule would drop the e)
+  ['excuse', 'excuses'], ['abuse', 'abuses'], ['misuse', 'misuses'], ['fuse', 'fuses'], ['muse', 'muses'],
+  ['ruse', 'ruses'], ['recluse', 'recluses'],
+  // -s + es where the singular does not end in -ss / -us / -is
+  ['gas', 'gases'], ['alias', 'aliases'], ['bias', 'biases'], ['canvas', 'canvases'], ['atlas', 'atlases'],
+  ['lens', 'lenses'], ['iris', 'irises'],
+  // -ie + s (the -ies rule would give -y)
+  ['zombie', 'zombies'], ['calorie', 'calories'], ['rookie', 'rookies'], ['newbie', 'newbies'], ['selfie', 'selfies'],
+  ['hoodie', 'hoodies'], ['genie', 'genies'], ['sortie', 'sorties'], ['smoothie', 'smoothies'], ['brownie', 'brownies'],
+  ['prairie', 'prairies'], ['goalie', 'goalies'],
 ];
 
 const SINGULAR_TO_PLURAL: ReadonlyMap<string, string> = new Map(IRREGULAR_PLURALS);
@@ -539,13 +598,70 @@ const applyShape = (target: string, result: string): string => {
   return result;
 };
 
-const inflectLines = (value: string, inflect: (word: string) => string): string =>
+const isApostrophe = (ch: string): boolean => ch === "'" || ch === '\u2019';
+
+/**
+ * True when the letter run [start, end) touches an apostrophe in a way that
+ * makes it part of a possessive or a contraction (`user's`, `it's`, `don't`,
+ * `the users'`). Such lines are left unchanged so no text is lost. A word
+ * wrapped in apostrophes on both sides (`'users'`) is treated as quoted.
+ */
+const touchesApostrophe = (line: string, start: number, end: number): boolean => {
+  const before = start > 0 && isApostrophe(line.charAt(start - 1));
+  const after = end < line.length && isApostrophe(line.charAt(end));
+  if (before && after) {
+    return false;
+  }
+  if (before) {
+    return start >= 2 && isAsciiAlpha(line.charCodeAt(start - 2));
+  }
+  return after;
+};
+
+/**
+ * True when the all-caps hump `target` of the letter run [start, end) is an
+ * acronym whose plural takes a lower-case `s` (`API` -> `APIs`, `userID` ->
+ * `userIDs`): a known acronym, or any all-caps hump at the end of a mixed-case
+ * identifier. A stand-alone all-caps word that is not a known acronym (`BOX`)
+ * is pluralized in upper case (`BOXES`).
+ */
+const isAcronymHump = (line: string, start: number, humpStart: number, target: string): boolean =>
+  target.length >= 2 && target === target.toUpperCase()
+  && (KNOWN_ACRONYMS.has(target.toLowerCase()) || (humpStart > start && isAsciiLower(line.charCodeAt(humpStart - 1))));
+
+type Inflection = (line: string, start: number, end: number) => string | null;
+
+/** Replacement text for [humpStart, end) when pluralizing, or null to use the generic rule. */
+const pluralizeAcronym: Inflection = (line, start, end) => {
+  const humpStart = findLastHumpStart(line, start, end);
+  const target = line.slice(humpStart, end);
+  return isAcronymHump(line, start, humpStart, target) ? line.slice(0, end) + 's' + line.slice(end) : null;
+};
+
+/**
+ * `APIs` / `userIDs` -> `API` / `userID`: a lone lower-case `s` right after an
+ * upper-case run of two or more letters is an acronym plural.
+ */
+const singularizeAcronym: Inflection = (line, start, end) => {
+  if (end - start >= 3 && line.charAt(end - 1) === 's'
+    && isAsciiUpper(line.charCodeAt(end - 2)) && isAsciiUpper(line.charCodeAt(end - 3))) {
+    return line.slice(0, end - 1) + line.slice(end);
+  }
+  return null;
+};
+
+const inflectLines = (value: string, inflect: (word: string) => string, special: Inflection): string =>
   value
     .split('\n')
     .map((line) => {
       const range = findLastWordRange(line);
-      if (range === null) {
+      // A single letter (`s`, `a`, `I`) and possessives / contractions are left alone.
+      if (range === null || range.end - range.start < 2 || touchesApostrophe(line, range.start, range.end)) {
         return line;
+      }
+      const specialResult = special(line, range.start, range.end);
+      if (specialResult !== null) {
+        return specialResult;
       }
       const humpStart = findLastHumpStart(line, range.start, range.end);
       const target = line.slice(humpStart, range.end);
@@ -555,7 +671,7 @@ const inflectLines = (value: string, inflect: (word: string) => string): string 
     .join('\n');
 
 /** CASE-028: pluralizes the last hump of the last word on each line (`category⏎child` -> `categories⏎children`). */
-export const pluralize = (value: string): string => inflectLines(value, pluralizeWord);
+export const pluralize = (value: string): string => inflectLines(value, pluralizeWord, pluralizeAcronym);
 
 /** CASE-029: singularizes the last hump of the last word on each line. */
-export const singularize = (value: string): string => inflectLines(value, singularizeWord);
+export const singularize = (value: string): string => inflectLines(value, singularizeWord, singularizeAcronym);

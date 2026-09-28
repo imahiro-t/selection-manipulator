@@ -80,6 +80,20 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       assert.strictEqual(t.titleCaseApa('walk with me'), 'Walk With Me');
     });
 
+    test('CASE-003 minor words after the first part of a hyphenated word stay lower-case', () => {
+      assert.strictEqual(t.titleCaseApa('a state-of-the-art guide'), 'A State-of-the-Art Guide');
+      assert.strictEqual(t.titleCaseApa('state-of-the-art'), 'State-of-the-Art');
+      assert.strictEqual(t.titleCaseApa('a mother-in-law story'), 'A Mother-in-Law Story');
+      assert.strictEqual(t.titleCaseApa('the up-to-date list'), 'The Up-to-Date List');
+    });
+
+    test('CASE-003 all-caps sentences are title-cased consistently; a single all-caps word is kept', () => {
+      assert.strictEqual(t.titleCaseApa('THE LORD OF THE RINGS'), 'The Lord of the Rings');
+      assert.strictEqual(t.titleCaseApa('STATE-OF-THE-ART TOOLS'), 'State-of-the-Art Tools');
+      assert.strictEqual(t.titleCaseApa('API'), 'API');
+      assert.strictEqual(t.titleCaseApa('the API of the web'), 'The API of the Web');
+    });
+
     test('CASE-004/005 skip leading whitespace and keep the rest', () => {
       assert.strictEqual(t.upperFirst('  hello World'), '  Hello World');
       assert.strictEqual(t.lowerFirst('\tHELLO'), '\thELLO');
@@ -231,29 +245,74 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       assert.strictEqual(t.convertJsonKeys('"a_b"', changeCase.camelCase), '"a_b"');
     });
 
-    test('indentation of multi-line input is preserved', () => {
+    test('whitespace, indentation and layout are kept byte for byte', () => {
       const spaces = '{\n    "user_name": 1\n}';
       assert.strictEqual(t.convertJsonKeys(spaces, changeCase.camelCase), '{\n    "userName": 1\n}');
       const tabs = '{\n\t"user_name": [\n\t\t1\n\t]\n}';
       assert.strictEqual(t.convertJsonKeys(tabs, changeCase.camelCase), '{\n\t"userName": [\n\t\t1\n\t]\n}');
-      const flat = '{\n"user_name": 1\n}';
-      assert.strictEqual(t.convertJsonKeys(flat, changeCase.camelCase), '{\n  "userName": 1\n}');
+      const flat = '{\n"user_name" :1 ,  "x_y":[ 1,2 ]\n}';
+      assert.strictEqual(t.convertJsonKeys(flat, changeCase.camelCase), '{\n"userName" :1 ,  "xY":[ 1,2 ]\n}');
+      const crlf = '{\r\n  "a_b": {\r\n    "c_d": true\r\n  }\r\n}';
+      assert.strictEqual(t.convertJsonKeys(crlf, changeCase.camelCase), '{\r\n  "aB": {\r\n    "cD": true\r\n  }\r\n}');
     });
 
     test('surrounding whitespace of the selection is kept', () => {
       assert.strictEqual(t.convertJsonKeys('  {"a_b":1}\n', changeCase.camelCase), '  {"aB":1}\n');
     });
 
+    test('values are never re-serialized (big integers, number forms, escapes)', () => {
+      assert.strictEqual(
+        t.convertJsonKeys('{"big_id": 12345678901234567890}', changeCase.camelCase),
+        '{"bigId": 12345678901234567890}');
+      assert.strictEqual(
+        t.convertJsonKeys('{"a_b":1.0,"c_d":1e3,"e_f":-0.50E+2,"g_h":0}', changeCase.camelCase),
+        '{"aB":1.0,"cD":1e3,"eF":-0.50E+2,"gH":0}');
+      assert.strictEqual(
+        t.convertJsonKeys('{"s_t":"\\u00e9\\n\\"q\\" \\\\","u_v":"\\/"}', changeCase.camelCase),
+        '{"sT":"\\u00e9\\n\\"q\\" \\\\","uV":"\\/"}');
+    });
+
+    test('strings in value position that look like keys are not touched', () => {
+      assert.strictEqual(
+        t.convertJsonKeys('{"a_b":"c_d","e_f":["g_h",{"i_j":"k_l"}],"m_n":{"o_p":"q_r"}}', changeCase.camelCase),
+        '{"aB":"c_d","eF":["g_h",{"iJ":"k_l"}],"mN":{"oP":"q_r"}}');
+      assert.strictEqual(t.convertJsonKeys('["a_b",{"c_d":"e_f"},"g_h"]', changeCase.camelCase), '["a_b",{"cD":"e_f"},"g_h"]');
+    });
+
+    test('escaped quotes and brackets inside strings do not confuse the scanner', () => {
+      assert.strictEqual(
+        t.convertJsonKeys('{"a_b":"x\\",\\"y_z\\":{[","c_d":"}]"}', changeCase.camelCase),
+        '{"aB":"x\\",\\"y_z\\":{[","cD":"}]"}');
+    });
+
+    test('keys with escapes: unchanged keys keep their escapes, converted keys are re-encoded', () => {
+      assert.strictEqual(t.convertJsonKeys('{"\\u0061":1}', changeCase.camelCase), '{"\\u0061":1}');
+      assert.strictEqual(t.convertJsonKeys('{"a\\u005fb":1}', changeCase.camelCase), '{"aB":1}');
+    });
+
+    test('key order is kept, including integer-like keys', () => {
+      assert.strictEqual(t.convertJsonKeys('{"1":1,"b_c":2,"2":3}', changeCase.camelCase), '{"1":1,"bC":2,"2":3}');
+    });
+
     test('keys whose conversion is empty are kept as-is', () => {
       assert.strictEqual(t.convertJsonKeys('{"ユーザー":1,"__":2}', changeCase.snakeCase), '{"ユーザー":1,"__":2}');
     });
 
-    test('duplicate keys after conversion: last value wins', () => {
-      assert.strictEqual(t.convertJsonKeys('{"a_b":1,"aB":2}', changeCase.camelCase), '{"aB":2}');
+    test('keys that would collide after conversion throw and nothing is lost', () => {
+      assert.throws(() => t.convertJsonKeys('{"a_b":1,"aB":2}', changeCase.camelCase), t.JsonKeyCollisionError);
+      assert.throws(() => t.convertJsonKeys('{"user_id":1,"userId":2}', changeCase.camelCase), /"user_id" and "userId" both become "userId"/);
+      assert.throws(() => t.convertJsonKeys('{"x":{"a-b":1,"a_b":2}}', changeCase.camelCase), t.JsonKeyCollisionError);
+    });
+
+    test('the same name in different objects, and duplicate original keys, are not collisions', () => {
+      assert.strictEqual(t.convertJsonKeys('[{"a_b":1},{"a_b":2}]', changeCase.camelCase), '[{"aB":1},{"aB":2}]');
+      assert.strictEqual(t.convertJsonKeys('{"a_b":{"a_b":1}}', changeCase.camelCase), '{"aB":{"aB":1}}');
+      assert.strictEqual(t.convertJsonKeys('{"a_b":1,"a_b":2}', changeCase.camelCase), '{"aB":1,"aB":2}');
     });
 
     test('invalid JSON throws', () => {
       assert.throws(() => t.convertJsonKeys('{bad', changeCase.camelCase));
+      assert.throws(() => t.convertJsonKeys('{"a_b":1,}', changeCase.camelCase));
     });
 
     test('__proto__ is converted like any key without prototype pollution', () => {
@@ -267,12 +326,11 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       assert.strictEqual(Object.prototype.hasOwnProperty('polluted'), false);
     });
 
-    test('defineSafeProperty sets __proto__ as an own property', () => {
-      const target = Object.create(null) as object;
-      t.defineSafeProperty(target, '__proto__', 1);
-      assert.strictEqual(JSON.stringify(target), '{"__proto__":1}');
-      assert.strictEqual(Object.getPrototypeOf(target), null);
-      assert.strictEqual(({} as Record<string, unknown>).polluted, undefined);
+    test('deeply nested input does not overflow the stack', () => {
+      const depth = 50000;
+      const input = '{"a_b":'.repeat(depth) + '1' + '}'.repeat(depth);
+      const expected = '{"aB":'.repeat(depth) + '1' + '}'.repeat(depth);
+      assert.strictEqual(t.convertJsonKeys(input, changeCase.camelCase), expected);
     });
   });
 
@@ -303,6 +361,31 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       ['tie', 'ties'],
       ['sheep', 'sheep'],
       ['HTTPServer', 'HTTPServers'],
+      ['cache', 'caches'],
+      ['userCache', 'userCaches'],
+      ['niche', 'niches'],
+      ['headache', 'headaches'],
+      ['excuse', 'excuses'],
+      ['fuse', 'fuses'],
+      ['gas', 'gases'],
+      ['alias', 'aliases'],
+      ['bias', 'biases'],
+      ['lens', 'lenses'],
+      ['zombie', 'zombies'],
+      ['calorie', 'calories'],
+      ['match', 'matches'],
+      ['branch', 'branches'],
+      ['case', 'cases'],
+      ['cause', 'causes'],
+      ['response', 'responses'],
+      ['process', 'processes'],
+      ['bonus', 'bonuses'],
+      ['virus', 'viruses'],
+      ['API', 'APIs'],
+      ['URL', 'URLs'],
+      ['userID', 'userIDs'],
+      ['apiURL', 'apiURLs'],
+      ['fooXYZ', 'fooXYZs'],
     ];
     pairs.forEach(([singular, plural]) => {
       test(`${singular} <-> ${plural}`, () => {
@@ -328,6 +411,42 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
     test('only the last word of each line changes; trailing symbols, CRLF and blank lines are kept', () => {
       assert.strictEqual(t.pluralize('the user account;\r\n\r\n123\r\nbox'), 'the user accounts;\r\n\r\n123\r\nboxes');
       assert.strictEqual(t.singularize('boxes, \r\n'), 'box, \r\n');
+    });
+
+    test('singular words already in the dictionary stay singular', () => {
+      ['cache', 'alias', 'lens', 'gas', 'zombie', 'excuse'].forEach((word) => {
+        assert.strictEqual(t.singularize(word), word);
+      });
+      ['caches', 'aliases', 'lenses'].forEach((word) => assert.strictEqual(t.pluralize(word), word));
+    });
+
+    test('all-caps words that are not known acronyms keep an upper-case suffix', () => {
+      assert.strictEqual(t.pluralize('BOX'), 'BOXES');
+      assert.strictEqual(t.pluralize('USER_BOX'), 'USER_BOXES');
+      assert.strictEqual(t.singularize('URLS'), 'URL');
+    });
+
+    test('a single letter is never changed', () => {
+      ['s', 'a', 'I', 'x'].forEach((word) => {
+        assert.strictEqual(t.pluralize(word), word);
+        assert.strictEqual(t.singularize(word), word);
+      });
+      assert.strictEqual(t.singularize('plan a'), 'plan a');
+      assert.strictEqual(t.pluralize('item s'), 'item s');
+    });
+
+    test('possessives and contractions are not changed', () => {
+      ["user's", "it's", 'the users\'', "don't", "we're", 'user\u2019s', 'the users\u2019'].forEach((text) => {
+        assert.strictEqual(t.pluralize(text), text);
+        assert.strictEqual(t.singularize(text), text);
+      });
+      assert.strictEqual(t.singularize("the users\nuser's\nboxes\nit's"), "the user\nuser's\nbox\nit's");
+      assert.strictEqual(t.pluralize("the user\nuser's\nbox\nit's"), "the users\nuser's\nboxes\nit's");
+    });
+
+    test('a single-quoted word is still converted', () => {
+      assert.strictEqual(t.singularize("'users'"), "'user'");
+      assert.strictEqual(t.pluralize("const name = 'user';"), "const name = 'users';");
     });
 
     test('a single capital letter hump does not throw', () => {

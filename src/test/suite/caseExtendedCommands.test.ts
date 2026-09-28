@@ -227,6 +227,18 @@ suite('Extended Case Commands (CASE-001..030) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), '{bad\n[1,');
       assert.strictEqual(errors.length, 1);
     });
+
+    test('colliding keys leave that selection unchanged with a collision error', async () => {
+      const editor = await createTextEditor('{"user_id":1,"userId":2}\n{"big_id":12345678901234567890,"n":1.0}');
+      selectEachLine(editor);
+      const errors: string[] = [];
+      await caseJsonKeysHandlerInternal((message) => {
+        errors.push(message);
+        return Promise.resolve(undefined);
+      })('camel')(editor);
+      assert.strictEqual(editor.document.getText(), '{"user_id":1,"userId":2}\n{"bigId":12345678901234567890,"n":1.0}');
+      assert.deepStrictEqual(errors, ['Cannot convert JSON keys: "user_id" and "userId" both become "userId"']);
+    });
   });
 
   test('package.json registers all 30 commands exactly once in each place', () => {

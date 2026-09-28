@@ -4,7 +4,7 @@ import {
   window,
 } from 'vscode';
 import * as changeCase from 'change-case';
-import { convertJsonKeys } from './caseTransforms';
+import { convertJsonKeys, JsonKeyCollisionError } from './caseTransforms';
 
 type JsonKeyStyle = 'camel' | 'snake' | 'kebab' | 'pascal';
 
@@ -17,7 +17,8 @@ const KEY_CONVERTERS: Readonly<Record<JsonKeyStyle, (key: string) => string>> = 
 
 /**
  * CASE-022..025: converts the keys of the JSON in each selection. Selections
- * that are not valid JSON are left unchanged and a single error is shown.
+ * that are not valid JSON, or whose converted keys would collide, are left
+ * unchanged and a single error (the first one) is shown.
  */
 export const caseJsonKeysHandlerInternal = (
   showErrorMessage: (message: string) => Thenable<unknown>
@@ -34,7 +35,9 @@ export const caseJsonKeysHandlerInternal = (
     try {
       replacements.push({ selection, text: convertJsonKeys(text, keyFn) });
     } catch (error) {
-      firstError ??= error instanceof Error ? error.message : String(error);
+      firstError ??= error instanceof JsonKeyCollisionError
+        ? `Cannot convert JSON keys: ${error.message}`
+        : `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`;
     }
   });
 
@@ -45,7 +48,7 @@ export const caseJsonKeysHandlerInternal = (
   }
   if (firstError !== undefined) {
     // Not awaited: the returned Thenable only settles when the notification is dismissed.
-    void showErrorMessage(`Invalid JSON: ${firstError}`);
+    void showErrorMessage(firstError);
   }
 };
 
