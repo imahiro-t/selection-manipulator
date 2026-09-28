@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- ✨ Add 30 case conversion commands (ROADMAP CASE-001..030)
+  - Case only: Swap, Sentence (Preserve Acronyms), Title (APA Style), Upper First, Lower First, Alternating Words, Uppercase Known Acronyms, Sentence (Each Sentence), Capitalize Each Line, Lowercase Each Line Start, Upper (Locale), Lower (Locale)
+  - Naming conventions: Cobol, Ada, Flat, Upper Flat, Camel Snake, Pascal Snake, Acronym, CSS Custom Property, BEM, Hashtag
+  - Detect Style (shows the naming convention in a notification) and Cycle (camel -> snake -> kebab -> Pascal -> CONSTANT)
+  - JSON Keys to Camel / Snake / Kebab / Pascal (only keys change; values, formatting and key order are kept; key collisions are reported and the selection is left unchanged)
+  - Pluralize / Singularize (rule-based with a small built-in dictionary; see README for limitations)
+
 ## [0.0.42] - 2026-09-08
 
 - 🔒 Remove insecure features (`client-credentials-flow`, `geo-ip`, `whois`) and remove vulnerable dependencies (`axios`, `whois`)

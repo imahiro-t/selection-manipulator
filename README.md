@@ -16,7 +16,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
-*   **Advanced Case**: Smart Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents.
+*   **Advanced Case**: Smart Title Case, APA Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents, Swap Case, Sentence Case per sentence, Locale-aware Upper/Lower, Pluralize/Singularize, Detect/Cycle naming style.
 *   **Math**: Sum, Average, Min, Max, Hex <-> Decimal, Date Calculation.
 *   **Unit Conversion**: px <-> rem, kg <-> lb.
 *   **CSV**: Convert between CSV and Markdown Table.
@@ -24,7 +24,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 ### 💻 Developer Utilities
 *   **JSON & XML**: Format (Pretty Print), Minify, Stringify, Parse, Flatten/Unflatten JSON, XML<->JSON.
 *   **Encoding**: Base64 Encode/Decode/Deflate/Inflate.
-*   **Case Conversion**: Switch between Camel, Snake, Kebab, Pascal, Constant, Dot, Path, Sentence, and Title cases.
+*   **Case Conversion**: Switch between Camel, Snake, Kebab, Pascal, Constant, Dot, Path, Sentence, Title, Cobol, Ada, Flat, Camel_Snake, Pascal_Snake, CSS Custom Property, BEM and Hashtag cases. Convert only the keys of a JSON document (Camel/Snake/Kebab/Pascal).
 *   **Escaping**: Escape/Unescape text (JSON stringify/parse compatibility).
 *   **Programmatic**: Convert between JSON<->YAML, Hex<->RGB, Toggle quotes, Env file to JSON.
 
@@ -128,6 +128,46 @@ Convert text between naming conventions and cases.
 *   **Text Cases**: Upper, Lower, Capital, Sentence, Title (Smart).
 *   **Fun/Other**: SpongeBob (`sPoNgEbOb`), Screaming Snake, Humanize, Slugify.
 *   **Remove Accents**: `Crème` -> `Creme`.
+
+#### Extended Case Commands
+*   **Case Only (delimiters kept)**:
+    *   **Swap**: `Hello World` -> `hELLO wORLD`.
+    *   **Sentence (Preserve Acronyms)**: `the API URL is ready` -> `The API URL is ready`.
+    *   **Title (APA Style)**: `a guide through the woods` -> `A Guide Through the Woods` (words of 4+ letters are capitalized; hyphenated words too: `state-of-the-art` -> `State-of-the-Art`).
+    *   **Upper First / Lower First**: `hello World` -> `Hello World`, `HelloWorld` -> `helloWorld`.
+    *   **Alternating Words**: `one two three` -> `ONE two THREE`.
+    *   **Uppercase Known Acronyms**: `userId apiUrl` -> `userID apiURL` (built-in list of 42 acronyms such as `id`, `url`, `http`, `json`).
+    *   **Sentence (Each Sentence)**: `hello. how are you? fine.` -> `Hello. How are you? Fine.`
+    *   **Capitalize Each Line / Lowercase Each Line Start**: lines `foo bar` / `baz` -> `Foo bar` / `Baz` (indentation is kept).
+    *   **Upper (Locale) / Lower (Locale)**: Asks for a locale tag (e.g. `tr`) once, then applies it to every selection: `istanbul` (tr) -> `İSTANBUL`.
+*   **Naming Conventions**:
+    *   **Cobol**: `userName` -> `USER-NAME`
+    *   **Ada**: `user name` -> `User_Name`
+    *   **Flat / Upper Flat**: `User Name` -> `username` / `USERNAME`
+    *   **Camel Snake / Pascal Snake**: `user name id` -> `user_Name_Id` / `User_Name_Id`
+    *   **Acronym**: `portable network graphics` -> `PNG`
+    *   **CSS Custom Property**: `primaryColor` -> `--primary-color`
+    *   **BEM**: `card title active` -> `card__title--active` (4th and later words join the modifier)
+    *   **Hashtag**: `hello world` -> `#HelloWorld`
+*   **Detect & Cycle**:
+    *   **Detect Style**: Shows the naming convention of each selection in a notification (e.g. `Detected case: snake_case`) without changing the text.
+    *   **Cycle**: camelCase -> snake_case -> kebab-case -> PascalCase -> CONSTANT_CASE -> camelCase (`userName` -> `user_name`).
+*   **JSON Keys to Camel / Snake / Kebab / Pascal**: Converts only the object keys of the selected JSON (nested objects and arrays included): `{"user_name":"a_b"}` -> `{"userName":"a_b"}`. Values, whitespace, indentation, key order and escapes are kept byte for byte.
+*   **Pluralize / Singularize**: Converts the last English word of each line, keeping its case: lines `category` / `child` -> `categories` / `children`, `userAccount` -> `userAccounts`, `API` -> `APIs`, `USER_BOX` -> `USER_BOXES`.
+
+> **Limitations of the extended case commands**
+> *   **Sentence (Preserve Acronyms)**: Words written only in capitals are treated as acronyms, so an all-caps sentence (`THE API IS READY`) is left unchanged. Mixed-case words such as `iOS` are lowercased (`ios`).
+> *   **Title (APA Style)**: An all-caps input of two or more words is lowercased first, so acronyms in it are not kept (`THE API GUIDE` -> `The Api Guide`). A single all-caps word (`API`) is left as is.
+> *   **Detect Style**: PascalCase is recognized only when it starts with a capital followed by a lowercase letter or digit, so identifiers starting with an acronym (`URLParser`) are reported as `unknown`.
+> *   **Cycle**: A single word stops at `user` (`User` -> `USER` -> `user`), because flatcase goes back to the start of the cycle. Leading and trailing whitespace is removed.
+> *   **Uppercase Known Acronyms**: The first part of a word with two or more parts is never changed (`IdToken` stays, `ApiUrl` -> `ApiURL`); words with digits (`utf8`) are not in the list; consecutive acronyms can be hard to read (`getHttpsUrl` -> `getHTTPSURL`).
+> *   **Sentence (Each Sentence)**: A sentence starting with a quote (`"hello.`) and a position with no space after the period (`hello.world`) are not capitalized.
+> *   **JSON Keys**: If two different keys in the same object would become the same key (`{"user_id":1,"userId":2}` to camel), that selection is left unchanged and an error is shown; other selections are still converted. Invalid JSON shows `Invalid JSON: ...` and is left unchanged. Keys that would become empty (non-ASCII only such as `ユーザー`, or `__`) are kept as is, and symbols or emoji inside a key are dropped (`"😀_x"` -> `"x"`).
+> *   **Pluralize / Singularize**: Rule-based with a small built-in dictionary, so irregular words not in the dictionary are not guaranteed (`waltzes` -> `waltze`, `bases` always becomes `base`).
+>     *   Only the last run of letters on each line is converted, including a file extension or letters before a symbol (`file.ts` -> `file.tses`).
+>     *   Lines ending with a one-letter word (`a`, `s`), a possessive or a contraction (`user's`, `it's`, `we're`, `the users'`) are left unchanged. A single word in single quotes (`'users'`) is converted, but several words in single quotes (`'the users'`) are not.
+>     *   Known acronyms and all-caps parts after a lowercase letter get a lowercase `s` (`API` -> `APIs`, `userID` -> `userIDs`), including after an underscore (`USER_ID` -> `USER_IDs`); other all-caps words get `ES` / `S` (`BOX` -> `BOXES`).
+>     *   Acronyms ending with `S` are not handled (`DNS` -> `DNSs`, singularize `HTTPS` -> `HTTP`, `OS` -> `O`); an all-caps plural acronym such as `APIS` is left unchanged by Singularize (`URLS` -> `URL`); applying Pluralize twice adds another suffix (`users` -> `userses`).
 
 ### 6. Data Transformation
 
