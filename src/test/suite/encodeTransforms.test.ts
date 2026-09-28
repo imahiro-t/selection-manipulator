@@ -6,6 +6,7 @@ import {
   BASE58_MAX_ENCODE_BYTES,
   ENC_COMMAND_ENTRIES,
   ENC_COMMANDS,
+  ENC_MESSAGE_TEXT_LIMIT,
   EncCommand,
   EncInputError,
   EncOptions,
@@ -14,6 +15,7 @@ import {
   GUNZIP_MAX_OUTPUT_BYTES,
   HTML_NAMED_ENTITIES,
   PUNYCODE_MAX_INPUT_LENGTH,
+  quoteForMessage,
 } from '../../handler/encodeTransforms';
 import { ENC_ROADMAP_EXAMPLES } from './encodeExamples';
 
@@ -111,11 +113,26 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
       ['hex-decode', 'zz'],
       ['hex-decode', 'ff'],
       ['hex-decode', 'c3'],
+      ['hex-decode', '100x20'],
+      ['hex-decode', '0x0x61'],
+      ['hex-decode', '0x'],
+      ['hex-decode', '61 0X'],
+      ['hex-decode', '0x6'],
+      ['hex-decode', '0x610x6'],
+      ['hex-decode', '610x62'],
+      ['hex-decode', '0x61x62'],
       ['binary-decode', '0100'],
       ['binary-decode', '01001000 0110100x'],
       ['binary-decode', '11111111'],
       ['punycode-encode', 'a b'],
       ['punycode-decode', ' '],
+      ['punycode-encode', '例え.jp\r\n例え.jp'],
+      ['punycode-encode', '例え.jp\n例え.jp'],
+      ['punycode-encode', 'exa\tmple.com'],
+      ['punycode-encode', 'example.com\rexample.org'],
+      ['punycode-decode', 'xn--r8jz45g.jp\nexample.jp'],
+      ['punycode-decode', 'xn--r8jz\n45g.jp'],
+      ['punycode-decode', 'exa\tmple.com'],
       ['qp-decode', '=ZZ'],
       ['qp-decode', 'a=4'],
       ['qp-decode', '=C3'],
@@ -142,6 +159,33 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
       assertInputError('caesar', 'abc', { shift: 1.5 });
       assertInputError('caesar', 'abc', { shift: Number.NaN });
       assertInputError('caesar', 'abc', { shift: 2 ** 60 });
+    });
+
+    test('messages quote at most ENC_MESSAGE_TEXT_LIMIT characters of a huge selection', () => {
+      const huge: [EncCommand, string][] = [
+        ['hex-decode', 'g'.repeat(200_000)],
+        ['hex-decode', 'a'.repeat(199_999)],
+        ['hex-decode', `0x${'a'.repeat(199_999)}`],
+        ['hex-decode', `0x${'g'.repeat(200_000)}`],
+        ['html-decode', `&#${'1'.repeat(200_000)};`],
+        ['html-decode', `&#x${'f'.repeat(200_000)};`],
+      ];
+      for (const [command, text] of huge) {
+        assert.throws(() => run(command, text), (error: unknown) => {
+          assert.ok(error instanceof EncInputError);
+          assert.ok(error.message.length <= ENC_MESSAGE_TEXT_LIMIT + 60, `${command}: ${error.message.length}`);
+          assert.ok(error.message.includes('\u2026'), error.message);
+          return true;
+        });
+      }
+    });
+
+    test('short invalid text is quoted in full', () => {
+      assert.throws(() => run('hex-decode', '61 zz'), /^EncInputError: "zz" is not hexadecimal$/);
+      assert.throws(() => run('hex-decode', '0x'), /"0x" has a 0x prefix without hexadecimal digits/);
+      assert.throws(() => run('hex-decode', '616'), /"616" has an odd number of hexadecimal digits/);
+      assert.throws(() => run('html-decode', '&#0;'), /"&#0;" is not a valid character reference/);
+      assert.strictEqual(quoteForMessage('a'.repeat(ENC_MESSAGE_TEXT_LIMIT + 1)), `"${'a'.repeat(ENC_MESSAGE_TEXT_LIMIT)}\u2026"`);
     });
 
     test('the message says which line of ENC-032 is invalid', () => {
@@ -204,6 +248,7 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
       assert.strictEqual(run('base58-decode', '112g'), '\u0000\u0000a');
       assert.strictEqual(run('hex-decode', '0x61 0X62\n0x630x64 6566'), 'abcdef');
       assert.strictEqual(run('hex-decode', '4A4b'), 'JK');
+      assert.strictEqual(run('hex-decode', '0x6162 0X0063'), 'ab\u0000c');
       assert.strictEqual(run('binary-decode', '0100100001101001'), 'Hi');
       assert.strictEqual(run('binary-encode', 'é'), '11000011 10101001');
     });
@@ -215,6 +260,7 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
       assert.strictEqual(run('punycode-encode', '㍿'), domainToASCII('㍿'));
       assert.strictEqual(run('punycode-decode', 'ﬃ'), domainToUnicode('ﬃ'));
       assert.strictEqual(run('punycode-encode', '  EXAMPLE.com \n'), 'example.com');
+      assert.strictEqual(run('punycode-decode', '\r\n\txn--r8jz45g.jp\t\r\n'), '例え.jp');
     });
 
     test('quoted-printable encode: soft line breaks at 76 characters, trailing whitespace, original line breaks', () => {
@@ -236,6 +282,9 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
       assert.strictEqual(run('qp-decode', 'a=20'), 'a ');
       assert.strictEqual(run('qp-decode', 'a=09\r\nb'), 'a\t\r\nb');
       assert.strictEqual(run('qp-decode', 'caf=c3=a9 é'), 'café é');
+      assert.strictEqual(run('qp-decode', 'é=C3=A9😀=\r\nx\r\n=3D\ry'), 'éé😀x\r\n=\ry');
+      assert.strictEqual(run('qp-decode', '=41=42'), 'AB');
+      assert.strictEqual(run('qp-decode', ''), '');
       assert.strictEqual(run('qp-decode', 'end='), 'end');
     });
 

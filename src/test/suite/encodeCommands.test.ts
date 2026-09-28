@@ -248,6 +248,10 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
       ['binary.decode', '0100'],
       ['punycode.encode', 'a b'],
       ['punycode.decode', 'a'.repeat(1001)],
+      ['punycode.encode', '例え.jp\r\n例え.jp'],
+      ['punycode.decode', 'xn--r8jz45g.jp\nexample.jp'],
+      ['hex.decode', '100x20'],
+      ['hex.decode.replace', '0x'],
       ['quoted-printable.decode', '=ZZ'],
       ['ascii85.decode', '<~Bz~>'],
       ['base64.gunzip', 'aGk='],
@@ -266,6 +270,18 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
         assert.strictEqual(errors.length, 1);
         assert.ok(errors[0].startsWith('The selection was not changed: '), errors[0]);
       });
+    });
+
+    test('a huge invalid selection gives a short message', async () => {
+      for (const [name, input] of [['hex.decode', 'g'.repeat(200_000)], ['html.decode.replace', `&#${'1'.repeat(200_000)};`]]) {
+        const { dependencies, errors } = recorder();
+        const editor = await createTextEditor(input);
+        selectWholeDocument(editor);
+        await runnerFor(entryOf(name), dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), input);
+        assert.strictEqual(errors.length, 1);
+        assert.ok(errors[0].length < 200, `${name}: ${errors[0].length}`);
+      }
     });
 
     test('one invalid selection among several: nothing is changed, the message names the selection', async () => {

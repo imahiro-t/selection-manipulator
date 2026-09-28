@@ -22,6 +22,7 @@
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { domainToASCII, domainToUnicode } from 'node:url';
 import { TextDecoder } from 'node:util';
+import { quoteKeyForMessage } from './caseTransforms';
 
 /** The 34 transforms in ROADMAP order (ENC-001..ENC-034). */
 export const ENC_COMMANDS = [
@@ -140,6 +141,16 @@ export class EncInputError extends Error {
     this.name = 'EncInputError';
   }
 }
+
+/** Maximum number of characters of the selected text quoted in an `EncInputError` message. */
+export const ENC_MESSAGE_TEXT_LIMIT = 60;
+
+/**
+ * Quotes a piece of the selected text for an error message, cut off after
+ * `ENC_MESSAGE_TEXT_LIMIT` characters (see `quoteKeyForMessage`), so that a huge selection
+ * never becomes a huge notification and a long secret is not shown in full.
+ */
+export const quoteForMessage = (text: string): string => quoteKeyForMessage(text, ENC_MESSAGE_TEXT_LIMIT);
 
 /** The results of all selections together would exceed MAX_OUTPUT_LENGTH characters. */
 export class EncOutputTooLargeError extends Error {
@@ -320,7 +331,7 @@ const htmlDecode = (text: string): string =>
     }
     const code = decimal !== undefined ? parseInt(decimal, 10) : parseInt(hex ?? '', 16);
     if (!(code > 0 && code <= 0x10ffff) || isSurrogate(code)) {
-      throw new EncInputError(`${match} is not a valid character reference`);
+      throw new EncInputError(`${quoteForMessage(match)} is not a valid character reference`);
     }
     return String.fromCodePoint(code);
   });
@@ -549,21 +560,33 @@ const base58Decode = (text: string): string => {
 // Hex / binary (ENC-013..016)
 // ---------------------------------------------------------------------------
 
+/**
+ * Returns the hexadecimal digits of one whitespace-separated token of ENC-014, which is either
+ * bare digits (`6162`) or one or more `0x` / `0X` prefixed groups (`0x61`, `0x6162`, `0x610x62`).
+ * Every group must have an even, non-zero number of digits, so a `0x` in the middle of bare
+ * digits (`100x20`), a doubled prefix (`0x0x61`) or a prefix without digits (`0x`) is an error.
+ */
+const hexDigitsOfToken = (token: string): string => {
+  const prefixed = token.length >= 2 && token[0] === '0' && (token[1] === 'x' || token[1] === 'X');
+  // For a prefixed token, the first element of the split is the empty string before the first `0x`.
+  const groups = prefixed ? token.split(/0[xX]/).slice(1) : [token];
+  for (const group of groups) {
+    if (group === '') {
+      throw new EncInputError(`${quoteForMessage(token)} has a 0x prefix without hexadecimal digits`);
+    }
+    if (!/^[0-9A-Fa-f]+$/.test(group)) {
+      throw new EncInputError(`${quoteForMessage(token)} is not hexadecimal`);
+    }
+    if (group.length % 2 !== 0) {
+      throw new EncInputError(`${quoteForMessage(token)} has an odd number of hexadecimal digits`);
+    }
+  }
+  return prefixed ? groups.join('') : token;
+};
+
 const hexDecode = (text: string): string => {
   const tokens = text.split(/[ \t\r\n]+/).filter((token) => token !== '');
-  let hex = '';
-  for (const token of tokens) {
-    // `0x` / `0X` prefixes may appear before every byte (e.g. `0x61 0x62` or `0x610x62`).
-    const digits = token.replace(/0[xX]/g, '');
-    if (!/^[0-9A-Fa-f]*$/.test(digits)) {
-      throw new EncInputError(`"${token}" is not hexadecimal`);
-    }
-    if (digits.length % 2 !== 0) {
-      throw new EncInputError(`"${token}" has an odd number of hexadecimal digits`);
-    }
-    hex += digits;
-  }
-  return decodeUtf8Strict(Buffer.from(hex, 'hex'));
+  return decodeUtf8Strict(Buffer.from(tokens.map(hexDigitsOfToken).join(''), 'hex'));
 };
 
 const binaryEncode = (text: string): string =>
@@ -592,7 +615,13 @@ const convertDomain = (text: string, convert: (domain: string) => string): strin
   if (text.length > PUNYCODE_MAX_INPUT_LENGTH) {
     throw new EncInputError(`the input is too long (limit: ${describeLength(PUNYCODE_MAX_INPUT_LENGTH)} characters)`);
   }
-  const result = convert(text.trim());
+  const domain = text.trim();
+  // The WHATWG host parser silently drops ASCII tab / LF / CR, which would join several lines
+  // (e.g. one domain per line) into one wrong domain name.
+  if (/[\t\n\r]/.test(domain)) {
+    throw new EncInputError('the text contains a line break or a tab (select a single domain name)');
+  }
+  const result = convert(domain);
   if (result === '') {
     throw new EncInputError('the text is not a valid domain name');
   }
@@ -639,7 +668,10 @@ const isHexCode = (code: number): boolean =>
 
 const qpDecode = (text: string): string => {
   const parts = text.split(/(\r\n|\n|\r)/);
-  const bytes: number[] = [];
+  // The decoded bytes are never more than the UTF-8 bytes of the input (`=XX` is 3 bytes -> 1,
+  // everything else is copied as is), so one buffer of that size is enough.
+  const bytes = Buffer.allocUnsafe(Buffer.byteLength(text, 'utf8'));
+  let length = 0;
   for (let i = 0; i < parts.length; i += 2) {
     // Trailing whitespace of an encoded line is not part of the data (RFC 2045).
     let line = trimEndSpacesAndTabs(parts[i]);
@@ -647,26 +679,23 @@ const qpDecode = (text: string): string => {
     if (soft) {
       line = line.slice(0, -1);
     }
-    for (let j = 0; j < line.length; j++) {
-      if (line[j] === '=') {
-        if (j + 2 >= line.length || !isHexCode(line.charCodeAt(j + 1)) || !isHexCode(line.charCodeAt(j + 2))) {
-          throw new EncInputError(`"=${line.slice(j + 1, j + 3)}" is not a valid escape (=XX)`);
-        }
-        bytes.push(parseInt(line.slice(j + 1, j + 3), 16));
-        j += 2;
-      } else {
-        const code = line.codePointAt(j) ?? 0;
-        const char = String.fromCodePoint(code);
-        bytes.push(...utf8(char));
-        j += char.length - 1;
+    let start = 0;
+    for (let j = line.indexOf('='); j !== -1; j = line.indexOf('=', start)) {
+      // Slicing only at `=` never splits a surrogate pair.
+      length += bytes.write(line.slice(start, j), length, 'utf8');
+      if (j + 2 >= line.length || !isHexCode(line.charCodeAt(j + 1)) || !isHexCode(line.charCodeAt(j + 2))) {
+        throw new EncInputError(`"=${line.slice(j + 1, j + 3)}" is not a valid escape (=XX)`);
       }
+      bytes[length++] = parseInt(line.slice(j + 1, j + 3), 16);
+      start = j + 3;
     }
+    length += bytes.write(line.slice(start), length, 'utf8');
     const lineBreak = parts[i + 1];
     if (lineBreak !== undefined && !soft) {
-      bytes.push(...utf8(lineBreak));
+      length += bytes.write(lineBreak, length, 'latin1');
     }
   }
-  return decodeUtf8Strict(Uint8Array.from(bytes));
+  return decodeUtf8Strict(bytes.subarray(0, length));
 };
 
 // ---------------------------------------------------------------------------
