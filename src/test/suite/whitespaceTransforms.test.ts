@@ -258,6 +258,37 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       checkCrlf('remove-leading-blank-lines', '⏎⏎⏎', '⏎', midLine);
     });
 
+    // Selections starting at the start of a line and ending inside the indentation of a later
+    // line (`followedByText` only): the following text must not be joined with the last kept line.
+    const lineStartToText = { followedByText: true };
+
+    test('remove-trailing-blank-lines: a selection starting at a line start and ending inside the indentation keeps one line break', () => {
+      check('remove-trailing-blank-lines', 'a⏎⏎··', 'a⏎', lineStartToText); // |a⏎⏎··|z -> a⏎z
+      check('remove-trailing-blank-lines', 'a⏎··', 'a⏎', lineStartToText); // |a⏎··|z -> a⏎z
+      check('remove-trailing-blank-lines', 'a⏎⏎⏎··', 'a⏎', lineStartToText);
+      check('remove-trailing-blank-lines', 'a⏎b⏎⏎·', 'a⏎b⏎', lineStartToText);
+      // The selected part of the last line contains non-whitespace: unchanged.
+      check('remove-trailing-blank-lines', 'a⏎bc', 'a⏎bc', lineStartToText);
+      check('remove-trailing-blank-lines', 'a⏎⏎b', 'a⏎⏎b', lineStartToText);
+      // Only whitespace selected: removed completely (the line break before it is outside the selection).
+      check('remove-trailing-blank-lines', '⏎⏎··', '', lineStartToText); // x⏎|⏎⏎··|z -> x⏎z
+      check('remove-trailing-blank-lines', '··⏎⇥', '', lineStartToText);
+      check('remove-trailing-blank-lines', '··', '', lineStartToText); // no line break: as before
+    });
+
+    test('remove-trailing-blank-lines: a selection ending at the start of a non-empty line behaves as before', () => {
+      const lineStartToLine = { followedByLine: true, followedByText: true };
+      check('remove-trailing-blank-lines', 'a⏎⏎⏎', 'a⏎', lineStartToLine);
+      check('remove-trailing-blank-lines', 'a⏎b⏎', 'a⏎b⏎', lineStartToLine);
+      check('remove-trailing-blank-lines', '⏎··⏎', '', lineStartToLine);
+    });
+
+    test('remove-trailing-blank-lines: a selection starting at a line start and ending inside the indentation keeps CRLF', () => {
+      checkCrlf('remove-trailing-blank-lines', 'a⏎⏎··', 'a⏎', lineStartToText);
+      checkCrlf('remove-trailing-blank-lines', 'a⏎··', 'a⏎', lineStartToText);
+      checkCrlf('remove-trailing-blank-lines', '⏎⏎··', '', lineStartToText);
+    });
+
     test('remove-trailing / leading-blank-lines: selections starting mid-line return the text as is when nothing is removed', () => {
       assert.strictEqual(run('remove-leading-blank-lines', '\r\nc', midLineToEnd), '\r\nc');
       assert.strictEqual(run('remove-leading-blank-lines', '\r\n', midLine), '\r\n');

@@ -250,24 +250,25 @@ suite('Whitespace Commands (WS-001..035) Test Suite', () => {
     });
   });
 
-  suite('WS-025 / WS-026 selections starting in the middle of a line (lines are never joined)', () => {
-    const runOn = async (
-      command: 'remove-trailing-blank-lines' | 'remove-leading-blank-lines',
-      text: string,
-      selections: vscode.Selection[],
-      crlf = false
-    ): Promise<string> => {
-      const editor = await createTextEditor(text);
-      if (crlf) {
-        await toCrlf(editor);
-      }
-      editor.selections = selections;
-      await whitespaceHandler(command)(editor);
-      return editor.document.getText();
-    };
-    const trailing = 'remove-trailing-blank-lines';
-    const leading = 'remove-leading-blank-lines';
+  /** Runs WS-025 / WS-026 on `text` with the given selections and returns the document text. */
+  const runOn = async (
+    command: 'remove-trailing-blank-lines' | 'remove-leading-blank-lines',
+    text: string,
+    selections: vscode.Selection[],
+    crlf = false
+  ): Promise<string> => {
+    const editor = await createTextEditor(text);
+    if (crlf) {
+      await toCrlf(editor);
+    }
+    editor.selections = selections;
+    await whitespaceHandler(command)(editor);
+    return editor.document.getText();
+  };
+  const trailing = 'remove-trailing-blank-lines';
+  const leading = 'remove-leading-blank-lines';
 
+  suite('WS-025 / WS-026 selections starting in the middle of a line (lines are never joined)', () => {
     test('WS-025: blank lines between two lines keep one line break', async () => {
       assert.strictEqual(await runOn(trailing, 'ab\n\n\nz', [new vscode.Selection(0, 2, 3, 0)]), 'ab\nz');
       assert.strictEqual(await runOn(trailing, 'a\nz', [new vscode.Selection(0, 1, 1, 0)]), 'a\nz');
@@ -307,6 +308,33 @@ suite('Whitespace Commands (WS-001..035) Test Suite', () => {
 
     test('WS-026: a reversed selection gives the same result', async () => {
       assert.strictEqual(await runOn(leading, 'ab\n\n\nz', [new vscode.Selection(3, 0, 0, 2)]), 'ab\nz');
+    });
+  });
+
+  suite('WS-025 selections starting at the start of a line and ending inside the indentation of a line (lines are never joined)', () => {
+    test('blank lines and the selected indentation are removed and one line break is kept', async () => {
+      assert.strictEqual(await runOn(trailing, 'a\n\n  z', [new vscode.Selection(0, 0, 2, 2)]), 'a\nz');
+      assert.strictEqual(await runOn(trailing, 'a\n  z', [new vscode.Selection(0, 0, 1, 2)]), 'a\nz');
+    });
+
+    test('a selection of whitespace only is removed completely', async () => {
+      assert.strictEqual(await runOn(trailing, 'x\n\n\n  z', [new vscode.Selection(1, 0, 3, 2)]), 'x\nz');
+    });
+
+    test('unchanged when the selected part of the last line contains non-whitespace', async () => {
+      assert.strictEqual(await runOn(trailing, 'a\n\n  bz', [new vscode.Selection(0, 0, 2, 3)]), 'a\n\n  bz');
+    });
+
+    test('CRLF documents keep CRLF', async () => {
+      assert.strictEqual(await runOn(trailing, 'a\n\n  z', [new vscode.Selection(0, 0, 2, 2)], true), 'a\r\nz');
+    });
+
+    test('a reversed selection gives the same result', async () => {
+      assert.strictEqual(await runOn(trailing, 'a\n\n  z', [new vscode.Selection(2, 2, 0, 0)]), 'a\nz');
+    });
+
+    test('WS-026 is not affected by the same selection', async () => {
+      assert.strictEqual(await runOn(leading, 'a\n\n  z', [new vscode.Selection(0, 0, 2, 2)]), 'a\n\n  z');
     });
   });
 

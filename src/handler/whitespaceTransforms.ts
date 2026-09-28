@@ -78,7 +78,9 @@ export interface WhitespaceOptions {
   /**
    * WS-025 / WS-026: true when more characters of the same line follow the end of the
    * selection (also when it ends at the start of a non-empty line). False when it ends at
-   * the start of an empty line, at the end of a line or at the end of the document.
+   * the start of an empty line, at the end of a line or at the end of the document. For WS-025
+   * it also makes a selection that starts at the start of a line keep one line break after
+   * the removed blank lines (`|a⏎⏎··|z` becomes `a⏎z`).
    */
   followedByText?: boolean;
   /**
@@ -462,6 +464,12 @@ const blankLineBetween: WhitespaceTransform = (text, { eol }) => lineWise(text, 
  * same line follows it (`followedByText`), its first segment is the rest of a line outside
  * the selection: it is never removed, and one line break is kept after the last kept line so
  * that the lines before and after the selection are not joined (`ab|⏎⏎⏎|z` becomes `ab⏎z`).
+ *
+ * When the selection starts at the start of a line and ends inside the indentation (leading
+ * whitespace) of a later line (`followedByText`, the selected part of the last line is only
+ * whitespace), the blank lines and the selected whitespace are removed but one line break is
+ * kept after the last kept line, so the following text is not joined: `|a⏎⏎··|z` becomes
+ * `a⏎z`. Nothing is removed when the selected part of the last line contains non-whitespace.
  */
 const removeTrailingBlankLines: WhitespaceTransform = (
   text,
@@ -486,7 +494,9 @@ const removeTrailingBlankLines: WhitespaceTransform = (
     return text;
   }
   const kept = lines.slice(0, end).join(eol);
-  const keepBreak = followedByLine === true && end > 0 && trailingBreakLength(text) > 0;
+  const keepBreak =
+    end > 0 &&
+    ((followedByLine === true && trailingBreakLength(text) > 0) || followedByText === true);
   return keepBreak ? kept + eol : kept;
 };
 
