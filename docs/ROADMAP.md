@@ -523,40 +523,40 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| ENC-001 | ENC | 基本 | `selection-manipulator.html.encode` | Encode HTML Entities | &lt; &gt; & " ' を HTML 実体参照に変換する | `<a href="x">` → `&lt;a href=&quot;x&quot;&gt;` | なし | なし |
-| ENC-002 | ENC | 基本 | `selection-manipulator.html.decode` | Decode HTML Entities | 名前付き・数値の HTML 実体参照を文字に戻す | `&lt;b&gt; &#12354;` → `<b> あ` | なし | なし |
-| ENC-003 | ENC | 基本 | `selection-manipulator.html.encode-numeric` | Encode All Characters as Numeric Entities | ASCII 以外の文字をすべて数値実体参照（&#N;）にする | `aあ` → `a&#12354;` | なし | なし |
-| ENC-004 | ENC | 基本 | `selection-manipulator.unicode.escape` | Escape Unicode (\\uXXXX) | ASCII 以外の文字を \\uXXXX 形式（サロゲートペアは 2 つ）にする | `あ😀` → `\u3042\ud83d\ude00` | なし | なし |
-| ENC-005 | ENC | 基本 | `selection-manipulator.unicode.unescape` | Unescape Unicode (\\uXXXX) | \\uXXXX / \\u{…} 形式のエスケープを文字に戻す | `\u3042` → `あ` | なし | なし |
-| ENC-006 | ENC | 基本 | `selection-manipulator.unicode.escape-es6` | Escape Unicode (\\u{...}) | ASCII 以外の文字をコードポイント単位の \\u{…} 形式にする | `😀` → `\u{1F600}` | なし | なし |
+| ENC-001 | ENC | 基本 | `selection-manipulator.html.encode` | Encode HTML Entities | &lt; &gt; & " ' を HTML 実体参照に変換する（他の文字は変えない。' は &amp;#39; にする） | `<a href="x">` → `&lt;a href=&quot;x&quot;&gt;` | なし | なし |
+| ENC-002 | ENC | 基本 | `selection-manipulator.html.decode` | Decode HTML Entities | 名前付き・数値の HTML 実体参照を文字に戻す（名前付きは XML の 5 種・Latin-1（nbsp〜yuml）・よく使う記号のみ対応し、未対応の名前と ; のない & はそのまま残す。数値参照が 0・サロゲート・U+10FFFF 超ならエラー） | `&lt;b&gt; &#12354;` → `<b> あ` | なし | なし |
+| ENC-003 | ENC | 基本 | `selection-manipulator.html.encode-numeric` | Encode All Characters as Numeric Entities | ASCII 以外の文字をすべて数値実体参照（&#N;）にする（タイトルと異なり ASCII はそのまま。コードポイント単位の 10 進参照） | `aあ` → `a&#12354;` | なし | なし |
+| ENC-004 | ENC | 基本 | `selection-manipulator.unicode.escape` | Escape Unicode (\\uXXXX) | ASCII 以外の文字を \\uXXXX 形式（サロゲートペアは 2 つ）にする（16 進は小文字 4 桁） | `あ😀` → `\u3042\ud83d\ude00` | なし | なし |
+| ENC-005 | ENC | 基本 | `selection-manipulator.unicode.unescape` | Unescape Unicode (\\uXXXX) | \\uXXXX / \\u{…} 形式のエスケープを文字に戻す（\\u{…} は 1〜6 桁。連続する上位・下位サロゲートは 1 文字に結合し、孤立サロゲートと U+10FFFF 超はエラー。形式に合わない \\u はそのまま残す） | `\u3042` → `あ` | なし | なし |
+| ENC-006 | ENC | 基本 | `selection-manipulator.unicode.escape-es6` | Escape Unicode (\\u{...}) | ASCII 以外の文字をコードポイント単位の \\u{…} 形式にする（16 進は大文字、先頭ゼロなし） | `😀` → `\u{1F600}` | なし | なし |
 | ENC-007 | ENC | 基本 | `selection-manipulator.base64url.encode` | Encode Base64URL | URL セーフな Base64（パディングなし）にエンコードする | `foo?` → `Zm9vPw` | なし | なし |
-| ENC-008 | ENC | 基本 | `selection-manipulator.base64url.decode` | Decode Base64URL | Base64URL をデコードする | `Zm9vPw` → `foo?` | なし | なし |
+| ENC-008 | ENC | 基本 | `selection-manipulator.base64url.decode` | Decode Base64URL | Base64URL をデコードする（空白・改行は無視し、正しい = パディングも受け付ける。不正な文字・長さ・パディング、末尾文字の未使用ビットが 0 でない場合、UTF-8 として不正な結果はエラー） | `Zm9vPw` → `foo?` | なし | なし |
 | ENC-009 | ENC | 基本 | `selection-manipulator.base32.encode` | Encode Base32 | RFC 4648 の Base32 にエンコードする（自前実装） | `foo` → `MZXW6===` | なし | なし |
-| ENC-010 | ENC | 基本 | `selection-manipulator.base32.decode` | Decode Base32 | RFC 4648 の Base32 をデコードする | `MZXW6===` → `foo` | なし | なし |
-| ENC-011 | ENC | 基本 | `selection-manipulator.base58.encode` | Encode Base58 | Bitcoin 方式のアルファベットで Base58 にエンコードする（自前実装） | `hello` → `Cn8eVZg` | なし | なし |
-| ENC-012 | ENC | 基本 | `selection-manipulator.base58.decode` | Decode Base58 | Base58 をデコードする | `Cn8eVZg` → `hello` | なし | なし |
-| ENC-013 | ENC | 基本 | `selection-manipulator.hex.encode` | Encode Hex (UTF-8 Bytes) | UTF-8 のバイト列を 16 進文字列にする | `abc` → `616263` | なし | なし |
-| ENC-014 | ENC | 基本 | `selection-manipulator.hex.decode` | Decode Hex (UTF-8 Bytes) | 16 進文字列（空白・0x 区切りも可）を UTF-8 として文字列に戻す | `61 62 63` → `abc` | なし | なし |
-| ENC-015 | ENC | 基本 | `selection-manipulator.binary.encode` | Encode Binary (UTF-8 Bytes) | UTF-8 のバイト列を 8 ビットごとの 2 進表記にする | `Hi` → `01001000 01101001` | なし | なし |
-| ENC-016 | ENC | 基本 | `selection-manipulator.binary.decode` | Decode Binary (UTF-8 Bytes) | 2 進表記のバイト列を文字列に戻す | `01001000 01101001` → `Hi` | なし | なし |
-| ENC-017 | ENC | 基本 | `selection-manipulator.punycode.encode` | Encode Punycode (IDN) | 国際化ドメイン名を Punycode（xn--）に変換する（node:url の domainToASCII を使用） | `例え.jp` → `xn--r8jz45g.jp` | なし | なし |
-| ENC-018 | ENC | 基本 | `selection-manipulator.punycode.decode` | Decode Punycode (IDN) | Punycode のドメイン名を Unicode 表記に戻す（domainToUnicode を使用） | `xn--r8jz45g.jp` → `例え.jp` | なし | なし |
-| ENC-019 | ENC | 基本 | `selection-manipulator.quoted-printable.encode` | Encode Quoted-Printable | メール本文向けの Quoted-Printable（UTF-8）にエンコードする | `café` → `caf=C3=A9` | なし | なし |
-| ENC-020 | ENC | 基本 | `selection-manipulator.quoted-printable.decode` | Decode Quoted-Printable | Quoted-Printable をデコードする | `caf=C3=A9` → `café` | なし | なし |
-| ENC-021 | ENC | 基本 | `selection-manipulator.cipher.rot13` | Cipher: ROT13 | 英字を 13 文字ずらす（難読化用。暗号ではない） | `Hello` → `Uryyb` | なし | なし |
-| ENC-022 | ENC | 基本 | `selection-manipulator.cipher.rot47` | Cipher: ROT47 | ASCII の記号・数字も含めて 47 文字ずらす（難読化用） | `Hello` → `w6==@` | なし | なし |
-| ENC-023 | ENC | 基本 | `selection-manipulator.cipher.caesar` | Cipher: Caesar Shift (N) | 英字を入力した数だけずらす（学習・パズル用。暗号用途ではない） | `abc（N=3）` → `def` | なし | なし |
-| ENC-024 | ENC | 基本 | `selection-manipulator.cipher.atbash` | Cipher: Atbash | 英字を逆順のアルファベットに置き換える（パズル用） | `abc` → `zyx` | なし | なし |
-| ENC-025 | ENC | 基本 | `selection-manipulator.ascii85.encode` | Encode Ascii85 | Ascii85（Adobe 形式）にエンコードする（自前実装） | `hi` → `<~BP@~>` | なし | なし |
-| ENC-026 | ENC | 基本 | `selection-manipulator.ascii85.decode` | Decode Ascii85 | Ascii85 をデコードする | `<~BP@~>` → `hi` | なし | なし |
-| ENC-027 | ENC | 基本 | `selection-manipulator.base64.gzip` | Gzip Base64 | gzip で圧縮してから Base64 にする（node:zlib。既存の Deflate とは形式が異なる） | `hi` → `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` | なし | なし |
-| ENC-028 | ENC | 基本 | `selection-manipulator.base64.gunzip` | Gunzip Base64 | Base64 をデコードしてから gzip を展開する（展開後サイズに上限を設ける） | `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` → `hi` | なし | なし |
-| ENC-029 | ENC | 基本 | `selection-manipulator.url.encode-form` | Encode Form (x-www-form-urlencoded) | フォーム送信形式でエンコードする（空白は +） | `a b&c` → `a+b%26c` | なし | なし |
-| ENC-030 | ENC | 基本 | `selection-manipulator.url.decode-form` | Decode Form (x-www-form-urlencoded) | フォーム送信形式をデコードする（+ は空白） | `a+b%26c` → `a b&c` | なし | なし |
-| ENC-031 | ENC | 基本 | `selection-manipulator.base64.encode-each-line` | Encode Base64 (Each Line) | 各行を個別に Base64 エンコードする | `a⏎b` → `YQ==⏎Yg==` | なし | なし |
-| ENC-032 | ENC | 基本 | `selection-manipulator.base64.decode-each-line` | Decode Base64 (Each Line) | 各行を個別に Base64 デコードする | `YQ==⏎Yg==` → `a⏎b` | なし | なし |
-| ENC-033 | ENC | 基本 | `selection-manipulator.nato.encode` | Text to NATO Phonetic Alphabet | 英数字を NATO フォネティックコードに変換する | `ab1` → `Alfa Bravo One` | なし | なし |
-| ENC-034 | ENC | 基本 | `selection-manipulator.data-uri.encode-text` | Encode as Data URI (text/plain) | テキストを Base64 の data URI（text/plain;charset=utf-8）にする | `hi` → `data:text/plain;charset=utf-8;base64,aGk=` | なし | なし |
+| ENC-010 | ENC | 基本 | `selection-manipulator.base32.decode` | Decode Base32 | RFC 4648 の Base32 をデコードする（空白・改行は無視、大小文字不問、パディングは省略可。不正な文字・長さ・パディング・余りビット、UTF-8 として不正な結果はエラー） | `MZXW6===` → `foo` | なし | なし |
+| ENC-011 | ENC | 基本 | `selection-manipulator.base58.encode` | Encode Base58 | Bitcoin 方式のアルファベットで Base58 にエンコードする（自前実装。先頭の 0x00 バイトは 1。入力は 10,000 UTF-8 バイトまで） | `hello` → `Cn8eVZg` | なし | なし |
+| ENC-012 | ENC | 基本 | `selection-manipulator.base58.decode` | Decode Base58 | Base58 をデコードする（空白・改行は無視、アルファベット外の文字（0 O I l など）はエラー。入力は空白を除いて 14,000 文字まで） | `Cn8eVZg` → `hello` | なし | なし |
+| ENC-013 | ENC | 基本 | `selection-manipulator.hex.encode` | Encode Hex (UTF-8 Bytes) | UTF-8 のバイト列を 16 進文字列にする（小文字・区切りなし） | `abc` → `616263` | なし | なし |
+| ENC-014 | ENC | 基本 | `selection-manipulator.hex.decode` | Decode Hex (UTF-8 Bytes) | 16 進文字列（空白・0x 区切りも可）を UTF-8 として文字列に戻す（空白・タブ・改行でトークンに区切り、大小文字不問。トークンは接頭辞なしの 16 進数字列か、0x / 0X で始まり各グループが偶数桁のもの（0x610x62 も可）。途中の 0x（100x20）、重複した接頭辞、桁のない 0x、奇数桁、16 進以外の文字、UTF-8 として不正な結果はエラー） | `61 62 63` → `abc` | なし | なし |
+| ENC-015 | ENC | 基本 | `selection-manipulator.binary.encode` | Encode Binary (UTF-8 Bytes) | UTF-8 のバイト列を 8 ビットごとの 2 進表記にする（空白 1 つで区切る） | `Hi` → `01001000 01101001` | なし | なし |
+| ENC-016 | ENC | 基本 | `selection-manipulator.binary.decode` | Decode Binary (UTF-8 Bytes) | 2 進表記のバイト列を文字列に戻す（空白・改行は無視。0 / 1 以外の文字、8 の倍数でないビット数、UTF-8 として不正な結果はエラー） | `01001000 01101001` → `Hi` | なし | なし |
+| ENC-017 | ENC | 基本 | `selection-manipulator.punycode.encode` | Encode Punycode (IDN) | 国際化ドメイン名を Punycode（xn--）に変換する（node:url の domainToASCII を使用。選択全体を前後の空白を除いて 1 つのドメイン名として扱う。途中の改行・タブ、不正なドメイン名はエラー。入力は 1,000 文字まで。UTS #46 のマッピングで ASCII は小文字化され、1 文字が複数文字に展開されることがある（㍿ → xn--6oqv20b1zgzxr）） | `例え.jp` → `xn--r8jz45g.jp` | なし | なし |
+| ENC-018 | ENC | 基本 | `selection-manipulator.punycode.decode` | Decode Punycode (IDN) | Punycode のドメイン名を Unicode 表記に戻す（domainToUnicode を使用。入力の扱い・エラー条件・入力長の上限は ENC-017 と同じ。UTS #46 のマッピングで出力が入力より長くなることがある（ﬃ → ffi、㍿ → 株式会社）） | `xn--r8jz45g.jp` → `例え.jp` | なし | なし |
+| ENC-019 | ENC | 基本 | `selection-manipulator.quoted-printable.encode` | Encode Quoted-Printable | メール本文向けの Quoted-Printable（UTF-8）にエンコードする（印字可能 ASCII 以外と = は =XX（大文字）、行末のスペース・タブは =20 / =09。76 文字を超える行は =XX を分割せずにソフト改行（= + 文書の改行コード）を入れ、元の改行はそのまま残す） | `café` → `caf=C3=A9` | なし | なし |
+| ENC-020 | ENC | 基本 | `selection-manipulator.quoted-printable.decode` | Decode Quoted-Printable | Quoted-Printable をデコードする（RFC 2045 に従い各行の行末のスペース・タブを除いてから、=XX（大小文字不問）とソフト改行を戻す。= の後が 16 進 2 桁でない場合と UTF-8 として不正な結果はエラー） | `caf=C3=A9` → `café` | なし | なし |
+| ENC-021 | ENC | 基本 | `selection-manipulator.cipher.rot13` | Cipher: ROT13 | 英字を 13 文字ずらす（難読化用。暗号ではない。ASCII 英字のみ。他の文字は変えない） | `Hello` → `Uryyb` | なし | なし |
+| ENC-022 | ENC | 基本 | `selection-manipulator.cipher.rot47` | Cipher: ROT47 | ASCII の記号・数字も含めて 47 文字ずらす（難読化用。コード 33〜126 の文字のみ） | `Hello` → `w6==@` | なし | なし |
+| ENC-023 | ENC | 基本 | `selection-manipulator.cipher.caesar` | Cipher: Caesar Shift (N) | 英字を入力した数だけずらす（学習・パズル用。暗号用途ではない。入力は符号付き 1〜9 桁の整数で、負数は逆方向。複数選択でも入力は 1 回。キャンセル時は何もしない） | `abc（N=3）` → `def` | なし | なし |
+| ENC-024 | ENC | 基本 | `selection-manipulator.cipher.atbash` | Cipher: Atbash | 英字を逆順のアルファベットに置き換える（パズル用。ASCII 英字のみ） | `abc` → `zyx` | なし | なし |
+| ENC-025 | ENC | 基本 | `selection-manipulator.ascii85.encode` | Encode Ascii85 | Ascii85（Adobe 形式）にエンコードする（自前実装。4 バイトすべて 0 のグループは z） | `hi` → `<~BP@~>` | なし | なし |
+| ENC-026 | ENC | 基本 | `selection-manipulator.ascii85.decode` | Decode Ascii85 | Ascii85 をデコードする（空白・改行は無視、<~ ~> は省略可。範囲外の文字、グループ途中の z、2^32−1 超のグループ、1 文字だけの端数グループ、UTF-8 として不正な結果はエラー） | `<~BP@~>` → `hi` | なし | なし |
+| ENC-027 | ENC | 基本 | `selection-manipulator.base64.gzip` | Gzip Base64 | gzip で圧縮してから Base64 にする（node:zlib。既存の Deflate とは形式が異なる。圧縮レベル 6。同じ入力で常に同じ結果になるよう gzip ヘッダの MTIME=0・XFL=0・OS=0x13 に固定する） | `hi` → `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` | なし | なし |
+| ENC-028 | ENC | 基本 | `selection-manipulator.base64.gunzip` | Gunzip Base64 | Base64 をデコードしてから gzip を展開する（展開後サイズに上限を設ける。上限は 10 MiB。空白・改行は無視し、不正な Base64・壊れた gzip・UTF-8 として不正な結果はエラー） | `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` → `hi` | なし | なし |
+| ENC-029 | ENC | 基本 | `selection-manipulator.url.encode-form` | Encode Form (x-www-form-urlencoded) | フォーム送信形式でエンコードする（空白は +。英数字と * - . _ 以外を UTF-8 の %XX（大文字）にする。改行もそのまま %0A などにする） | `a b&c` → `a+b%26c` | なし | なし |
+| ENC-030 | ENC | 基本 | `selection-manipulator.url.decode-form` | Decode Form (x-www-form-urlencoded) | フォーム送信形式をデコードする（+ は空白。不正な %XX はエラー） | `a+b%26c` → `a b&c` | なし | なし |
+| ENC-031 | ENC | 基本 | `selection-manipulator.base64.encode-each-line` | Encode Base64 (Each Line) | 各行を個別に Base64 エンコードする（空行は空行のまま、改行コード（LF / CRLF）は保持） | `a⏎b` → `YQ==⏎Yg==` | なし | なし |
+| ENC-032 | ENC | 基本 | `selection-manipulator.base64.decode-each-line` | Decode Base64 (Each Line) | 各行を個別に Base64 デコードする（各行の前後のスペース・タブは無視、空行は空行のまま。1 行でも不正ならエラー（何行目かを示す）） | `YQ==⏎Yg==` → `a⏎b` | なし | なし |
+| ENC-033 | ENC | 基本 | `selection-manipulator.nato.encode` | Text to NATO Phonetic Alphabet | 英数字を NATO フォネティックコードに変換する（英字は大小文字不問で ASCII のみ。トークンは空白 1 つで連結し、行内の空白の連続は / 1 つ、その他の文字はそのまま 1 トークン。各行の前後の空白は捨て、改行は保持） | `ab1` → `Alfa Bravo One` | なし | なし |
+| ENC-034 | ENC | 基本 | `selection-manipulator.data-uri.encode-text` | Encode as Data URI (text/plain) | テキストを Base64 の data URI（text/plain;charset=utf-8）にする（本文は標準 Base64） | `hi` → `data:text/plain;charset=utf-8;base64,aGk=` | なし | なし |
 | ENC-035 | ENC | 派生:ENC-001 | `selection-manipulator.html.encode.replace` | Encode HTML Entities (Replace) | ENC-001 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `<a href="x">` → `&lt;a href=&quot;x&quot;&gt;` | なし | なし |
 | ENC-036 | ENC | 派生:ENC-002 | `selection-manipulator.html.decode.replace` | Decode HTML Entities (Replace) | ENC-002 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `&lt;b&gt; &#12354;` → `<b> あ` | なし | なし |
 | ENC-037 | ENC | 派生:ENC-004 | `selection-manipulator.unicode.escape.replace` | Escape Unicode (\\uXXXX) (Replace) | ENC-004 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `あ😀` → `\u3042\ud83d\ude00` | なし | なし |

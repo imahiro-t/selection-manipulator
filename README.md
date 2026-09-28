@@ -27,6 +27,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 ### 💻 Developer Utilities
 *   **JSON & XML**: Format (Pretty Print), Minify, Stringify, Parse, Flatten/Unflatten JSON, XML<->JSON.
 *   **Encoding**: Base64 Encode/Decode/Deflate/Inflate.
+*   **Encode / Decode**: HTML entities (named and numeric), Unicode escapes (`\uXXXX` / `\u{...}`), Base64URL, Base32, Base58, Ascii85, Base64 per line, Gzip/Gunzip Base64, Data URI, Hex and binary UTF-8 bytes, Punycode (IDN), Quoted-Printable, form encoding (`x-www-form-urlencoded`), ROT13/ROT47/Caesar/Atbash, NATO phonetic alphabet.
 *   **Case Conversion**: Switch between Camel, Snake, Kebab, Pascal, Constant, Dot, Path, Sentence, Title, Cobol, Ada, Flat, Camel_Snake, Pascal_Snake, CSS Custom Property, BEM and Hashtag cases. Convert only the keys of a JSON document (Camel/Snake/Kebab/Pascal).
 *   **Escaping**: Escape/Unescape text (JSON stringify/parse compatibility).
 *   **Programmatic**: Convert between JSON<->YAML, Hex<->RGB, Toggle quotes, Env file to JSON.
@@ -390,6 +391,53 @@ Convert text between naming conventions and cases.
 *   **Base64**: Encode, Decode, Deflate, Inflate.
 *   **URL**: Encode/Decode URI or URI Components.
 *   **Escape/Unescape**: Handle standard string escaping (newlines, quotes).
+
+#### Encode / Decode Commands
+The standard versions open the result in a new read-only editor and never change the text, like the existing Base64 commands. The (Replace) versions of Encode / Decode HTML Entities, Escape / Unescape Unicode (\uXXXX) and Encode / Decode Hex replace each selection in place. With multiple selections, each selection is converted on its own: the standard versions open one editor with the results in document order, joined with the document's line ending (LF or CRLF), and the (Replace) versions replace every selection. Empty selections are skipped, and nothing happens if every selection is empty. The standard versions are in the **Encode / Decode** submenu of the **Transform** context submenu, and the (Replace) versions in the **Encode / Decode** submenu of the **Replace** context submenu.
+In the examples, `·` is a space and `⏎` is a line break. A value in parentheses is the value you enter.
+
+*   **HTML**:
+    *   **Encode HTML Entities**: Escapes `&` `<` `>` `"` `'` (as `&amp;` `&lt;` `&gt;` `&quot;` `&#39;`): `<a href="x">` -> `&lt;a href=&quot;x&quot;&gt;`.
+    *   **Decode HTML Entities**: Decodes decimal (`&#12354;`) and hexadecimal (`&#x3042;`) character references and the supported named entities: `&lt;b&gt;·&#12354;` -> `<b>·あ`.
+    *   **Encode All Characters as Numeric Entities**: Despite the title, only non-ASCII characters are converted, one decimal reference per code point; ASCII is kept: `aあ` -> `a&#12354;`.
+*   **Unicode escapes**:
+    *   **Escape Unicode (\uXXXX)**: Non-ASCII UTF-16 code units become `\u` with 4 lower-case hex digits (a surrogate pair becomes two escapes): `あ😀` -> `\u3042\ud83d\ude00`.
+    *   **Unescape Unicode (\uXXXX)**: Decodes `\uXXXX` (4 hex digits) and `\u{…}` (1-6 hex digits), joining a surrogate pair written as two `\uXXXX`: `\u3042` -> `あ`, `\ud83d\ude00` -> `😀`. A `\u` that is not in one of these forms (`C:\users`) is kept.
+    *   **Escape Unicode (\u{...})**: Non-ASCII characters become `\u{…}` per code point with upper-case hex digits: `😀` -> `\u{1F600}`.
+*   **Base encodings** (text is encoded as UTF-8 bytes):
+    *   **Encode / Decode Base64URL**: URL-safe alphabet (`-` `_`) without padding: `foo?` <-> `Zm9vPw`. The decoder also accepts correct `=` padding.
+    *   **Encode / Decode Base32**: RFC 4648 alphabet with `=` padding: `foo` <-> `MZXW6===`. The decoder ignores case, and the padding may be omitted.
+    *   **Encode / Decode Base58**: Bitcoin alphabet; each leading zero byte is `1`: `hello` <-> `Cn8eVZg`.
+    *   **Encode / Decode Ascii85**: Adobe variant enclosed in `<~` `~>`, with `z` for four zero bytes: `hi` <-> `<~BP@~>`. The decoder accepts the text with or without `<~` `~>`.
+    *   **Encode / Decode Base64 (Each Line)**: Encodes or decodes each line on its own; empty lines stay empty and the line breaks (LF or CRLF) are kept: `a⏎b` <-> `YQ==⏎Yg==`. The decoder ignores spaces and tabs at both ends of a line.
+    *   **Gzip Base64** / **Gunzip Base64**: Compresses with gzip and encodes the result as standard Base64, and the reverse: `hi` <-> `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==`. This is a different format from the existing Deflate / Inflate commands. The time stamp, extra flags and operating system fields of the gzip header are fixed values, so the same text always gives the same result.
+    *   **Encode as Data URI (text/plain)**: `hi` -> `data:text/plain;charset=utf-8;base64,aGk=`.
+*   **Bytes as hex and binary**:
+    *   **Encode Hex (UTF-8 Bytes)**: Lower-case hex digits without separators: `abc` -> `616263`.
+    *   **Decode Hex (UTF-8 Bytes)**: Tokens are separated by spaces, tabs or line breaks, and case is ignored: `61·62·63` -> `abc`. A token is either bare hex digits (`6162`) or starts with `0x` / `0X`, and each `0x` group must have an even number of digits (`0x61·0X62`, `0x6162` and `0x610x62` are all `ab`). A `0x` in the middle of bare digits (`100x20`), a doubled prefix (`0x0x61`), a `0x` without digits and an odd number of digits are errors.
+    *   **Encode Binary (UTF-8 Bytes)**: Eight bits per byte, separated by a space: `Hi` -> `01001000·01101001`. **Decode Binary** ignores whitespace and needs a multiple of 8 bits of `0` and `1`.
+*   **Internationalized domain names**:
+    *   **Encode Punycode (IDN)** / **Decode Punycode (IDN)**: Converts the whole selection, as one domain name, with the `domainToASCII` / `domainToUnicode` functions of Node.js: `例え.jp` <-> `xn--r8jz45g.jp`. Spaces, tabs and line breaks at both ends are ignored.
+*   **Mail and forms**:
+    *   **Encode Quoted-Printable**: UTF-8 bytes other than printable ASCII, and `=`, become `=XX` (upper-case); a space or tab at the end of a line becomes `=20` / `=09`, and lines longer than 76 characters get a soft line break (`=` and a line break of the document's line ending) without splitting an `=XX`: `café` -> `caf=C3=A9`. The original line breaks are kept.
+    *   **Decode Quoted-Printable**: Decodes `=XX` (any case) and removes soft line breaks: `caf=C3=A9` -> `café`. As in RFC 2045, spaces and tabs at the end of each encoded line are removed first (`abc··⏎def` -> `abc⏎def`); encoded ones (`=20` / `=09`) are kept.
+    *   **Encode Form (x-www-form-urlencoded)**: Like an HTML form: a space becomes `+`, and everything except letters, digits and `*` `-` `.` `_` becomes `%XX` of its UTF-8 bytes: `a·b&c` -> `a+b%26c`. Line breaks are encoded as they are (`%0A`).
+    *   **Decode Form (x-www-form-urlencoded)**: `+` becomes a space and `%XX` is decoded: `a+b%26c` -> `a·b&c`.
+*   **Ciphers** (for obfuscation, puzzles and learning only; they are not encryption):
+    *   **Cipher: ROT13**: `Hello` -> `Uryyb`. **ROT47** (also rotates ASCII digits and symbols, `!` to `~`): `Hello` -> `w6==@`. **Atbash** (`a` <-> `z`): `abc` -> `zyx`.
+    *   **Cipher: Caesar Shift (N)**: Asks once for the shift (an integer with an optional sign and up to 9 digits; a negative number shifts backwards): `abc` (`3`) -> `def`. If you cancel the input box, nothing is done. The selections are read again after the input box closes.
+    *   Only the ASCII letters `A`-`Z` / `a`-`z` are changed (ROT47: the ASCII characters `!`-`~`); other letters such as `é`, `ß` or `ﬃ` are kept.
+*   **Text to NATO Phonetic Alphabet**: Letters (any case) and digits become code words (`Alfa`, `Bravo`, … `X-ray`, … `Zulu`, `Zero` … `Nine`), joined with a space; a run of whitespace inside a line becomes one `/`, and any other character is kept as its own word: `ab1` -> `Alfa·Bravo·One`, `·ab·1·` -> `Alfa·Bravo·/·One`. Whitespace at both ends of each line is dropped, and line breaks are kept.
+
+> **Limitations of the encode / decode commands**
+> *   **Errors**: The decoders reject malformed input (characters outside the alphabet, a wrong length or padding, a last character with non-zero unused bits, broken gzip, an invalid `%XX` or `=XX`, …) and decoded bytes that are not valid UTF-8 text. They are stricter than the existing Base64 Decode, which replaces invalid bytes with `�`. If any selection fails, no selection is changed and no editor is opened, and an error names the problem (and which selection, when there are several); selected text quoted in the message is shortened to 60 characters (with `…`).
+> *   **Decode HTML Entities**: The named entities supported are the five XML entities (`amp` `lt` `gt` `quot` `apos`), the Latin-1 entities (`nbsp` to `yuml`, U+00A0-U+00FF) and common symbols such as `copy` `reg` `trade` `hellip` `mdash` `ndash` `lsquo` `rsquo` `ldquo` `rdquo` `bull` `euro` `larr` `rarr` `ne` `le` `ge` (not all HTML5 entities). Unknown names and an `&` without `;` are kept as they are. A numeric reference to 0, a surrogate (`&#xD800;`) or a value beyond U+10FFFF is an error.
+> *   **Unescape Unicode**: A lone surrogate (`\ud83d` without a following low surrogate, `\ude00` alone, `\u{D800}`) and `\u{…}` beyond U+10FFFF are errors. A valid escape is decoded wherever it appears, for example in a Windows path such as `C:\u0041`, and a preceding `\` is not treated as escaping it.
+> *   **Punycode**: The domain name must be on one line: a line break or tab inside the selection is an error (select one domain name at a time). An invalid domain name is an error, and the selection can be up to 1,000 characters. Node.js applies the UTS #46 mapping in both directions, so ASCII letters become lower case and some characters are expanded or removed: `ﬃ` -> `ffi`, `㍿` -> `株式会社` (Decode) or `xn--6oqv20b1zgzxr` (Encode), and Encode removes a soft hyphen (U+00AD). Because of this expansion, the result can be longer than the selection; it is covered by the output size limit below.
+> *   **Base58**: Encode accepts up to 10,000 UTF-8 bytes and Decode up to 14,000 characters (whitespace excluded), as the conversion slows down quadratically with longer input.
+> *   **Gunzip Base64**: Data that decompresses to more than 10 MiB (10,485,760 bytes) is rejected.
+> *   **Output size**: A run whose results would exceed 10,000,000 characters in total (shared by all selections) is refused with a warning, and nothing is changed or opened. For most commands this is checked with a conservative estimate before converting, so input close to the limit may be refused even if the actual result would be smaller (for example, Encode Binary refuses more than about 1.1 million bytes).
+> *   **Quoted-Printable**: Unencoded spaces and tabs at the end of a line are lost when decoding, as required by RFC 2045 (text encoded with Encode Quoted-Printable round-trips, as it encodes them).
 
 ### 7. Cryptography & Security
 
