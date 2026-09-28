@@ -2251,6 +2251,206 @@
         "command": "selection-manipulator.line.extract-between-markers.clipboard",
         "title": "Line: Extract Lines Between Markers (Clipboard)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode",
+        "title": "Encode HTML Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.decode",
+        "title": "Decode HTML Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode-numeric",
+        "title": "Encode All Characters as Numeric Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape",
+        "title": "Escape Unicode (\\uXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.unescape",
+        "title": "Unescape Unicode (\\uXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape-es6",
+        "title": "Escape Unicode (\\u{...})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64url.encode",
+        "title": "Encode Base64URL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64url.decode",
+        "title": "Decode Base64URL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.encode",
+        "title": "Encode Base32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.decode",
+        "title": "Decode Base32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base58.encode",
+        "title": "Encode Base58",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base58.decode",
+        "title": "Decode Base58",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.encode",
+        "title": "Encode Hex (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.decode",
+        "title": "Decode Hex (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.binary.encode",
+        "title": "Encode Binary (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.binary.decode",
+        "title": "Decode Binary (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.punycode.encode",
+        "title": "Encode Punycode (IDN)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.punycode.decode",
+        "title": "Decode Punycode (IDN)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quoted-printable.encode",
+        "title": "Encode Quoted-Printable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quoted-printable.decode",
+        "title": "Decode Quoted-Printable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.rot13",
+        "title": "Cipher: ROT13",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.rot47",
+        "title": "Cipher: ROT47",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.caesar",
+        "title": "Cipher: Caesar Shift (N)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.atbash",
+        "title": "Cipher: Atbash",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii85.encode",
+        "title": "Encode Ascii85",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii85.decode",
+        "title": "Decode Ascii85",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.gzip",
+        "title": "Gzip Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.gunzip",
+        "title": "Gunzip Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-form",
+        "title": "Encode Form (x-www-form-urlencoded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.decode-form",
+        "title": "Decode Form (x-www-form-urlencoded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.encode-each-line",
+        "title": "Encode Base64 (Each Line)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.decode-each-line",
+        "title": "Decode Base64 (Each Line)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.nato.encode",
+        "title": "Text to NATO Phonetic Alphabet",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.data-uri.encode-text",
+        "title": "Encode as Data URI (text/plain)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode.replace",
+        "title": "Encode HTML Entities (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.decode.replace",
+        "title": "Decode HTML Entities (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape.replace",
+        "title": "Escape Unicode (\\uXXXX) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.unescape.replace",
+        "title": "Unescape Unicode (\\uXXXX) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.encode.replace",
+        "title": "Encode Hex (UTF-8 Bytes) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.decode.replace",
+        "title": "Decode Hex (UTF-8 Bytes) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -2429,6 +2629,14 @@
       {
         "id": "selection-manipulator.line.submenu",
         "label": "Line"
+      },
+      {
+        "id": "selection-manipulator.encode.submenu",
+        "label": "Encode / Decode"
+      },
+      {
+        "id": "selection-manipulator.encode.replace.submenu",
+        "label": "Encode / Decode"
       }
     ],
     "menus": {
@@ -3508,6 +3716,166 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.enclose.remove-outer-brackets"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode-numeric"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.unescape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape-es6"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64url.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64url.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base58.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base58.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.binary.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.binary.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.punycode.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.punycode.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quoted-printable.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quoted-printable.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.rot13"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.rot47"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.caesar"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.atbash"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ascii85.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ascii85.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.gzip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.gunzip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-form"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.decode-form"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.encode-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.decode-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.nato.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.data-uri.encode-text"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.decode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.unescape.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.encode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.decode.replace"
         }
       ],
       "editor/context": [
@@ -3912,6 +4280,11 @@
         {
           "submenu": "selection-manipulator.markdown.submenu",
           "group": "selection-manipulator@15"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.encode.submenu",
+          "group": "selection-manipulator@16"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -4078,6 +4451,11 @@
         {
           "submenu": "selection-manipulator.text.replace.submenu",
           "group": "selection-manipulator@6"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.encode.replace.submenu",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -5362,6 +5740,170 @@
         {
           "command": "selection-manipulator.line.extract-between-markers.clipboard",
           "group": "selection-manipulator@39"
+        }
+      ],
+      "selection-manipulator.encode.submenu": [
+        {
+          "command": "selection-manipulator.html.encode",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.html.decode",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.html.encode-numeric",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.unicode.unescape",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape-es6",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.base64url.encode",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.base64url.decode",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.base32.encode",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.base32.decode",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.base58.encode",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.base58.decode",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.hex.encode",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.hex.decode",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.binary.encode",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.binary.decode",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.punycode.encode",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.punycode.decode",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.quoted-printable.encode",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.quoted-printable.decode",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.cipher.rot13",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.cipher.rot47",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.cipher.caesar",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.cipher.atbash",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.ascii85.encode",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.ascii85.decode",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.base64.gzip",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.base64.gunzip",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.url.encode-form",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.url.decode-form",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.base64.encode-each-line",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.base64.decode-each-line",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.nato.encode",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.data-uri.encode-text",
+          "group": "selection-manipulator@33"
+        }
+      ],
+      "selection-manipulator.encode.replace.submenu": [
+        {
+          "command": "selection-manipulator.html.encode.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.html.decode.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unicode.unescape.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.hex.encode.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.hex.decode.replace",
+          "group": "selection-manipulator@5"
         }
       ]
     }

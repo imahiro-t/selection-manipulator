@@ -56,6 +56,7 @@ import { dataStructHandler } from './handler/dataStructHandler';
 import { unitConvertHandler } from './handler/unitConvertHandler';
 import { encloseHandler } from './handler/encloseHandler';
 import { wrapHandler, wrapInputHandler } from './handler/wrapHandler';
+import { encodeHandler, encodeInputHandler } from './handler/encodeHandler';
 import { markdownHandler } from './handler/markdownHandler';
 import { insertDateHandler } from './handler/insertDateHandler';
 import {
@@ -555,6 +556,48 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-unique-only.clipboard', lineHandler('keep-unique-only', 'clipboard')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-adjacent.clipboard', lineHandler('dedupe-adjacent', 'clipboard')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.extract-between-markers.clipboard', lineHandler('extract-between-markers', 'clipboard')));
+
+  // Encode / Decode (ENC-001..040)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.html.encode', encodeHandler('html-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.html.decode', encodeHandler('html-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.html.encode-numeric', encodeHandler('html-encode-numeric', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.escape', encodeHandler('unicode-escape', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.unescape', encodeHandler('unicode-unescape', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.escape-es6', encodeHandler('unicode-escape-es6', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64url.encode', encodeHandler('base64url-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64url.decode', encodeHandler('base64url-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base32.encode', encodeHandler('base32-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base32.decode', encodeHandler('base32-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base58.encode', encodeHandler('base58-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base58.decode', encodeHandler('base58-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.encode', encodeHandler('hex-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.decode', encodeHandler('hex-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.binary.encode', encodeHandler('binary-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.binary.decode', encodeHandler('binary-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.punycode.encode', encodeHandler('punycode-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.punycode.decode', encodeHandler('punycode-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quoted-printable.encode', encodeHandler('qp-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.quoted-printable.decode', encodeHandler('qp-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.cipher.rot13', encodeHandler('rot13', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.cipher.rot47', encodeHandler('rot47', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.cipher.caesar', encodeInputHandler('caesar')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.cipher.atbash', encodeHandler('atbash', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii85.encode', encodeHandler('ascii85-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ascii85.decode', encodeHandler('ascii85-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.gzip', encodeHandler('gzip', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.gunzip', encodeHandler('gunzip', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-form', encodeHandler('form-encode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.decode-form', encodeHandler('form-decode', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.encode-each-line', encodeHandler('base64-encode-each-line', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base64.decode-each-line', encodeHandler('base64-decode-each-line', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.nato.encode', encodeHandler('nato', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.data-uri.encode-text', encodeHandler('data-uri', 'new-tab')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.html.encode.replace', encodeHandler('html-encode', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.html.decode.replace', encodeHandler('html-decode', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.escape.replace', encodeHandler('unicode-escape', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.unescape.replace', encodeHandler('unicode-unescape', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.encode.replace', encodeHandler('hex-encode', 'replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.decode.replace', encodeHandler('hex-decode', 'replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

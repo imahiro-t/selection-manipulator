@@ -2130,6 +2130,207 @@ export const myCommands = [
     "title": "Line: Extract Lines Between Markers (Clipboard)",
     "canMultiSelection": true
   }
+,
+  {
+    "command": "selection-manipulator.html.encode",
+    "title": "Transform - Encode - Encode HTML Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.decode",
+    "title": "Transform - Encode - Decode HTML Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.encode-numeric",
+    "title": "Transform - Encode - Encode All Characters as Numeric Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape",
+    "title": "Transform - Encode - Escape Unicode (\\uXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.unescape",
+    "title": "Transform - Encode - Unescape Unicode (\\uXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape-es6",
+    "title": "Transform - Encode - Escape Unicode (\\u{...})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64url.encode",
+    "title": "Transform - Encode - Encode Base64URL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64url.decode",
+    "title": "Transform - Encode - Decode Base64URL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.encode",
+    "title": "Transform - Encode - Encode Base32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.decode",
+    "title": "Transform - Encode - Decode Base32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base58.encode",
+    "title": "Transform - Encode - Encode Base58",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base58.decode",
+    "title": "Transform - Encode - Decode Base58",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.encode",
+    "title": "Transform - Encode - Encode Hex (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.decode",
+    "title": "Transform - Encode - Decode Hex (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.binary.encode",
+    "title": "Transform - Encode - Encode Binary (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.binary.decode",
+    "title": "Transform - Encode - Decode Binary (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.punycode.encode",
+    "title": "Transform - Encode - Encode Punycode (IDN)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.punycode.decode",
+    "title": "Transform - Encode - Decode Punycode (IDN)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quoted-printable.encode",
+    "title": "Transform - Encode - Encode Quoted-Printable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quoted-printable.decode",
+    "title": "Transform - Encode - Decode Quoted-Printable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.rot13",
+    "title": "Transform - Encode - Cipher: ROT13",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.rot47",
+    "title": "Transform - Encode - Cipher: ROT47",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.caesar",
+    "title": "Transform - Encode - Cipher: Caesar Shift (N)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.atbash",
+    "title": "Transform - Encode - Cipher: Atbash",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii85.encode",
+    "title": "Transform - Encode - Encode Ascii85",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii85.decode",
+    "title": "Transform - Encode - Decode Ascii85",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.gzip",
+    "title": "Transform - Encode - Gzip Base64",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.gunzip",
+    "title": "Transform - Encode - Gunzip Base64",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-form",
+    "title": "Transform - Encode - Encode Form (x-www-form-urlencoded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.decode-form",
+    "title": "Transform - Encode - Decode Form (x-www-form-urlencoded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.encode-each-line",
+    "title": "Transform - Encode - Encode Base64 (Each Line)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.decode-each-line",
+    "title": "Transform - Encode - Decode Base64 (Each Line)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.nato.encode",
+    "title": "Transform - Encode - Text to NATO Phonetic Alphabet",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.data-uri.encode-text",
+    "title": "Transform - Encode - Encode as Data URI (text/plain)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.encode.replace",
+    "title": "Transform - Encode - Encode HTML Entities (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.decode.replace",
+    "title": "Transform - Encode - Decode HTML Entities (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape.replace",
+    "title": "Transform - Encode - Escape Unicode (\\uXXXX) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.unescape.replace",
+    "title": "Transform - Encode - Unescape Unicode (\\uXXXX) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.encode.replace",
+    "title": "Transform - Encode - Encode Hex (UTF-8 Bytes) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.decode.replace",
+    "title": "Transform - Encode - Decode Hex (UTF-8 Bytes) (Replace)",
+    "canMultiSelection": true
+  }
 ];
 
 export const showCommandsHandler: (textEditor: TextEditor) => void = async (textEditor) => {
