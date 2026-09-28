@@ -1546,6 +1546,156 @@ export const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.enclose.custom",
+    "title": "Enclose - Enclose: Custom (Prefix / Suffix)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.each-line.custom",
+    "title": "Enclose - Enclose Each Line: Custom",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-line.double",
+    "title": "Enclose - Quote Each Line: Double (\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-line.single",
+    "title": "Enclose - Quote Each Line: Single ('')",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-word.double",
+    "title": "Enclose - Quote Each Word: Double (\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.list.sql-in",
+    "title": "Enclose - Quote: SQL IN List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.list.array",
+    "title": "Enclose - Quote: Array Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.triple-double",
+    "title": "Enclose - Quote: Triple Double (\"\"\" \"\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.guillemets",
+    "title": "Enclose - Quote: Guillemets («»)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.smart-double",
+    "title": "Enclose - Quote: Smart Double (“”)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.smart-single",
+    "title": "Enclose - Quote: Smart Single (‘’)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.double-escaped",
+    "title": "Enclose - Quote: Double with Escaping",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unquote.each-line",
+    "title": "Enclose - Unquote Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.white-lenticular",
+    "title": "Enclose - Enclose: Japanese White Lenticular Bracket (〖〗)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+    "title": "Enclose - Enclose: Japanese Tortoise Shell Bracket (〔〕)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.double-angle",
+    "title": "Enclose - Enclose: Japanese Double Angle Bracket (《》)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.single-angle",
+    "title": "Enclose - Enclose: Japanese Single Angle Bracket (〈〉)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.html-tag",
+    "title": "Enclose - Enclose: HTML Tag (Custom)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.html-comment",
+    "title": "Enclose - Enclose: HTML Comment",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.block-comment",
+    "title": "Enclose - Enclose: Block Comment (/* */)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.placeholder",
+    "title": "Enclose - Enclose: Placeholder (${})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.mustache",
+    "title": "Enclose - Enclose: Mustache ({{ }})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.percent",
+    "title": "Enclose - Enclose: Percent (%%)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.pipes",
+    "title": "Enclose - Enclose: Pipes (||)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.ascii-box",
+    "title": "Enclose - Enclose: ASCII Box",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.each-word.paren",
+    "title": "Enclose - Enclose Each Word: Parentheses (())",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.lines-block",
+    "title": "Enclose - Enclose: Lines Block (Before / After Lines)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.cycle-brackets",
+    "title": "Enclose - Enclose: Cycle Brackets",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.remove-outer-brackets",
+    "title": "Enclose - Enclose: Remove Matching Outer Brackets",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.markdown-inline-code",
+    "title": "Enclose - Enclose: Backtick Code (Auto Fence)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.markdown.link",
     "title": "Markdown - Create Link",
     "canMultiSelection": true

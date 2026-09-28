@@ -1608,6 +1608,156 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.enclose.custom",
+        "title": "Enclose: Custom (Prefix / Suffix)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.each-line.custom",
+        "title": "Enclose Each Line: Custom",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-line.double",
+        "title": "Quote Each Line: Double (\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-line.single",
+        "title": "Quote Each Line: Single ('')",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-word.double",
+        "title": "Quote Each Word: Double (\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.list.sql-in",
+        "title": "Quote: SQL IN List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.list.array",
+        "title": "Quote: Array Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.triple-double",
+        "title": "Quote: Triple Double (\"\"\" \"\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.guillemets",
+        "title": "Quote: Guillemets («»)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.smart-double",
+        "title": "Quote: Smart Double (“”)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.smart-single",
+        "title": "Quote: Smart Single (‘’)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.double-escaped",
+        "title": "Quote: Double with Escaping",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unquote.each-line",
+        "title": "Unquote Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.white-lenticular",
+        "title": "Enclose: Japanese White Lenticular Bracket (〖〗)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+        "title": "Enclose: Japanese Tortoise Shell Bracket (〔〕)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.double-angle",
+        "title": "Enclose: Japanese Double Angle Bracket (《》)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.single-angle",
+        "title": "Enclose: Japanese Single Angle Bracket (〈〉)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.html-tag",
+        "title": "Enclose: HTML Tag (Custom)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.html-comment",
+        "title": "Enclose: HTML Comment",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.block-comment",
+        "title": "Enclose: Block Comment (/* */)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.placeholder",
+        "title": "Enclose: Placeholder (${})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.mustache",
+        "title": "Enclose: Mustache ({{ }})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.percent",
+        "title": "Enclose: Percent (%%)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.pipes",
+        "title": "Enclose: Pipes (||)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.ascii-box",
+        "title": "Enclose: ASCII Box",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.each-word.paren",
+        "title": "Enclose Each Word: Parentheses (())",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.lines-block",
+        "title": "Enclose: Lines Block (Before / After Lines)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.cycle-brackets",
+        "title": "Enclose: Cycle Brackets",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.remove-outer-brackets",
+        "title": "Enclose: Remove Matching Outer Brackets",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.markdown-inline-code",
+        "title": "Enclose: Backtick Code (Auto Fence)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.ascii.daemon",
         "title": "ASCII Art - Daemon",
         "category": "Selection Manipulator"
@@ -3310,6 +3460,54 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.line.extract-between-markers.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.each-line.custom"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-line.double"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-line.single"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-word.double"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.list.sql-in"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.list.array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unquote.each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.ascii-box"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.each-word.paren"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.lines-block"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.cycle-brackets"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.remove-outer-brackets"
         }
       ],
       "editor/context": [
@@ -4618,6 +4816,126 @@
         {
           "command": "selection-manipulator.enclose.japanese.curly",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.enclose.custom",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.enclose.each-line.custom",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.quote.each-line.double",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.quote.each-line.single",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.quote.each-word.double",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.quote.list.sql-in",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.quote.list.array",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.quote.triple-double",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.quote.guillemets",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.quote.smart-double",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.quote.smart-single",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.quote.double-escaped",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.unquote.each-line",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.white-lenticular",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.double-angle",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.single-angle",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.enclose.html-tag",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.enclose.html-comment",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.enclose.block-comment",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.enclose.placeholder",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.enclose.mustache",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.enclose.percent",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.enclose.pipes",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.enclose.ascii-box",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.enclose.each-word.paren",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.enclose.lines-block",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.enclose.cycle-brackets",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.enclose.remove-outer-brackets",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.enclose.markdown-inline-code",
+          "group": "selection-manipulator@43"
         }
       ],
       "selection-manipulator.unit.submenu": [
