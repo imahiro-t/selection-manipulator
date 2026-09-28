@@ -358,6 +358,65 @@ suite('Encode Transforms (ENC-001..040) Test Suite', () => {
     });
   });
 
+  suite('lone surrogates in UTF-8 encoders', () => {
+    /** Every encoder that converts the text to UTF-8 bytes, with a way to get the text back. */
+    const UTF8_ENCODERS: [EncCommand, (encoded: string) => string][] = [
+      ['base64url-encode', (e) => run('base64url-decode', e)],
+      ['base32-encode', (e) => run('base32-decode', e)],
+      ['base58-encode', (e) => run('base58-decode', e)],
+      ['hex-encode', (e) => run('hex-decode', e)],
+      ['binary-encode', (e) => run('binary-decode', e)],
+      ['qp-encode', (e) => run('qp-decode', e)],
+      ['ascii85-encode', (e) => run('ascii85-decode', e)],
+      ['gzip', (e) => run('gunzip', e)],
+      ['form-encode', (e) => run('form-decode', e)],
+      ['base64-encode-each-line', (e) => run('base64-decode-each-line', e)],
+      ['data-uri', (e) => {
+        assert.ok(e.startsWith('data:text/plain;charset=utf-8;base64,'), e);
+        return Buffer.from(e.slice(e.indexOf(',') + 1), 'base64').toString('utf8');
+      }],
+    ];
+    const LONE_SURROGATES = [
+      'a\ud83db',       // high surrogate only
+      'a\ude00b',       // low surrogate only
+      'ab\ud83d',       // high surrogate at the end
+      '\ude00a',        // low surrogate at the start
+      '\ude00\ud83d',   // a pair in the wrong order
+      '😀\ud83d\n😀',   // lone surrogate between valid pairs
+    ];
+    const VALID_PAIRS = ['😀', 'a😀b', '😀👍🏽', 'a😀\nb😀\n', '\ud83d\ude00'];
+
+    UTF8_ENCODERS.forEach(([command, decode]) => {
+      test(`${command} refuses a lone surrogate`, () => {
+        LONE_SURROGATES.forEach((text) => assertInputError(command, text));
+      });
+
+      test(`${command} still encodes surrogate pairs`, () => {
+        VALID_PAIRS.forEach((text) => {
+          assert.strictEqual(decode(run(command, text)), text, `${command}: ${JSON.stringify(text)}`);
+        });
+      });
+    });
+
+    test('hex-encode gives the UTF-8 bytes of a surrogate pair', () => {
+      assert.strictEqual(run('hex-encode', '😀'), 'f09f9880');
+      assert.strictEqual(run('hex-encode', 'a😀b'), '61f09f988062');
+    });
+
+    test('the message names the lone code unit without quoting the selection', () => {
+      assert.throws(
+        () => run('hex-encode', `${'secret'.repeat(100)}\ud83d`),
+        (error: Error) => error instanceof EncInputError
+          && error.message === 'the text contains a lone surrogate (\\ud83d)',
+      );
+      assert.throws(() => run('base64url-encode', 'a\ude00b'), /lone surrogate \(\\ude00\)/);
+    });
+
+    test('base58-encode reports the lone surrogate before the length limit', () => {
+      assert.throws(() => run('base58-encode', `${'x'.repeat(BASE58_MAX_ENCODE_BYTES + 1)}\ud83d`), /lone surrogate/);
+    });
+  });
+
   suite('input and output limits', () => {
     test('gunzip refuses data that decompresses to more than 10 MiB', () => {
       const bomb = gzipSync(Buffer.alloc(GUNZIP_MAX_OUTPUT_BYTES + 1)).toString('base64');

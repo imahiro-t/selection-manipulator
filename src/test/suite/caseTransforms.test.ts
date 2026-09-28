@@ -311,27 +311,8 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       );
     });
 
-    test('quoteKeyForMessage keeps up to 60 characters and adds an ellipsis beyond that', () => {
+    test('collision messages cut each key off after COLLISION_KEY_DISPLAY_LIMIT (60) characters', () => {
       assert.strictEqual(t.COLLISION_KEY_DISPLAY_LIMIT, 60);
-      assert.strictEqual(t.quoteKeyForMessage(''), '""');
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(60)), `"${'a'.repeat(60)}"`);
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(61)), `"${'a'.repeat(60)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('a\nb"c'), JSON.stringify('a\nb"c'));
-    });
-
-    test('quoteKeyForMessage never splits a surrogate pair', () => {
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(58) + '😀b'), `"${'a'.repeat(58)}😀…"`);
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '😀b'), `"${'a'.repeat(59)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('😀'.repeat(40)), `"${'😀'.repeat(30)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '\ud800'), `"${'a'.repeat(59)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('\ud800'), '"\\ud800"');
-    });
-
-    test('quoteKeyForMessage bounds the escaped form and never splits an escape sequence', () => {
-      const quoted = t.quoteKeyForMessage('\u0001'.repeat(100));
-      assert.strictEqual(quoted, `"${'\\u0001'.repeat(10)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(59) + '\n'), `"${'a'.repeat(59)}…"`);
-      assert.strictEqual(t.quoteKeyForMessage('a'.repeat(58) + '\n'), JSON.stringify('a'.repeat(58) + '\n'));
     });
 
     test('colliding huge keys give a short message but keep the full keys on the error', () => {

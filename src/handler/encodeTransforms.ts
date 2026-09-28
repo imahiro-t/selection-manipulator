@@ -9,6 +9,8 @@
  *   throw `EncInputError` (the reason is in the message); it never returns a partial result.
  * - Byte-oriented decoders turn their bytes back into text with a strict UTF-8 decoder, so a
  *   byte sequence that is not valid UTF-8 is an error instead of silently becoming U+FFFD.
+ * - Byte-oriented encoders turn the text into UTF-8 bytes only after checking it, so a selection
+ *   that contains a lone surrogate is an error instead of silently becoming U+FFFD.
  * - Letters are recognised by their ASCII code range only (no `toUpperCase` / `toLowerCase`, no
  *   `i` / `u` regular expression flags), so characters such as `ß`, `ﬃ`, `K` (U+212A) or `ſ` are
  *   never expanded or matched as ASCII letters.
@@ -22,7 +24,7 @@
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { domainToASCII, domainToUnicode } from 'node:url';
 import { TextDecoder } from 'node:util';
-import { quoteKeyForMessage } from './caseTransforms';
+import { quoteForDisplay } from '../textFormat';
 
 /** The 34 transforms in ROADMAP order (ENC-001..ENC-034). */
 export const ENC_COMMANDS = [
@@ -147,10 +149,10 @@ export const ENC_MESSAGE_TEXT_LIMIT = 60;
 
 /**
  * Quotes a piece of the selected text for an error message, cut off after
- * `ENC_MESSAGE_TEXT_LIMIT` characters (see `quoteKeyForMessage`), so that a huge selection
+ * `ENC_MESSAGE_TEXT_LIMIT` characters (see `quoteForDisplay`), so that a huge selection
  * never becomes a huge notification and a long secret is not shown in full.
  */
-export const quoteForMessage = (text: string): string => quoteKeyForMessage(text, ENC_MESSAGE_TEXT_LIMIT);
+export const quoteForMessage = (text: string): string => quoteForDisplay(text, ENC_MESSAGE_TEXT_LIMIT);
 
 /** The results of all selections together would exceed MAX_OUTPUT_LENGTH characters. */
 export class EncOutputTooLargeError extends Error {
@@ -175,7 +177,37 @@ export const PUNYCODE_MAX_INPUT_LENGTH = 1_000;
 // Shared helpers
 // ---------------------------------------------------------------------------
 
-const utf8 = (text: string): Buffer => Buffer.from(text, 'utf8');
+const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdbff;
+const isLowSurrogate = (code: number): boolean => code >= 0xdc00 && code <= 0xdfff;
+
+/**
+ * Throws `EncInputError` if `text` contains a lone surrogate: a high surrogate that is not
+ * followed by a low one (including one at the end), or a low surrogate that does not follow a
+ * high one. The message names the code unit but never quotes the selected text.
+ */
+const assertNoLoneSurrogate = (text: string): void => {
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (isHighSurrogate(code)) {
+      if (i + 1 < text.length && isLowSurrogate(text.charCodeAt(i + 1))) {
+        i++;
+        continue;
+      }
+    } else if (!isLowSurrogate(code)) {
+      continue;
+    }
+    throw new EncInputError(`the text contains a lone surrogate (\\u${code.toString(16).padStart(4, '0')})`);
+  }
+};
+
+/**
+ * The UTF-8 bytes of `text`. A lone surrogate is an error (`EncInputError`) instead of silently
+ * becoming U+FFFD (EF BF BD) as with `Buffer.from(text, 'utf8')`.
+ */
+const utf8 = (text: string): Buffer => {
+  assertNoLoneSurrogate(text);
+  return Buffer.from(text, 'utf8');
+};
 
 const strictUtf8Decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
@@ -366,9 +398,6 @@ const unicodeEscapeEs6 = (text: string): string => {
   }
   return result;
 };
-
-const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdbff;
-const isLowSurrogate = (code: number): boolean => code >= 0xdc00 && code <= 0xdfff;
 
 const unicodeUnescape = (text: string): string => {
   const pattern = /\\u\{([0-9A-Fa-f]{1,6})\}|\\u([0-9A-Fa-f]{4})/g;

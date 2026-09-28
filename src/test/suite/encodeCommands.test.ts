@@ -299,6 +299,60 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
     });
   });
 
+  suite('lone surrogates', () => {
+    /**
+     * `openTextDocument({ content })` turns a lone surrogate into U+FFFD, so the text is inserted
+     * with an edit, which keeps it as it is.
+     */
+    const createEditorWith = async (text: string): Promise<vscode.TextEditor> => {
+      const editor = await createTextEditor('');
+      await editor.edit((builder) => builder.insert(new vscode.Position(0, 0), text));
+      assert.strictEqual(editor.document.getText(), text, 'the document keeps the lone surrogate');
+      return editor;
+    };
+
+    const cases: [string, string][] = [
+      ['hex.encode', 'a\ud83db'],
+      ['hex.encode.replace', 'a\ude00b'],
+      ['base64url.encode', 'ab\ud83d'],
+      ['quoted-printable.encode', '😀\n\ud83d'],
+      ['base64.gzip', '\ude00'],
+      ['url.encode-form', 'a\ud83d'],
+      ['data-uri.encode-text', 'a\ud83d'],
+    ];
+    cases.forEach(([name, input]) => {
+      test(`${name}: ${JSON.stringify(input)} shows an error and changes nothing`, async () => {
+        const { dependencies, opened, errors, warnings } = recorder();
+        const editor = await createEditorWith(input);
+        selectWholeDocument(editor);
+        await runnerFor(entryOf(name), dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), input);
+        assert.deepStrictEqual(opened, []);
+        assert.deepStrictEqual(warnings, []);
+        assert.strictEqual(errors.length, 1);
+        assert.ok(errors[0].startsWith('The selection was not changed: the text contains a lone surrogate'), errors[0]);
+      });
+    });
+
+    test('Encode Hex (Replace) names the lone code unit', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createEditorWith('x\ud83dy');
+      selectWholeDocument(editor);
+      await runnerFor(entryOf('hex.encode.replace'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'x\ud83dy');
+      assert.deepStrictEqual(errors, ['The selection was not changed: the text contains a lone surrogate (\\ud83d)']);
+    });
+
+    test('Encode Hex (Replace) still encodes a surrogate pair', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createEditorWith('x😀y');
+      selectWholeDocument(editor);
+      await runnerFor(entryOf('hex.encode.replace'), dependencies)(editor);
+      assert.deepStrictEqual(errors, []);
+      assert.strictEqual(editor.document.getText(), '78f09f988079');
+    });
+  });
+
   suite('ENC-023 Caesar Shift input', () => {
     const caesar = entryOf('cipher.caesar');
 
