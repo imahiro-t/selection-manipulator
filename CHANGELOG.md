@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Detect Style (shows the naming convention in a notification) and Cycle (camel -> snake -> kebab -> Pascal -> CONSTANT)
   - JSON Keys to Camel / Snake / Kebab / Pascal (only keys change; values, formatting and key order are kept; key collisions are reported and the selection is left unchanged)
   - Pluralize / Singularize (rule-based with a small built-in dictionary; see README for limitations)
+- ✨ Add 35 whitespace commands (ROADMAP WS-001..035), also grouped in a new `Whitespace` context submenu
+  - Indentation: Leading Tabs to Spaces (2/4), Leading Spaces to Tabs (2/4), Re-indent 2 to 4 / 4 to 2 Spaces, Remove Common Indent (Dedent), Trim Leading Whitespace, Indent / Outdent Lines by N Spaces, Expand / Unexpand Tabs (tab stops of 4)
+  - Blank lines and line breaks: Collapse Consecutive Blank Lines, Insert Blank Line Between Lines, Remove Trailing / Leading Blank Lines, Clear Whitespace-only Lines, Unwrap Paragraphs, Hard Wrap at 80 / N Columns
+  - Spaces inside lines: Remove All Whitespace, Collapse Inline Spaces (Keep Indent), Special Spaces to Normal Space, Add Spaces Around Operators (strings, template literals and comments are kept), Remove Space Before Punctuation, Ensure Space After Comma
+  - Visualize Spaces and Tabs (`·` U+00B7 / `→` U+2192) and Restore Visualized Spaces and Tabs
+  - Alignment: Center Align, Right Align, Pad Lines to Same Length, Align by `=` / `:` / `,` / a custom delimiter (each selection is aligned on its own; a run that would add more than 10,000,000 characters is refused with a warning and leaves the text unchanged; see README for limitations)
 - 🐛 Pluralize / Singularize: keep acronyms ending with S (`DNS`, `HTTPS`, `iOS`) unchanged while still singularizing acronym plurals such as `DTOs` -> `DTO`, keep already plural words (`users`, `IDs`) and known file extensions (`file.ts`) unchanged, and use an upper-case suffix in all-caps identifiers (`USER_ID` -> `USER_IDS`)
 - 🐛 JSON Keys to Camel / Snake / Kebab / Pascal: shorten each key shown in the key collision notification to 60 characters (with `…`) so that huge keys no longer produce a huge notification
 

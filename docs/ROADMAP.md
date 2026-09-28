@@ -73,7 +73,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 - 候補表の列は `ID`・`カテゴリ`・`種別`・`提案コマンド ID`・`タイトル`・`概要`・`入出力例`・`外部通信`・`新規依存` の 9 列とする。
 - セルの中の `|` は、コードスパンの中でも外でも `\|` とエスケープする。
 - セルの中に改行は入れない。複数行は `⏎`、タブは `⇥`、意味のある空白は `·` で表す。不可視文字は `{U+XXXX}` と書く。
-- 例外: 空白やタブを記号に置き換えて可視化するコマンド（WS-015 など）では、出力側の `·` などが実際に挿入される文字になる。その場合は、行の `概要` にその旨を注記する。
+- 例外: 空白やタブを記号に置き換えて可視化するコマンド（WS-015）では出力側の、可視化を元に戻すコマンド（WS-016）では入力側の `·` や `→` が、表記ルールの記号ではなく実際の文字になる。その場合は、行の `概要` にその旨を注記する。
 - 出力が文字列リテラルなどの場合、`\n` のようなエスケープ表記は「バックスラッシュ + n」の 2 文字を表す（実際の改行は `⏎`）。
 - `<br>` などの HTML タグは使わない。
 - `入出力例` は「`入力` → `出力`」の形で書く。入力の後ろの（ ）は、コマンド実行時に入力する値やカーソル数などの補足である。`[a]` は選択範囲、`|` はカーソル位置、「（通知）」は結果を通知で表示することを表す。
@@ -375,12 +375,12 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | WS-013 | WS | 基本 | `selection-manipulator.whitespace.hard-wrap-n` | Whitespace: Hard Wrap at N Columns | 単語境界で入力した桁数ごとに改行を入れる | `aa bb cc（N=5）` → `aa bb⏎cc` | なし | なし |
 | WS-014 | WS | 基本 | `selection-manipulator.whitespace.nbsp-to-space` | Whitespace: Special Spaces to Normal Space | NBSP（U+00A0）や細いスペースなど特殊な空白を通常の空白に置き換える | `a{U+00A0}b` → `a b` | なし | なし |
 | WS-015 | WS | 基本 | `selection-manipulator.whitespace.visualize` | Whitespace: Visualize Spaces and Tabs | 空白を「·」（U+00B7）、タブを「→」（U+2192）に置き換えて見えるようにする。この行の出力側の `·` と `→` は表記ルールの記号ではなく、実際に挿入される文字である | `a·b⇥c` → `a·b→c` | なし | なし |
-| WS-016 | WS | 基本 | `selection-manipulator.whitespace.unvisualize` | Whitespace: Restore Visualized Spaces and Tabs | 「·」「→」を空白・タブに戻す | `a·b→c` → `a b⇥c` | なし | なし |
+| WS-016 | WS | 基本 | `selection-manipulator.whitespace.unvisualize` | Whitespace: Restore Visualized Spaces and Tabs | 「·」（U+00B7）を空白、「→」（U+2192）をタブに戻す（WS-015 の逆変換）。この行の入力側の `·` と `→` は表記ルールの記号ではなく実際の文字（U+00B7・U+2192）であり、出力側の `·` と `⇥` は表記ルールどおり空白とタブを表す。可視化する前から含まれていた `·` `→` も空白・タブに変わるため、WS-015 との往復は可逆ではない | `a·b→c` → `a·b⇥c` | なし | なし |
 | WS-017 | WS | 基本 | `selection-manipulator.whitespace.center-align` | Whitespace: Center Align Lines | 最も長い行に合わせて各行を中央寄せする | `a⏎abc` → `·a⏎abc` | なし | なし |
 | WS-018 | WS | 基本 | `selection-manipulator.whitespace.right-align` | Whitespace: Right Align Lines | 最も長い行に合わせて各行を右寄せする | `a⏎abc` → `··a⏎abc` | なし | なし |
 | WS-019 | WS | 基本 | `selection-manipulator.whitespace.pad-to-longest` | Whitespace: Pad Lines to Same Length | 末尾に空白を足して全行を最長行と同じ長さにする | `a⏎abc` → `a··⏎abc` | なし | なし |
-| WS-020 | WS | 基本 | `selection-manipulator.whitespace.align-equals` | Whitespace: Align by Equals Sign (=) | 各行の最初の「=」の位置が揃うように空白を入れる | `a = 1⏎bbb = 2` → `a···= 1⏎bbb = 2` | なし | なし |
-| WS-021 | WS | 基本 | `selection-manipulator.whitespace.align-colon` | Whitespace: Align by Colon (:) | 各行の最初の「:」の後ろの値の開始位置を揃える | `a: 1⏎bbb: 2` → `a:···1⏎bbb: 2` | なし | なし |
+| WS-020 | WS | 基本 | `selection-manipulator.whitespace.align-equals` | Whitespace: Align by Equals Sign (=) | 各行の最初の「=」の位置が揃うように空白を入れる。「=」を含む演算子（`+=` `!=` `<=` `==` `=>` など）は分割せず、その演算子の先頭の位置で揃える。演算子の右側は変えない（`a=1⏎bb = 2` は `a··=1⏎bb = 2` になり、「=」の後ろに空白は入らない） | `a = 1⏎bbb = 2` → `a···= 1⏎bbb = 2` | なし | なし |
+| WS-021 | WS | 基本 | `selection-manipulator.whitespace.align-colon` | Whitespace: Align by Colon (:) | 各行の最初の単独の「:」の後ろの値の開始位置を揃える（`::` の中の「:」は区切りにしない）。値が空の行（`key:`）には空白を足さない | `a: 1⏎bbb: 2` → `a:···1⏎bbb: 2` | なし | なし |
 | WS-022 | WS | 基本 | `selection-manipulator.whitespace.align-comma` | Whitespace: Align Columns by "," | カンマ区切りの各列の開始位置を揃える | `a,bb,c⏎ccc,d,e` → `a,··bb,c⏎ccc,d,·e` | なし | なし |
 | WS-023 | WS | 基本 | `selection-manipulator.whitespace.align-custom` | Whitespace: Align by Custom Delimiter | 入力した区切り文字の位置が揃うように空白を入れる | `a => 1⏎bb => 2（区切り: =>）` → `a··=> 1⏎bb·=> 2` | なし | なし |
 | WS-024 | WS | 基本 | `selection-manipulator.whitespace.blank-line-between` | Whitespace: Insert Blank Line Between Lines | 各行の間に空行を入れる | `a⏎b` → `a⏎⏎b` | なし | なし |

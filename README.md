@@ -16,6 +16,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
+*   **Whitespace**: Convert leading tabs/spaces, re-indent (2 <-> 4), dedent, indent/outdent by N, expand/unexpand tabs, collapse or remove blank lines, unwrap paragraphs, hard wrap, visualize spaces and tabs, center/right align, align by `=` / `:` / `,` / a custom delimiter, add spaces around operators.
 *   **Advanced Case**: Smart Title Case, APA Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents, Swap Case, Sentence Case per sentence, Locale-aware Upper/Lower, Pluralize/Singularize, Detect/Cycle naming style.
 *   **Math**: Sum, Average, Min, Max, Hex <-> Decimal, Date Calculation.
 *   **Unit Conversion**: px <-> rem, kg <-> lb.
@@ -98,6 +99,70 @@ Comprehensive tools to clean up and normalize code or text.
 *   **Unsmart Quotes**: Converts smart quotes (`“`, `”`) to straight quotes (`"`).
 *   **Remove Duplicate Lines**: Keeps only the first occurrence of identical lines.
 *   **Split/Join Lines (Custom)**: Split or join text using a custom delimiter.
+
+#### Whitespace Commands
+All whitespace commands replace each selection in place. With multiple selections, each selection is processed on its own. They are also grouped in the **Whitespace** submenu at the end of the Selection Manipulator context menu.
+In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break (except where noted for Visualize / Restore).
+
+*   **Indentation**:
+    *   **Leading Tabs to Spaces (2) / (4)**: `⇥foo` -> `····foo` (4). Only tabs at the start of a line are converted.
+    *   **Leading Spaces to Tabs (2) / (4)**: `····foo` -> `⇥foo` (4). Leftover spaces that do not fill a tab are kept (`······foo` -> `⇥··foo`).
+    *   **Re-indent 2 to 4 / 4 to 2 Spaces**: `··a⏎····b` -> `····a⏎········b`. Leftover spaces are kept.
+    *   **Remove Common Indent (Dedent)**: `····a⏎······b` -> `a⏎··b`. Whitespace-only lines are ignored when finding the common indent; a space and a tab are not treated as the same.
+    *   **Trim Leading Whitespace**: `··a··⏎·b` -> `a··⏎b`.
+    *   **Indent / Outdent Lines by N Spaces**: Asks for N (1-100, default `4`) once, then applies it to every selection: `a⏎b` (N=3) -> `···a⏎···b`, `····a⏎·b` (N=2) -> `··a⏎b`.
+    *   **Expand All Tabs / Unexpand Spaces to Tabs (Tab Stops)**: Uses tab stops of 4, including tabs inside a line: `a⇥b` <-> `a···b`.
+*   **Blank Lines & Line Breaks**:
+    *   **Collapse Consecutive Blank Lines**: `a⏎⏎⏎⏎b` -> `a⏎⏎b` (whitespace-only lines count as blank).
+    *   **Insert Blank Line Between Lines**: `a⏎b` -> `a⏎⏎b`.
+    *   **Remove Trailing / Leading Blank Lines**: `a⏎b⏎⏎⏎` -> `a⏎b`, `⏎⏎a⏎b` -> `a⏎b`.
+    *   **Clear Whitespace-only Lines**: `a⏎··⏎b` -> `a⏎⏎b`.
+    *   **Unwrap Paragraphs**: `a⏎b⏎⏎c⏎d` -> `a b⏎⏎c d` (blank lines between paragraphs are kept).
+    *   **Hard Wrap at 80 / N Columns**: Wraps at word boundaries. The N version asks for N (1-1000, default `80`) once: `aa bb cc` (N=5) -> `aa bb⏎cc`.
+*   **Spaces Inside Lines**:
+    *   **Remove All Whitespace**: `a b⇥c⏎d` -> `abcd`.
+    *   **Collapse Inline Spaces (Keep Indent)**: `··a···b` -> `··a b`.
+    *   **Special Spaces to Normal Space**: `a{U+00A0}b` -> `a b` (NBSP, thin space and similar spaces).
+    *   **Add Spaces Around Operators**: `a=b+c` -> `a = b + c`. Strings, template literals and comments are not changed.
+    *   **Remove Space Before Punctuation**: `hello , world !` -> `hello, world!` (`,` `.` `!` `?` `;` `:`).
+    *   **Ensure Space After Comma**: `a,b,c` -> `a, b, c`.
+*   **Visualize**:
+    *   **Visualize Spaces and Tabs**: Replaces a space with `·` (U+00B7) and a tab with `→` (U+2192): `a·b⇥c` -> `a·b→c` (the `·` and `→` in the output are the real characters).
+    *   **Restore Visualized Spaces and Tabs**: The reverse: `a·b→c` -> `a·b⇥c` (the `·` and `→` in the input are the real characters U+00B7 and U+2192).
+*   **Alignment**:
+    *   **Center Align / Right Align Lines**: Pads each line with leading spaces based on the longest line: `a⏎abc` -> `·a⏎abc` / `··a⏎abc`.
+    *   **Pad Lines to Same Length**: `a⏎abc` -> `a··⏎abc`.
+    *   **Align by Equals Sign (=)**: `a = 1⏎bbb = 2` -> `a···= 1⏎bbb = 2`.
+    *   **Align by Colon (:)**: `a: 1⏎bbb: 2` -> `a:···1⏎bbb: 2`.
+    *   **Align Columns by ","**: `a,bb,c⏎ccc,d,e` -> `a,··bb,c⏎ccc,d,·e`.
+    *   **Align by Custom Delimiter**: Asks for a delimiter once: `a => 1⏎bb => 2` (`=>`) -> `a··=> 1⏎bb·=> 2`.
+
+> **Limitations of the whitespace commands**
+> *   **Line breaks**: Line-based commands keep one line break at the end of the selection and insert line breaks with the document's line ending (LF or CRLF).
+> *   **Width**: Widths are counted in code points. A full-width character (such as Japanese), an emoji or a combining character counts as one column, and a tab counts as one column except in Expand / Unexpand Tabs. So text with Japanese characters or tabs does not look aligned after the alignment and hard wrap commands.
+> *   **Alignment is per selection**: Center / Right Align, Pad Lines and the Align commands align the lines inside each selection. Select all the lines as one selection; one cursor per line does not align them.
+> *   **Output size limit**: Center / Right Align, Pad Lines, the Align commands and Indent Lines by N stop if one run would add more than 10,000,000 characters in total (counted over all selections), for example Pad Lines on a selection with a very long minified line. Nothing is changed and a warning is shown. If any selection fails, no selection is changed.
+> *   **U+FEFF (BOM)**: It is not treated as whitespace, except by Remove All Whitespace, which removes it. A BOM at the start of a line is kept by Trim Leading Whitespace, and a line with only a BOM is not a blank line.
+> *   **Special Spaces to Normal Space**: Converts U+00A0, U+1680, U+2000-U+200A, U+202F and U+205F. The ideographic space (U+3000), the zero-width space (U+200B) and U+FEFF are not converted.
+> *   **Visualize / Restore**: Restore also turns `·` and `→` that were in the text before visualizing into spaces and tabs, so a round trip is not always lossless.
+> *   **Unwrap Paragraphs**: Lines in a paragraph are joined with one space, also in Japanese text. The indent of the first line is kept.
+> *   **Hard Wrap**: A word longer than the width is not split. Wrapped lines get the indent of the original line. A line longer than the width is refilled word by word, so runs of spaces inside it (such as the spaces before an aligned comment) become one space. Lines within the width are not changed.
+> *   **Indent / Outdent / Unexpand**: Indent Lines by N does not add spaces to whitespace-only lines. Outdent Lines by N stops at a tab. Unexpand never turns a single space between words into a tab.
+> *   **Align by Equals Sign**: Lines are aligned at the start of the operator that contains the first `=`, and operators such as `+=`, `!=`, `<=`, `==` and `=>` are not split. So `a = 1⏎bb += 2` becomes `a··= 1⏎bb += 2` (the `=` and the `+` are in the same column). The right side is not changed: `a=1⏎bb = 2` -> `a··=1⏎bb = 2`.
+> *   **Align by Colon**: The `:` in `::` is not a delimiter. Lines with a URL (`http://...`) or a ternary operator may be aligned at an unexpected `:`. A `key:` line with an empty value gets no trailing spaces.
+> *   **Align Columns by ","**: Commas inside quoted CSV fields are not recognized. The width of a column is decided only by the cells that are not the last cell of their line. Empty cells at the end of a line (`a,b,`) are not padded, so no trailing spaces are added.
+> *   **Align by Equals / Colon / Comma / Custom Delimiter**: A line with nothing (or only whitespace) before the delimiter is left unchanged and is not used for the width.
+> *   **Align by Custom Delimiter**: The delimiter is literal text (not a regular expression) of 1-100 characters, without line breaks and not only whitespace. With `=`, `a += 1` can become `a + = 1`, so use Align by Equals Sign for code.
+> *   **Add Spaces Around Operators**: This is not a full parser; it assumes C-like or JavaScript-like code.
+>     *   Target operators: `===` `!==` `**=` `==` `!=` `<=` `>=` `+=` `-=` `*=` `/=` `%=` `=>` `&&` `||` `**` `=` `+` `-` `*` `/` `%`. Other operators such as `<`, `>`, `++`, `--`, `->`, `::`, `?`, `:`, `&`, `|`, `^`, `<<=` and `??=` are not changed (and not split).
+>     *   `+`, `-`, `*` and `**` are treated as unary (not changed) at the start of a line, after another operator or `(`, and after the keywords `return` `case` `typeof` `void` `delete` `throw` `yield` `await` `in` `of` `instanceof` `new` `else` `do` `function` (so `return -1` and `function* g()` are kept).
+>     *   Strings, template literals (including nested `${...}`), `//` comments and `/* */` comments are not changed. Template literals and block comments that span lines are tracked only inside the selection.
+>     *   Not recognized: regular expression literals (`/a+b/` -> `/ a + b /`), `#` comments, Python's `//` (treated as a comment) and keywords of other languages (such as Python's `not`). A `)` always ends a value, so `if (a) -b` -> `if (a) - b`. A property with the same name as a keyword is treated as the keyword (`obj.function*2` is not changed).
+>     *   Whitespace at the end of a line after an operator is kept as it is.
+> *   **Remove Space Before Punctuation**: Spaces at the start of a line (indentation such as `··.foo()`) and at the start of the selection are kept. It also changes code such as `a ? b : c` -> `a? b: c`.
+> *   **Ensure Space After Comma**: Digit grouping is not recognized (`1,000` -> `1, 000`), and `a,,b` becomes `a, , b`.
+> *   **Remove Trailing Blank Lines**: When the selection ends at the start of a line and more lines follow (a selection made with `Shift+Down`, `Cmd+L` / `Ctrl+L` or a triple click), one line break is kept so the next line is not joined. Only when the selection reaches the end of the document is the last line break removed too (`a⏎b⏎⏎⏎` -> `a⏎b`).
+> *   **Remove Trailing / Leading Blank Lines**: If the selection starts at the end of a non-empty line, the selected line breaks are removed and the lines are joined (selecting from the end of `ab` to the start of `z` in `ab⏎⏎⏎z` gives `abz`). Select whole lines instead.
 
 ### 3. Sort, Unique & Shuffle
 
