@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🐛 Pluralize / Singularize: keep acronyms ending with S (`DNS`, `HTTPS`, `iOS`) unchanged while still singularizing acronym plurals such as `DTOs` -> `DTO`, keep already plural words (`users`, `IDs`) and known file extensions (`file.ts`) unchanged, and use an upper-case suffix in all-caps identifiers (`USER_ID` -> `USER_IDS`)
 - 🐛 JSON Keys to Camel / Snake / Kebab / Pascal: shorten each key shown in the key collision notification to 60 characters (with `…`) so that huge keys no longer produce a huge notification
 - 🐛 Line commands that ask for input (both the replacing and the Clipboard versions): read the selections and their text after the input box closes, so that an edit made to the document while the input box is shown (by a formatter, a reload or another extension) no longer makes the command replace or copy an outdated range or outdated text; if no non-empty selection is left, nothing is done
+- 🐛 Encode / Decode (ENC): the encoders that convert the text to UTF-8 bytes (Base64URL, Base32, Base58, Hex (also Replace), Binary, Quoted-Printable, Ascii85, Gzip Base64, Form, Base64 (Each Line) and Data URI) now reject a selection containing a lone surrogate with an error and change nothing, instead of silently replacing it with `�` (U+FFFD), like Unescape Unicode already does
 
 ## [0.0.42] - 2026-09-08
 
