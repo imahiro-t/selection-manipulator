@@ -2451,6 +2451,106 @@
         "command": "selection-manipulator.hex.decode.replace",
         "title": "Decode Hex (UTF-8 Bytes) (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha224",
+        "title": "Create Hash (SHA-224)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha384",
+        "title": "Create Hash (SHA-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-256",
+        "title": "Create Hash (SHA3-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-512",
+        "title": "Create Hash (SHA3-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha512-256",
+        "title": "Create Hash (SHA-512/256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2b512",
+        "title": "Create Hash (BLAKE2b-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2s256",
+        "title": "Create Hash (BLAKE2s-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha1",
+        "title": "Create HMAC (SHA-1)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha384",
+        "title": "Create HMAC (SHA-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha3-256",
+        "title": "Create HMAC (SHA3-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc32",
+        "title": "Checksum: CRC-32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.adler32",
+        "title": "Checksum: Adler-32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.fnv1a-32",
+        "title": "Checksum: FNV-1a 32-bit",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256-base64",
+        "title": "Create Hash (SHA-256, Base64)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.sri-sha384",
+        "title": "Create SRI Hash (sha384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256-each-line",
+        "title": "Create Hash per Line (SHA-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.luhn",
+        "title": "Checksum: Luhn Validate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha384.replace",
+        "title": "Create Hash (SHA-384) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+        "title": "Create Hash (SHA3-256) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+        "title": "Create Hash (BLAKE2b-512) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -2541,6 +2641,10 @@
       {
         "id": "selection-manipulator.crypto.replace.submenu",
         "label": "Crypto"
+      },
+      {
+        "id": "selection-manipulator.checksum.submenu",
+        "label": "Checksum"
       },
       {
         "id": "selection-manipulator.har.submenu",
@@ -3876,6 +3980,86 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.hex.decode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha224"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha512-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2b512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2s256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha3-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.adler32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.fnv1a-32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha256-base64"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.sri-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha256-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.luhn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha384.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-256.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2b512.replace"
         }
       ],
       "editor/context": [
@@ -4285,6 +4469,11 @@
           "when": "editorHasSelection",
           "submenu": "selection-manipulator.encode.submenu",
           "group": "selection-manipulator@16"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.checksum.submenu",
+          "group": "selection-manipulator@17"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -4407,6 +4596,58 @@
         {
           "command": "selection-manipulator.crypto.hash-sha1",
           "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha224",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha384",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-256",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-512",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha512-256",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2b512",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2s256",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha1",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha384",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha3-256",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256-base64",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.crypto.sri-sha384",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256-each-line",
+          "group": "selection-manipulator@22"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -4760,6 +5001,18 @@
         {
           "command": "selection-manipulator.crypto.hash-md5.replace",
           "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha384.replace",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.lookup.submenu": [
@@ -5904,6 +6157,24 @@
         {
           "command": "selection-manipulator.hex.decode.replace",
           "group": "selection-manipulator@5"
+        }
+      ],
+      "selection-manipulator.checksum.submenu": [
+        {
+          "command": "selection-manipulator.checksum.crc32",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.checksum.adler32",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.checksum.fnv1a-32",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.checksum.luhn",
+          "group": "selection-manipulator@3"
         }
       ]
     }

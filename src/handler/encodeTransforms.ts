@@ -181,11 +181,11 @@ const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xd
 const isLowSurrogate = (code: number): boolean => code >= 0xdc00 && code <= 0xdfff;
 
 /**
- * Throws `EncInputError` if `text` contains a lone surrogate: a high surrogate that is not
- * followed by a low one (including one at the end), or a low surrogate that does not follow a
- * high one. The message names the code unit but never quotes the selected text.
+ * The first lone surrogate code unit in `text`, or `undefined` when there is none: a high
+ * surrogate that is not followed by a low one (including one at the end), or a low surrogate that
+ * does not follow a high one.
  */
-const assertNoLoneSurrogate = (text: string): void => {
+export const findLoneSurrogate = (text: string): number | undefined => {
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
     if (isHighSurrogate(code)) {
@@ -196,15 +196,27 @@ const assertNoLoneSurrogate = (text: string): void => {
     } else if (!isLowSurrogate(code)) {
       continue;
     }
+    return code;
+  }
+  return undefined;
+};
+
+/**
+ * Throws `EncInputError` if `text` contains a lone surrogate (see `findLoneSurrogate`). The
+ * message names the code unit but never quotes the selected text.
+ */
+const assertNoLoneSurrogate = (text: string): void => {
+  const code = findLoneSurrogate(text);
+  if (code !== undefined) {
     throw new EncInputError(`the text contains a lone surrogate (\\u${code.toString(16).padStart(4, '0')})`);
   }
 };
 
 /**
  * The UTF-8 bytes of `text`. A lone surrogate is an error (`EncInputError`) instead of silently
- * becoming U+FFFD (EF BF BD) as with `Buffer.from(text, 'utf8')`.
+ * becoming U+FFFD (EF BF BD) as with `Buffer.from(text, 'utf8')`. Also used by the HASH commands.
  */
-const utf8 = (text: string): Buffer => {
+export const utf8 = (text: string): Buffer => {
   assertNoLoneSurrogate(text);
   return Buffer.from(text, 'utf8');
 };

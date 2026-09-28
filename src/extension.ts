@@ -80,6 +80,7 @@ import { ResultProvider } from './provider/resultProvider';
 import { diffHandler } from './handler/diffHandler';
 import { whitespaceHandler, whitespaceInputHandler } from './handler/whitespaceHandler';
 import { lineCountStatsHandler, lineHandler } from './handler/lineHandler';
+import { hashExtendedHandler } from './handler/hashExtendedHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -598,6 +599,28 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.unescape.replace', encodeHandler('unicode-unescape', 'replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.encode.replace', encodeHandler('hex-encode', 'replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.hex.decode.replace', encodeHandler('hex-decode', 'replace')));
+
+  // Hash and checksum (HASH-001..020)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha224', hashExtendedHandler('crypto.hash-sha224')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha384', hashExtendedHandler('crypto.hash-sha384')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha3-256', hashExtendedHandler('crypto.hash-sha3-256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha3-512', hashExtendedHandler('crypto.hash-sha3-512')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha512-256', hashExtendedHandler('crypto.hash-sha512-256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-blake2b512', hashExtendedHandler('crypto.hash-blake2b512')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-blake2s256', hashExtendedHandler('crypto.hash-blake2s256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha1', hashExtendedHandler('crypto.hmac-sha1')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha384', hashExtendedHandler('crypto.hmac-sha384')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha3-256', hashExtendedHandler('crypto.hmac-sha3-256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.crc32', hashExtendedHandler('checksum.crc32')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.adler32', hashExtendedHandler('checksum.adler32')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.fnv1a-32', hashExtendedHandler('checksum.fnv1a-32')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256-base64', hashExtendedHandler('crypto.hash-sha256-base64')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.sri-sha384', hashExtendedHandler('crypto.sri-sha384')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256-each-line', hashExtendedHandler('crypto.hash-sha256-each-line')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.luhn', hashExtendedHandler('checksum.luhn')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha384.replace', hashExtendedHandler('crypto.hash-sha384.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha3-256.replace', hashExtendedHandler('crypto.hash-sha3-256.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-blake2b512.replace', hashExtendedHandler('crypto.hash-blake2b512.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

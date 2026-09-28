@@ -2330,6 +2330,106 @@ export const myCommands = [
     "command": "selection-manipulator.hex.decode.replace",
     "title": "Transform - Encode - Decode Hex (UTF-8 Bytes) (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha224",
+    "title": "Transform - Crypto - Create Hash (SHA-224)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha384",
+    "title": "Transform - Crypto - Create Hash (SHA-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-256",
+    "title": "Transform - Crypto - Create Hash (SHA3-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-512",
+    "title": "Transform - Crypto - Create Hash (SHA3-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha512-256",
+    "title": "Transform - Crypto - Create Hash (SHA-512/256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2b512",
+    "title": "Transform - Crypto - Create Hash (BLAKE2b-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2s256",
+    "title": "Transform - Crypto - Create Hash (BLAKE2s-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha1",
+    "title": "Transform - Crypto - Create HMAC (SHA-1)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha384",
+    "title": "Transform - Crypto - Create HMAC (SHA-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha3-256",
+    "title": "Transform - Crypto - Create HMAC (SHA3-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc32",
+    "title": "Transform - Checksum - Checksum: CRC-32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.adler32",
+    "title": "Transform - Checksum - Checksum: Adler-32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.fnv1a-32",
+    "title": "Transform - Checksum - Checksum: FNV-1a 32-bit",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha256-base64",
+    "title": "Transform - Crypto - Create Hash (SHA-256, Base64)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.sri-sha384",
+    "title": "Transform - Crypto - Create SRI Hash (sha384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha256-each-line",
+    "title": "Transform - Crypto - Create Hash per Line (SHA-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.luhn",
+    "title": "Transform - Checksum - Checksum: Luhn Validate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha384.replace",
+    "title": "Transform - Crypto - Create Hash (SHA-384) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+    "title": "Transform - Crypto - Create Hash (SHA3-256) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+    "title": "Transform - Crypto - Create Hash (BLAKE2b-512) (Replace)",
+    "canMultiSelection": true
   }
 ];
 
