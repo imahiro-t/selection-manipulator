@@ -180,10 +180,10 @@ export const compareCellKeys: Compare<CellKey> = (a, b) => {
   if (a.numeric && b.numeric) {
     return compareNumbers(a.value, b.value);
   }
-  if (a.numeric !== b.numeric) {
-    return a.numeric ? -1 : 1;
+  if (!a.numeric && !b.numeric) {
+    return naturalCollator.compare(a.text, b.text);
   }
-  return naturalCollator.compare((a as { text: string }).text, (b as { text: string }).text);
+  return a.numeric ? -1 : 1;
 };
 
 /** SORT-007: half-width kana to full-width (NFKC), then katakana to hiragana. */
