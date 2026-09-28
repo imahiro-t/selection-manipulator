@@ -229,6 +229,13 @@ const HEX_LENGTH: Record<HashAlgorithm, number> = {
   'blake2s256': 64,
 };
 
+/** Length of the HMAC of each algorithm in hex digits. */
+const HMAC_HEX_LENGTH: Record<HmacAlgorithm, number> = {
+  'sha1': 40,
+  'sha384': 96,
+  'sha3-256': 64,
+};
+
 /**
  * An upper bound of the output length of a command for `text` (the length of the result only,
  * as for the ENC commands), so that the handler can refuse a selection before hashing it.
@@ -237,11 +244,14 @@ const HEX_LENGTH: Record<HashAlgorithm, number> = {
  */
 export const estimateHashOutputLength = (entry: HashCommandKind, text: string): number => {
   switch (entry.kind) {
-    case 'digest':
-      // Base64 of n bytes is 4 * ceil(n / 3) characters; "sha384-" adds 7.
-      return entry.encoding === 'hex'
-        ? HEX_LENGTH[entry.algorithm]
-        : 7 + 4 * Math.ceil(HEX_LENGTH[entry.algorithm] / 2 / 3);
+    case 'digest': {
+      if (entry.encoding === 'hex') {
+        return HEX_LENGTH[entry.algorithm];
+      }
+      // Base64 of n bytes is 4 * ceil(n / 3) characters; the SRI prefix (e.g. "sha384-") adds its length.
+      const base64Length = 4 * Math.ceil(HEX_LENGTH[entry.algorithm] / 2 / 3);
+      return entry.encoding === 'sri' ? `${entry.algorithm}-`.length + base64Length : base64Length;
+    }
     case 'digest-each-line': {
       let breaks = 0;
       let breakCharacters = 0;
@@ -262,7 +272,7 @@ export const estimateHashOutputLength = (entry: HashCommandKind, text: string): 
       return (breaks + 1) * SHA256_HEX_LENGTH + breakCharacters;
     }
     case 'hmac':
-      return entry.algorithm === 'sha384' ? 96 : entry.algorithm === 'sha1' ? 40 : 64;
+      return HMAC_HEX_LENGTH[entry.algorithm];
     case 'checksum':
       return 8;
     case 'luhn':
@@ -282,30 +292,52 @@ export type LuhnResult =
 /**
  * HASH-017: checks the Luhn check digit of `text`.
  *
- * Leading and trailing whitespace (including line breaks) is ignored, and so are half-width
- * spaces and hyphens between the digits (`4111 1111 1111 1111`, `4111-1111-1111-1111`). Any other
- * character (letters, full-width digits, other symbols, a tab or a line break inside the number,
- * ...) makes the text not a number, as does having fewer than 2 digits. There is no upper limit
- * on the number of digits (O(n)).
+ * Leading and trailing whitespace (including line breaks) is ignored, and so is a single
+ * half-width space or hyphen between two digits (`4111 1111 1111 1111`, `4111-1111-1111-1111`).
+ * The result is `not-a-number` with reason:
+ * - `invalid-character` for any other character (letters, full-width digits, `+` and other
+ *   symbols, a tab or a line break inside the number, ...), and for a separator that is not
+ *   between two digits: a leading or trailing hyphen (`-79927398713`, `79927398713-`) or two
+ *   separators in a row (`7--9927398713`, `7992 -7398713`);
+ * - `too-short` for fewer than 2 digits (made of digits, spaces and hyphens only, e.g. `5`, `-`).
+ * There is no upper limit on the number of digits; the text is read once from the end (O(n),
+ * no per-digit allocation).
  */
 export const luhnCheck = (text: string): LuhnResult => {
   const trimmed = text.trim();
-  const digits: number[] = [];
-  for (let i = 0; i < trimmed.length; i++) {
+  let digitCount = 0;
+  let sum = 0;
+  let misplacedSeparator = false;
+  // Reading from the end, whether the character just read (the one after the current one) is a digit.
+  let nextIsDigit = false;
+  for (let i = trimmed.length - 1; i >= 0; i--) {
     const code = trimmed.charCodeAt(i);
     if (code >= 0x30 && code <= 0x39) {
-      digits.push(code - 0x30);
-    } else if (code !== 0x20 && code !== 0x2d) {
+      let d = code - 0x30;
+      if (digitCount % 2 === 1) {
+        d *= 2;
+        if (d > 9) {
+          d -= 9;
+        }
+      }
+      sum += d;
+      digitCount++;
+      nextIsDigit = true;
+    } else if (code === 0x20 || code === 0x2d) {
+      if (!nextIsDigit) {
+        misplacedSeparator = true;
+      }
+      nextIsDigit = false;
+    } else {
       return { verdict: 'not-a-number', reason: 'invalid-character' };
     }
   }
-  if (digits.length < 2) {
+  if (digitCount < 2) {
     return { verdict: 'not-a-number', reason: 'too-short' };
   }
-  let sum = 0;
-  for (let i = digits.length - 1, double = false; i >= 0; i--, double = !double) {
-    const d = double ? digits[i] * 2 : digits[i];
-    sum += d > 9 ? d - 9 : d;
+  // `nextIsDigit` is now whether the first character is a digit.
+  if (misplacedSeparator || !nextIsDigit) {
+    return { verdict: 'not-a-number', reason: 'invalid-character' };
   }
   return { verdict: sum % 10 === 0 ? 'valid' : 'invalid' };
 };

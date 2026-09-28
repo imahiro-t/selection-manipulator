@@ -364,6 +364,8 @@ suite('Hash Commands (HASH-001..020) Test Suite', () => {
       assert.strictEqual(await runLuhn(['79927398710']), 'Luhn: invalid');
       assert.strictEqual(await runLuhn(['7992-7398-71a']), 'Luhn: not a number (only digits, spaces and hyphens are allowed)');
       assert.strictEqual(await runLuhn(['7']), 'Luhn: not a number (at least 2 digits are required)');
+      assert.strictEqual(await runLuhn(['-79927398713']), 'Luhn: not a number (only digits, spaces and hyphens are allowed)');
+      assert.strictEqual(await runLuhn(['7--9927398713']), 'Luhn: not a number (only digits, spaces and hyphens are allowed)');
     });
 
     test('several selections are listed by number in document order', async () => {

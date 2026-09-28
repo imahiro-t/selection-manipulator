@@ -144,6 +144,13 @@ suite('Hash Transforms (HASH-001..020) Test Suite', () => {
         assert.ok(estimateHashOutputLength(entry, example.input) >= example.expected.length, entry.id);
       });
     });
+
+    test('the estimate of a fixed-length result is its exact length (the SRI prefix only for SRI)', () => {
+      HASH_COMMAND_ENTRIES.filter((entry) => entry.kind !== 'luhn' && entry.kind !== 'digest-each-line').forEach((entry) => {
+        const example = HASH_ROADMAP_EXAMPLES[entry.id];
+        assert.strictEqual(estimateHashOutputLength(entry, example.input), run(entry.id, example.input).length, entry.id);
+      });
+    });
   });
 
   suite('HASH-017 Luhn', () => {
@@ -168,8 +175,38 @@ suite('Hash Transforms (HASH-001..020) Test Suite', () => {
       }
     });
 
+    test('a separator that is not between two digits makes it not a number', () => {
+      for (const text of [
+        '-79927398713',
+        '79927398713-',
+        '-79927398713-',
+        '7--9927398713',
+        '7  9927398713',
+        '7992 -7398713',
+        '7992- 7398713',
+        '79927398713 -',
+        '- 79927398713',
+        '4111--1111-1111-1111',
+      ]) {
+        assert.deepStrictEqual(luhnCheck(text), { verdict: 'not-a-number', reason: 'invalid-character' }, JSON.stringify(text));
+      }
+    });
+
+    test('a single separator between digits is accepted even next to the surrounding whitespace', () => {
+      for (const text of ['  7-9927398713  ', '\n7 9927398713\n', '79-92-73-98-71-3']) {
+        assert.deepStrictEqual(luhnCheck(text), { verdict: 'valid' }, JSON.stringify(text));
+      }
+      assert.deepStrictEqual(luhnCheck('7992-7398-710'), { verdict: 'invalid' });
+    });
+
+    test('an invalid character is reported before the digit count and the separator placement', () => {
+      for (const text of ['a', '-a', '+-5', '5-\t-5']) {
+        assert.deepStrictEqual(luhnCheck(text), { verdict: 'not-a-number', reason: 'invalid-character' }, JSON.stringify(text));
+      }
+    });
+
     test('fewer than 2 digits is not a number', () => {
-      for (const text of ['0', ' 5 ', '-', '- -', '   ']) {
+      for (const text of ['0', ' 5 ', '-', '- -', '   ', '5-', '-5', '--']) {
         assert.deepStrictEqual(luhnCheck(text), { verdict: 'not-a-number', reason: 'too-short' }, JSON.stringify(text));
       }
     });
