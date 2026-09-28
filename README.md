@@ -17,6 +17,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Whitespace**: Convert leading tabs/spaces, re-indent (2 <-> 4), dedent, indent/outdent by N, expand/unexpand tabs, collapse or remove blank lines, unwrap paragraphs, hard wrap, visualize spaces and tabs, center/right align, align by `=` / `:` / `,` / a custom delimiter, add spaces around operators.
+*   **Line**: Keep/remove lines containing text or matching a regex, keep every Nth / odd / even / first N / last N lines, keep duplicated or unique lines, remove duplicates (ignore case/whitespace, adjacent), add line numbers, reverse words, rotate/swap/interleave lines, join backslash-continued lines, join every N lines, split sentences or fixed-width lines, remove comment lines, extract lines between markers or the longest/shortest line, count lines/words/characters (several with a Clipboard version).
 *   **Advanced Case**: Smart Title Case, APA Title Case, SpongeBob Case, Screaming Snake, Humanize, Slugify, Remove Accents, Swap Case, Sentence Case per sentence, Locale-aware Upper/Lower, Pluralize/Singularize, Detect/Cycle naming style.
 *   **Math**: Sum, Average, Min, Max, Hex <-> Decimal, Date Calculation.
 *   **Unit Conversion**: px <-> rem, kg <-> lb.
@@ -163,6 +164,63 @@ In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break (exce
 > *   **Ensure Space After Comma**: Digit grouping is not recognized (`1,000` -> `1, 000`), and `a,,b` becomes `a, , b`.
 > *   **Remove Trailing Blank Lines**: When the selection ends at the start of a line and more lines follow (a selection made with `Shift+Down`, `Cmd+L` / `Ctrl+L` or a triple click), one line break is kept so the next line is not joined. Only when the selection reaches the end of the document is the last line break removed too (`a⏎b⏎⏎⏎` -> `a⏎b`).
 > *   **Remove Trailing / Leading Blank Lines**: If the selection starts in the middle of a line (for example at the end of `ab`), the start of the selection is treated as the rest of that line, not as a blank line, and one line break is kept so that line is not joined with the text after the selection (selecting from the end of `ab` to the start of `z` in `ab⏎⏎⏎z` gives `ab⏎z`). Likewise, if the selection starts at the start of a line and ends inside the indentation (leading whitespace) of a later line, Remove Trailing Blank Lines removes the blank lines and the selected whitespace but keeps one line break, so the text after the selection is not joined with the previous line (selecting from the start of `a` to just before `z` in `a⏎⏎··z` gives `a⏎z`). Only the selected whitespace is removed: if the selection ends partway through the indentation, the unselected part of it is kept (selecting from the start of `a` to the middle of the indentation in `a⏎⏎····z` gives `a⏎··z`). If the selected part of the last line contains any non-whitespace text, nothing is removed.
+
+#### Line Commands
+All line commands except Count Lines, Words and Characters and the (Clipboard) versions replace each selection in place. With multiple selections, each selection is processed on its own, and a command that asks for a value asks only once. Empty selections are ignored. They are also grouped in the **Line** submenu at the end of the Selection Manipulator context menu.
+In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break. A value in parentheses is the value you enter.
+
+*   **Filter**:
+    *   **Keep / Remove Lines Containing Text**: `apple⏎banana⏎cherry` (`an`) -> `banana` / `apple⏎cherry`. The text is literal and case-sensitive.
+    *   **Keep / Remove Lines Matching Regex**: `a1⏎b⏎c2` (`\d`) -> `a1⏎c2` / `b`. JavaScript syntax with the `u` flag, case-sensitive (see the limitations below).
+    *   **Keep Every Nth Line / Remove Every Nth Line**: Keeps / removes the lines whose line number is a multiple of N (N: 1-1,000,000, default `2`): `a⏎b⏎c⏎d` (N=2) -> `b⏎d` / `a⏎c`.
+    *   **Keep Odd Lines / Keep Even Lines**: `a⏎b⏎c` -> `a⏎c` / `b` (the first line is line 1).
+    *   **Keep First N Lines / Keep Last N Lines**: N: 1-1,000,000, default `10`: `a⏎b⏎c` (N=2) -> `a⏎b` / `b⏎c`. Nothing changes if N is not less than the number of lines.
+    *   **Remove Comment Lines**: Removes lines starting with `#` or `//` (leading whitespace is ignored): `# a⏎b⏎// c` -> `b`.
+*   **Duplicates**:
+    *   **Keep Only Duplicated Lines**: Keeps one copy of each line that appears two or more times, in the order of first appearance: `a⏎b⏎a⏎c⏎b` -> `a⏎b`.
+    *   **Keep Lines Appearing Once**: `a⏎b⏎a` -> `b`.
+    *   **Remove Duplicate Lines (Ignore Case)**: `Apple⏎apple⏎b` -> `Apple⏎b` (the first line is kept).
+    *   **Remove Duplicate Lines (Ignore Whitespace)**: Ignores leading and trailing whitespace (not whitespace inside a line) and keeps the first line as it is: `a⏎··a⏎b` -> `a⏎b`.
+    *   **Remove Adjacent Duplicate Lines**: Like `uniq`: `a⏎a⏎b⏎a` -> `a⏎b⏎a`.
+    *   Blank lines are counted as normal lines.
+*   **Numbering**:
+    *   **Add Line Numbers**: `a⏎b` -> `1: a⏎2: b`.
+    *   **Add Line Numbers (Zero Padded)**: Pads to the digit count of the number of lines, without a colon: 10 lines `a⏎…⏎j` -> `01 a⏎…⏎10 j`.
+    *   Numbers start from 1 in each selection. Both formats can be removed with **Remove Line Numbers**.
+*   **Reorder**:
+    *   **Reverse Word Order in Each Line**: `a b c⏎d e` -> `c b a⏎e d`. The whitespace between words and at the start / end of a line stays in place: `··a·b⇥c` -> `··c·b⇥a`.
+    *   **Rotate Lines Down**: `a⏎b⏎c` -> `c⏎a⏎b`.
+    *   **Swap Adjacent Line Pairs**: `a⏎b⏎c⏎d⏎e` -> `b⏎a⏎d⏎c⏎e` (with an odd number of lines, the last line stays).
+    *   **Move Lines Containing Text to Top**: `b⏎x1⏎c⏎x2` (`x`) -> `x1⏎x2⏎b⏎c` (both groups keep their order).
+    *   **Interleave First and Second Half**: `a⏎b⏎1⏎2` -> `a⏎1⏎b⏎2`. With an odd number of lines, the first half is the larger one: `a⏎b⏎c⏎1⏎2` -> `a⏎1⏎b⏎2⏎c`.
+    *   **Duplicate Each Line**: `a⏎b` -> `a⏎a⏎b⏎b`.
+*   **Join & Split**:
+    *   **Join Backslash-continued Lines**: `ls·\⏎··-l⏎pwd` -> `ls·-l⏎pwd` (see the rules below).
+    *   **Join Every N Lines (Custom Delimiter)**: Asks for N (1-1,000,000, default `2`) and then a delimiter (literal text of 0-100 characters, default `,`; empty joins without a delimiter): `a⏎b⏎c⏎d` (N=2, `,`) -> `a,b⏎c,d`. The last group may have fewer than N lines.
+    *   **Split Sentences into Lines**: `Hello. Bye!` -> `Hello.⏎Bye!`. Splits after `.` `!` `?` followed by whitespace, and after `。`. Closing quotes and brackets after the punctuation (`"` `'` `”` `’` `)` `]` `」` `』`) stay with the sentence, and the whitespace at the split is removed.
+    *   **Split into Fixed-width Lines**: Asks for a width (1-1,000, default `80`): `abcdef` (N=2) -> `ab⏎cd⏎ef`. Each line is split on its own, counted in code points.
+*   **Prefix / Suffix**:
+    *   **Remove Prefix / Suffix from Each Line**: `- a⏎- b` (`- `) -> `a⏎b`, `a;⏎b;` (`;`) -> `a⏎b`. The text is removed once, only from lines that start / end with exactly that text (indentation and trailing spaces are not ignored).
+*   **Extract**:
+    *   **Extract Lines Between Markers**: Asks for a start marker and then an end marker: `x⏎BEGIN⏎a⏎END⏎y` (`BEGIN`, `END`) -> `a`. A marker line is a line that contains the marker, and the marker lines are not included. All blocks are extracted in order. The start and end markers may be the same text. A block without an end marker runs to the end of the selection. A selection without a start marker line is left unchanged; if no selection has one, `No lines were found between the markers` is shown.
+    *   **Extract Longest Line / Extract Shortest Line**: `a⏎abc⏎ab` -> `abc`, `abc⏎a⏎ab` -> `a`. Counted in code points; on a tie the first line is taken. Extract Shortest Line skips blank and whitespace-only lines.
+*   **Count**:
+    *   **Count Lines, Words and Characters**: Shows the total of all selections in a notification and does not change the text: `a b⏎c` -> `2 lines, 3 words, 5 chars`. A trailing line break is not counted as a line, words are runs of non-whitespace characters, and characters are code points with each line break (including CRLF) counted as one. With several selections, ` (N selections)` is added.
+*   **Clipboard versions**: Keep Lines Containing Text, Keep Lines Matching Regex, Keep Only Duplicated Lines, Keep Lines Appearing Once, Remove Adjacent Duplicate Lines and Extract Lines Between Markers also have a **(Clipboard)** version that copies the result to the clipboard instead of changing the editor (no notification on success).
+    *   The results of the selections are joined with the document's line ending, without a line break at the end. Selections whose result is empty are skipped, and so are selections without a start marker line (Extract Lines Between Markers).
+    *   If nothing is left, the clipboard is not changed and a notification is shown (`No lines to copy. The clipboard was not changed.`, or `No lines were found between the markers`).
+
+> **Limitations of the line commands**
+> *   **Line breaks**: A trailing line break of the selection is kept, and lines are joined with the document's line ending (LF or CRLF), so a selection with mixed line endings gets the document's line ending. Join Backslash-continued Lines is the exception (see below). If every line of the selection is removed, the result is empty and no line break is left.
+> *   **Selections starting or ending in the middle of a line**: Commands that remove, reorder, number or extract lines (all commands in Filter, Duplicates, Numbering, Prefix / Suffix and Extract, and Rotate, Swap, Move to Top, Interleave and Duplicate Each Line) treat a partial first line (the selection starts after the start of a line) and a partial last line (the selection ends before the end of a line) as parts of lines outside the selection: they are left unchanged, are not counted, and one line break is kept next to them, so the text before or after the selection is never joined with another line. For example, selecting from `a` to just before `yy` in `xxa⏎b⏎cyy` and removing lines containing `b` gives `xxa⏎cyy`. So, for example, Extract Lines Between Markers does not see a marker that is only in a partial first or last line. When the selection has no full line (such as from the middle of `xxa` to the start of the next line), these commands change nothing. A selection within one line is treated as one line.
+> *   **Commands that keep partial lines**: Reverse Word Order, Join Backslash-continued Lines, Join Every N Lines, Split Sentences and Split into Fixed-width Lines treat partial first and last lines as normal lines (the width of Split into Fixed-width Lines is counted from the start of the selection).
+> *   **Clipboard versions**: They ignore where the selection starts and ends and treat the selected text as whole lines, so the result can differ from the replacing version. For example, selecting from `a` to the start of `next` in `xxa⏎q⏎next` and running Keep Lines Containing Text (`q`) leaves the editor unchanged, but the (Clipboard) version copies `q`.
+> *   **Join Backslash-continued Lines**: A line is continued only if it ends with an odd number of backslashes; only the last one is removed (`a\⏎b` -> `ab`, `a\\\⏎b` -> `a\\b`), and an even number (`a\\⏎b`) is literal and not joined. A line with whitespace after the backslash is not continued. The spaces and tabs at the start of the next line are removed, the spaces before the backslash are kept, and no space is added. Continuations chain (`a·\⏎b·\⏎c` -> `a·b·c`). With CRLF, the character before `\r\n` is checked. The last line of the selection and the line before the trailing line break are not joined, because the next line is outside the selection. The line breaks that are not joined are kept as they are (LF, CRLF or CR).
+> *   **Regular expressions** (Keep / Remove Lines Matching Regex and its Clipboard version): The pattern is 1-500 characters and is checked when you enter it. It runs in a separate worker thread and is stopped after 2 seconds (for example `^(a+)+$` on a long line), and the selections can be up to 10,000,000 characters in total. In both cases a warning is shown and nothing is changed. If the document is edited while the pattern is running, the selection is not changed and a warning is shown.
+> *   **Output size limit**: Add Line Numbers (both versions), Duplicate Each Line, Join Every N Lines, Split Sentences and Split into Fixed-width Lines stop if one run would add more than 10,000,000 characters in total (counted over all selections). Nothing is changed and a warning is shown.
+> *   **Input values**: Text and markers are literal and case-sensitive, 1-1,000 characters without line breaks (they are not regular expressions).
+> *   **Split Sentences**: Abbreviations such as `e.g.` or `Mr.` are also treated as sentence ends. `.` without whitespace after it (`3.14`) is not a split, a line is not split at its end, and existing line breaks are kept. Full-width `？` and `！` are not treated as sentence ends.
+> *   **Remove Duplicate Lines (Ignore Case)**: Lines are compared with `toLowerCase()`, which does not depend on the locale (for example, Turkish `İ` is not handled specially).
 
 ### 3. Sort, Unique & Shuffle
 
