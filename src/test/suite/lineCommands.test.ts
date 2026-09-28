@@ -641,6 +641,134 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
     });
   });
 
+  suite('document edited while an input box is shown', () => {
+    /**
+     * Answers the input boxes in order and runs `whileAsked` before answering the
+     * `atPrompt`-th one (0-based), as if the document changed while that box was shown.
+     */
+    const editingWhileAsked = (
+      answers: string[],
+      whileAsked: () => Thenable<unknown>,
+      atPrompt = 0
+    ) => {
+      const { deps, record } = recorder([]);
+      const queue = [...answers];
+      deps.showInputBox = async (options) => {
+        const index = record.prompts.length;
+        record.prompts.push(options);
+        if (index === atPrompt) {
+          await whileAsked();
+        }
+        return queue.shift();
+      };
+      return { deps, record };
+    };
+
+    const insertAbove = (editor: vscode.TextEditor) => async () => {
+      assert.ok(await editor.edit((editBuilder) => editBuilder.insert(new vscode.Position(0, 0), 'new\n')));
+    };
+
+    const assertNoNotifications = (record: ReturnType<typeof recorder>['record']) => {
+      assert.deepStrictEqual(record.infos, []);
+      assert.deepStrictEqual(record.warnings, []);
+      assert.deepStrictEqual(record.errors, []);
+    };
+
+    test('lines inserted above the selection: the current selection is replaced, not the old range', async () => {
+      const editor = await createTextEditor('x\napple\nbanana\ncherry');
+      editor.selection = sel(1, 0, 3, 6);
+      const { deps, record } = editingWhileAsked(['an'], insertAbove(editor));
+      await runnerFor({ name: 'filter-contains', output: 'replace' }, deps)(editor);
+      assert.strictEqual(record.prompts.length, 1);
+      assert.strictEqual(editor.document.getText(), 'new\nx\nbanana');
+      assertNoNotifications(record);
+    });
+
+    test('text changed inside the selection: the new text is transformed', async () => {
+      const editor = await createTextEditor('x\napple\nbanana\ncherry\ny');
+      editor.selection = sel(1, 0, 3, 6);
+      const { deps, record } = editingWhileAsked(['an'], async () => {
+        // cherry -> canry (now contains "an"), strictly inside the selection.
+        assert.ok(await editor.edit((editBuilder) => editBuilder.replace(new vscode.Range(3, 1, 3, 4), 'an')));
+      });
+      await runnerFor({ name: 'filter-contains', output: 'replace' }, deps)(editor);
+      assert.strictEqual(editor.document.getText(), 'x\nbanana\ncanry\ny');
+      assertNoNotifications(record);
+    });
+
+    test('clipboard version (LINE-035): the current selection text is copied and the document is kept', async () => {
+      const editor = await createTextEditor('x\napple\nbanana\ncherry');
+      editor.selection = sel(1, 0, 3, 6);
+      const { deps, record } = editingWhileAsked(['an'], insertAbove(editor));
+      await runnerFor({ name: 'filter-contains', output: 'clipboard' }, deps)(editor);
+      assert.deepStrictEqual(record.clipboard, ['banana']);
+      assert.strictEqual(editor.document.getText(), 'new\nx\napple\nbanana\ncherry');
+      assertNoNotifications(record);
+    });
+
+    test('two input boxes (LINE-027): an edit between the first and second answers is taken into account', async () => {
+      const editor = await createTextEditor('x\na\nb\nc\nd');
+      editor.selection = sel(1, 0, 4, 1);
+      const { deps, record } = editingWhileAsked(['2', ','], insertAbove(editor), 1);
+      await runnerFor({ name: 'join-every-n', output: 'replace' }, deps)(editor);
+      assert.strictEqual(record.prompts.length, 2);
+      assert.strictEqual(editor.document.getText(), 'new\nx\na,b\nc,d');
+      assertNoNotifications(record);
+    });
+
+    test('two input boxes (LINE-032): markers are searched in the current selection', async () => {
+      const editor = await createTextEditor('x\nBEGIN\na\nEND\ny');
+      editor.selection = sel(0, 0, 4, 1);
+      const { deps, record } = editingWhileAsked(['BEGIN', 'END'], async () => {
+        // a -> abc, inside the selection.
+        assert.ok(await editor.edit((editBuilder) => editBuilder.insert(new vscode.Position(2, 1), 'bc')));
+      }, 1);
+      await runnerFor({ name: 'extract-between-markers', output: 'replace' }, deps)(editor);
+      assert.strictEqual(editor.document.getText(), 'abc');
+      assertNoNotifications(record);
+    });
+
+    test('the selected text was deleted: nothing is changed and nothing is shown', async () => {
+      const editor = await createTextEditor('x\napple\nbanana');
+      editor.selection = sel(1, 0, 2, 6);
+      const { deps, record } = editingWhileAsked(['an'], async () => {
+        assert.ok(await editor.edit((editBuilder) => editBuilder.delete(new vscode.Range(1, 0, 2, 6))));
+      });
+      await runnerFor({ name: 'filter-contains', output: 'replace' }, deps)(editor);
+      assert.ok(editor.selections.every((selection) => selection.isEmpty));
+      assert.strictEqual(editor.document.getText(), 'x\n');
+      assertNoNotifications(record);
+      assert.deepStrictEqual(record.clipboard, []);
+    });
+
+    test('the selection became a cursor (clipboard version): nothing is copied and nothing is shown', async () => {
+      const editor = await createTextEditor('x\napple\nbanana');
+      editor.selection = sel(1, 0, 2, 6);
+      const { deps, record } = editingWhileAsked(['an'], () => {
+        editor.selection = sel(0, 0, 0, 0);
+        return Promise.resolve();
+      });
+      await runnerFor({ name: 'filter-contains', output: 'clipboard' }, deps)(editor);
+      assert.strictEqual(editor.document.getText(), 'x\napple\nbanana');
+      assertNoNotifications(record);
+      assert.deepStrictEqual(record.clipboard, []);
+    });
+
+    for (const command of ['filter-regex', 'filter-not-regex'] as const) {
+      test(`${command}: an edit while the pattern is asked is not reported as a change during the worker run`, async () => {
+        const editor = await createTextEditor('x\na1\nb\nc2');
+        editor.selection = sel(1, 0, 3, 2);
+        const { deps, record } = editingWhileAsked(['\\d'], insertAbove(editor));
+        await runnerFor({ name: command, output: 'replace' }, deps)(editor);
+        assert.strictEqual(
+          editor.document.getText(),
+          command === 'filter-regex' ? 'new\nx\na1\nc2' : 'new\nx\nb'
+        );
+        assertNoNotifications(record);
+      });
+    }
+  });
+
   test('package.json and the Show Commands list register all 40 commands exactly once with the ROADMAP titles', () => {
     const root = path.resolve(__dirname, '../../..');
     const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));

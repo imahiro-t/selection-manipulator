@@ -238,12 +238,19 @@ const runLineCommand = async (
   output: LineOutput,
   textEditor: TextEditor
 ): Promise<void> => {
-  const selections = textEditor.selections.filter((selection) => !selection.isEmpty);
-  if (selections.length === 0) {
+  // Only decides whether to ask at all: no input box without a non-empty selection.
+  if (!textEditor.selections.some((selection) => !selection.isEmpty)) {
     return;
   }
   const asked = await askInputs(deps, command);
   if (asked === undefined) {
+    return;
+  }
+  // Read the selections (and below, their text) only after the input boxes close: the document
+  // may have changed while they were shown (a formatter, a reload, another extension), and
+  // VS Code keeps the current selections in step with such edits.
+  const selections = textEditor.selections.filter((selection) => !selection.isEmpty);
+  if (selections.length === 0) {
     return;
   }
   const { pattern, ...inputOptions } = asked;
