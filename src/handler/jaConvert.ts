@@ -354,7 +354,7 @@ export const numberToDaiji = (value: string): string => toNumeral(parseWholeNumb
 /**
  * JA-004 / 033: one kanji numeral to a number. Accepts place values (`三億五千万`), plain digit
  * sequences (`二〇二六`), ASCII / full-width digits mixed in (`3億5000万`) and daiji
- * (`壱弐参拾萬`). Units out of order (`万万`, `十百`) and anything else are errors.
+ * (`壱百弐拾参`, `壹萬貳阡`). Units out of order (`万万`, `十百`, `20百`) and anything else are errors.
  */
 export const kanjiToNumber = (value: string): string => {
   const notNumeral = (): JaInputError => new JaInputError(`${quoteText(value)} is not a kanji numeral`);
