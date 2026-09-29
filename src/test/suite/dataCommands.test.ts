@@ -540,15 +540,17 @@ suite('Data Format Commands (DATA-001..040) Test Suite', () => {
         { id: 'selection-manipulator.data.submenu', label: 'Data Format' },
         { id: 'selection-manipulator.data.replace.submenu', label: 'Data Format' },
       ]);
-      // The new submenus follow the existing items, which keep their places.
+      // The Data Format submenus keep their fixed places (right after Checksum / Encode) when later submenus are added.
       const transform: MenuItem[] = contributes.menus['selection-manipulator.transform.submenu'];
-      assert.deepStrictEqual(transform[transform.length - 1],
-        { when: 'editorHasSelection', submenu: 'selection-manipulator.data.submenu', group: 'selection-manipulator@18' });
-      assert.strictEqual(transform[transform.length - 2].submenu, 'selection-manipulator.checksum.submenu');
+      const dataIndex = transform.findIndex((item) => item.submenu === 'selection-manipulator.data.submenu');
+      assert.deepStrictEqual(transform.filter((item) => item.submenu === 'selection-manipulator.data.submenu'),
+        [{ when: 'editorHasSelection', submenu: 'selection-manipulator.data.submenu', group: 'selection-manipulator@18' }]);
+      assert.strictEqual(transform[dataIndex - 1].submenu, 'selection-manipulator.checksum.submenu');
       const replace: MenuItem[] = contributes.menus['selection-manipulator.replace.submenu'];
-      assert.deepStrictEqual(replace[replace.length - 1],
-        { when: 'editorHasSelection', submenu: 'selection-manipulator.data.replace.submenu', group: 'selection-manipulator@8' });
-      assert.strictEqual(replace[replace.length - 2].submenu, 'selection-manipulator.encode.replace.submenu');
+      const dataReplaceIndex = replace.findIndex((item) => item.submenu === 'selection-manipulator.data.replace.submenu');
+      assert.deepStrictEqual(replace.filter((item) => item.submenu === 'selection-manipulator.data.replace.submenu'),
+        [{ when: 'editorHasSelection', submenu: 'selection-manipulator.data.replace.submenu', group: 'selection-manipulator@8' }]);
+      assert.strictEqual(replace[dataReplaceIndex - 1].submenu, 'selection-manipulator.encode.replace.submenu');
       const ids = contributes.commands.map((c: { command: string }) => c.command);
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const allTitles = myCommands.map((c) => c.title);

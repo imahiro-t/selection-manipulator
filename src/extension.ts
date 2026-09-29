@@ -82,6 +82,7 @@ import { whitespaceHandler, whitespaceInputHandler } from './handler/whitespaceH
 import { lineCountStatsHandler, lineHandler } from './handler/lineHandler';
 import { hashExtendedHandler } from './handler/hashExtendedHandler';
 import { dataHandler } from './handler/dataHandler';
+import { tableHandler } from './handler/tableHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -664,6 +665,38 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-jsonl.replace', dataHandler('json.to-jsonl.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jsonl.to-json.replace', dataHandler('jsonl.to-json.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.format.replace', dataHandler('yaml.format.replace')));
+
+  // Table (TABLE-001..030)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-json', tableHandler('csv.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-json', tableHandler('csv.from-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-tsv', tableHandler('csv.to-tsv')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-tsv', tableHandler('csv.from-tsv')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.transpose', tableHandler('csv.transpose')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.extract-column', tableHandler('csv.extract-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.remove-column', tableHandler('csv.remove-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.swap-columns', tableHandler('csv.swap-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.align-columns', tableHandler('csv.align-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.trim-cells', tableHandler('csv.trim-cells')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-html-table', tableHandler('csv.to-html-table')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-sql-insert', tableHandler('csv.to-sql-insert')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.dedupe-rows', tableHandler('csv.dedupe-rows')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.filter-rows', tableHandler('csv.filter-rows')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.sum-column', tableHandler('csv.sum-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.add-index', tableHandler('csv.add-index')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.change-delimiter', tableHandler('csv.change-delimiter')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.quote-all', tableHandler('csv.quote-all')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.unquote', tableHandler('csv.unquote')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-yaml', tableHandler('csv.to-yaml')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-ascii-table', tableHandler('csv.to-ascii-table')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-whitespace', tableHandler('csv.from-whitespace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.info', tableHandler('csv.info')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.fill-down', tableHandler('csv.fill-down')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-records', tableHandler('csv.to-records')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-json.replace', tableHandler('csv.to-json.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.from-json.replace', tableHandler('csv.from-json.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-tsv.replace', tableHandler('csv.to-tsv.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.transpose.replace', tableHandler('csv.transpose.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-html-table.replace', tableHandler('csv.to-html-table.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

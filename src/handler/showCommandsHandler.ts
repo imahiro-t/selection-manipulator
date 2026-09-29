@@ -2631,6 +2631,157 @@ export const myCommands = [
     "title": "Transform - Data Format - Format YAML (Replace)",
     "canMultiSelection": true
   }
+,
+  {
+    "command": "selection-manipulator.csv.to-json",
+    "title": "Transform - CSV - Convert to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-json",
+    "title": "Transform - CSV - Convert from JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-tsv",
+    "title": "Transform - CSV - Convert to TSV",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-tsv",
+    "title": "Transform - CSV - Convert from TSV",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.transpose",
+    "title": "Transform - CSV - Transpose",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.extract-column",
+    "title": "Transform - CSV - Extract Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.remove-column",
+    "title": "Transform - CSV - Remove Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.swap-columns",
+    "title": "Transform - CSV - Swap Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.align-columns",
+    "title": "Transform - CSV - Align Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.trim-cells",
+    "title": "Transform - CSV - Trim Cell Padding",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-html-table",
+    "title": "Transform - CSV - Convert to HTML Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-sql-insert",
+    "title": "Transform - CSV - Convert to SQL INSERT",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.dedupe-rows",
+    "title": "Transform - CSV - Remove Duplicate Rows",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.filter-rows",
+    "title": "Transform - CSV - Filter Rows by Column Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.sum-column",
+    "title": "Transform - CSV - Sum Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.add-index",
+    "title": "Transform - CSV - Add Index Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.change-delimiter",
+    "title": "Transform - CSV - Change Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.quote-all",
+    "title": "Transform - CSV - Quote All Fields",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.unquote",
+    "title": "Transform - CSV - Remove Unnecessary Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-yaml",
+    "title": "Transform - CSV - Convert to YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-ascii-table",
+    "title": "Transform - CSV - Convert to ASCII Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-whitespace",
+    "title": "Transform - CSV - Convert from Whitespace-separated Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.info",
+    "title": "Transform - CSV - Show Row and Column Count",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.fill-down",
+    "title": "Transform - CSV - Fill Empty Cells from Above",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-records",
+    "title": "Transform - CSV - Convert Rows to Key-Value Records",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-json.replace",
+    "title": "Transform - CSV - Convert to JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-json.replace",
+    "title": "Transform - CSV - Convert from JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-tsv.replace",
+    "title": "Transform - CSV - Convert to TSV (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.transpose.replace",
+    "title": "Transform - CSV - Transpose (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-html-table.replace",
+    "title": "Transform - CSV - Convert to HTML Table (Replace)",
+    "canMultiSelection": true
+  }
 ];
 
 export const showCommandsHandler: (textEditor: TextEditor) => void = async (textEditor) => {

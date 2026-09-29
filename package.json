@@ -2751,6 +2751,156 @@
         "command": "selection-manipulator.yaml.format.replace",
         "title": "Format YAML (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-json",
+        "title": "CSV - Convert to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-json",
+        "title": "CSV - Convert from JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-tsv",
+        "title": "CSV - Convert to TSV",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-tsv",
+        "title": "CSV - Convert from TSV",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.transpose",
+        "title": "CSV - Transpose",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.extract-column",
+        "title": "CSV - Extract Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.remove-column",
+        "title": "CSV - Remove Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.swap-columns",
+        "title": "CSV - Swap Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.align-columns",
+        "title": "CSV - Align Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.trim-cells",
+        "title": "CSV - Trim Cell Padding",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-html-table",
+        "title": "CSV - Convert to HTML Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-sql-insert",
+        "title": "CSV - Convert to SQL INSERT",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.dedupe-rows",
+        "title": "CSV - Remove Duplicate Rows",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.filter-rows",
+        "title": "CSV - Filter Rows by Column Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.sum-column",
+        "title": "CSV - Sum Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.add-index",
+        "title": "CSV - Add Index Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.change-delimiter",
+        "title": "CSV - Change Delimiter",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.quote-all",
+        "title": "CSV - Quote All Fields",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.unquote",
+        "title": "CSV - Remove Unnecessary Quotes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-yaml",
+        "title": "CSV - Convert to YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-ascii-table",
+        "title": "CSV - Convert to ASCII Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-whitespace",
+        "title": "CSV - Convert from Whitespace-separated Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.info",
+        "title": "CSV - Show Row and Column Count",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.fill-down",
+        "title": "CSV - Fill Empty Cells from Above",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-records",
+        "title": "CSV - Convert Rows to Key-Value Records",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-json.replace",
+        "title": "CSV - Convert to JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-json.replace",
+        "title": "CSV - Convert from JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-tsv.replace",
+        "title": "CSV - Convert to TSV (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.transpose.replace",
+        "title": "CSV - Transpose (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-html-table.replace",
+        "title": "CSV - Convert to HTML Table (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -2949,6 +3099,14 @@
       {
         "id": "selection-manipulator.data.replace.submenu",
         "label": "Data Format"
+      },
+      {
+        "id": "selection-manipulator.table.submenu",
+        "label": "CSV / TSV"
+      },
+      {
+        "id": "selection-manipulator.table.replace.submenu",
+        "label": "CSV / TSV"
       }
     ],
     "menus": {
@@ -4428,6 +4586,126 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.yaml.format.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-tsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-tsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.transpose"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.extract-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.remove-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.swap-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.align-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.trim-cells"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-html-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-sql-insert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.dedupe-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.filter-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.sum-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.add-index"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.change-delimiter"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.quote-all"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.unquote"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-yaml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-ascii-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-whitespace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.info"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.fill-down"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-records"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-tsv.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.transpose.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-html-table.replace"
         }
       ],
       "editor/context": [
@@ -4847,6 +5125,11 @@
           "when": "editorHasSelection",
           "submenu": "selection-manipulator.data.submenu",
           "group": "selection-manipulator@18"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.table.submenu",
+          "group": "selection-manipulator@19"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -5075,6 +5358,11 @@
           "when": "editorHasSelection",
           "submenu": "selection-manipulator.data.replace.submenu",
           "group": "selection-manipulator@8"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.table.replace.submenu",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -6717,6 +7005,130 @@
         {
           "command": "selection-manipulator.yaml.format.replace",
           "group": "selection-manipulator@6"
+        }
+      ],
+      "selection-manipulator.table.submenu": [
+        {
+          "command": "selection-manipulator.csv.to-json",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.csv.from-json",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.csv.to-tsv",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.csv.from-tsv",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.csv.transpose",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.csv.extract-column",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.csv.remove-column",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.csv.swap-columns",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.csv.align-columns",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.csv.trim-cells",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.csv.to-html-table",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.csv.to-sql-insert",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.csv.dedupe-rows",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.csv.filter-rows",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.csv.sum-column",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.csv.add-index",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.csv.change-delimiter",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.csv.quote-all",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.csv.unquote",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.csv.to-yaml",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.csv.to-ascii-table",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.csv.from-whitespace",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.csv.info",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.csv.fill-down",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.csv.to-records",
+          "group": "selection-manipulator@24"
+        }
+      ],
+      "selection-manipulator.table.replace.submenu": [
+        {
+          "command": "selection-manipulator.csv.to-json.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.csv.from-json.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.csv.to-tsv.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.csv.transpose.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.csv.to-html-table.replace",
+          "group": "selection-manipulator@4"
         }
       ]
     }
