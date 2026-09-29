@@ -604,7 +604,7 @@ suite('Generator Commands (GEN) Test Suite', () => {
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
 
-    test('the new Generate submenu holds GEN-020..030 in ROADMAP order, last in the root submenu', () => {
+    test('the new Generate submenu holds GEN-020..030 in ROADMAP order, after the existing items of the root submenu', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.generate.submenu'),
         [{ id: 'selection-manipulator.generate.submenu', label: 'Generate' }]);
@@ -614,9 +614,10 @@ suite('Generator Commands (GEN) Test Suite', () => {
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
       assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.generate.submenu'),
         [{ submenu: 'selection-manipulator.generate.submenu', group: 'selection-manipulator@15' }]);
-      // The existing items keep their places (@0..@14) and no group is used twice.
-      root.slice(0, -1).forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
-      assert.strictEqual(root[root.length - 1].submenu, 'selection-manipulator.generate.submenu');
+      // The existing items keep their places (@0..@14), Generate follows them (Unicode, added
+      // later, comes after it) and no group is used twice.
+      root.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
+      assert.strictEqual(root[15].submenu, 'selection-manipulator.generate.submenu');
       assert.strictEqual(new Set(root.map((item) => item.group)).size, root.length);
     });
 

@@ -87,6 +87,7 @@ import { numHandler } from './handler/numHandler';
 import { dateCommandHandler } from './handler/dateCommandHandler';
 import { genCommandHandler } from './handler/genCommandHandler';
 import { jaCommandHandler } from './handler/jaCommandHandler';
+import { uniCommandHandler } from './handler/uniCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -844,6 +845,38 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kanji-to-number.replace', jaCommandHandler('japanese.kanji-to-number.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kyujitai-to-shinjitai.replace', jaCommandHandler('japanese.kyujitai-to-shinjitai.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.space-between-ja-en.replace', jaCommandHandler('japanese.space-between-ja-en.replace')));
+
+  // Unicode commands (UNI-001..030)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.normalize-nfc', uniCommandHandler('unicode.normalize-nfc')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.normalize-nfd', uniCommandHandler('unicode.normalize-nfd')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.normalize-nfkc', uniCommandHandler('unicode.normalize-nfkc')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.normalize-nfkd', uniCommandHandler('unicode.normalize-nfkd')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.remove-zero-width', uniCommandHandler('unicode.remove-zero-width')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.reveal-invisible', uniCommandHandler('unicode.reveal-invisible')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.to-codepoints', uniCommandHandler('unicode.to-codepoints')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.from-codepoints', uniCommandHandler('unicode.from-codepoints')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.to-utf8-bytes', uniCommandHandler('unicode.to-utf8-bytes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.to-utf16-units', uniCommandHandler('unicode.to-utf16-units')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.count-graphemes', uniCommandHandler('unicode.count-graphemes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.remove-control', uniCommandHandler('unicode.remove-control')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.remove-non-ascii', uniCommandHandler('unicode.remove-non-ascii')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.remove-emoji', uniCommandHandler('unicode.remove-emoji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.extract-emoji', uniCommandHandler('unicode.extract-emoji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-bold', uniCommandHandler('unicode.style-bold')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-italic', uniCommandHandler('unicode.style-italic')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-monospace', uniCommandHandler('unicode.style-monospace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-circled', uniCommandHandler('unicode.style-circled')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.upside-down', uniCommandHandler('unicode.upside-down')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.strikethrough', uniCommandHandler('unicode.strikethrough')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.underline', uniCommandHandler('unicode.underline')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.superscript', uniCommandHandler('unicode.superscript')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.subscript', uniCommandHandler('unicode.subscript')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.detect-confusables', uniCommandHandler('unicode.detect-confusables')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.detect-bidi', uniCommandHandler('unicode.detect-bidi')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.smart-quotes', uniCommandHandler('unicode.smart-quotes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.typographic-punctuation', uniCommandHandler('unicode.typographic-punctuation')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.detect-scripts', uniCommandHandler('unicode.detect-scripts')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.transliterate-cyrillic', uniCommandHandler('unicode.transliterate-cyrillic')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

@@ -848,32 +848,32 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | UNI-002 | UNI | 基本 | `selection-manipulator.unicode.normalize-nfd` | Unicode - Normalize NFD | NFD 正規化（分解）する | `é` → `e{U+0301}` | なし | なし |
 | UNI-003 | UNI | 基本 | `selection-manipulator.unicode.normalize-nfkc` | Unicode - Normalize NFKC | NFKC 正規化する（互換文字を統一） | `ｶﾞ①ﬁ` → `ガ1fi` | なし | なし |
 | UNI-004 | UNI | 基本 | `selection-manipulator.unicode.normalize-nfkd` | Unicode - Normalize NFKD | NFKD 正規化する | `ﬁ` → `fi` | なし | なし |
-| UNI-005 | UNI | 基本 | `selection-manipulator.unicode.remove-zero-width` | Unicode - Remove Zero-width Characters | ZWSP・ZWJ・ZWNJ・BOM などの幅ゼロ文字を取り除く | `a{U+200B}b` → `ab` | なし | なし |
-| UNI-006 | UNI | 基本 | `selection-manipulator.unicode.reveal-invisible` | Unicode - Reveal Invisible Characters | 見えない文字や制御文字を &lt;U+XXXX&gt; 表記にして見えるようにする | `a{U+200B}b` → `a<U+200B>b` | なし | なし |
-| UNI-007 | UNI | 基本 | `selection-manipulator.unicode.to-codepoints` | Unicode - Show Code Points | 各文字を U+XXXX 表記にする | `あ😀` → `U+3042 U+1F600` | なし | なし |
-| UNI-008 | UNI | 基本 | `selection-manipulator.unicode.from-codepoints` | Unicode - Code Points to Text | U+XXXX 表記を文字に戻す | `U+3042 U+1F600` → `あ😀` | なし | なし |
-| UNI-009 | UNI | 基本 | `selection-manipulator.unicode.to-utf8-bytes` | Unicode - Show UTF-8 Bytes per Character | 文字ごとに UTF-8 のバイト列を表示する | `aあ` → `a: 61⏎あ: E3 81 82` | なし | なし |
-| UNI-010 | UNI | 基本 | `selection-manipulator.unicode.to-utf16-units` | Unicode - Show UTF-16 Code Units | 文字ごとに UTF-16 のコードユニットを表示する | `😀` → `😀: D83D DE00` | なし | なし |
-| UNI-011 | UNI | 基本 | `selection-manipulator.unicode.count-graphemes` | Unicode - Count Graphemes | Intl.Segmenter で見た目の文字数（書記素クラスタ数）を数え、length と並べて通知する | `👨‍👩‍👧` → `1 grapheme / length 8（通知）` | なし | なし |
+| UNI-005 | UNI | 基本 | `selection-manipulator.unicode.remove-zero-width` | Unicode - Remove Zero-width Characters | U+200B・U+200C（ZWNJ）・U+200D（ZWJ）・U+2060・U+FEFF（BOM）・U+180E を取り除く。ただし絵文字どうしをつなぐ ZWJ（直前が Extended\_Pictographic（間に肌色修飾子・U+FE0E / U+FE0F があってもよい）で、直後も Extended\_Pictographic のもの）は残し、ZWJ シーケンスを壊さない（`👍{U+200D}` → `👍`、`a{U+200D}b` → `ab`） | `a{U+200B}b` → `ab` | なし | なし |
+| UNI-006 | UNI | 基本 | `selection-manipulator.unicode.reveal-invisible` | Unicode - Reveal Invisible Characters | 見えない文字や制御文字を &lt;U+XXXX&gt; 表記にして見えるようにする（対象は Cc（タブ・改行を除く）・Cf・U+2028 / U+2029・Zs（通常の空白と全角空白を除く）。UNI-005 と同じ規則で絵文字シーケンスに属する ZWJ・タグ文字はそのまま。UNI-008 で元に戻せる） | `a{U+200B}b` → `a<U+200B>b` | なし | なし |
+| UNI-007 | UNI | 基本 | `selection-manipulator.unicode.to-codepoints` | Unicode - Show Code Points | 各文字を U+XXXX 表記（16 進大文字・最低 4 桁）の空白区切りにし、新しいタブに開く（行ごと。改行は保つ） | `あ😀` → `U+3042 U+1F600` | なし | なし |
+| UNI-008 | UNI | 基本 | `selection-manipulator.unicode.from-codepoints` | Unicode - Code Points to Text | U+XXXX と &lt;U+XXXX&gt; の表記（大文字小文字不問、16 進 4〜6 桁）を文字に戻し、表記どうしの間の空白・タブは取り除く（それ以外の文字はそのまま。サロゲートと U+10FFFF 超はエラー） | `U+3042 U+1F600` → `あ😀` | なし | なし |
+| UNI-009 | UNI | 基本 | `selection-manipulator.unicode.to-utf8-bytes` | Unicode - Show UTF-8 Bytes per Character | 書記素ごとに 1 行、UTF-8 のバイト列（16 進大文字）を新しいタブに表示する（改行・空白・不可視文字の見出しは &lt;U+XXXX&gt; 表記） | `aあ` → `a: 61⏎あ: E3 81 82` | なし | なし |
+| UNI-010 | UNI | 基本 | `selection-manipulator.unicode.to-utf16-units` | Unicode - Show UTF-16 Code Units | 書記素ごとに 1 行、UTF-16 のコードユニット（16 進大文字 4 桁）を新しいタブに表示する | `😀` → `😀: D83D DE00` | なし | なし |
+| UNI-011 | UNI | 基本 | `selection-manipulator.unicode.count-graphemes` | Unicode - Count Graphemes | Intl.Segmenter で見た目の文字数（書記素クラスタ数）を数え、length と並べて通知する（全選択の合計） | `👨‍👩‍👧` → `1 grapheme / length 8（通知）` | なし | なし |
 | UNI-012 | UNI | 基本 | `selection-manipulator.unicode.remove-control` | Unicode - Remove Control Characters | 改行・タブ以外の制御文字（C0 / C1）を取り除く | `a{U+0007}b` → `ab` | なし | なし |
-| UNI-013 | UNI | 基本 | `selection-manipulator.unicode.remove-non-ascii` | Unicode - Remove Non-ASCII Characters | ASCII 以外の文字を取り除く | `café ☕` → `caf·` | なし | なし |
-| UNI-014 | UNI | 基本 | `selection-manipulator.unicode.remove-emoji` | Unicode - Remove Emoji | 絵文字（Extended\_Pictographic と修飾子・ZWJ シーケンス）を取り除く | `ok👍` → `ok` | なし | なし |
-| UNI-015 | UNI | 基本 | `selection-manipulator.unicode.extract-emoji` | Unicode - Extract Emoji | 絵文字だけを取り出す | `ok👍 go🚀` → `👍🚀` | なし | なし |
+| UNI-013 | UNI | 基本 | `selection-manipulator.unicode.remove-non-ascii` | Unicode - Remove Non-ASCII Characters | ASCII 以外（U+0080 以上）の文字を取り除く | `café ☕` → `caf·` | なし | なし |
+| UNI-014 | UNI | 基本 | `selection-manipulator.unicode.remove-emoji` | Unicode - Remove Emoji | 絵文字（Emoji\_Presentation・U+FE0F・国旗の地域指示子・キーキャップ U+20E3 のいずれかを含む書記素。修飾子・ZWJ シーケンスごと）を取り除く。© ™ や U+FE0F のない ❤ などのテキスト記号は対象外 | `ok👍` → `ok` | なし | なし |
+| UNI-015 | UNI | 基本 | `selection-manipulator.unicode.extract-emoji` | Unicode - Extract Emoji | 絵文字だけを出現順に区切りなしで取り出し、新しいタブに開く（UNI-014 と同じ判定。見つからなければ通知） | `ok👍 go🚀` → `👍🚀` | なし | なし |
 | UNI-016 | UNI | 基本 | `selection-manipulator.unicode.style-bold` | Unicode - Mathematical Bold | 英数字を数学用太字の文字にする（SNS 向け装飾） | `abc` → `𝐚𝐛𝐜` | なし | なし |
-| UNI-017 | UNI | 基本 | `selection-manipulator.unicode.style-italic` | Unicode - Mathematical Italic | 英字を数学用斜体の文字にする | `abc` → `𝑎𝑏𝑐` | なし | なし |
+| UNI-017 | UNI | 基本 | `selection-manipulator.unicode.style-italic` | Unicode - Mathematical Italic | 英字を数学用斜体の文字にする（h は U+210E。数字はそのまま） | `abc` → `𝑎𝑏𝑐` | なし | なし |
 | UNI-018 | UNI | 基本 | `selection-manipulator.unicode.style-monospace` | Unicode - Mathematical Monospace | 英数字を数学用等幅の文字にする | `abc` → `𝚊𝚋𝚌` | なし | なし |
-| UNI-019 | UNI | 基本 | `selection-manipulator.unicode.style-circled` | Unicode - Circled Letters | 英数字を丸囲み文字にする | `abc` → `ⓐⓑⓒ` | なし | なし |
-| UNI-020 | UNI | 基本 | `selection-manipulator.unicode.upside-down` | Unicode - Upside Down Text | 上下を反転した見た目の文字に置き換え、順序を逆にする | `hello` → `ollǝɥ` | なし | なし |
-| UNI-021 | UNI | 基本 | `selection-manipulator.unicode.strikethrough` | Unicode - Combining Strikethrough | 各文字の後ろに結合用の取り消し線（U+0336）を付ける | `abc` → `a̶b̶c̶` | なし | なし |
-| UNI-022 | UNI | 基本 | `selection-manipulator.unicode.underline` | Unicode - Combining Underline | 各文字の後ろに結合用の下線（U+0332）を付ける | `abc` → `a̲b̲c̲` | なし | なし |
-| UNI-023 | UNI | 基本 | `selection-manipulator.unicode.superscript` | Unicode - Superscript | 数字と一部の英字を上付き文字にする | `x2` → `x²` | なし | なし |
-| UNI-024 | UNI | 基本 | `selection-manipulator.unicode.subscript` | Unicode - Subscript | 数字と一部の英字を下付き文字にする | `H2O` → `H₂O` | なし | なし |
-| UNI-025 | UNI | 基本 | `selection-manipulator.unicode.detect-confusables` | Unicode - Detect Confusable Characters | ラテン文字に似たキリル文字・ギリシャ文字など（ホモグリフ）を検出して選択する | `pаypal（а はキリル文字）` → `「а」を選択（通知）` | なし | なし |
-| UNI-026 | UNI | 基本 | `selection-manipulator.unicode.detect-bidi` | Unicode - Detect Bidi Control Characters | Trojan Source 攻撃に使われる双方向制御文字（U+202A〜202E, U+2066〜2069）を検出して選択する | `a{U+202E}b` → `位置を選択（通知）` | なし | なし |
-| UNI-027 | UNI | 基本 | `selection-manipulator.unicode.smart-quotes` | Unicode - Convert to Smart Quotes | 直線の引用符を開き・閉じを判別して曲がった引用符にする（既存 Unsmart Quotes の逆） | `"a" it's` → `“a” it’s` | なし | なし |
-| UNI-028 | UNI | 基本 | `selection-manipulator.unicode.typographic-punctuation` | Unicode - Typographic Dashes and Ellipsis | 「--」を「—」、「...」を「…」に置き換える | `wait... -- ok` → `wait… — ok` | なし | なし |
-| UNI-029 | UNI | 基本 | `selection-manipulator.unicode.detect-scripts` | Unicode - Detect Scripts | 含まれている文字体系（Latin, Hiragana, Han など）と文字数を通知する | `abcあア漢` → `Latin 3, Hiragana 1, Katakana 1, Han 1（通知）` | なし | なし |
-| UNI-030 | UNI | 基本 | `selection-manipulator.unicode.transliterate-cyrillic` | Unicode - Transliterate Cyrillic to Latin | キリル文字をラテン文字に翻字する（対応表を内蔵） | `Привет` → `Privet` | なし | なし |
+| UNI-019 | UNI | 基本 | `selection-manipulator.unicode.style-circled` | Unicode - Circled Letters | 英数字を丸囲み文字にする（0 は ⓪、1〜9 は ①〜⑨） | `abc` → `ⓐⓑⓒ` | なし | なし |
+| UNI-020 | UNI | 基本 | `selection-manipulator.unicode.upside-down` | Unicode - Upside Down Text | 上下を反転した見た目の文字（定数表。対応のない文字はそのまま）に置き換え、文字の順序を逆にする。複数行は行の順序も逆にする（選択の先頭・末尾の改行は元の位置に残す） | `hello` → `ollǝɥ` | なし | なし |
+| UNI-021 | UNI | 基本 | `selection-manipulator.unicode.strikethrough` | Unicode - Combining Strikethrough | 改行・タブ・制御文字以外の各書記素の後ろに結合用の取り消し線（U+0336）を付ける | `abc` → `a̶b̶c̶` | なし | なし |
+| UNI-022 | UNI | 基本 | `selection-manipulator.unicode.underline` | Unicode - Combining Underline | 改行・タブ・制御文字以外の各書記素の後ろに結合用の下線（U+0332）を付ける | `abc` → `a̲b̲c̲` | なし | なし |
+| UNI-023 | UNI | 基本 | `selection-manipulator.unicode.superscript` | Unicode - Superscript | 数字と一部の英字を上付き文字にする。クイックピックで「Digits and Signs」（既定・先頭。数字と + - = ( ) だけ）と「Digits, Signs and Letters」（上付きの字形がある英字も）を選ぶ。字形のない文字はそのまま | `x2` → `x²` | なし | なし |
+| UNI-024 | UNI | 基本 | `selection-manipulator.unicode.subscript` | Unicode - Subscript | 数字と一部の英字を下付き文字にする。クイックピックで「Digits and Signs」（既定・先頭。数字と + - = ( ) だけ）と「Digits, Signs and Letters」（下付きの字形がある小文字の英字も）を選ぶ。字形のない文字はそのまま | `H2O` → `H₂O` | なし | なし |
+| UNI-025 | UNI | 基本 | `selection-manipulator.unicode.detect-confusables` | Unicode - Detect Confusable Characters | ラテン文字に似たキリル文字・ギリシャ文字（主要なものの定数表）を検出して 1 文字ずつ選択し、種類ごとに通知する。単語は文字・結合記号・数字の連続（空白・記号・`_`・`-`・`.` などは区切り）。検出するのは (A) ラテン文字を含む単語の中の表の文字（キリル・ギリシャとも）と、(B) 表のキリル文字だけでできた 2 文字以上の単語で、同じ行にラテン文字を含む別の単語があり、表にないキリル文字・ギリシャ文字が同じ行にないもの。ギリシャ文字はラテン文字と混在する単語でだけ検出する（ラテン文字のない行の `раура` や `ΑΡΙ key` は検出しない） | `pаypal（а はキリル文字）` → `「а」を選択（通知）` | なし | なし |
+| UNI-026 | UNI | 基本 | `selection-manipulator.unicode.detect-bidi` | Unicode - Detect Bidi Control Characters | Trojan Source 攻撃に使われる双方向制御文字（U+202A〜202E, U+2066〜2069）を検出して選択し、件数とコードポイント・名前を通知する | `a{U+202E}b` → `位置を選択（通知）` | なし | なし |
+| UNI-027 | UNI | 基本 | `selection-manipulator.unicode.smart-quotes` | Unicode - Convert to Smart Quotes | 直線の引用符を開き・閉じを判別して曲がった引用符にする（既存 Unsmart Quotes の逆）。" は行頭・空白・開き括弧・ダッシュ・‘ の後なら “、それ以外は ”。' は英数字に挟まれていれば ’、そうでなければ " と同じ位置（ただし ‘ の代わりに “ の後）で ‘、それ以外は ’（`'90s` → `‘90s`、`""` → `“”`。既存の曲がった “ の直後の " は閉じになる） | `"a" it's` → `“a” it’s` | なし | なし |
+| UNI-028 | UNI | 基本 | `selection-manipulator.unicode.typographic-punctuation` | Unicode - Typographic Dashes and Ellipsis | ちょうど 2 個の「--」を「—」、ちょうど 3 個の「...」を「…」に置き換える（「---」や「....」はそのまま） | `wait... -- ok` → `wait… — ok` | なし | なし |
+| UNI-029 | UNI | 基本 | `selection-manipulator.unicode.detect-scripts` | Unicode - Detect Scripts | 含まれている文字体系（Latin, Hiragana, Han など。主要な 33 種の定数リスト、ほかは Other）と文字数を出現順に通知する（全選択の合計。数字・記号・空白・結合記号は数えず、文字がなければその旨を通知） | `abcあア漢` → `Latin 3, Hiragana 1, Katakana 1, Han 1（通知）` | なし | なし |
+| UNI-030 | UNI | 基本 | `selection-manipulator.unicode.transliterate-cyrillic` | Unicode - Transliterate Cyrillic to Latin | キリル文字をラテン文字に翻字する（対応表を内蔵）。ロシア語は BGN/PCGN を簡略化した位置によらない 1 文字ごとの固定対応（е は常に e）で、出力は ASCII だけ。ロシア語にないウクライナ語・ベラルーシ語・セルビア語・マケドニア語の字を追加し、読みが衝突する字（г・и など）はロシア語の値を採る | `Привет` → `Privet` | なし | なし |
 
 ### DEV
 
