@@ -3456,6 +3456,81 @@ export const myCommands = [
     "command": "selection-manipulator.japanese.space-between-ja-en.replace",
     "title": "Japanese - Add Space Between Japanese and Alphanumerics (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.normalize-nfc",
+    "title": "Unicode - Normalize NFC",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.normalize-nfd",
+    "title": "Unicode - Normalize NFD",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.normalize-nfkc",
+    "title": "Unicode - Normalize NFKC",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.normalize-nfkd",
+    "title": "Unicode - Normalize NFKD",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.remove-zero-width",
+    "title": "Unicode - Remove Zero-width Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.reveal-invisible",
+    "title": "Unicode - Reveal Invisible Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.to-codepoints",
+    "title": "Unicode - Show Code Points",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.from-codepoints",
+    "title": "Unicode - Code Points to Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.to-utf8-bytes",
+    "title": "Unicode - Show UTF-8 Bytes per Character",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.to-utf16-units",
+    "title": "Unicode - Show UTF-16 Code Units",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.count-graphemes",
+    "title": "Unicode - Count Graphemes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.remove-control",
+    "title": "Unicode - Remove Control Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.remove-non-ascii",
+    "title": "Unicode - Remove Non-ASCII Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.remove-emoji",
+    "title": "Unicode - Remove Emoji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.extract-emoji",
+    "title": "Unicode - Extract Emoji",
+    "canMultiSelection": true
   }
 ];
 

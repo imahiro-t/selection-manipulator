@@ -3576,6 +3576,81 @@
         "command": "selection-manipulator.japanese.space-between-ja-en.replace",
         "title": "Japanese - Add Space Between Japanese and Alphanumerics (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.normalize-nfc",
+        "title": "Unicode - Normalize NFC",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.normalize-nfd",
+        "title": "Unicode - Normalize NFD",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.normalize-nfkc",
+        "title": "Unicode - Normalize NFKC",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.normalize-nfkd",
+        "title": "Unicode - Normalize NFKD",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.remove-zero-width",
+        "title": "Unicode - Remove Zero-width Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.reveal-invisible",
+        "title": "Unicode - Reveal Invisible Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.to-codepoints",
+        "title": "Unicode - Show Code Points",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.from-codepoints",
+        "title": "Unicode - Code Points to Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.to-utf8-bytes",
+        "title": "Unicode - Show UTF-8 Bytes per Character",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.to-utf16-units",
+        "title": "Unicode - Show UTF-16 Code Units",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.count-graphemes",
+        "title": "Unicode - Count Graphemes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.remove-control",
+        "title": "Unicode - Remove Control Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.remove-non-ascii",
+        "title": "Unicode - Remove Non-ASCII Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.remove-emoji",
+        "title": "Unicode - Remove Emoji",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.extract-emoji",
+        "title": "Unicode - Extract Emoji",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -3828,6 +3903,10 @@
       {
         "id": "selection-manipulator.table.replace.submenu",
         "label": "CSV / TSV"
+      },
+      {
+        "id": "selection-manipulator.unicode.submenu",
+        "label": "Unicode"
       }
     ],
     "menus": {
@@ -5855,6 +5934,66 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.japanese.space-between-ja-en.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.normalize-nfc"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.normalize-nfd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.normalize-nfkc"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.normalize-nfkd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.remove-zero-width"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.reveal-invisible"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.to-codepoints"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.from-codepoints"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.to-utf8-bytes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.to-utf16-units"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.count-graphemes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.remove-control"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.remove-non-ascii"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.remove-emoji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.extract-emoji"
         }
       ],
       "editor/context": [
@@ -7508,6 +7647,10 @@
         {
           "submenu": "selection-manipulator.generate.submenu",
           "group": "selection-manipulator@15"
+        },
+        {
+          "submenu": "selection-manipulator.unicode.submenu",
+          "group": "selection-manipulator@16"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -8824,6 +8967,68 @@
         {
           "command": "selection-manipulator.csv.to-html-table.replace",
           "group": "selection-manipulator@4"
+        }
+      ],
+      "selection-manipulator.unicode.submenu": [
+        {
+          "command": "selection-manipulator.unicode.normalize-nfc",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.unicode.normalize-nfd",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.unicode.normalize-nfkc",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unicode.normalize-nfkd",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.unicode.remove-zero-width",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.unicode.reveal-invisible",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.unicode.to-codepoints",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.unicode.from-codepoints",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.unicode.to-utf8-bytes",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.unicode.to-utf16-units",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.unicode.count-graphemes",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.unicode.remove-control",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.unicode.remove-non-ascii",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.unicode.remove-emoji",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.unicode.extract-emoji",
+          "group": "selection-manipulator@14"
         }
       ]
     }
