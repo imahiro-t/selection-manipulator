@@ -372,7 +372,11 @@ export const toUpsideDown = (text: string): string => {
       parts.push(breaks[first + last - i]);
     }
   }
-  parts.push(...breaks.slice(last));
+  // A loop, not `push(...array)`: spreading one argument per break overflows the stack for a
+  // text ending with hundreds of thousands of line breaks.
+  for (let i = last; i < breaks.length; i++) {
+    parts.push(breaks[i]);
+  }
   return parts.join('');
 };
 
@@ -449,6 +453,9 @@ enum Kind {
 /** The kind of every code point met so far (a text uses few distinct characters). */
 const kindCache = new Map<number, Kind>();
 
+/** The most code points a cache of UNI-025 / 029 keeps; it is emptied when it would grow past this. */
+const MAX_CACHED_CODE_POINTS = 4096;
+
 const kindOf = (ch: string): Kind => {
   const code = ch.codePointAt(0)!;
   let kind = kindCache.get(code);
@@ -465,6 +472,9 @@ const kindOf = (ch: string): Kind => {
       kind = Kind.OtherCyrillicOrGreek;
     } else {
       kind = Kind.Other;
+    }
+    if (kindCache.size >= MAX_CACHED_CODE_POINTS) {
+      kindCache.clear();
     }
     kindCache.set(code, kind);
   }
@@ -560,7 +570,14 @@ export const findConfusables = (text: string, limit: number): UniTextRange[] => 
       const spoofed = !word.hasLatin && !word.hasGreekHomoglyph && !word.hasOtherCyrillicOrGreek && !word.hasOtherLetter
         && word.letters >= 2 && hasLatinWord && !hasOtherCyrillicOrGreek;
       if (mixed || spoofed) {
-        found.push(...word.homoglyphs);
+        // One at a time (a word can hold hundreds of thousands of homoglyphs, too many to spread
+        // into the arguments of `push`), stopping as soon as the limit is passed.
+        for (const range of word.homoglyphs) {
+          found.push(range);
+          if (found.length > limit) {
+            break;
+          }
+        }
         if (found.length > limit) {
           break;
         }
@@ -711,6 +728,9 @@ const scriptOf = (code: number, ch: string): string | null => {
       script = null;
     } else {
       script = SCRIPT_TESTS.find(([, test]) => test.test(ch))?.[0] ?? 'Other';
+    }
+    if (scriptCache.size >= MAX_CACHED_CODE_POINTS) {
+      scriptCache.clear();
     }
     scriptCache.set(code, script);
   }

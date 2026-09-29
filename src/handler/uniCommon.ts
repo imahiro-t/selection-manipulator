@@ -122,6 +122,7 @@ export interface GraphemeSegmenter {
 }
 
 const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdbff;
+const isLowSurrogate = (code: number): boolean => code >= 0xdc00 && code <= 0xdfff;
 
 /**
  * The grapheme clusters of the text, segmenting at most about `chunkLength` code units at a time.
@@ -144,16 +145,28 @@ export function* graphemesInChunks(
   let size = chunkLength;
   while (start < text.length) {
     let end = start + size;
+    const retrying = size > chunkLength;
     if (end >= text.length) {
       for (const { segment } of segmenter.segment(start === 0 ? text : text.slice(start))) {
         yield segment;
+        if (retrying) {
+          // The doubled piece reached the end of the text: take only the long grapheme and go
+          // back to pieces of the usual size, rather than segmenting all the rest at once.
+          start += segment.length;
+          break;
+        }
       }
-      return;
+      if (!retrying) {
+        return;
+      }
+      size = chunkLength;
+      continue;
     }
-    if (isHighSurrogate(text.charCodeAt(end - 1))) {
+    // Only a high surrogate followed by a low one is a pair to keep whole; a lone high surrogate
+    // may end the piece (extending it would cut the next pair in two instead).
+    if (isHighSurrogate(text.charCodeAt(end - 1)) && isLowSurrogate(text.charCodeAt(end))) {
       end++;
     }
-    const retrying = size > chunkLength;
     let pending: string | undefined;
     let consumed = 0;
     for (const { segment } of segmenter.segment(text.slice(start, end))) {

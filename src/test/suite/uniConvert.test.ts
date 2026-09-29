@@ -110,6 +110,26 @@ suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
       assert.strictEqual(countGraphemes(marks), 2);
     });
 
+    test('graphemesInChunks: a lone high surrogate at the end of a piece does not cut the next surrogate pair', () => {
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+      const whole = (text: string): string[] => Array.from(segmenter.segment(text), ({ segment }) => segment);
+      // A lone high surrogate followed by a pair (an emoji modifier, which joins the grapheme before it).
+      const texts = [
+        '\uD83C\u{1F3FD}',
+        'a\uD83C\u{1F3FD}b',
+        '\uD83C\uD83C\u{1F3FD}',
+        'ab\uD83C\u{1F3FD}\u{1F3FD}\uDFFDc',
+        '\uDFFD\uD83C\u{1F44D}\u{1F3FB}',
+      ];
+      for (const text of texts) {
+        const expected = whole(text);
+        for (let chunk = 1; chunk <= 8; chunk++) {
+          const result = [...graphemesInChunks(text, chunk)];
+          assert.deepStrictEqual(result, expected, `${JSON.stringify(text)} / ${chunk}`);
+        }
+      }
+    });
+
     test('graphemes segments a long text in short pieces (linear on every runtime)', () => {
       const lengths: number[] = [];
       const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
@@ -131,6 +151,39 @@ suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
       assert.strictEqual(result.length, 1 + 8 * GRAPHEME_CHUNK_LENGTH);
       assert.strictEqual(result[0], `a${'\u0301'.repeat(5 * GRAPHEME_CHUNK_LENGTH)}`);
       assert.ok(lengths.slice(-8).every((length) => length <= GRAPHEME_CHUNK_LENGTH + 1), lengths.join(','));
+    });
+
+    test('graphemes: after a long grapheme whose doubled piece reaches the end, the rest is again segmented in short pieces', () => {
+      const lengths: number[] = [];
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+      const spy = {
+        segment: (text: string) => {
+          lengths.push(text.length);
+          return segmenter.segment(text);
+        },
+      };
+      const C = GRAPHEME_CHUNK_LENGTH;
+      // The long grapheme fills pieces of C, 2C and 4C; the piece of 8C is past the end of the text.
+      for (const rest of [3 * C, 3 * C + 7, C + 1]) {
+        lengths.length = 0;
+        const longGrapheme = `a${'\u0301'.repeat(5 * C)}`;
+        const text = `${longGrapheme}${'b'.repeat(rest)}`;
+        const result = [...graphemesInChunks(text, C, spy)];
+        assert.strictEqual(result.length, 1 + rest);
+        assert.strictEqual(result[0], longGrapheme);
+        assert.strictEqual(result.join(''), text);
+        // The pieces after the one that gave the long grapheme are of the usual length.
+        const lastLong = lengths.findIndex((length) => length > 5 * C);
+        assert.ok(lastLong >= 0, lengths.join(','));
+        const after = lengths.slice(lastLong + 1);
+        assert.ok(after.length >= Math.floor(rest / C), lengths.join(','));
+        assert.ok(after.every((length) => length <= C + 1), lengths.join(','));
+      }
+      // A text ending with the long grapheme is still segmented to its end.
+      lengths.length = 0;
+      const ending = `${'b'.repeat(3)}a${'\u0301'.repeat(3 * C)}`;
+      const endingResult = [...graphemesInChunks(ending, C, spy)];
+      assert.deepStrictEqual(endingResult, ['b', 'b', 'b', `a${'\u0301'.repeat(3 * C)}`]);
     });
 
     test('isEmojiGrapheme: emoji sequences are emoji; text symbols, digits and # are not', () => {
@@ -616,6 +669,32 @@ suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
         const elapsed = Date.now() - started;
         assert.ok(elapsed < 10_000, `${entry.id}: ${elapsed} ms`);
       });
+    });
+
+    test('graphemes stay linear when a long run of combining marks is followed by many graphemes up to the end', function () {
+      this.timeout(20_000);
+      const text = `a${'\u0301'.repeat(600_000)}${'b'.repeat(399_999)}`;
+      const started = Date.now();
+      assert.strictEqual(countGraphemes(text), 400_000);
+      const elapsed = Date.now() - started;
+      assert.ok(elapsed < 10_000, `${elapsed} ms`);
+    });
+
+    test('UNI-020 keeps hundreds of thousands of line breaks at the start and at the end', () => {
+      assert.strictEqual(toUpsideDown(`a${'\n'.repeat(999_999)}`), `\u0250${'\n'.repeat(999_999)}`);
+      assert.strictEqual(toUpsideDown(`a\r\n${'\r\n'.repeat(499_998)}`), `\u0250\r\n${'\r\n'.repeat(499_998)}`);
+      assert.strictEqual(toUpsideDown(`${'\n'.repeat(999_998)}ab`), `${'\n'.repeat(999_998)}q\u0250`);
+      const between = `${'\n'.repeat(300_000)}ab${'\n'.repeat(300_000)}cd${'\n'.repeat(300_000)}`;
+      assert.strictEqual(toUpsideDown(toUpsideDown(between)), between);
+    });
+
+    test('UNI-025 handles a word of 1,000,000 homoglyphs and stops at the limit', () => {
+      const word = `p${'\u0430'.repeat(999_999)}`;
+      const limited = findConfusables(word, 10_000);
+      assert.strictEqual(limited.length, 10_001);
+      assert.deepStrictEqual(limited[0], { start: 1, end: 2 });
+      assert.deepStrictEqual(limited[10_000], { start: 10_001, end: 10_002 });
+      assert.strictEqual(findConfusables(word, 2_000_000).length, 999_999);
     });
 
     test('a selection over 1,000,000 characters is refused by every transform', () => {
