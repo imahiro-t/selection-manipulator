@@ -681,46 +681,46 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| NUM-001 | NUM | 基本 | `selection-manipulator.math.median` | Math - Median | 選択した数値の中央値を通知・挿入する | `1⏎3⏎2⏎10` → `2.5` | なし | なし |
-| NUM-002 | NUM | 基本 | `selection-manipulator.math.mode` | Math - Mode | 最頻値を求める | `1⏎2⏎2⏎3` → `2` | なし | なし |
-| NUM-003 | NUM | 基本 | `selection-manipulator.math.stddev` | Math - Standard Deviation | 母標準偏差と標本標準偏差を求める | `2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.1381` | なし | なし |
-| NUM-004 | NUM | 基本 | `selection-manipulator.math.variance` | Math - Variance | 母分散と標本分散を求める | `1⏎2⏎3` → `0.6667 / 1` | なし | なし |
-| NUM-005 | NUM | 基本 | `selection-manipulator.math.count` | Math - Count Numbers | 選択範囲に含まれる数値の個数を数える | `a 1 b 2.5` → `2` | なし | なし |
-| NUM-006 | NUM | 基本 | `selection-manipulator.math.product` | Math - Product | 数値の積を求める | `2⏎3⏎4` → `24` | なし | なし |
-| NUM-007 | NUM | 基本 | `selection-manipulator.math.range` | Math - Range | 最大値と最小値の差を求める | `3⏎9⏎1` → `8` | なし | なし |
-| NUM-008 | NUM | 基本 | `selection-manipulator.math.percentile` | Math - Percentile | 入力したパーセンタイル（0〜100）の値を線形補間で求める | `1⏎2⏎3⏎4⏎5（90）` → `4.6` | なし | なし |
-| NUM-009 | NUM | 基本 | `selection-manipulator.math.summary` | Math - Statistics Summary | 件数・合計・平均・最小・最大・中央値・標準偏差をまとめて出力する | `1⏎2⏎3` → `count=3, sum=6, mean=2, …` | なし | なし |
-| NUM-010 | NUM | 基本 | `selection-manipulator.math.cumulative-sum` | Math - Cumulative Sum | 各行を累積和に置き換える | `1⏎2⏎3` → `1⏎3⏎6` | なし | なし |
-| NUM-011 | NUM | 基本 | `selection-manipulator.number.round` | Number - Round | 数値を入力した小数点以下の桁数に四捨五入する | `3.14159（2）` → `3.14` | なし | なし |
-| NUM-012 | NUM | 基本 | `selection-manipulator.number.floor` | Number - Floor | 数値を小数点以下切り捨て（負方向）にする | `-2.5⏎2.7` → `-3⏎2` | なし | なし |
-| NUM-013 | NUM | 基本 | `selection-manipulator.number.ceil` | Number - Ceil | 数値を小数点以下切り上げにする | `2.1` → `3` | なし | なし |
+| NUM-001 | NUM | 基本 | `selection-manipulator.math.median` | Math - Median | 選択した数値の中央値を新しい読み取り専用エディターに開く（偶数個は中央 2 値の平均。NUM-001〜009 共通: 文書は変更せず、1 選択範囲 1 行（文書順・文書の改行コード）で出力する。既存の Sum / Average / Min / Max と違い選択範囲ごとに独立して集計する。数値は選択範囲中の 10 進表記のトークン（`-1.5`・`.5`・`1e3`）で、前が英数字・`_`・`.`・`+`・`-`、後ろが英数字・`_`・「`.`+数字」のものは数値にしない（`10px`・`a1`・`2026-09-29` の `09` / `29`・`1+2` の `2`）。カンマは区切りで `1,234` は 1 と 234。範囲外（`1e400`）はエラー。文字があるのに数値がない選択範囲は全体を中止して警告 `no numbers found`。空白だけの選択範囲はスキップされ結果行を出さないため、結果の行と選択範囲の対応がずれることがある。方針 A: 安全な整数はそのまま、それ以外は有効桁 15 桁で誤差を除く） | `1⏎3⏎2⏎10` → `2.5` | なし | なし |
+| NUM-002 | NUM | 基本 | `selection-manipulator.math.mode` | Math - Mode | 最頻値を求める（同数の最頻値は昇順に `, ` 区切り（`1 2 2 3 3` → `2, 3`）。2 個以上ですべて 1 回ずつなら `every number appears once, so there is no mode` のエラー。1 個ならその値。方針 A） | `1⏎2⏎2⏎3` → `2` | なし | なし |
+| NUM-003 | NUM | 基本 | `selection-manipulator.math.stddev` | Math - Standard Deviation | 母標準偏差と標本標準偏差を求める（小数点以下 4 桁に 0 から遠い方向へ四捨五入し末尾の 0 を削る（方針 B）。極小値は 0 になる（`1e-200⏎3e-200` → `σ=0, s=0`）。1 個なら `s=n/a`。途中の二乗では溢れない（`1e155⏎-1e155` → `σ=1e+155, …`）） | `2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.1381` | なし | なし |
+| NUM-004 | NUM | 基本 | `selection-manipulator.math.variance` | Math - Variance | 母分散と標本分散を `母分散 / 標本分散` で求める（方針 B（小数 4 桁）。1 個なら `0 / n/a`。分散そのものが倍精度を超えると `the result is out of range`） | `1⏎2⏎3` → `0.6667 / 1` | なし | なし |
+| NUM-005 | NUM | 基本 | `selection-manipulator.math.count` | Math - Count Numbers | 選択範囲に含まれる数値の個数を数える（数値のない選択範囲は警告にせず `0`） | `a 1 b 2.5` → `2` | なし | なし |
+| NUM-006 | NUM | 基本 | `selection-manipulator.math.product` | Math - Product | 数値の積を求める（方針 A。倍精度を超えると `the result is out of range`） | `2⏎3⏎4` → `24` | なし | なし |
+| NUM-007 | NUM | 基本 | `selection-manipulator.math.range` | Math - Range | 最大値と最小値の差を求める（方針 A） | `3⏎9⏎1` → `8` | なし | なし |
+| NUM-008 | NUM | 基本 | `selection-manipulator.math.percentile` | Math - Percentile | 入力したパーセンタイル（0〜100、小数可）の値を線形補間で求める（Excel の PERCENTILE.INC・NumPy の既定と同じ。方針 A） | `1⏎2⏎3⏎4⏎5（90）` → `4.6` | なし | なし |
+| NUM-009 | NUM | 基本 | `selection-manipulator.math.summary` | Math - Statistics Summary | 件数・合計・平均・最小・最大・中央値・標準偏差をまとめて出力する（`count=3, sum=6, mean=2, min=1, max=3, median=2, σ=0.8165, s=1`。mean / σ / s は方針 B、他は方針 A、1 個なら `s=n/a`） | `1⏎2⏎3` → `count=3, sum=6, mean=2, …` | なし | なし |
+| NUM-010 | NUM | 基本 | `selection-manipulator.math.cumulative-sum` | Math - Cumulative Sum | 各行を累積和に置き換える（NUM-010〜040 共通: 選択範囲を置換し、各行は前後のスペース / タブを除いて数値 1 個であること（前後の空白・空行・LF / CRLF は保持）。1 行でも不正ならコマンド全体を中止し `line N: "…" is not a number` などを通知（引用は 60 文字に短縮）。特に断りがなければ数値は `[-+]?` 付きの 10 進表記で `Infinity`・`0x…`・桁区切り付きは不可。空行は加算しない。累積和が安全な整数の間は厳密、それ以外は方針 A（有効桁 15 桁）なので 2^53 を超えた値や小数の後の 16 桁目以降は丸められる（`9007199254740991⏎1` → 2 行目 `9007199254740990`）） | `1⏎2⏎3` → `1⏎3⏎6` | なし | なし |
+| NUM-011 | NUM | 基本 | `selection-manipulator.number.round` | Number - Round | 数値を入力した小数点以下の桁数（0〜15 の整数）に四捨五入する（10 進表記の上で 0 から遠い方向に丸める: `1.005（2）` → `1.01`・`-2.5（0）` → `-3`。末尾の 0 は付けない） | `3.14159（2）` → `3.14` | なし | なし |
+| NUM-012 | NUM | 基本 | `selection-manipulator.number.floor` | Number - Floor | 数値を小数点以下切り捨て（負方向）にする（NUM-012〜014 は結果の整数をそのまま出す。2^53 を超える値は倍精度の値どおり（`12345678901234567890` → `12345678901234567000`）、1e21 以上は `1e+21`、`-0` は `0`） | `-2.5⏎2.7` → `-3⏎2` | なし | なし |
+| NUM-013 | NUM | 基本 | `selection-manipulator.number.ceil` | Number - Ceil | 数値を小数点以下切り上げにする（`-0.5` → `0`） | `2.1` → `3` | なし | なし |
 | NUM-014 | NUM | 基本 | `selection-manipulator.number.truncate` | Number - Truncate | 数値の小数部を 0 方向に切り捨てる | `-2.7` → `-2` | なし | なし |
-| NUM-015 | NUM | 基本 | `selection-manipulator.number.abs` | Number - Absolute Value | 数値を絶対値にする | `-5` → `5` | なし | なし |
-| NUM-016 | NUM | 基本 | `selection-manipulator.number.negate` | Number - Negate | 数値の符号を反転する | `5⏎-3` → `-5⏎3` | なし | なし |
-| NUM-017 | NUM | 基本 | `selection-manipulator.number.add-separator` | Number - Add Thousands Separator | 3 桁ごとにカンマを入れる | `1234567.89` → `1,234,567.89` | なし | なし |
-| NUM-018 | NUM | 基本 | `selection-manipulator.number.remove-separator` | Number - Remove Thousands Separator | 桁区切りのカンマを取り除く | `1,234,567` → `1234567` | なし | なし |
-| NUM-019 | NUM | 基本 | `selection-manipulator.number.format-locale` | Number - Format by Locale | Intl.NumberFormat で入力したロケールの表記にする | `1234.5（de-DE）` → `1.234,5` | なし | なし |
-| NUM-020 | NUM | 基本 | `selection-manipulator.number.to-hex` | Number - Decimal to Hex | 10 進数を 16 進数（0x 付き）にする（BigInt 対応） | `255` → `0xff` | なし | なし |
-| NUM-021 | NUM | 基本 | `selection-manipulator.number.from-hex` | Number - Hex to Decimal | 16 進数を 10 進数にする | `0xff` → `255` | なし | なし |
-| NUM-022 | NUM | 基本 | `selection-manipulator.number.to-binary` | Number - Decimal to Binary | 10 進数を 2 進数にする | `10` → `0b1010` | なし | なし |
+| NUM-015 | NUM | 基本 | `selection-manipulator.number.abs` | Number - Absolute Value | 数値を絶対値にする（文字列で先頭の `-` / `+` を外すだけで、数字部（先頭の 0・末尾の 0・指数部）は入力のまま: `-1.50` → `1.50`。ゼロは符号を外すだけ: `-0.00` → `0.00`） | `-5` → `5` | なし | なし |
+| NUM-016 | NUM | 基本 | `selection-manipulator.number.negate` | Number - Negate | 数値の符号を反転する（文字列で `-` を外すか付ける（`+` は外して `-` を付ける）。数字部は入力のまま: `1.50` → `-1.50`・`007` → `-007`。ゼロには `-` を付けない: `-0.00` → `0.00`・`0e5` → `0e5`） | `5⏎-3` → `-5⏎3` | なし | なし |
+| NUM-017 | NUM | 基本 | `selection-manipulator.number.add-separator` | Number - Add Thousands Separator | 3 桁ごとにカンマを入れる（`[-+]?\d+(\.\d+)?` か正しく区切られた入力（冪等）。指数表記は不可。整数部の先頭の 0 は取り除く（`-0012345` → `-12,345`・`000.5` → `0.5`）。`-000` は `-0` になる） | `1234567.89` → `1,234,567.89` | なし | なし |
+| NUM-018 | NUM | 基本 | `selection-manipulator.number.remove-separator` | Number - Remove Thousands Separator | 桁区切りのカンマを取り除く（正しい区切り、または区切りなしのみ。`12,34` のような誤った区切りは `has misplaced thousands separators` のエラー） | `1,234,567` → `1234567` | なし | なし |
+| NUM-019 | NUM | 基本 | `selection-manipulator.number.format-locale` | Number - Format by Locale | Intl.NumberFormat で入力したロケールの表記にする（ロケールは英数字と `-` の 35 文字以内で Intl が対応していること。`maximumFractionDigits: 20`。fr-FR の U+202F など区切り文字は実行環境の ICU の出力どおり。精度は倍精度の範囲） | `1234.5（de-DE）` → `1.234,5` | なし | なし |
+| NUM-020 | NUM | 基本 | `selection-manipulator.number.to-hex` | Number - Decimal to Hex | 10 進数を 16 進数（0x 付き）にする（BigInt 対応。NUM-020 / 022 / 024 共通: 符号付き 10 進整数 1,000 桁まで、小文字、負数は `-0xff`、小数はエラー） | `255` → `0xff` | なし | なし |
+| NUM-021 | NUM | 基本 | `selection-manipulator.number.from-hex` | Number - Hex to Decimal | 16 進数を 10 進数にする（NUM-021 / 023 / 025 共通: 接頭辞 `0x` / `0b` / `0o` はあってもなくてもよく、大文字小文字不問、符号可、数字部 1,000 桁まで、BigInt で変換） | `0xff` → `255` | なし | なし |
+| NUM-022 | NUM | 基本 | `selection-manipulator.number.to-binary` | Number - Decimal to Binary | 10 進数を 2 進数にする（`0b` 付き） | `10` → `0b1010` | なし | なし |
 | NUM-023 | NUM | 基本 | `selection-manipulator.number.from-binary` | Number - Binary to Decimal | 2 進数を 10 進数にする | `0b1010` → `10` | なし | なし |
-| NUM-024 | NUM | 基本 | `selection-manipulator.number.to-octal` | Number - Decimal to Octal | 10 進数を 8 進数にする | `8` → `0o10` | なし | なし |
+| NUM-024 | NUM | 基本 | `selection-manipulator.number.to-octal` | Number - Decimal to Octal | 10 進数を 8 進数にする（`0o` 付き） | `8` → `0o10` | なし | なし |
 | NUM-025 | NUM | 基本 | `selection-manipulator.number.from-octal` | Number - Octal to Decimal | 8 進数を 10 進数にする | `0o10` → `8` | なし | なし |
-| NUM-026 | NUM | 基本 | `selection-manipulator.number.convert-base` | Number - Convert Base (2-36) | 入力した基数（2〜36）の間で整数を変換する | `zz（36 → 10）` → `1295` | なし | なし |
-| NUM-027 | NUM | 基本 | `selection-manipulator.number.to-scientific` | Number - To Scientific Notation | 数値を指数表記にする | `12300` → `1.23e+4` | なし | なし |
-| NUM-028 | NUM | 基本 | `selection-manipulator.number.from-scientific` | Number - From Scientific Notation | 指数表記を通常の表記にする | `1.23e+4` → `12300` | なし | なし |
-| NUM-029 | NUM | 基本 | `selection-manipulator.number.to-percent` | Number - To Percent | 小数を百分率の表記にする | `0.125` → `12.5%` | なし | なし |
-| NUM-030 | NUM | 基本 | `selection-manipulator.number.bytes-to-human` | Number - Bytes to Human Readable | バイト数を KiB / MiB などの読みやすい表記にする | `1536` → `1.5 KiB` | なし | なし |
-| NUM-031 | NUM | 基本 | `selection-manipulator.number.human-to-bytes` | Number - Human Readable to Bytes | KB / MiB などの表記をバイト数にする | `1.5 MiB` → `1572864` | なし | なし |
-| NUM-032 | NUM | 基本 | `selection-manipulator.number.to-words-en` | Number - To English Words | 整数を英語の数詞にする | `42` → `forty-two` | なし | なし |
-| NUM-033 | NUM | 基本 | `selection-manipulator.number.ordinal-en` | Number - Add English Ordinal Suffix | 数値に英語の序数接尾辞を付ける | `1⏎2⏎11` → `1st⏎2nd⏎11th` | なし | なし |
-| NUM-034 | NUM | 基本 | `selection-manipulator.number.to-fraction` | Number - Decimal to Fraction | 小数を既約分数にする（循環小数は近似） | `0.75` → `3/4` | なし | なし |
-| NUM-035 | NUM | 基本 | `selection-manipulator.unit.celsius-to-fahrenheit` | Unit: Celsius to Fahrenheit | 摂氏を華氏に変換する | `100` → `212` | なし | なし |
+| NUM-026 | NUM | 基本 | `selection-manipulator.number.convert-base` | Number - Convert Base (2-36) | 入力した基数（2〜36）の間で整数を変換する（変換元・変換先の基数を順に入力。数字部は変換元基数の文字だけ（大文字小文字不問、接頭辞なし、符号可、1,000 桁まで）。BigInt で変換し小文字・先頭の 0 なしで出力） | `zz（36 → 10）` → `1295` | なし | なし |
+| NUM-027 | NUM | 基本 | `selection-manipulator.number.to-scientific` | Number - To Scientific Notation | 数値を指数表記にする（誤差を除いた値の `toExponential()`。`0` → `0e+0`、16 桁の整数も NUM-028 で元に戻る） | `12300` → `1.23e+4` | なし | なし |
+| NUM-028 | NUM | 基本 | `selection-manipulator.number.from-scientific` | Number - From Scientific Notation | 指数表記を通常の表記にする（`e` / `E` を含む入力のみ。指数の絶対値は 1,000 まで。文字列で小数点を移動し仮数の桁を保つ（`1.50e1` → `15.0`）） | `1.23e+4` → `12300` | なし | なし |
+| NUM-029 | NUM | 基本 | `selection-manipulator.number.to-percent` | Number - To Percent | 小数を百分率の表記にする（指数表記は不可。文字列で小数点を 2 桁右へ移動し桁を保つ: `0.1250` → `12.50%`） | `0.125` → `12.5%` | なし | なし |
+| NUM-030 | NUM | 基本 | `selection-manipulator.number.bytes-to-human` | Number - Bytes to Human Readable | バイト数を KiB / MiB などの読みやすい表記にする（0 以上の整数 30 桁まで。1024 未満は `512 B`、以上は KiB〜YiB で小数点以下最大 2 桁（末尾の 0 は削る）。丸めで 1024 に達したら次の単位（`1048575` → `1 MiB`）、YiB を超える値は YiB のまま（`1024 YiB`）） | `1536` → `1.5 KiB` | なし | なし |
+| NUM-031 | NUM | 基本 | `selection-manipulator.number.human-to-bytes` | Number - Human Readable to Bytes | KB / MiB などの表記をバイト数にする（`<数値>[空白]<単位>`。単位は `B`、SI の KB〜YB（1000 の累乗）、IEC の KiB〜YiB（1024 の累乗）で大文字小文字不問。数値は非負で 30 桁まで。BigInt で正確に計算し端数は四捨五入。NUM-030 の出力はすべて読める） | `1.5 MiB` → `1572864` | なし | なし |
+| NUM-032 | NUM | 基本 | `selection-manipulator.number.to-words-en` | Number - To English Words | 整数を英語の数詞にする（符号可、36 桁まで（decillion まで）。米国式で `and` なし、負数は `minus …`、0 は `zero`。小数はエラー） | `42` → `forty-two` | なし | なし |
+| NUM-033 | NUM | 基本 | `selection-manipulator.number.ordinal-en` | Number - Add English Ordinal Suffix | 数値に英語の序数接尾辞を付ける（整数の末尾 2 桁で判定し 11〜13 は `th`。桁と符号はそのまま: `-1` → `-1st`・`0` → `0th`） | `1⏎2⏎11` → `1st⏎2nd⏎11th` | なし | なし |
+| NUM-034 | NUM | 基本 | `selection-manipulator.number.to-fraction` | Number - Decimal to Fraction | 小数を既約分数にする（循環小数は近似。指数表記は不可、数字 30 桁まで。有限小数は正確に約分する（`0.1` → `1/10`・`0.500000` → `1/2`）。近似は小数 6 桁以上のときだけで、その桁を四捨五入または切り捨てで与える分数のうち分母が最小で、分母が 99 以下かつ 2 と 5 以外の素因数を持つものがあれば採用する（`0.333333` → `1/3`・`0.666667` → `2/3`、`0.314159` → `314159/1000000`）。偶然一致する入力も近似側になる（`0.123456` → `10/81`）） | `0.75` → `3/4` | なし | なし |
+| NUM-035 | NUM | 基本 | `selection-manipulator.unit.celsius-to-fahrenheit` | Unit: Celsius to Fahrenheit | 摂氏を華氏に変換する（NUM-035〜040 共通: 方針 B（小数 4 桁）、単位記号は付けない（既存の kg-to-lb とは異なる）。小数 4 桁未満の値は 0 になる） | `100` → `212` | なし | なし |
 | NUM-036 | NUM | 基本 | `selection-manipulator.unit.fahrenheit-to-celsius` | Unit: Fahrenheit to Celsius | 華氏を摂氏に変換する | `212` → `100` | なし | なし |
-| NUM-037 | NUM | 基本 | `selection-manipulator.unit.km-to-mile` | Unit: km to mile | キロメートルをマイルに変換する | `10` → `6.2137` | なし | なし |
-| NUM-038 | NUM | 基本 | `selection-manipulator.unit.mile-to-km` | Unit: mile to km | マイルをキロメートルに変換する | `1` → `1.6093` | なし | なし |
-| NUM-039 | NUM | 基本 | `selection-manipulator.unit.cm-to-inch` | Unit: cm to inch | センチメートルをインチに変換する | `2.54` → `1` | なし | なし |
-| NUM-040 | NUM | 基本 | `selection-manipulator.unit.inch-to-cm` | Unit: inch to cm | インチをセンチメートルに変換する | `1` → `2.54` | なし | なし |
+| NUM-037 | NUM | 基本 | `selection-manipulator.unit.km-to-mile` | Unit: km to mile | キロメートルをマイルに変換する（1 mile = 1.609344 km） | `10` → `6.2137` | なし | なし |
+| NUM-038 | NUM | 基本 | `selection-manipulator.unit.mile-to-km` | Unit: mile to km | マイルをキロメートルに変換する（1 mile = 1.609344 km） | `1` → `1.6093` | なし | なし |
+| NUM-039 | NUM | 基本 | `selection-manipulator.unit.cm-to-inch` | Unit: cm to inch | センチメートルをインチに変換する（1 inch = 2.54 cm） | `2.54` → `1` | なし | なし |
+| NUM-040 | NUM | 基本 | `selection-manipulator.unit.inch-to-cm` | Unit: inch to cm | インチをセンチメートルに変換する（1 inch = 2.54 cm） | `1` → `2.54` | なし | なし |
 
 ### DATE
 
