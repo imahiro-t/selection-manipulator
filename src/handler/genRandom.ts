@@ -11,7 +11,7 @@
  * Only local processing: no network, files or processes, no `eval` / `new Function`, no new
  * dependency.
  */
-import { civilFromDays, daysFromCivil, formatCivil, isValidDate } from './dateCommon';
+import { civilFromDays, formatCivil, pad4 } from './dateCommon';
 import {
   assertGenInputLength,
   formatCount,
@@ -25,6 +25,7 @@ import {
   GenOutputBuffer,
   GenRandom,
   isBlank,
+  parseCivilDay,
   pickInclusive,
   pickOne,
   quoteText,
@@ -32,13 +33,21 @@ import {
   splitLines,
 } from './genCommon';
 
-const hex = (bytes: Uint8Array): string => Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+/** One byte as two lower-case hexadecimal digits. */
+const hexByte = (b: number): string => b.toString(16).padStart(2, '0');
 
-/** The 48-bit big-endian bytes of a millisecond timestamp (0 ≤ ms < 2^48). */
-const timestampBytes = (ms: number): number[] => {
+const hex = (bytes: Uint8Array): string => Array.from(bytes, hexByte).join('');
+
+/** Throws unless `ms` fits the 48-bit timestamp of a UUID v7 or a ULID (0 ≤ ms < 2^48). */
+const assertTimestamp = (ms: number): void => {
   if (!Number.isSafeInteger(ms) || ms < 0 || ms >= 2 ** 48) {
     throw new RangeError('the timestamp is out of range');
   }
+};
+
+/** The 48-bit big-endian bytes of a millisecond timestamp (0 ≤ ms < 2^48). */
+const timestampBytes = (ms: number): number[] => {
+  assertTimestamp(ms);
   const bytes: number[] = [];
   let rest = ms;
   for (let i = 0; i < 6; i++) {
@@ -71,7 +80,7 @@ export const CROCKFORD_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
  * (16 characters) in Crockford's Base32, upper case, 26 characters.
  */
 export const ulid = (random: GenRandom, ms: number): string => {
-  timestampBytes(ms);
+  assertTimestamp(ms);
   let time = '';
   let rest = ms;
   for (let i = 0; i < 10; i++) {
@@ -300,7 +309,7 @@ export const sampleLines = (random: GenRandom, text: string, count: number, eol:
 export const randomMac = (random: GenRandom): string => {
   const bytes = random.bytes(6);
   bytes[0] = (bytes[0] & 0xfc) | 0x02;
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join(':');
+  return Array.from(bytes, hexByte).join(':');
 };
 
 /** GEN-011: `#rrggbb`, lower case. */
@@ -312,20 +321,13 @@ export interface DayRange {
   last: number;
 }
 
-const DATE_RANGE = /^(\d{4})-(\d{2})-(\d{2})\s*\.\.\s*(\d{4})-(\d{2})-(\d{2})$/;
-
 /** GEN-012: reads `YYYY-MM-DD..YYYY-MM-DD` (both included, 0001-01-01 to 9999-12-31, start ≤ end). */
 export const parseDateRange = (text: string): DayRange => {
-  const match = DATE_RANGE.exec(text.trim());
-  if (!match) {
+  const parts = text.trim().split('..');
+  const [first, last] = parts.length === 2 ? parts.map((part) => parseCivilDay(part.trim())) : [];
+  if (first === undefined || last === undefined) {
     throw new GenInputError('enter a range of dates such as 2026-01-01..2026-12-31');
   }
-  const [y1, m1, d1, y2, m2, d2] = match.slice(1).map(Number);
-  if (!isValidDate(y1, m1, d1) || !isValidDate(y2, m2, d2)) {
-    throw new GenInputError('the dates must be valid dates from 0001-01-01 to 9999-12-31');
-  }
-  const first = daysFromCivil(y1, m1, d1);
-  const last = daysFromCivil(y2, m2, d2);
   if (first > last) {
     throw new GenInputError('the first date must not be after the second');
   }
@@ -337,7 +339,7 @@ export const randomDate = (random: GenRandom, range: DayRange): string => format
 
 /** GEN-012: the default range, the whole year of `now` (local time). */
 export const defaultDateRange = (now: Date): string => {
-  const year = String(now.getFullYear()).padStart(4, '0');
+  const year = pad4(now.getFullYear());
   return `${year}-01-01..${year}-12-31`;
 };
 

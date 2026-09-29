@@ -118,6 +118,14 @@ suite('Generator Sequences (GEN-020..030) Test Suite', () => {
       assert.strictEqual(lines('-9007199254740991..9007199254740991 step 9007199254740991'), '-9007199254740991\n0\n9007199254740991');
     });
 
+    test('the number of terms is exact when end − start is above 2^53 (no term beyond end)', () => {
+      // A double rounds 9007199254740995 up to 9007199254740996, which would add a third term.
+      assert.strictEqual(lines('-4503599627370496..4503599627370499 step 4503599627370498'), '-4503599627370496\n2');
+      // A third term would be 2^53, beyond end and not a safe integer.
+      assert.strictEqual(lines('-4..9007199254740991 step 4503599627370498'), '-4\n4503599627370494');
+      assert.strictEqual(lines('4503599627370499..-4503599627370496 step -4503599627370498'), '4503599627370499\n1');
+    });
+
     test('100,000 numbers pass, 100,001 are refused', () => {
       assert.strictEqual(parseNumberRange('1..100000').terms, 100_000);
       assert.strictEqual(parseNumberRange('0..199998 step 2').terms, 100_000);
@@ -237,8 +245,9 @@ suite('Generator Sequences (GEN-020..030) Test Suite', () => {
       checkKanaCount('iroha', 47);
       assert.throws(() => checkKanaCount('gojuon', 47), inputError(/47 selections and cursors, but the gojūon order \(あ to ん\) has only 46 values/));
       assert.throws(() => checkKanaCount('iroha', 48), inputError(/has only 47 values/));
-      assert.throws(() => checkKanaCount('katakana', 1), inputError());
+      assert.throws(() => checkKanaCount('katakana', 1), RangeError);
       assert.throws(() => kanaSequence('gojuon', 46), RangeError);
+      assert.throws(() => kanaOf('katakana'), RangeError);
     });
   });
 

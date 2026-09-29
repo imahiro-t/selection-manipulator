@@ -273,10 +273,11 @@ suite('Generator Commands - random values (GEN-001..019)', () => {
     });
 
     test('Date in Range: invalid dates, reversed ranges and other forms are refused', () => {
-      throwsInput(() => parseDateRange('2026-02-29..2026-03-01'), 'the dates must be valid dates from 0001-01-01 to 9999-12-31');
-      throwsInput(() => parseDateRange('0000-12-31..2026-01-01'), /valid dates/);
+      throwsInput(() => parseDateRange('2026-02-29..2026-03-01'), 'the date must be a valid date from 0001-01-01 to 9999-12-31');
+      throwsInput(() => parseDateRange('2026-01-01..2026-02-29'), /valid date/);
+      throwsInput(() => parseDateRange('0000-12-31..2026-01-01'), /valid date/);
       throwsInput(() => parseDateRange('2026-12-31..2026-01-01'), 'the first date must not be after the second');
-      for (const text of ['2026-01-01', '2026/01/01..2026/12/31', '26-01-01..26-12-31', '2026-1-1..2026-12-31', '']) {
+      for (const text of ['2026-01-01', '2026/01/01..2026/12/31', '26-01-01..26-12-31', '2026-1-1..2026-12-31', '', '2026-01-01...2026-12-31', '2026-01-01..2026-06-01..2026-12-31']) {
         throwsInput(() => parseDateRange(text), 'enter a range of dates such as 2026-01-01..2026-12-31');
       }
     });

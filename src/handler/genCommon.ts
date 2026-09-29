@@ -12,9 +12,10 @@
  */
 import * as crypto from 'crypto';
 import { quoteForDisplay } from '../textFormat';
+import { daysFromCivil, isBlank, isValidDate } from './dateCommon';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
-export { MAX_OUTPUT_LENGTH };
+export { isBlank, MAX_OUTPUT_LENGTH };
 
 /** The selected text or a typed value cannot be used; the message is shown to the user as it is. */
 export class GenInputError extends Error {
@@ -73,9 +74,6 @@ export const quoteText = (text: string): string => quoteForDisplay(text, GEN_MES
 /** `n` with thousands separators (`1,000,000`), for messages. */
 export const formatCount = (n: number): string => n.toLocaleString('en-US');
 
-/** True when the text holds only spaces, tabs and line breaks (or nothing). */
-export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
-
 /** Refuses a selection longer than GEN_MAX_INPUT_LENGTH (checked before the text is split or parsed). */
 export const assertGenInputLength = (text: string): void => {
   if (text.length > GEN_MAX_INPUT_LENGTH) {
@@ -88,6 +86,25 @@ export const assertGenTargetCount = (count: number): void => {
   if (count > GEN_MAX_TARGETS) {
     throw new GenInputError(`there are more than ${formatCount(GEN_MAX_TARGETS)} selections and cursors`);
   }
+};
+
+const CIVIL_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/**
+ * Reads one date `YYYY-MM-DD` (0001-01-01 to 9999-12-31) as a day number (days from 1970-01-01).
+ * Returns `undefined` when the text is not in that form (the caller says which form it expects)
+ * and throws a `GenInputError` when it is, but is not a valid date (GEN-012 / 022).
+ */
+export const parseCivilDay = (text: string): number | undefined => {
+  const match = CIVIL_DATE.exec(text);
+  if (!match) {
+    return undefined;
+  }
+  const [year, month, day] = match.slice(1).map(Number);
+  if (!isValidDate(year, month, day)) {
+    throw new GenInputError('the date must be a valid date from 0001-01-01 to 9999-12-31');
+  }
+  return daysFromCivil(year, month, day);
 };
 
 /** The lines of a text (split at `\r\n`, `\n` or `\r`; the line breaks are dropped). */

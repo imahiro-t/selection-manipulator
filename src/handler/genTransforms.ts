@@ -6,7 +6,7 @@
  * works on, what it asks before running and how it makes the text of the `index`-th target:
  * - `targets: 'all'` (the default): every selection and cursor, the selected text is not read;
  * - `targets: 'lines'`: only the non-empty, non-blank selections, whose text is the input
- *   (GEN-008 / 009); nothing to work on is an error;
+ *   (GEN-008 / 009); nothing to work on is a warning (nothing changes);
  * - `targets: 'text-or-prompt'`: every selection and cursor; a non-blank selection is the input,
  *   the empty ones use the answer of `emptyPrompts`, asked once and only when there is one (GEN-019).
  *
@@ -14,6 +14,7 @@
  * dependency. Random values come from `GenContext.random` only.
  */
 import {
+  formatCount,
   GEN_MAX_BYTES,
   GEN_MAX_REPEAT_PATTERN,
   GEN_MAX_REPEAT_WIDTH,
@@ -147,7 +148,7 @@ export interface GenCommandEntry {
 }
 
 const bytesPrompt = (placeHolder: string): GenPrompt => ({
-  prompt: `Number of random bytes (${GEN_MIN_BYTES} to ${GEN_MAX_BYTES.toLocaleString('en-US')})`,
+  prompt: `Number of random bytes (${GEN_MIN_BYTES} to ${formatCount(GEN_MAX_BYTES)})`,
   placeHolder,
   value: () => placeHolder,
   rule: { kind: 'integer', min: GEN_MIN_BYTES, max: GEN_MAX_BYTES },
@@ -220,7 +221,7 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'GEN-009', name: 'random.sample-lines', title: 'Random - Pick N Lines', targets: 'lines',
     prompts: [{
-      prompt: `Number of lines to pick, without repeats (1 to ${GEN_MAX_SAMPLE_LINES.toLocaleString('en-US')})`,
+      prompt: `Number of lines to pick, without repeats (1 to ${formatCount(GEN_MAX_SAMPLE_LINES)})`,
       placeHolder: '2',
       value: () => '2',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_SAMPLE_LINES },
@@ -264,7 +265,7 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'GEN-017', name: 'random.text-ja', title: 'Random - Japanese Dummy Text',
     prompts: [{
-      prompt: `Number of sentences (1 to ${GEN_MAX_SENTENCES.toLocaleString('en-US')})`,
+      prompt: `Number of sentences (1 to ${formatCount(GEN_MAX_SENTENCES)})`,
       placeHolder: '3',
       value: () => '3',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_SENTENCES },
@@ -329,7 +330,7 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
         rule: { kind: 'parse', parse: (value) => parseRepeatPattern(value), keepSpaces: true },
       },
       {
-        prompt: `Width in characters (1 to ${GEN_MAX_REPEAT_WIDTH.toLocaleString('en-US')})`,
+        prompt: `Width in characters (1 to ${formatCount(GEN_MAX_REPEAT_WIDTH)})`,
         placeHolder: '80',
         value: () => '80',
         rule: { kind: 'integer', min: 1, max: GEN_MAX_REPEAT_WIDTH },
@@ -369,7 +370,7 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'GEN-028', name: 'generate.column-ruler', title: 'Generate - Column Ruler',
     prompts: [{
-      prompt: `Number of columns (1 to ${GEN_MAX_RULER_WIDTH.toLocaleString('en-US')})`,
+      prompt: `Number of columns (1 to ${formatCount(GEN_MAX_RULER_WIDTH)})`,
       placeHolder: '80',
       value: () => '80',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_RULER_WIDTH },

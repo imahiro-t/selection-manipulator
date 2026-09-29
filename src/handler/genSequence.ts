@@ -11,7 +11,7 @@
  * dependency, no floating-point arithmetic on the values (all are safe integers). GEN-029 takes
  * its UUID from `GenRandom` (crypto in the extension).
  */
-import { civilFromDays, daysFromCivil, formatCivil, isValidDate, localCivilOf, MAX_YEAR } from './dateCommon';
+import { civilFromDays, daysFromCivil, formatCivil, localCivilOf, MAX_YEAR } from './dateCommon';
 import {
   formatCount,
   GEN_MAX_CIRCLED,
@@ -24,6 +24,7 @@ import {
   GenInputError,
   GenOutputBuffer,
   GenRandom,
+  parseCivilDay,
 } from './genCommon';
 
 /** Refuses more targets than a sequence has values; `what` names the sequence. */
@@ -85,20 +86,15 @@ export const checkRomanCount = (count: number): void =>
 // GEN-022 Date Sequence
 // ---------------------------------------------------------------------------------------------
 
-const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const LAST_DAY = daysFromCivil(MAX_YEAR, 12, 31);
 
 /** GEN-022: reads the first date `YYYY-MM-DD` (0001-01-01 to 9999-12-31) as a day number. */
 export const parseStartDate = (text: string): number => {
-  const match = DATE.exec(text.trim());
-  if (!match) {
+  const day = parseCivilDay(text.trim());
+  if (day === undefined) {
     throw new GenInputError('enter a date such as 2026-09-28 (YYYY-MM-DD)');
   }
-  const [year, month, day] = match.slice(1).map(Number);
-  if (!isValidDate(year, month, day)) {
-    throw new GenInputError('the date must be a valid date from 0001-01-01 to 9999-12-31');
-  }
-  return daysFromCivil(year, month, day);
+  return day;
 };
 
 /** GEN-022: the default first date, today (local time). */
@@ -154,12 +150,15 @@ export const parseNumberRange = (text: string): NumberRange => {
   if ((end > start && step < 0) || (end < start && step > 0)) {
     throw new GenInputError(`the step must be ${end > start ? 'positive' : 'negative'} to go from ${start} to ${end}`);
   }
-  // |end − start| may be rounded when it is above 2^53, but then the count is far above the limit.
-  const terms = Math.floor(Math.abs(end - start) / Math.abs(step)) + 1;
-  if (terms > GEN_MAX_RANGE_TERMS) {
+  // Counted with BigInt: |end − start| can reach 2^54 − 2, where a double would be rounded (up,
+  // sometimes) and give one term too many, beyond `end`. The ends and the step are safe integers,
+  // so their conversion is exact.
+  const span = BigInt(end) - BigInt(start);
+  const count = (span < 0n ? -span : span) / BigInt(Math.abs(step)) + 1n;
+  if (count > BigInt(GEN_MAX_RANGE_TERMS)) {
     throw new GenInputError(`the range has more than ${formatCount(GEN_MAX_RANGE_TERMS)} numbers`);
   }
-  return { start, step, terms };
+  return { start, step, terms: Number(count) };
 };
 
 /** GEN-023: the numbers of the range, one per line (joined with `eol`), within `budget`. */
@@ -271,7 +270,7 @@ export const kanaOf = (order: string): readonly string[] => {
   if (order === 'iroha') {
     return Array.from(IROHA);
   }
-  throw new GenInputError('choose the gojūon or the iroha order');
+  throw new RangeError('unknown kana order');
 };
 
 /** GEN-026: at most as many targets as the order has kana (the sequence does not wrap around). */

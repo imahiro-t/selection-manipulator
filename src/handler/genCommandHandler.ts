@@ -161,8 +161,8 @@ const notifyFailure = (dependencies: GenDependencies, entry: GenCommandEntry, er
 };
 
 /**
- * Asks one prompt. Returns the answer (trimmed unless the prompt keeps the spaces), or `undefined` when it was cancelled or refused
- * (then nothing else happens).
+ * Asks one prompt. Returns the answer (trimmed unless the prompt keeps the spaces), or
+ * `undefined` when it was cancelled or refused (then nothing else happens).
  */
 const askPrompt = async (
   dependencies: GenDependencies,
