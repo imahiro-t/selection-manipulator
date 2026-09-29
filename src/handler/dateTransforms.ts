@@ -170,7 +170,7 @@ export const weekdayNotification: DateCombine = (texts) => {
 
 /**
  * DATE-008: when every value line of every selection holds two dates (`a / b`, `a..b`, `a~b`,
- * `a〜b`, `a,b` or a tab), one difference per line; otherwise, when there are exactly two
+ * `a〜b`, `a～b`, `a,b` or a tab), one difference per line; otherwise, when there are exactly two
  * selections of one value each, the difference between them; anything else is an error.
  */
 export const diffSelections: DateCombine = (texts, _inputs, context, budget) => {

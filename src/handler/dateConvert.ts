@@ -36,12 +36,12 @@ import {
   utcMillis,
   wallMillis,
   weekdayOf,
+  WEEKDAYS_JA,
   WeekdayLanguage,
 } from './dateCommon';
 
 const WEEKDAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS_EN_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-export const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'];
 
 const daysOf = (date: CivilDate): number => daysFromCivil(date.year, date.month, date.day);
 
@@ -100,9 +100,6 @@ export const zonedTime = (millis: number, timeZone: string, cache: TimeZoneCache
   for (const part of formatterOf(cache, timeZone).formatToParts(new Date(millis))) {
     parts[part.type] = part.value;
   }
-  if (parts.era !== undefined && !/^A/.test(parts.era)) {
-    throw new DateInputError('the result is before the year 1');
-  }
   const zoned = {
     year: Number(parts.year),
     month: Number(parts.month),
@@ -111,6 +108,10 @@ export const zonedTime = (millis: number, timeZone: string, cache: TimeZoneCache
     minute: Number(parts.minute),
     second: Number(parts.second),
   };
+  // Before the year 1 the formatter gives the era BC (and a year counted backwards).
+  if ((parts.era !== undefined && !/^A/.test(parts.era)) || zoned.year < MIN_YEAR || zoned.year > MAX_YEAR) {
+    throw new DateInputError('the result is outside the years 0001 to 9999');
+  }
   const wholeSeconds = Math.floor(millis / 1000) * 1000;
   const offsetSeconds = Math.round((utcMillis(zoned, zoned.hour, zoned.minute, zoned.second) - wholeSeconds) / 1000);
   return { ...zoned, offsetSeconds };
@@ -186,9 +187,9 @@ export const dayOfYear = (value: string): string => {
 // DATE-008: difference
 // ---------------------------------------------------------------------------------------------
 
-const DIFF_SEPARATORS = ['\t', ' / ', '..', '~', '〜', ','];
+const DIFF_SEPARATORS = ['\t', ' / ', '..', '~', '〜', '～', ','];
 
-/** Splits `a / b` (or `..`, `~`, `〜`, `,`, a tab) at the first separator found, or `undefined`. */
+/** Splits `a / b` (or `..`, `~`, `〜`, `～`, `,`, a tab) at the first separator found, or `undefined`. */
 export const splitPair = (value: string): [string, string] | undefined => {
   for (const separator of DIFF_SEPARATORS) {
     const at = value.indexOf(separator);
@@ -519,11 +520,9 @@ export const toExcelSerial = (value: string): string => {
   if (fraction === 0) {
     return String(serial);
   }
+  // The largest fraction, 86,399,999 / 86,400,000 (about 0.9999999884), stays below 1 at 10
+  // decimals, so the text always starts with `0.`.
   const text = fraction.toFixed(10).replace(/0+$/, '');
-  // `toFixed` may round up to 1.0000000000 just before midnight.
-  if (text.startsWith('1')) {
-    return String(serial + 1);
-  }
   return `${serial}${text.slice(1)}`;
 };
 
@@ -566,7 +565,7 @@ export const fromExcelSerial = (value: string): string => {
 // DATE-022: range
 // ---------------------------------------------------------------------------------------------
 
-const RANGE_SEPARATORS = ['..', '~', '〜'];
+const RANGE_SEPARATORS = ['..', '~', '〜', '～'];
 
 /**
  * DATE-022: every date from the start to the end, both included (descending when the start is

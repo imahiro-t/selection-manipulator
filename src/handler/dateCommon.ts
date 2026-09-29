@@ -126,6 +126,9 @@ export const MS_PER_DAY = 86_400_000;
 export const MIN_YEAR = 1;
 export const MAX_YEAR = 9999;
 
+/** Japanese weekday names, Sunday first (index = day of week 0..6). */
+export const WEEKDAYS_JA: readonly string[] = ['日', '月', '火', '水', '木', '金', '土'];
+
 export interface CivilDate {
   year: number;
   month: number;

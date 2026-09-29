@@ -28,6 +28,7 @@ import {
   pad2,
   quoteText,
   weekdayOf,
+  WEEKDAYS_JA,
 } from './dateCommon';
 
 interface FieldSpec {
@@ -35,17 +36,17 @@ interface FieldSpec {
   min: number;
   max: number;
   names?: readonly string[];
+  /** The value of `names[0]` (month: 1 for JAN, day of week: 0 for SUN). */
+  nameBase?: number;
 }
 
 const FIELDS: readonly FieldSpec[] = [
   { name: '分', min: 0, max: 59 },
   { name: '時', min: 0, max: 23 },
   { name: '日', min: 1, max: 31 },
-  { name: '月', min: 1, max: 12, names: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'] },
-  { name: '曜日', min: 0, max: 7, names: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] },
+  { name: '月', min: 1, max: 12, names: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'], nameBase: 1 },
+  { name: '曜日', min: 0, max: 7, names: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'], nameBase: 0 },
 ];
-
-const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'];
 
 /** One field expanded to the values it allows. */
 interface CronField {
@@ -69,27 +70,36 @@ export interface CronExpression {
 
 const cronError = (message: string): DateInputError => new DateInputError(message);
 
+/**
+ * Unsupported cron syntax (`L`, `W`, `#`, `?`) in a token that is neither a number nor a name.
+ * Names are matched first, so `JUL` and `WED` are not mistaken for `L` and `W`.
+ */
+const assertSupported = (token: string, expression: string): void => {
+  const unsupported = /[LW#?]/.exec(token);
+  if (unsupported) {
+    throw cronError(`${quoteText(expression)}: "${unsupported[0]}" is not supported`);
+  }
+};
+
 const valueOf = (text: string, spec: FieldSpec, expression: string): number => {
   if (/^\d{1,2}$/.test(text)) {
     return Number(text);
   }
   const index = spec.names?.indexOf(text) ?? -1;
   if (index === -1) {
+    assertSupported(text, expression);
     throw cronError(`${quoteText(expression)}: ${quoteText(text)} is not a valid value of the ${spec.name} field`);
   }
-  return spec.names === FIELDS[3].names ? index + 1 : index;
+  return index + (spec.nameBase ?? 0);
 };
 
 const parseField = (raw: string, spec: FieldSpec, expression: string): CronField => {
   const text = raw.toUpperCase();
-  const unsupported = /[LW#?]/.exec(text);
-  if (unsupported) {
-    throw cronError(`${quoteText(expression)}: "${unsupported[0]}" is not supported`);
-  }
   const allowed = new Array<boolean>(spec.max + 1).fill(false);
   for (const item of text.split(',')) {
     const match = /^(\*|[0-9A-Z]+(?:-[0-9A-Z]+)?)(?:\/(\d{1,2}))?$/.exec(item);
     if (!match) {
+      assertSupported(item, expression);
       throw cronError(`${quoteText(expression)}: ${quoteText(item)} is not a valid ${spec.name} field`);
     }
     let from: number;

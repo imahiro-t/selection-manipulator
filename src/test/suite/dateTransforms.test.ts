@@ -88,6 +88,18 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       assert.strictEqual(run('DATE-002', '2026-09-28T00:00:00Z', ['Etc/GMT+12']), '2026-09-27 12:00:00 -12:00');
     });
 
+    test('DATE-002 / 003 / 026 / 027: results outside the years 0001..9999 are errors', () => {
+      assert.strictEqual(run('DATE-002', '9999-12-31T14:59:59Z', ['Asia/Tokyo']), '9999-12-31 23:59:59 +09:00');
+      assert.strictEqual(run('DATE-002', '0001-01-01T05:00:00Z', ['Etc/GMT+5']), '0001-01-01 00:00:00 -05:00');
+      for (const id of ['DATE-002', 'DATE-026', 'DATE-027']) {
+        throwsInput(() => run(id, '9999-12-31T23:00:00Z', ['Asia/Tokyo']), 'line 1: the result is outside the years 0001 to 9999');
+        throwsInput(() => run(id, '9999-12-31T23:00-05:00', ['UTC']), 'line 1: the result is outside the years 0001 to 9999');
+        throwsInput(() => run(id, '0001-01-01T00:00:00Z', ['America/New_York']), 'line 1: the result is outside the years 0001 to 9999');
+      }
+      throwsInput(() => run('DATE-003', '9999-12-31T23:00:00Z', [], contextOf({ timeZones: ['Asia/Tokyo'] })),
+        'line 1: the result is outside the years 0001 to 9999');
+    });
+
     test('DATE-002: a date and time without an offset is local time', () => {
       const local = new Date(2026, 8, 28, 9, 30);
       const utc = `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())} ${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}:00 +00:00`;
@@ -154,8 +166,8 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
     const diff = (texts: string[]) => entryOf('DATE-008').combine!(texts, [], contextOf(), MAX_OUTPUT_LENGTH);
 
     test('every separator, one difference per line, signed', () => {
-      assert.strictEqual(diff(['2026-09-28 / 2026-09-29\n2026-09-28..2026-09-25\n2026-01-01~2026-01-01\n2026-01-01〜2027-01-01\n2026-01-01,2026-01-03\n2026-01-01\t2026-01-02']),
-        '1 day\n-3 days\n0 days\n365 days\n2 days\n1 day');
+      assert.strictEqual(diff(['2026-09-28 / 2026-09-29\n2026-09-28..2026-09-25\n2026-01-01~2026-01-01\n2026-01-01〜2027-01-01\n2026-01-01,2026-01-03\n2026-01-01\t2026-01-02\n2026-01-01～2026-01-05']),
+        '1 day\n-3 days\n0 days\n365 days\n2 days\n1 day\n4 days');
     });
 
     test('with a time: days, hours and minutes (seconds dropped)', () => {
@@ -370,6 +382,7 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
     test('descending ranges, other separators and the form of the start', () => {
       assert.strictEqual(run('DATE-022', '2026/03/01 ~ 2026-02-27'), '2026/03/01\n2026/02/28\n2026/02/27');
       assert.strictEqual(run('DATE-022', '2026-09-28〜2026-09-28'), '2026-09-28');
+      assert.strictEqual(run('DATE-022', '2026-09-28～2026-09-29'), '2026-09-28\n2026-09-29');
     });
 
     test('at most 10,000 dates per range', () => {
@@ -435,6 +448,29 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       assert.strictEqual(explainCron('0 0 1 jan *', now), '分: 0, 時: 0, 日: 1, 月: JAN, 曜日: すべて（次回: 2027-01-01 00:00, 2028-01-01 00:00, 2029-01-01 00:00, 2030-01-01 00:00, 2031-01-01 00:00）');
     });
 
+    test('every month name and day name (any case) equals its number, also in ranges and steps', () => {
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      months.forEach((name, i) => {
+        for (const written of [name, name.toLowerCase()]) {
+          assert.deepStrictEqual(parseCron(`0 0 1 ${written} *`).month.values, [i + 1], written);
+          assert.strictEqual(explainCron(`0 0 1 ${written} *`, now).split('（')[1], explainCron(`0 0 1 ${i + 1} *`, now).split('（')[1], written);
+        }
+      });
+      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      days.forEach((name, i) => {
+        for (const written of [name, name.toLowerCase()]) {
+          assert.deepStrictEqual(parseCron(`0 9 * * ${written}`).dayOfWeek.values, [i], written);
+          assert.strictEqual(explainCron(`0 9 * * ${written}`, now), explainCron(`0 9 * * ${i}`, now), written);
+        }
+      });
+      assert.strictEqual(explainCron('0 9 * * WED', now).split('（')[0], '毎週水曜 09:00');
+      assert.deepStrictEqual(parseCron('* * * * MON-WED').dayOfWeek.values, [1, 2, 3]);
+      assert.deepStrictEqual(parseCron('* * * * sat,wed').dayOfWeek.values, [3, 6]);
+      assert.deepStrictEqual(parseCron('* * * jun-jul *').month.values, [6, 7]);
+      assert.deepStrictEqual(parseCron('* * * JUL/2 *').month.values, [7, 9, 11]);
+      assert.deepStrictEqual(parseCron('* * * APR-JUL/3 *').month.values, [4, 7]);
+    });
+
     test('day of month and day of week both restricted: either matches (OR)', () => {
       assert.strictEqual(explainCron('0 9 1 * 1', now), '分: 0, 時: 9, 日: 1, 月: すべて, 曜日: 1（次回: 2026-10-01 09:00, 2026-10-05 09:00, 2026-10-12 09:00, 2026-10-19 09:00, 2026-10-26 09:00）');
       // With `*` in the day of month, only the day of week restricts.
@@ -459,6 +495,16 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       throwsInput(() => explainCron('0 0 ? * 1', now), /"\?" is not supported/);
       throwsInput(() => explainCron('0 0 * * 1#2', now), /"#" is not supported/);
       throwsInput(() => explainCron('0 0 15W * *', now), /"W" is not supported/);
+      throwsInput(() => explainCron('0 0 1,L * *', now), /"L" is not supported/);
+      throwsInput(() => explainCron('0 0 LW * *', now), /"L" is not supported/);
+      throwsInput(() => explainCron('0 0 W * *', now), /"W" is not supported/);
+      throwsInput(() => explainCron('0 0 * * 5L', now), /"L" is not supported/);
+      throwsInput(() => explainCron('0 0 * * fri#3', now), /"#" is not supported/);
+      throwsInput(() => explainCron('0 0 * * ?', now), /"\?" is not supported/);
+      throwsInput(() => explainCron('0 0 * * MON-L', now), /"L" is not supported/);
+      throwsInput(() => explainCron('* * * * WEDS', now), /"W" is not supported/);
+      throwsInput(() => explainCron('* * * * FOO', now), /is not a valid value of the 曜日 field/);
+      throwsInput(() => explainCron('* * * * JAN', now), /is not a valid value of the 曜日 field/);
       throwsInput(() => explainCron('@daily', now), /macros such as @daily are not supported/);
       throwsInput(() => explainCron('0 0 0 * * *', now), /is not a cron expression of 5 fields/);
       throwsInput(() => explainCron('60 * * * *', now), /is out of range for the 分 field/);
