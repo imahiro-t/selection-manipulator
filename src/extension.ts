@@ -899,11 +899,22 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-uppercase-keywords', devCommandHandler('programmatic.sql-uppercase-keywords')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-minify', devCommandHandler('programmatic.css-minify')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-format', devCommandHandler('programmatic.css-format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-hsl', devCommandHandler('programmatic.hex-to-hsl')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hsl-to-hex', devCommandHandler('programmatic.hsl-to-hex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-shorten-expand', devCommandHandler('programmatic.hex-shorten-expand')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.remove-console-log', devCommandHandler('programmatic.remove-console-log')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sort-imports', devCommandHandler('programmatic.sort-imports')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.concat-to-template', devCommandHandler('programmatic.concat-to-template')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.curl-to-fetch', devCommandHandler('programmatic.curl-to-fetch')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.html-to-jsx', devCommandHandler('programmatic.html-to-jsx')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.semver-bump', devCommandHandler('programmatic.semver-bump')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.chmod-convert', devCommandHandler('programmatic.chmod-convert')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-js-string.replace', devCommandHandler('programmatic.to-js-string.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-regex.replace', devCommandHandler('programmatic.escape-regex.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-sql.replace', devCommandHandler('programmatic.escape-sql.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-typescript.replace', devCommandHandler('programmatic.json-to-typescript.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-format.replace', devCommandHandler('programmatic.sql-format.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.html-to-jsx.replace', devCommandHandler('programmatic.html-to-jsx.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

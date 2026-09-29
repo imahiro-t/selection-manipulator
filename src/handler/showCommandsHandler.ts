@@ -3703,6 +3703,56 @@ export const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.programmatic.hex-to-hsl",
+    "title": "Convert Hex to HSL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hsl-to-hex",
+    "title": "Convert HSL to Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-shorten-expand",
+    "title": "Toggle Hex Color Short / Long",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.remove-console-log",
+    "title": "Remove console.log Statements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sort-imports",
+    "title": "Sort Import Statements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.concat-to-template",
+    "title": "Convert String Concatenation to Template Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.curl-to-fetch",
+    "title": "Convert curl Command to fetch",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.html-to-jsx",
+    "title": "Convert HTML to JSX",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.semver-bump",
+    "title": "Bump Semantic Version",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.chmod-convert",
+    "title": "Convert chmod Numeric / Symbolic",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.programmatic.to-js-string.replace",
     "title": "Convert to JS String Literal (Replace)",
     "canMultiSelection": true
@@ -3725,6 +3775,11 @@ export const myCommands = [
   {
     "command": "selection-manipulator.programmatic.sql-format.replace",
     "title": "Format SQL (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.html-to-jsx.replace",
+    "title": "Convert HTML to JSX (Replace)",
     "canMultiSelection": true
   }
 ];

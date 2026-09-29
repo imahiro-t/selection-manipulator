@@ -393,6 +393,73 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
     });
   });
 
+  suite('commands DEV-020..029, DEV-035', () => {
+    test('DEV-023 / 024 / 026 / 029: line breaks of the selection and multi-line results use the document EOL (CRLF)', async () => {
+      const cases: [string, string, string][] = [
+        ['DEV-023', 'a();\nconsole.log(1);\nb();', 'a();\r\nb();'],
+        ['DEV-024', 'import b from \'b\';\nimport a from \'a\';', 'import a from \'a\';\r\nimport b from \'b\';'],
+        ['DEV-026', 'curl -I \\\n  https://x.test', 'fetch(\'https://x.test\', {\r\n  method: \'HEAD\',\r\n});'],
+        ['DEV-029', '755\n\nrw-r--r--', 'rwxr-xr-x\r\n\r\n644'],
+        ['DEV-022', '#aabbcc\n#abc', '#abc\r\n#aabbcc'],
+      ];
+      for (const [id, input, expected] of cases) {
+        const editor = await crlfEditor(input);
+        selectWholeDocument(editor);
+        const { dependencies, opened, errors } = recorder();
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual([opened, errors], [[expected], []], id);
+      }
+    });
+
+    test('DEV-028: the part is asked once for all selections; cancelling changes nothing', async () => {
+      const blocks = ['1.2.3', 'v0.9.9-rc.1'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      const { dependencies, opened, picks } = recorder('major');
+      await run(entryOf('DEV-028'), dependencies)(editor);
+      assert.deepStrictEqual(opened, ['2.0.0\nv1.0.0']);
+      assert.strictEqual(picks.length, 1);
+      assert.deepStrictEqual(picks[0].items.map((item) => item.value), ['patch', 'minor', 'major']);
+      assert.deepStrictEqual(picks[0].options, { placeHolder: 'Choose the part of the version to raise', ignoreFocusOut: true });
+      const cancelled = recorder(undefined);
+      await run(entryOf('DEV-028'), cancelled.dependencies)(editor);
+      assert.deepStrictEqual([cancelled.opened, cancelled.errors, cancelled.warnings], [[], [], []]);
+    });
+
+    test('an invalid color, command or version in one selection shows nothing and names the selection', async () => {
+      const cases: [string, string[], string, string?][] = [
+        ['DEV-021', ['hsl(0, 0%, 0%)', 'hsl(0, 0, 0)'], 'selection 2 of 2: "hsl(0, 0, 0)" is not an HSL color'],
+        ['DEV-026', ['wget x', 'curl https://x.test'], 'selection 1 of 2: the selection is not a curl command'],
+        ['DEV-025', ['\'a\' + b', '\'a\' + b - 1'], 'selection 2 of 2: the expression has a top-level binary "-"'],
+        ['DEV-028', ['1.2.3', '1.2'], 'selection 2 of 2: "1.2" is not a semantic version', 'patch'],
+        ['DEV-027', ['<p>', '<p class="a'], 'selection 2 of 2: the value of the attribute class of <p> is not closed'],
+      ];
+      for (const [id, blocks, message, choice] of cases) {
+        const editor = await createTextEditor(blocks.join(SEPARATOR));
+        selectBlocks(editor, blocks);
+        const { dependencies, opened, errors } = recorder(choice);
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual(opened, [], id);
+        assert.strictEqual(errors.length, 1, id);
+        assert.ok(errors[0].startsWith(`${NOT_SHOWN}${message}`), errors[0]);
+      }
+    });
+
+    test('DEV-035: Replace keeps the rest of the document, and changes nothing when one selection is invalid', async () => {
+      const editor = await createTextEditor('return (\n  <label class="a" for="b">x</label>\n);');
+      editor.selection = new vscode.Selection(1, 2, 1, 36);
+      await run(entryOf('DEV-035'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'return (\n  <label className="a" htmlFor="b">x</label>\n);');
+      const blocks = ['<br>', '<p class="a'];
+      const failing = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(failing, blocks);
+      const failed = recorder();
+      await run(entryOf('DEV-035'), failed.dependencies)(failing);
+      assert.strictEqual(failing.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(failed.errors, [`${NOT_CHANGED}selection 2 of 2: the value of the attribute class of <p> is not closed`]);
+    });
+  });
+
   suite('quick pick (fake command table)', () => {
     test('asked once for all selections, with its items; the choice is used', async () => {
       const { dependencies, picks } = recorder('b');
@@ -470,6 +537,11 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
     test('command IDs, kinds, titles and examples match the DEV table of docs/ROADMAP.md, in its order', () => {
       const rows = roadmapRows();
       assert.strictEqual(rows.length, 35);
+      // All 35 commands are implemented: 29 base commands (new editor) and 6 Replace variants.
+      assert.deepStrictEqual(DEV_COMMAND_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id));
+      assert.strictEqual(DEV_COMMAND_ENTRIES.filter((entry) => entry.output === 'new-tab').length, 29);
+      assert.strictEqual(DEV_COMMAND_ENTRIES.filter((entry) => entry.output === 'replace').length, 6);
+      assert.strictEqual(Object.keys(DEV_ROADMAP_EXAMPLES).length, 35);
       const byId = new Map(rows.map((row) => [row[0], row]));
       const implemented = new Set(DEV_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(DEV_COMMAND_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id).filter((id) => implemented.has(id)),

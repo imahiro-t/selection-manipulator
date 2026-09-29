@@ -7,8 +7,12 @@
  * Only local processing: no network, files or processes, no `eval` / `new Function`, no new
  * dependency. SQL, shell, curl and HTML texts are only converted as strings, never run.
  */
-import { assertDevInputLength, assertWithinBudget } from './devCommon';
+import { chmodConvert, concatToTemplate, removeConsoleLog, semverBump, SemverPart, sortImports } from './devCode';
+import { hexToHsl, hslToHex, toggleHexLength } from './devColor';
+import { assertDevInputLength, assertWithinBudget, DevInputError } from './devCommon';
 import { cssFormat, cssMinify } from './devCss';
+import { curlToFetch } from './devCurl';
+import { htmlToJsx } from './devHtmlJsx';
 import { jsonToGoStruct, jsonToPythonTypedDict, jsonToTypeScript } from './devJsonTypes';
 import {
   escapeCsvField,
@@ -128,6 +132,14 @@ const JSON_TO_TYPESCRIPT = base({
   id: 'DEV-012', name: 'json-to-typescript', title: 'Convert JSON to TypeScript Interface', acceptsBlank: false,
   transform: withBudget((value, context, budget) => jsonToTypeScript(value, context.eol, budget)),
 });
+const HTML_TO_JSX = base({
+  id: 'DEV-027', name: 'html-to-jsx', title: 'Convert HTML to JSX', acceptsBlank: false,
+  transform: withBudget((value, _context, budget) => htmlToJsx(value, budget)),
+});
+
+/** The parts of a version DEV-028 can raise (the value is `context.choice`). */
+const SEMVER_PARTS: readonly SemverPart[] = ['patch', 'minor', 'major'];
+
 const SQL_FORMAT = base({
   id: 'DEV-015', name: 'sql-format', title: 'Format SQL', acceptsBlank: false,
   transform: withBudget((value, context, budget) => sqlFormat(value, context.eol, budget)),
@@ -196,9 +208,61 @@ export const DEV_COMMAND_ENTRIES: readonly DevCommandEntry[] = [
     id: 'DEV-019', name: 'css-format', title: 'Format CSS', acceptsBlank: false,
     transform: withBudget((value, context, budget) => cssFormat(value, context.eol, budget)),
   }),
+  base({
+    id: 'DEV-020', name: 'hex-to-hsl', title: 'Convert Hex to HSL', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => hexToHsl(value, budget)),
+  }),
+  base({
+    id: 'DEV-021', name: 'hsl-to-hex', title: 'Convert HSL to Hex', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => hslToHex(value, budget)),
+  }),
+  base({
+    id: 'DEV-022', name: 'hex-shorten-expand', title: 'Toggle Hex Color Short / Long', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => toggleHexLength(value, budget)),
+  }),
+  base({
+    id: 'DEV-023', name: 'remove-console-log', title: 'Remove console.log Statements', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => removeConsoleLog(value, budget)),
+  }),
+  base({
+    id: 'DEV-024', name: 'sort-imports', title: 'Sort Import Statements', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => sortImports(value, budget)),
+  }),
+  base({
+    id: 'DEV-025', name: 'concat-to-template', title: 'Convert String Concatenation to Template Literal', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => concatToTemplate(value, budget)),
+  }),
+  base({
+    id: 'DEV-026', name: 'curl-to-fetch', title: 'Convert curl Command to fetch', acceptsBlank: false,
+    transform: withBudget((value, context, budget) => curlToFetch(value, context.eol, budget)),
+  }),
+  HTML_TO_JSX,
+  base({
+    id: 'DEV-028', name: 'semver-bump', title: 'Bump Semantic Version', acceptsBlank: false,
+    quickPick: {
+      placeHolder: 'Choose the part of the version to raise',
+      items: [
+        { label: 'patch', description: '1.2.3 → 1.2.4', value: 'patch' },
+        { label: 'minor', description: '1.2.3 → 1.3.0', value: 'minor' },
+        { label: 'major', description: '1.2.3 → 2.0.0', value: 'major' },
+      ],
+    },
+    transform: withBudget((value, context, budget) => {
+      const part = SEMVER_PARTS.find((candidate) => candidate === context.choice);
+      if (part === undefined) {
+        throw new DevInputError('choose the part of the version to raise: patch, minor or major');
+      }
+      return semverBump(value, part, budget);
+    }),
+  }),
+  base({
+    id: 'DEV-029', name: 'chmod-convert', title: 'Convert chmod Numeric / Symbolic', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => chmodConvert(value, budget)),
+  }),
   replaceOf('DEV-030', TO_JS_STRING),
   replaceOf('DEV-031', ESCAPE_REGEX),
   replaceOf('DEV-032', ESCAPE_SQL),
   replaceOf('DEV-033', JSON_TO_TYPESCRIPT),
   replaceOf('DEV-034', SQL_FORMAT),
+  replaceOf('DEV-035', HTML_TO_JSX),
 ];

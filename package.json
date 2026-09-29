@@ -1403,6 +1403,56 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.programmatic.hex-to-hsl",
+        "title": "Convert Hex to HSL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hsl-to-hex",
+        "title": "Convert HSL to Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hex-shorten-expand",
+        "title": "Toggle Hex Color Short / Long",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.remove-console-log",
+        "title": "Remove console.log Statements",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sort-imports",
+        "title": "Sort Import Statements",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.concat-to-template",
+        "title": "Convert String Concatenation to Template Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.curl-to-fetch",
+        "title": "Convert curl Command to fetch",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.html-to-jsx",
+        "title": "Convert HTML to JSX",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.semver-bump",
+        "title": "Bump Semantic Version",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.chmod-convert",
+        "title": "Convert chmod Numeric / Symbolic",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.programmatic.to-js-string.replace",
         "title": "Convert to JS String Literal (Replace)",
         "category": "Selection Manipulator"
@@ -1425,6 +1475,11 @@
       {
         "command": "selection-manipulator.programmatic.sql-format.replace",
         "title": "Format SQL (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.html-to-jsx.replace",
+        "title": "Convert HTML to JSX (Replace)",
         "category": "Selection Manipulator"
       },
       {
@@ -6328,6 +6383,46 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.hex-to-hsl"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.hsl-to-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.hex-shorten-expand"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.remove-console-log"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sort-imports"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.concat-to-template"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.curl-to-fetch"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.html-to-jsx"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.semver-bump"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.chmod-convert"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.programmatic.to-js-string.replace"
         },
         {
@@ -6345,6 +6440,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.programmatic.sql-format.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.html-to-jsx.replace"
         }
       ],
       "editor/context": [
@@ -7787,24 +7886,68 @@
           "group": "selection-manipulator@27"
         },
         {
-          "command": "selection-manipulator.programmatic.to-js-string.replace",
+          "command": "selection-manipulator.programmatic.hex-to-hsl",
           "group": "selection-manipulator@28"
         },
         {
-          "command": "selection-manipulator.programmatic.escape-regex.replace",
+          "command": "selection-manipulator.programmatic.hsl-to-hex",
           "group": "selection-manipulator@29"
         },
         {
-          "command": "selection-manipulator.programmatic.escape-sql.replace",
+          "command": "selection-manipulator.programmatic.hex-shorten-expand",
           "group": "selection-manipulator@30"
         },
         {
-          "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+          "command": "selection-manipulator.programmatic.remove-console-log",
           "group": "selection-manipulator@31"
         },
         {
-          "command": "selection-manipulator.programmatic.sql-format.replace",
+          "command": "selection-manipulator.programmatic.sort-imports",
           "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.programmatic.concat-to-template",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.programmatic.curl-to-fetch",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.programmatic.html-to-jsx",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.programmatic.semver-bump",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.programmatic.chmod-convert",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-js-string.replace",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-regex.replace",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-sql.replace",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-format.replace",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.programmatic.html-to-jsx.replace",
+          "group": "selection-manipulator@43"
         }
       ],
       "selection-manipulator.japanese.submenu": [
