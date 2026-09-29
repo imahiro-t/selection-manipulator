@@ -59,7 +59,7 @@ export const assertWithinBudget = (length: number, budget: number): void => {
  * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
  * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection).
  */
-export class JaOutputBuffer {
+class JaOutputBuffer {
   private readonly parts: string[] = [];
   private total = 0;
 
