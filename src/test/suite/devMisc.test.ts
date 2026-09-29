@@ -471,6 +471,7 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
       assert.strictEqual(curl('curl example.com/a'), 'fetch(\'http://example.com/a\');');
       assert.strictEqual(curl('curl localhost:3000/a'), 'fetch(\'http://localhost:3000/a\');');
       assert.strictEqual(curl('curl HTTPS://example.com'), 'fetch(\'HTTPS://example.com\');');
+      assert.strictEqual(curl('curl //example.com/a'), 'fetch(\'http://example.com/a\');');
     });
 
     test('shell words: quotes, escapes, comments', () => {

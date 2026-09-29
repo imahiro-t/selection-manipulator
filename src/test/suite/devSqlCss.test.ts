@@ -27,6 +27,10 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.strictEqual(sqlUppercaseKeywords('select t.date, date.x ,\tcount(*)\r\nfrom t'), 'SELECT t.date, date.x ,\tcount(*)\r\nFROM t');
     });
 
+    test('the rest of a # line (a MySQL comment, or a SQL Server #temp) is not uppercased', () => {
+      assert.strictEqual(sqlUppercaseKeywords('select a # note from x where y\nfrom #t'), 'SELECT a # note from x where y\nFROM #t');
+    });
+
     test('doubled quotes stay inside their literal', () => {
       assert.strictEqual(sqlUppercaseKeywords('select \'it\'\'s from\', "a""from" from t'), 'SELECT \'it\'\'s from\', "a""from" FROM t');
     });
@@ -50,9 +54,21 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.strictEqual(sqlMinify('DELETE FROM users # all?\nWHERE id = 1'), 'DELETE FROM users # all?\nWHERE id = 1');
       assert.strictEqual(sqlMinify('DELETE FROM users #all?\r\n  WHERE id = 1 -- c\n  AND b = 2'), 'DELETE FROM users #all?\r\nWHERE id = 1 AND b = 2');
       assert.strictEqual(sqlMinify('SELECT f(a # c\n) FROM t # end\n'), 'SELECT f(a # c\n) FROM t # end');
-      assert.strictEqual(sqlMinify('SELECT a # x /* y\n */ FROM t'), 'SELECT a # x\nFROM t');
       // A SQL Server #temp table keeps a line break too, which does not change the query.
       assert.strictEqual(sqlMinify('SELECT #t.a\n  FROM #t\n  WHERE x = 1'), 'SELECT #t.a\nFROM #t\nWHERE x = 1');
+    });
+
+    test('the rest of a # line is copied as it is: nothing in it is read as a comment or joined', () => {
+      assert.strictEqual(sqlMinify('DELETE FROM t WHERE id = 1   # OR   1 = 1  -- x\nAND b = 2'), 'DELETE FROM t WHERE id = 1 # OR   1 = 1  -- x\nAND b = 2');
+      assert.strictEqual(sqlMinify('SELECT a#b ,  c  FROM t'), 'SELECT a#b ,  c  FROM t');
+      assert.strictEqual(sqlMinify('SELECT a # /* x */ y\n  FROM t'), 'SELECT a # /* x */ y\nFROM t');
+    });
+
+    test('-- not followed by a space (code in MySQL: 1 --1 is 1 - -1) is kept with its line break', () => {
+      // The security review (round 2): the minified query must not lose `AND id=3` in MySQL.
+      assert.strictEqual(sqlMinify('DELETE FROM t WHERE 1 --1 AND id=3'), 'DELETE FROM t WHERE 1 --1 AND id=3');
+      assert.strictEqual(sqlMinify('SELECT a --x\n  FROM t -- c\n  WHERE 1'), 'SELECT a --x\nFROM t WHERE 1');
+      assert.strictEqual(sqlMinify('--------\nSELECT 1 --\n'), '--------\nSELECT 1');
     });
 
     test('optimizer hints and MySQL executable comments are kept', () => {
@@ -150,6 +166,25 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.strictEqual(format('delete from users # no filter\nwhere id = 1'), lines('DELETE FROM users # no filter', 'WHERE id = 1'));
     });
 
+    test('nothing after a # starts a new line or is uppercased, so a MySQL comment stays one (review round 2)', () => {
+      assert.strictEqual(format('DELETE FROM t WHERE id = 1 # OR 1 = 1'), lines('DELETE FROM t', 'WHERE id = 1 # OR 1 = 1'));
+      assert.strictEqual(format('DELETE FROM users WHERE id = 1 # OR 1=1\n'), lines('DELETE FROM users', 'WHERE id = 1 # OR 1=1'));
+      assert.strictEqual(format('UPDATE t SET a = 1 WHERE id = 2 # OR 1 = 1'), lines('UPDATE t', 'SET a = 1', 'WHERE id = 2 # OR 1 = 1'));
+      assert.strictEqual(format('UPDATE t SET a=1 # WHERE id=2\n'), lines('UPDATE t', 'SET a = 1 # WHERE id=2'));
+      assert.strictEqual(format('SELECT a # note FROM x where y\nFROM t'), lines('SELECT a # note FROM x where y', 'FROM t'));
+      assert.strictEqual(format('select a from t where x in (1) # (select 1)\nand z=3'), lines('SELECT a', 'FROM t', 'WHERE x IN (1) # (select 1)', '  AND z = 3'));
+      assert.strictEqual(format('select * from t # where x=1 order by b'), lines('SELECT *', 'FROM t # where x=1 order by b'));
+      // `a#b` (one name in SQL Server) keeps its spacing; `from#x` is not a keyword.
+      assert.strictEqual(format('select a#b, c from t'), 'SELECT a#b, c from t');
+      assert.strictEqual(format('select a from#x'), 'SELECT a from#x');
+      // A SQL Server #temp line is kept as it is, which does not change the query.
+      assert.strictEqual(format('select a from #t where x=1\norder by a'), lines('SELECT a', 'FROM #t where x=1', 'ORDER BY a'));
+    });
+
+    test('-- not followed by a space is kept as it is and ends its line', () => {
+      assert.strictEqual(format('DELETE FROM t WHERE 1 --1 AND id=3'), lines('DELETE FROM t', 'WHERE 1 --1 AND id=3'));
+    });
+
     test('the document line break is used', () => {
       assert.strictEqual(format('select a from t; select b from u', '\r\n'), 'SELECT a\r\nFROM t;\r\n\r\nSELECT b\r\nFROM u');
     });
@@ -181,6 +216,9 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
         ['SELECT e\'\\n\' FROM t', /E'…' strings/],
         ['SELECT \'it\\\'s -- x\' FROM t', /backslash escape/],
         ['SELECT \'C:\\\' FROM t', /backslash escape/],
+        // MySQL reads "…" as a string with backslash escapes too (security review round 2).
+        ['DELETE FROM t WHERE name = "a\\" -- " AND id = 1 AND "\n\\" " IS NOT NULL', /backslash escape/],
+        ['SELECT "C:\\" FROM t', /backslash escape/],
       ];
       for (const [sql, message] of cases) {
         refuses(() => sqlUppercaseKeywords(sql), message);
@@ -189,6 +227,26 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       }
       // Still supported: $1 parameters, names with $, an E column, an even number of backslashes.
       assert.strictEqual(sqlMinify('SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1'), 'SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1');
+      assert.strictEqual(sqlMinify('SELECT "a\\\\", `b\\`, [c\\] FROM t'), 'SELECT "a\\\\", `b\\`, [c\\] FROM t');
+    });
+
+    test('a # or --x line that opens a string, a quoted name or a comment going on to the next line is refused', () => {
+      const cases: [string, RegExp][] = [
+        ['select a # that\'s\nfrom t', /^a line with # .* does not end on that line/],
+        ['SELECT a # x /* y\n */ FROM t', /^a line with # .* does not end on that line/],
+        ['SELECT a FROM #t WHERE b = \'x\ny -- \' AND id = 1', /^a line with # .* does not end on that line/],
+        ['SELECT a # "b\n" FROM t', /^a line with # .* does not end on that line/],
+        ['DELETE FROM t WHERE 1 --1 AND n = \'x\n-- \' AND id = 3', /^a line with -- not followed by a space .*put a space after --$/],
+        ['SELECT 1 --x --\'y\n\'', /^a line with -- not followed by a space/],
+        ['SELECT a # $$\nb$$', /dollar-quoted strings/],
+      ];
+      for (const [sql, message] of cases) {
+        refuses(() => sqlUppercaseKeywords(sql), message);
+        refuses(() => sqlMinify(sql), message);
+        refuses(() => format(sql), message);
+      }
+      // Closed on its line, or after a -- comment on it: accepted.
+      assert.strictEqual(sqlMinify('SELECT a # it\'\'s "x" [y] /* z */ -- that\'s\nFROM t'), 'SELECT a # it\'\'s "x" [y] /* z */ -- that\'s\nFROM t');
     });
 
     test('formatting refuses unbalanced or too deeply nested parentheses', () => {
@@ -215,6 +273,12 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
         '-'.repeat(DEV_MAX_INPUT_LENGTH),
         '# a\n'.repeat(DEV_MAX_INPUT_LENGTH / 4),
         'left /**/ '.repeat(DEV_MAX_INPUT_LENGTH / 10),
+        // Join prefixes each on a line after a line comment (non-functional review round 2: was quadratic).
+        'LEFT -- c\n'.repeat(DEV_MAX_INPUT_LENGTH / 10),
+        `SELECT a FROM t ${'LEFT OUTER -- c\n'.repeat((DEV_MAX_INPUT_LENGTH - 16) / 16)}`,
+        '#'.repeat(DEV_MAX_INPUT_LENGTH),
+        '--x\n'.repeat(DEV_MAX_INPUT_LENGTH / 4),
+        `SELECT 1 --${' a'.repeat((DEV_MAX_INPUT_LENGTH - 12) / 2)}`,
       ];
       for (const convert of [sqlUppercaseKeywords, sqlMinify, (sql: string) => sqlFormat(sql, '\n', 10_000_000)]) {
         for (const input of inputs) {

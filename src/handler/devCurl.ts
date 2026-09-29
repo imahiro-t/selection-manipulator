@@ -508,7 +508,9 @@ export const curlToFetch = (text: string, eol: string, budget: number): string =
   if (request.data.length > 0 && request.json.length > 0) {
     throw new DevInputError('the curl command mixes -d with --json; select a command with one kind of body');
   }
-  let url = HAS_SCHEME.test(request.urls[0]) ? request.urls[0] : `http://${request.urls[0]}`;
+  const [first] = request.urls;
+  // A scheme-relative `//host/a` only needs the scheme (not `http:////host/a`).
+  let url = HAS_SCHEME.test(first) ? first : `${first.startsWith('//') ? 'http:' : 'http://'}${first}`;
   let body: string | undefined;
   const headers = [...request.headers];
   const hasHeader = (name: string): boolean =>
