@@ -68,16 +68,5 @@ export const DATE_ROADMAP_EXAMPLES: Record<string, DateExample> = {
   'DATE-030': { input: '20260928', inputs: [], expected: '2026-09-28' },
 };
 
-/**
- * The examples of docs/ROADMAP.md written before the implementation that the plan changes
- * (DATE-003: `Intl` cannot give JST / PDT reliably, so IANA names are shown; DATE-015: the extra
- * space of the example is removed). The documentation step replaces them with the examples
- * above; until then the registration test accepts these exact texts.
- */
-export const DATE_ROADMAP_EXAMPLES_BEFORE_UPDATE: Record<string, string> = {
-  'DATE-003': '`2026-09-28T00:00:00Z` → `UTC 00:00⏎JST 09:00⏎PDT 17:00 (前日)`',
-  'DATE-015': '`2026-09` → `Su Mo Tu We Th Fr Sa⏎······· 1··2··3 …`',
-};
-
 /** Text that no command accepts. */
 export const DATE_INVALID_INPUT = 'abc';

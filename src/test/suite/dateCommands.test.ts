@@ -7,7 +7,7 @@ import { DATE_COPIED, DATE_NOTHING_SELECTED, DateDependencies, dateCommandHandle
 import { DATE_COMMAND_ENTRIES, DateCommandEntry } from '../../handler/dateTransforms';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
-import { DATE_INVALID_INPUT, DATE_ROADMAP_EXAMPLES, DATE_ROADMAP_EXAMPLES_BEFORE_UPDATE, DATE_TEST_NOW } from './dateExamples';
+import { DATE_INVALID_INPUT, DATE_ROADMAP_EXAMPLES, DATE_TEST_NOW } from './dateExamples';
 import { createTextEditor } from './testUtils';
 
 const SEPARATOR = '\n---\n';
@@ -477,10 +477,6 @@ suite('Date Commands (DATE-001..030) Test Suite', () => {
       }));
 
       for (const [id, , , , example] of rows) {
-        if (DATE_ROADMAP_EXAMPLES_BEFORE_UPDATE[id] === example) {
-          // Replaced by the documentation step (see dateExamples.ts).
-          continue;
-        }
         const match = /^`(.*)` → `(.*)`$/.exec(example);
         assert.ok(match, `${id}: ${example}`);
         const expected = DATE_ROADMAP_EXAMPLES[id];
