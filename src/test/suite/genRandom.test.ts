@@ -281,6 +281,14 @@ suite('Generator Commands - random values (GEN-001..019)', () => {
         throwsInput(() => parseDateRange(text), 'enter a range of dates such as 2026-01-01..2026-12-31');
       }
     });
+
+    test('Date in Range: a form error is reported before an invalid date', () => {
+      throwsInput(() => parseDateRange('2026-02-30..2026-02-31'), 'the date must be a valid date from 0001-01-01 to 9999-12-31');
+      throwsInput(() => parseDateRange('2026-02-30 .. 2026-12-31'), /valid date/);
+      for (const text of ['2026-02-30..abc', 'abc..2026-02-30', '2026-02-30..2026/03/01', '2026-02-30..2026-12-31..2026-12-31', '2026-02-30...2026-12-31', '2026-02-30']) {
+        throwsInput(() => parseDateRange(text), 'enter a range of dates such as 2026-01-01..2026-12-31');
+      }
+    });
   });
 
   suite('GEN-013..017 dummy data', () => {

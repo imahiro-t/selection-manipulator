@@ -90,6 +90,9 @@ export const assertGenTargetCount = (count: number): void => {
 
 const CIVIL_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+/** Whether the text is in the form `YYYY-MM-DD` (it may still not be a valid date; see parseCivilDay). */
+export const isCivilDayForm = (text: string): boolean => CIVIL_DATE.test(text);
+
 /**
  * Reads one date `YYYY-MM-DD` (0001-01-01 to 9999-12-31) as a day number (days from 1970-01-01).
  * Returns `undefined` when the text is not in that form (the caller says which form it expects)

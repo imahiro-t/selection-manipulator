@@ -25,6 +25,7 @@ import {
   GenOutputBuffer,
   GenRandom,
   isBlank,
+  isCivilDayForm,
   parseCivilDay,
   pickInclusive,
   pickOne,
@@ -321,12 +322,21 @@ export interface DayRange {
   last: number;
 }
 
-/** GEN-012: reads `YYYY-MM-DD..YYYY-MM-DD` (both included, 0001-01-01 to 9999-12-31, start ≤ end). */
+const DATE_RANGE_FORM_ERROR = 'enter a range of dates such as 2026-01-01..2026-12-31';
+
+/**
+ * GEN-012: reads `YYYY-MM-DD..YYYY-MM-DD` (both included, 0001-01-01 to 9999-12-31, start ≤ end).
+ * The form of both ends is checked first, then whether they are valid dates, then their order.
+ */
 export const parseDateRange = (text: string): DayRange => {
-  const parts = text.trim().split('..');
-  const [first, last] = parts.length === 2 ? parts.map((part) => parseCivilDay(part.trim())) : [];
+  const parts = text.trim().split('..').map((part) => part.trim());
+  if (parts.length !== 2 || !parts.every(isCivilDayForm)) {
+    throw new GenInputError(DATE_RANGE_FORM_ERROR);
+  }
+  const [first, last] = parts.map(parseCivilDay);
   if (first === undefined || last === undefined) {
-    throw new GenInputError('enter a range of dates such as 2026-01-01..2026-12-31');
+    // Not reached (the form has been checked); narrows the types.
+    throw new GenInputError(DATE_RANGE_FORM_ERROR);
   }
   if (first > last) {
     throw new GenInputError('the first date must not be after the second');
