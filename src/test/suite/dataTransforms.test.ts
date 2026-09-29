@@ -564,8 +564,11 @@ suite('Data Transforms (DATA) Test Suite', () => {
     test('YAML with aliases: many references to one anchor are limited (no containers x references time)', () => {
       const shape = (containers: number, references: number) =>
         `x:\n${'- []\n'.repeat(containers)}s: &a []\nz: [${Array(references).fill('*a').join(', ')}]\n`;
-      // 49,003 mappings and sequences, 849,002 references (took about 22 s).
-      rejects(() => withinBudget(5_000, () => formatYaml(shape(49_000, 800_000), false)), /anchors and aliases is too large/);
+      // 49,004 mappings and sequences, 849,003 references (took about 22 s).
+      rejects(
+        () => withinBudget(5_000, () => formatYaml(shape(49_000, 800_000), false)),
+        /anchors and aliases is too large: 49,004 mappings and sequences x 849,003 references to them/
+      );
       // Just under the limit (5,004 x 55,003): kept as references and written at a practical time.
       assertJustUnderAliasLimit(shape(5_000, 50_000), { shared: true, containers: 5_004, references: 55_003 });
       const result = withinBudget(10_000, () => formatYaml(shape(5_000, 50_000), true));
@@ -579,10 +582,16 @@ suite('Data Transforms (DATA) Test Suite', () => {
       const refs = (count: number) => `- [${Array.from({ length: count }, (_, i) => `*a${i}`).join(', ')}]\n`;
       // 24,000 anchors each referenced 20 times, about 4.5 million characters (took about 21 s).
       const manyRefs = `a:\n${anchors(24_000)}b:\n${refs(24_000).repeat(20)}`;
-      rejects(() => withinBudget(5_000, () => formatYaml(manyRefs, false)), /anchors and aliases is too large/);
+      rejects(
+        () => withinBudget(5_000, () => formatYaml(manyRefs, false)),
+        /anchors and aliases is too large: 24,023 mappings and sequences x 504,022 references to them/
+      );
       // 49,000 anchor / alias pairs (took about 5 s).
       const pairs = Array.from({ length: 49_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
-      rejects(() => withinBudget(3_000, () => formatYaml(pairs, false)), /anchors and aliases is too large/);
+      rejects(
+        () => withinBudget(3_000, () => formatYaml(pairs, false)),
+        /anchors and aliases is too large: 49,001 mappings and sequences x 98,000 references to them/
+      );
       // 12,000 pairs (12,001 x 24,000) are within the limit and written at a practical time.
       const fewer = Array.from({ length: 12_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
       assertJustUnderAliasLimit(fewer, { shared: true, containers: 12_001, references: 24_000 });
@@ -618,6 +627,9 @@ suite('Data Transforms (DATA) Test Suite', () => {
     test('indented JSON / JS output is refused before a huge string is built', () => {
       const deepArray = `${'['.repeat(498)}\n${Array(1_000_000).fill('1').join(',')}${']'.repeat(498)}`;
       assert.throws(() => withinBudget(1_500, () => run('DATA-001', deepArray)), EncOutputTooLargeError);
+      // About 1.3 billion characters indented. Without the early check, JSON.stringify takes about 3 s
+      // and then fails with a RangeError, not EncOutputTooLargeError: the error type detects that, not
+      // the budget (about 15 times the time measured with the check).
       const deepLine = `${'['.repeat(400)}1${']'.repeat(400)}`;
       assert.throws(() => withinBudget(3_000, () => run('DATA-013', `${deepLine}\n`.repeat(4_000))), EncOutputTooLargeError);
       const deepItems = Array(1_000).fill(`${'['.repeat(400)}1,2,3,4,5,6,7,8,9${']'.repeat(400)}`).join(',');
