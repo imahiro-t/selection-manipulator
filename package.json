@@ -3346,6 +3346,61 @@
         "command": "selection-manipulator.random.dice",
         "title": "Random - Dice Roll",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.alpha-sequence",
+        "title": "Generate - Alphabet Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.roman-sequence",
+        "title": "Generate - Roman Numeral Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.date-sequence",
+        "title": "Generate - Date Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.number-range",
+        "title": "Generate - Number Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.repeat-char",
+        "title": "Generate - Repeat Character to Width",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.hex-sequence",
+        "title": "Generate - Hex Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.kana-sequence",
+        "title": "Generate - Kana Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.circled-sequence",
+        "title": "Generate - Circled Number Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.column-ruler",
+        "title": "Generate - Column Ruler",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.guid-braced",
+        "title": "Generate - GUID (Braced Uppercase)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.ipv4-sequence",
+        "title": "Generate - IPv4 Sequence",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -3526,6 +3581,10 @@
       {
         "id": "selection-manipulator.random.submenu",
         "label": "Random"
+      },
+      {
+        "id": "selection-manipulator.generate.submenu",
+        "label": "Generate"
       },
       {
         "id": "selection-manipulator.text.submenu",
@@ -6763,6 +6822,52 @@
           "group": "selection-manipulator@20"
         }
       ],
+      "selection-manipulator.generate.submenu": [
+        {
+          "command": "selection-manipulator.generate.alpha-sequence",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.generate.roman-sequence",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.generate.date-sequence",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.generate.number-range",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.generate.repeat-char",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.generate.hex-sequence",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.generate.kana-sequence",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.generate.circled-sequence",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.generate.column-ruler",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.generate.guid-braced",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.generate.ipv4-sequence",
+          "group": "selection-manipulator@10"
+        }
+      ],
       "selection-manipulator.programmatic.submenu": [
         {
           "command": "selection-manipulator.programmatic.json-to-yaml",
@@ -6944,6 +7049,10 @@
         {
           "submenu": "selection-manipulator.line.submenu",
           "group": "selection-manipulator@14"
+        },
+        {
+          "submenu": "selection-manipulator.generate.submenu",
+          "group": "selection-manipulator@15"
         }
       ],
       "selection-manipulator.ascii.submenu": [

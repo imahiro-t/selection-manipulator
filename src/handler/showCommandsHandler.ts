@@ -3226,6 +3226,61 @@ export const myCommands = [
     "command": "selection-manipulator.random.dice",
     "title": "Random - Dice Roll",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.alpha-sequence",
+    "title": "Generate - Alphabet Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.roman-sequence",
+    "title": "Generate - Roman Numeral Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.date-sequence",
+    "title": "Generate - Date Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.number-range",
+    "title": "Generate - Number Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.repeat-char",
+    "title": "Generate - Repeat Character to Width",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.hex-sequence",
+    "title": "Generate - Hex Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.kana-sequence",
+    "title": "Generate - Kana Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.circled-sequence",
+    "title": "Generate - Circled Number Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.column-ruler",
+    "title": "Generate - Column Ruler",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.guid-braced",
+    "title": "Generate - GUID (Braced Uppercase)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.ipv4-sequence",
+    "title": "Generate - IPv4 Sequence",
+    "canMultiSelection": true
   }
 ];
 

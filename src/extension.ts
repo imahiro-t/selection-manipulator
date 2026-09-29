@@ -795,6 +795,17 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.text-ja', genCommandHandler('random.text-ja')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.boolean', genCommandHandler('random.boolean')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.dice', genCommandHandler('random.dice')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.alpha-sequence', genCommandHandler('generate.alpha-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.roman-sequence', genCommandHandler('generate.roman-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.date-sequence', genCommandHandler('generate.date-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.number-range', genCommandHandler('generate.number-range')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.repeat-char', genCommandHandler('generate.repeat-char')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.hex-sequence', genCommandHandler('generate.hex-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.kana-sequence', genCommandHandler('generate.kana-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.circled-sequence', genCommandHandler('generate.circled-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.column-ruler', genCommandHandler('generate.column-ruler')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.guid-braced', genCommandHandler('generate.guid-braced')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.ipv4-sequence', genCommandHandler('generate.ipv4-sequence')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

@@ -53,6 +53,19 @@ export const GEN_MAX_SENTENCES = 1_000;
 export const GEN_MAX_DICE_COUNT = 100;
 export const GEN_MIN_DICE_SIDES = 2;
 export const GEN_MAX_DICE_SIDES = 1_000_000;
+/** GEN-021: the largest Roman numeral (MMMCMXCIX). */
+export const GEN_MAX_ROMAN = 3_999;
+/** GEN-023: the largest number of terms of a number range. */
+export const GEN_MAX_RANGE_TERMS = 100_000;
+/** GEN-024: the largest number of characters (code points) repeated, and the largest width. */
+export const GEN_MAX_REPEAT_PATTERN = 16;
+export const GEN_MAX_REPEAT_WIDTH = 10_000;
+/** GEN-025: the largest number of hexadecimal digits of the first value. */
+export const GEN_MAX_HEX_DIGITS = 13;
+/** GEN-027: the largest circled number (㊿). */
+export const GEN_MAX_CIRCLED = 50;
+/** GEN-028: the largest width of the column ruler. */
+export const GEN_MAX_RULER_WIDTH = 1_000;
 
 /** `text` quoted like JSON and cut to GEN_MESSAGE_TEXT_LIMIT characters (for messages). */
 export const quoteText = (text: string): string => quoteForDisplay(text, GEN_MESSAGE_TEXT_LIMIT);
@@ -187,10 +200,16 @@ export const pickOne = <T>(random: GenRandom, items: readonly T[]): T => items[r
  * - `integer`: a decimal integer from `min` to `max`;
  * - `parse`: `parse` (the same function the command uses to read the value) must not throw a
  *   `GenInputError`; it also gets the (trimmed) answers of the earlier prompts of the command.
+ *   With `keepSpaces`, the spaces around the value are part of it (GEN-024: the characters to
+ *   repeat may be or contain spaces); otherwise they are ignored.
  */
 export type GenPromptRule =
   | { kind: 'integer'; min: number; max: number }
-  | { kind: 'parse'; parse: (value: string, previous: readonly string[]) => unknown };
+  | { kind: 'parse'; parse: (value: string, previous: readonly string[]) => unknown; keepSpaces?: boolean };
+
+/** The value a command gets from what was typed: trimmed unless the rule keeps the spaces. */
+export const genPromptValue = (value: string, rule: GenPromptRule): string =>
+  rule.kind === 'parse' && rule.keepSpaces ? value : value.trim();
 
 const INTEGER = /^[-+]?\d{1,15}$/;
 
@@ -200,13 +219,14 @@ export const toSentence = (message: string): string =>
 
 /**
  * Why a value typed into an input box cannot be used (a sentence), or `undefined`. Spaces around
- * the value are ignored. Used as `validateInput` and checked again before running.
+ * the value are ignored (unless the rule keeps them). Used as `validateInput` and checked again
+ * before running.
  */
 export const findGenPromptProblem = (value: string, rule: GenPromptRule, previous: readonly string[] = []): string | undefined => {
   if (value.length > GEN_MAX_PROMPT_LENGTH) {
     return `The value is longer than ${GEN_MAX_PROMPT_LENGTH} characters.`;
   }
-  const trimmed = value.trim();
+  const trimmed = genPromptValue(value, rule);
   if (rule.kind === 'integer') {
     const ok = INTEGER.test(trimmed) && Number(trimmed) >= rule.min && Number(trimmed) <= rule.max;
     return ok ? undefined : `Enter an integer from ${formatCount(rule.min)} to ${formatCount(rule.max)}.`;

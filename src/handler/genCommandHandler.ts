@@ -6,6 +6,7 @@ import {
   cryptoRandom,
   findGenPromptProblem,
   GenInputError,
+  genPromptValue,
   GenRandom,
   isBlank,
 } from './genCommon';
@@ -160,7 +161,7 @@ const notifyFailure = (dependencies: GenDependencies, entry: GenCommandEntry, er
 };
 
 /**
- * Asks one prompt. Returns the answer (trimmed), or `undefined` when it was cancelled or refused
+ * Asks one prompt. Returns the answer (trimmed unless the prompt keeps the spaces), or `undefined` when it was cancelled or refused
  * (then nothing else happens).
  */
 const askPrompt = async (
@@ -179,7 +180,7 @@ const askPrompt = async (
     void dependencies.notifier.showWarningMessage(`${GEN_NOT_CHANGED}${problem}`);
     return undefined;
   }
-  return value.trim();
+  return genPromptValue(value, prompt.rule);
 };
 
 /**

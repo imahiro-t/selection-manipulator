@@ -15,6 +15,9 @@
  */
 import {
   GEN_MAX_BYTES,
+  GEN_MAX_REPEAT_PATTERN,
+  GEN_MAX_REPEAT_WIDTH,
+  GEN_MAX_RULER_WIDTH,
   GEN_MAX_SAMPLE_LINES,
   GEN_MAX_SENTENCES,
   GEN_MIN_BYTES,
@@ -49,6 +52,31 @@ import {
   ulid,
   uuidV7,
 } from './genRandom';
+import {
+  alphaSequence,
+  bracedGuid,
+  checkCircledCount,
+  checkDateSequence,
+  checkHexSequence,
+  checkIpv4Sequence,
+  checkKanaCount,
+  checkRomanCount,
+  circledSequence,
+  columnRuler,
+  dateSequence,
+  defaultStartDate,
+  hexSequence,
+  ipv4Sequence,
+  kanaSequence,
+  numberRange,
+  parseHexStart,
+  parseIpv4,
+  parseNumberRange,
+  parseRepeatPattern,
+  parseStartDate,
+  repeatToWidth,
+  romanSequence,
+} from './genSequence';
 
 /** One question asked before running. */
 export interface GenPrompt {
@@ -256,7 +284,114 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
 ];
 
 /**
- * All GEN commands in ROADMAP order. GEN-020..030 (sequences and generators) are added here by
- * their own module.
+ * GEN-020..030 (sequences and generators). A sequence gives the `index`-th target (in document
+ * order) its `index`-th value; `precheck` refuses more targets than the sequence has values
+ * before anything is generated.
  */
-export const GEN_COMMAND_ENTRIES: readonly GenCommandEntry[] = [...GEN_RANDOM_ENTRIES];
+export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
+  {
+    id: 'GEN-020', name: 'generate.alpha-sequence', title: 'Generate - Alphabet Sequence', prompts: [],
+    generate: (index) => alphaSequence(index),
+  },
+  {
+    id: 'GEN-021', name: 'generate.roman-sequence', title: 'Generate - Roman Numeral Sequence', prompts: [],
+    precheck: (count) => checkRomanCount(count),
+    generate: (index) => romanSequence(index),
+  },
+  {
+    id: 'GEN-022', name: 'generate.date-sequence', title: 'Generate - Date Sequence',
+    prompts: [{
+      prompt: 'First date (YYYY-MM-DD); the next cursors get the following days',
+      placeHolder: 'YYYY-MM-DD',
+      value: defaultStartDate,
+      rule: { kind: 'parse', parse: (value) => parseStartDate(value) },
+    }],
+    precheck: (count, inputs) => checkDateSequence(parseStartDate(inputs[0]), count),
+    generate: (index, _text, inputs) => dateSequence(parseStartDate(inputs[0]), index),
+  },
+  {
+    id: 'GEN-023', name: 'generate.number-range', title: 'Generate - Number Range',
+    prompts: [{
+      prompt: 'Range of integers: start..end or start..end step s (e.g. 1..10 step 3); one number per line',
+      placeHolder: '1..10',
+      value: () => '1..10',
+      rule: { kind: 'parse', parse: (value) => parseNumberRange(value) },
+    }],
+    generate: (_index, _text, inputs, context, budget) => numberRange(parseNumberRange(inputs[0]), context.eol, budget),
+  },
+  {
+    id: 'GEN-024', name: 'generate.repeat-char', title: 'Generate - Repeat Character to Width',
+    prompts: [
+      {
+        prompt: `Character(s) to repeat (1 to ${GEN_MAX_REPEAT_PATTERN} characters; spaces are kept)`,
+        placeHolder: '=',
+        value: () => '=',
+        rule: { kind: 'parse', parse: (value) => parseRepeatPattern(value), keepSpaces: true },
+      },
+      {
+        prompt: `Width in characters (1 to ${GEN_MAX_REPEAT_WIDTH.toLocaleString('en-US')})`,
+        placeHolder: '80',
+        value: () => '80',
+        rule: { kind: 'integer', min: 1, max: GEN_MAX_REPEAT_WIDTH },
+      },
+    ],
+    generate: (_index, _text, inputs) => repeatToWidth(parseRepeatPattern(inputs[0]), Number(inputs[1])),
+  },
+  {
+    id: 'GEN-025', name: 'generate.hex-sequence', title: 'Generate - Hex Sequence',
+    prompts: [{
+      prompt: 'First hexadecimal number (e.g. 0x0A, 0A or ff); the prefix, the width and the case are kept',
+      placeHolder: '0x00',
+      value: () => '0x00',
+      rule: { kind: 'parse', parse: (value) => parseHexStart(value) },
+    }],
+    precheck: (count, inputs) => checkHexSequence(parseHexStart(inputs[0]), count),
+    generate: (index, _text, inputs) => hexSequence(parseHexStart(inputs[0]), index),
+  },
+  {
+    id: 'GEN-026', name: 'generate.kana-sequence', title: 'Generate - Kana Sequence',
+    pick: {
+      placeHolder: 'Order of the kana',
+      items: [
+        { label: 'Gojūon (あ, い, う, … ん: 46 kana)', value: 'gojuon' },
+        { label: 'Iroha (イ, ロ, ハ, … ス: 47 kana)', value: 'iroha' },
+      ],
+    },
+    prompts: [],
+    precheck: (count, inputs) => checkKanaCount(inputs[0], count),
+    generate: (index, _text, inputs) => kanaSequence(inputs[0], index),
+  },
+  {
+    id: 'GEN-027', name: 'generate.circled-sequence', title: 'Generate - Circled Number Sequence', prompts: [],
+    precheck: (count) => checkCircledCount(count),
+    generate: (index) => circledSequence(index),
+  },
+  {
+    id: 'GEN-028', name: 'generate.column-ruler', title: 'Generate - Column Ruler',
+    prompts: [{
+      prompt: `Number of columns (1 to ${GEN_MAX_RULER_WIDTH.toLocaleString('en-US')})`,
+      placeHolder: '80',
+      value: () => '80',
+      rule: { kind: 'integer', min: 1, max: GEN_MAX_RULER_WIDTH },
+    }],
+    generate: (_index, _text, inputs, context) => columnRuler(Number(inputs[0]), context.eol),
+  },
+  {
+    id: 'GEN-029', name: 'generate.guid-braced', title: 'Generate - GUID (Braced Uppercase)', prompts: [],
+    generate: (_index, _text, _inputs, context) => bracedGuid(context.random),
+  },
+  {
+    id: 'GEN-030', name: 'generate.ipv4-sequence', title: 'Generate - IPv4 Sequence',
+    prompts: [{
+      prompt: 'First IPv4 address; the next cursors get the following addresses',
+      placeHolder: '192.0.2.1',
+      value: () => '192.0.2.1',
+      rule: { kind: 'parse', parse: (value) => parseIpv4(value) },
+    }],
+    precheck: (count, inputs) => checkIpv4Sequence(parseIpv4(inputs[0]), count),
+    generate: (index, _text, inputs) => ipv4Sequence(parseIpv4(inputs[0]), index),
+  },
+];
+
+/** All GEN commands in ROADMAP order. */
+export const GEN_COMMAND_ENTRIES: readonly GenCommandEntry[] = [...GEN_RANDOM_ENTRIES, ...GEN_SEQUENCE_ENTRIES];

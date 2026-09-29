@@ -3,22 +3,30 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { cryptoRandom, GEN_MAX_INPUT_LENGTH, GenRandom } from '../../handler/genCommon';
-import { GEN_NOT_CHANGED, GEN_NOTHING_SELECTED, GenDependencies, genCommandHandlerInternal } from '../../handler/genCommandHandler';
+import { GEN_NOT_CHANGED, GEN_NOTHING_SELECTED, GenDependencies, genCommandHandlerInternal, GenQuickPickItem } from '../../handler/genCommandHandler';
 import { JA_SENTENCES } from '../../handler/genRandom';
-import { GEN_COMMAND_ENTRIES, GEN_RANDOM_ENTRIES, GenCommandEntry } from '../../handler/genTransforms';
+import { GEN_COMMAND_ENTRIES, GEN_RANDOM_ENTRIES, GEN_SEQUENCE_ENTRIES, GenCommandEntry } from '../../handler/genTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { fakeRandom, GEN_TEST_NOW } from './genTestUtils';
 import { createTextEditor } from './testUtils';
 
 /**
  * Records what the handlers show instead of touching VS Code's UI. The input boxes take their
- * answers from `answers` in order (`undefined` = cancelled) and record their options.
+ * answers from `answers` in order (`undefined` = cancelled) and record their options; the quick
+ * picks choose the item whose value is next in `picks` (`undefined` = cancelled).
  */
-const recorder = (answers: (string | undefined)[] = [], random: GenRandom = fakeRandom(), onPrompt?: () => void | Thenable<unknown>) => {
+const recorder = (
+  answers: (string | undefined)[] = [],
+  random: GenRandom = fakeRandom(),
+  onPrompt?: () => void | Thenable<unknown>,
+  picks: (string | undefined)[] = []
+) => {
   const warnings: string[] = [];
   const errors: string[] = [];
   const prompts: vscode.InputBoxOptions[] = [];
+  const quickPicks: { items: GenQuickPickItem[]; options: vscode.QuickPickOptions }[] = [];
   const queue = [...answers];
+  const pickQueue = [...picks];
   const dependencies: GenDependencies = {
     notifier: {
       showWarningMessage: (message) => {
@@ -35,11 +43,15 @@ const recorder = (answers: (string | undefined)[] = [], random: GenRandom = fake
       await onPrompt?.();
       return queue.shift();
     },
-    showQuickPick: () => Promise.resolve(undefined),
+    showQuickPick: (items, options) => {
+      quickPicks.push({ items, options });
+      const value = pickQueue.shift();
+      return Promise.resolve(items.find((item) => item.value === value));
+    },
     random,
     now: GEN_TEST_NOW,
   };
-  return { dependencies, warnings, errors, prompts };
+  return { dependencies, warnings, errors, prompts, quickPicks };
 };
 
 const entryOf = (id: string): GenCommandEntry => {
@@ -153,7 +165,7 @@ suite('Generator Commands (GEN) Test Suite', () => {
 
     test('the defaults of every prompt pass their own check', async () => {
       const now = GEN_TEST_NOW();
-      for (const entry of GEN_RANDOM_ENTRIES) {
+      for (const entry of GEN_COMMAND_ENTRIES) {
         const answers: string[] = [];
         for (const prompt of [...entry.prompts, ...(entry.emptyPrompts ?? [])]) {
           const editor = await createTextEditor('');
@@ -170,6 +182,8 @@ suite('Generator Commands (GEN) Test Suite', () => {
       }
       assert.strictEqual(entryOf('GEN-012').prompts[0].value(now), '2026-01-01..2026-12-31');
       assert.strictEqual(entryOf('GEN-009').prompts[0].value(now), '2');
+      assert.strictEqual(entryOf('GEN-022').prompts[0].value(now), '2026-09-29');
+      assert.strictEqual(entryOf('GEN-030').prompts[0].value(now), '192.0.2.1');
     });
 
     test('cancelling a prompt does nothing', async () => {
@@ -339,6 +353,160 @@ suite('Generator Commands (GEN) Test Suite', () => {
     });
   });
 
+  suite('sequences and generators (GEN-020..030)', () => {
+    const threeCursors = async (reversed = true) => {
+      const editor = await createTextEditor('\n\n');
+      cursorsAtLineStarts(editor, reversed);
+      return editor;
+    };
+
+    test('the ROADMAP examples: each cursor gets the next value in document order, in one edit', async () => {
+      const cases: [string, string[], string[], string][] = [
+        ['GEN-020', [], [], 'a\nb\nc'],
+        ['GEN-021', [], [], 'I\nII\nIII'],
+        ['GEN-022', ['2026-09-28'], [], '2026-09-28\n2026-09-29\n2026-09-30'],
+        ['GEN-025', ['0x0A'], [], '0x0A\n0x0B\n0x0C'],
+        ['GEN-026', [], ['gojuon'], 'あ\nい\nう'],
+        ['GEN-026', [], ['iroha'], 'イ\nロ\nハ'],
+        ['GEN-027', [], [], '①\n②\n③'],
+        ['GEN-030', ['192.0.2.1'], [], '192.0.2.1\n192.0.2.2\n192.0.2.3'],
+      ];
+      for (const [id, answers, picks, expected] of cases) {
+        const editor = await threeCursors();
+        const { dependencies, warnings, errors } = recorder(answers, fakeRandom(), undefined, picks);
+        const versionBefore = editor.document.version;
+        await run(id, editor, dependencies);
+        assert.strictEqual(editor.document.getText(), expected, id);
+        assert.strictEqual(editor.document.version, versionBefore + 1, id);
+        assert.deepStrictEqual([warnings, errors], [[], []], id);
+      }
+    });
+
+    test('selections are replaced by the values of their positions', async () => {
+      const editor = await createTextEditor('x y z');
+      editor.selections = [new vscode.Selection(0, 4, 0, 5), new vscode.Selection(0, 0, 0, 1), new vscode.Selection(0, 2, 0, 3)];
+      await run('GEN-020', editor, recorder().dependencies);
+      assert.strictEqual(editor.document.getText(), 'a b c');
+    });
+
+    test('Number Range / Column Ruler / Repeat Character: every cursor gets the whole text; line breaks follow the document', async () => {
+      const editor = await crlfEditor('\n');
+      cursorsAtLineStarts(editor);
+      await run('GEN-023', editor, recorder(['1..10 step 3']).dependencies);
+      assert.strictEqual(editor.document.getText(), '1\r\n4\r\n7\r\n10\r\n1\r\n4\r\n7\r\n10');
+      const ruler = await crlfEditor('');
+      await run('GEN-028', ruler, recorder(['30']).dependencies);
+      assert.strictEqual(ruler.document.getText(), '·········1·········2·········3\r\n123456789012345678901234567890');
+      const line = await createTextEditor('');
+      await run('GEN-024', line, recorder(['=', '20']).dependencies);
+      assert.strictEqual(line.document.getText(), '====================');
+    });
+
+    test('Repeat Character: the spaces of the typed characters are kept', async () => {
+      const editor = await createTextEditor('');
+      const { dependencies, prompts } = recorder([' -', '5']);
+      await run('GEN-024', editor, dependencies);
+      assert.strictEqual(editor.document.getText(), ' - - ');
+      assert.strictEqual(prompts[0].validateInput?.(' '), undefined);
+      assert.strictEqual(prompts[0].validateInput?.(''), 'Enter 1 to 16 characters to repeat.');
+      assert.match(prompts[0].validateInput?.('\t') as string, /control characters/);
+      assert.strictEqual(prompts[1].validateInput?.('10001'), 'Enter an integer from 1 to 10,000.');
+    });
+
+    test('GUID: the UUID of the random source, braced and in upper case, for each cursor', async () => {
+      const editor = await createTextEditor('\n');
+      cursorsAtLineStarts(editor);
+      await run('GEN-029', editor, recorder().dependencies);
+      assert.strictEqual(editor.document.getText(), '{3F2504E0-4F89-41D3-9A0C-0305E82C3301}\n{3F2504E0-4F89-41D3-9A0C-0305E82C3301}');
+    });
+
+    test('Kana Sequence: the order is chosen with a quick pick; cancelling it does nothing', async () => {
+      const editor = await createTextEditor('keep');
+      const { dependencies, warnings, errors, prompts, quickPicks } = recorder([], fakeRandom(), undefined, [undefined]);
+      await run('GEN-026', editor, dependencies);
+      assert.strictEqual(editor.document.getText(), 'keep');
+      assert.deepStrictEqual([warnings, errors, prompts.length], [[], [], 0]);
+      assert.strictEqual(quickPicks.length, 1);
+      assert.deepStrictEqual(quickPicks[0].items.map((item) => item.value), ['gojuon', 'iroha']);
+      assert.strictEqual(quickPicks[0].options.ignoreFocusOut, true);
+    });
+
+    test('a sequence too short for the cursors is refused before anything is written', async function () {
+      this.timeout(60_000);
+      const cases: [string, number, string[], string[], RegExp][] = [
+        ['GEN-021', 4000, [], [], /4,000 selections and cursors, but the Roman numeral sequence/],
+        ['GEN-026', 47, [], ['gojuon'], /47 selections and cursors, but the gojūon order/],
+        ['GEN-026', 48, [], ['iroha'], /48 selections and cursors, but the iroha order/],
+        ['GEN-027', 51, [], [], /51 selections and cursors, but the circled number sequence/],
+        ['GEN-022', 3, ['9999-12-30'], [], /past 9999-12-31/],
+        ['GEN-030', 3, ['255.255.255.254'], [], /past 255\.255\.255\.255/],
+      ];
+      for (const [id, count, answers, picks, message] of cases) {
+        const text = '\n'.repeat(count - 1);
+        const editor = await createTextEditor(text);
+        cursorsAtLineStarts(editor);
+        const { dependencies, warnings, errors } = recorder(answers, fakeRandom(), undefined, picks);
+        await run(id, editor, dependencies);
+        assert.strictEqual(editor.document.getText(), text, id);
+        assert.deepStrictEqual(warnings, [], id);
+        assert.strictEqual(errors.length, 1, id);
+        assert.ok(errors[0].startsWith(GEN_NOT_CHANGED), errors[0]);
+        assert.match(errors[0], message, id);
+      }
+    });
+
+    test('the longest sequences fit exactly (3,999 Roman numerals, 50 circled numbers, 47 iroha kana)', async function () {
+      this.timeout(60_000);
+      const cases: [string, number, string[], string][] = [
+        ['GEN-021', 3999, [], 'MMMCMXCIX'],
+        ['GEN-027', 50, [], '㊿'],
+        ['GEN-026', 47, ['iroha'], 'ス'],
+      ];
+      for (const [id, count, picks, last] of cases) {
+        const editor = await createTextEditor('\n'.repeat(count - 1));
+        cursorsAtLineStarts(editor);
+        const { dependencies, errors } = recorder([], fakeRandom(), undefined, picks);
+        await run(id, editor, dependencies);
+        assert.deepStrictEqual(errors, [], id);
+        const lines = editor.document.getText().split('\n');
+        assert.strictEqual(lines.length, count, id);
+        assert.strictEqual(lines[count - 1], last, id);
+      }
+    });
+
+    test('Number Range: the output limit stops the generation and only warns', async function () {
+      this.timeout(60_000);
+      const editor = await createTextEditor('\n'.repeat(19));
+      cursorsAtLineStarts(editor);
+      // 20 cursors × 100,000 numbers of up to 16 digits + line breaks > 10,000,000 characters.
+      const { dependencies, warnings, errors } = recorder(['1000000000000000..1000000000099999']);
+      await run('GEN-023', editor, dependencies);
+      assert.strictEqual(editor.document.getText(), '\n'.repeat(19));
+      assert.deepStrictEqual(errors, []);
+      assert.strictEqual(warnings.length, 1);
+      assert.match(warnings[0], /longer than 10,000,000 characters/);
+    });
+
+    test('invalid typed values are refused while typing and again before running', async () => {
+      const cases: [string, string, RegExp][] = [
+        ['GEN-022', '2026-02-30', /^The date must be a valid date/],
+        ['GEN-023', '1..10 step 0', /^The step must not be 0\./],
+        ['GEN-025', '0xZZ', /^Enter a hexadecimal number/],
+        ['GEN-028', '1001', /^Enter an integer from 1 to 1,000\./],
+        ['GEN-030', '192.0.2.256', /^Each part of the address/],
+      ];
+      for (const [id, value, message] of cases) {
+        const editor = await createTextEditor('keep');
+        const { dependencies, warnings, prompts } = recorder([value]);
+        await run(id, editor, dependencies);
+        assert.match(prompts[0].validateInput?.(value) as string, message, id);
+        assert.strictEqual(editor.document.getText(), 'keep', id);
+        assert.strictEqual(warnings.length, 1, id);
+        assert.match(warnings[0].slice(GEN_NOT_CHANGED.length), message, id);
+      }
+    });
+  });
+
   suite('crypto (smoke test, forms only)', () => {
     test('the real random source gives values of the right form', async () => {
       const forms: [string, string[], RegExp][] = [
@@ -359,6 +527,7 @@ suite('Generator Commands (GEN) Test Suite', () => {
         ['GEN-017', ['3'], /^([^。]+。){3}$/],
         ['GEN-018', [], /^(true|false)$/],
         ['GEN-019', ['2d6'], /^(\d+) \([1-6]\+[1-6]\)$/],
+        ['GEN-029', [], /^\{[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}\}$/],
       ];
       for (const [id, answers, form] of forms) {
         const editor = await createTextEditor('');
@@ -382,6 +551,9 @@ suite('Generator Commands (GEN) Test Suite', () => {
       // In ROADMAP order.
       assert.deepStrictEqual(GEN_COMMAND_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id).slice(0, GEN_COMMAND_ENTRIES.length));
       assert.deepStrictEqual(GEN_RANDOM_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id).slice(0, 19));
+      assert.deepStrictEqual(GEN_SEQUENCE_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id).slice(19));
+      assert.strictEqual(GEN_COMMAND_ENTRIES.length, 30);
+      assert.strictEqual(new Set(GEN_COMMAND_ENTRIES.map((entry) => entry.name)).size, 30);
     });
 
     // The wiring in extension.ts is checked statically (as for the other categories).
@@ -432,6 +604,22 @@ suite('Generator Commands (GEN) Test Suite', () => {
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
 
+    test('the new Generate submenu holds GEN-020..030 in ROADMAP order, last in the root submenu', () => {
+      const contributes = JSON.parse(readRepoFile('package.json')).contributes;
+      assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.generate.submenu'),
+        [{ id: 'selection-manipulator.generate.submenu', label: 'Generate' }]);
+      const items: { command: string; group: string }[] = contributes.menus['selection-manipulator.generate.submenu'];
+      assert.deepStrictEqual(items.map((item) => item.command), GEN_SEQUENCE_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
+      items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
+      const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
+      assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.generate.submenu'),
+        [{ submenu: 'selection-manipulator.generate.submenu', group: 'selection-manipulator@15' }]);
+      // The existing items keep their places (@0..@14) and no group is used twice.
+      root.slice(0, -1).forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
+      assert.strictEqual(root[root.length - 1].submenu, 'selection-manipulator.generate.submenu');
+      assert.strictEqual(new Set(root.map((item) => item.group)).size, root.length);
+    });
+
     test('the existing random commands keep their handlers, titles and menus', () => {
       const source = readRepoFile('src/extension.ts');
       for (const name of ['uuid', 'password', 'ipv4', 'ipv6', 'lorem-ipsum']) {
@@ -452,7 +640,7 @@ suite('Generator Commands (GEN) Test Suite', () => {
   });
 
   suite('source code rules (SECURITY.md)', () => {
-    const files = ['genCommon.ts', 'genRandom.ts', 'genTransforms.ts', 'genCommandHandler.ts'];
+    const files = ['genCommon.ts', 'genRandom.ts', 'genSequence.ts', 'genTransforms.ts', 'genCommandHandler.ts'];
     files.forEach((file) => {
       test(`${file} uses no Math.random, eval, Function constructor, processes, network, files, dynamic require or regular expressions built from text`, () => {
         // Comments are removed first: they may mention what the code avoids.
