@@ -112,6 +112,12 @@ const kanaTokens = (text: string): KanaToken[] => {
   return tokens;
 };
 
+/**
+ * The small hiragana that can be the second half of a KANA_DIGRAPH_ROMAJI entry (`きゃ`, `ふぁ`,
+ * `くゎ`...). Deliberately a hand-picked subset of SMALL_TO_NORMAL_KANA: `っ`, `ゕ`, `ゖ` and the
+ * katakana / half-width small kana never start a digraph (tokens are already hiragana), so they
+ * are not looked up.
+ */
 const SMALL_KANA = new Set([...'ぁぃぅぇぉゃゅょゎ']);
 
 interface Syllable {
@@ -231,19 +237,11 @@ const romajiRunToHiragana = (run: string): string | undefined => {
     const c = run[i];
     const next = run[i + 1];
     if (c === 'n' && !(isVowel(next) || next === 'y')) {
-      if (next === "'") {
-        out += 'ん';
-        i += 2;
-      } else if (next === 'n' && (isVowel(run[i + 2]) || run[i + 2] === 'y')) {
-        out += 'ん';
-        i += 1;
-      } else if (next === 'n') {
-        out += 'ん';
-        i += 2;
-      } else {
-        out += 'ん';
-        i += 1;
-      }
+      // `n'` and an `nn` not followed by a vowel / `y` are one ん of two letters; any other `n`
+      // (before a consonant, at the end, or the first `n` of `nna` = ん + な) is ん of one letter.
+      const twoLetters = next === "'" || (next === 'n' && !(isVowel(run[i + 2]) || run[i + 2] === 'y'));
+      out += 'ん';
+      i += twoLetters ? 2 : 1;
       continue;
     }
     if (c === 'm' && (next === 'b' || next === 'p')) {
@@ -446,15 +444,18 @@ export const PUNCTUATION_TO_TOUTEN: ReadonlyMap<string, string> = new Map([['，
 // JA-008 / 009 / 034 and JA-010: character tables
 // ---------------------------------------------------------------------------------------------
 
-export { KYUJITAI_TO_SHINJITAI, SHINJITAI_TO_KYUJITAI, SMALL_TO_NORMAL_KANA };
-
-const mapText = (text: string, table: ReadonlyMap<string, string>): string => {
+/** Maps every code point of the text with `convert` (surrogate pairs are never split). */
+const mapCodePoints = (text: string, convert: (ch: string) => string): string => {
   let out = '';
   for (const ch of text) {
-    out += table.get(ch) ?? ch;
+    out += convert(ch);
   }
   return out;
 };
+
+/** Replaces the code points found in `table` and keeps every other one. */
+const mapText = (text: string, table: ReadonlyMap<string, string>): string =>
+  mapCodePoints(text, (ch) => table.get(ch) ?? ch);
 
 /** JA-008 / 034: old kanji forms to new ones (`國學` → `国学`). */
 export const kyujitaiToShinjitai = (text: string): string => mapText(text, KYUJITAI_TO_SHINJITAI);
@@ -466,15 +467,6 @@ export const smallKanaToNormal = (text: string): string => mapText(text, SMALL_T
 export const punctuationToComma = (text: string): string => mapText(text, PUNCTUATION_TO_COMMA);
 /** JA-007: `今日は，晴れ．` → `今日は、晴れ。`. */
 export const punctuationToTouten = (text: string): string => mapText(text, PUNCTUATION_TO_TOUTEN);
-
-/** Maps every code point of the text with `convert` (surrogate pairs are never split). */
-const mapCodePoints = (text: string, convert: (ch: string) => string): string => {
-  let out = '';
-  for (const ch of text) {
-    out += convert(ch);
-  }
-  return out;
-};
 
 const formatCount = (count: number): string => count.toLocaleString('en-US');
 
@@ -799,7 +791,7 @@ const CIRCLED_TO_PAREN: ReadonlyMap<string, string> = new Map(
 );
 
 /** JA-021: circled and parenthesized numbers (⓪ ①..㊿ ⑴..⒇) to `(1)` (`①②` → `(1)(2)`). */
-export const circledNumberToParen = (text: string): string => mapCodePoints(text, (ch) => CIRCLED_TO_PAREN.get(ch) ?? ch);
+export const circledNumberToParen = (text: string): string => mapText(text, CIRCLED_TO_PAREN);
 
 /** Official and short names of the prefectures → their JIS X 0401 codes. */
 const PREFECTURE_CODES: ReadonlyMap<string, number> = new Map(
@@ -916,7 +908,7 @@ export const composeDakuten = (text: string): string => {
 // JA-029: platform-dependent characters
 // ---------------------------------------------------------------------------------------------
 
-/** A range of the text as UTF-16 offsets. */
+/** A range of a text as UTF-16 offsets (`end` exclusive). */
 export interface JaTextRange {
   start: number;
   end: number;

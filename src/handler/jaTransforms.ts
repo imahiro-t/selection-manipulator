@@ -21,6 +21,7 @@ import {
   fullwidthAlnumToHalf,
   hiraganaToHalfwidthKatakana,
   ideographicSpaceToSpace,
+  JaTextRange,
   kanaToRomaji,
   kanjiToNumber,
   kyujitaiToShinjitai,
@@ -65,17 +66,11 @@ export type JaTransform = (text: string, context: JaContext, budget: number) => 
  */
 export type JaCombine = (texts: readonly string[], context: JaContext) => string;
 
-/** A range of a selection to select, as UTF-16 offsets into the selected text. */
-export interface JaRange {
-  start: number;
-  end: number;
-}
-
 /**
  * Finds the ranges of one selection to select (in text order). It may stop once it has found more
  * than `limit` ranges (the caller refuses that many anyway).
  */
-export type JaSelect = (text: string, limit: number) => JaRange[];
+export type JaSelect = (text: string, limit: number) => JaTextRange[];
 
 /** One choice of the quick pick shown before running. */
 export interface JaQuickPickItem {
@@ -115,14 +110,20 @@ export interface JaCommandEntry {
   quickPick?: JaQuickPick;
 }
 
-/** A transform of the whole text (every character, line breaks kept). */
-const text = (convert: (value: string) => string): JaTransform =>
-  (value, _context, budget) => {
+/**
+ * A transform of the whole text that also needs the context (the EOL or the chosen value). The
+ * input limit and the output budget are checked here for every whole-text transform.
+ */
+const withContext = (convert: (value: string, context: JaContext) => string): JaTransform =>
+  (value, context, budget) => {
     assertJaInputLength(value);
-    const result = convert(value);
+    const result = convert(value, context);
     assertWithinBudget(result.length, budget);
     return result;
   };
+
+/** A transform of the whole text (every character, line breaks kept). */
+const text = (convert: (value: string) => string): JaTransform => withContext((value) => convert(value));
 
 /** A transform of one value per line (blank lines and the spaces around each value are kept). */
 const lines = (convert: (value: string) => string): JaTransform =>
@@ -134,15 +135,6 @@ const kanjiNumeral = lines(numberToKanji);
 const arabicNumber = lines(kanjiToNumber);
 const shinjitai = text(kyujitaiToShinjitai);
 const jaEnSpace = text(spaceBetweenJaEn);
-
-/** A transform of the whole text that also needs the context (the EOL or the chosen value). */
-const withContext = (convert: (value: string, context: JaContext) => string): JaTransform =>
-  (value, context, budget) => {
-    assertJaInputLength(value);
-    const result = convert(value, context);
-    assertWithinBudget(result.length, budget);
-    return result;
-  };
 
 /** The commands in the order of the JA table of docs/ROADMAP.md. */
 export const JA_COMMAND_ENTRIES: readonly JaCommandEntry[] = [

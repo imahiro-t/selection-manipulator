@@ -39,23 +39,6 @@ export const JA_MESSAGE_TEXT_LIMIT = 60;
 /** `text` quoted like JSON and cut to JA_MESSAGE_TEXT_LIMIT characters (for messages). */
 export const quoteText = (text: string): string => quoteForDisplay(text, JA_MESSAGE_TEXT_LIMIT);
 
-/**
- * `text` without quotes, cut to JA_MESSAGE_TEXT_LIMIT characters with `…` (for a notification
- * that shows values rather than errors). Surrogate pairs are never split.
- */
-export const truncateText = (text: string): string => {
-  let shown = '';
-  let count = 0;
-  for (const ch of text) {
-    if (count === JA_MESSAGE_TEXT_LIMIT) {
-      return `${shown}…`;
-    }
-    shown += ch;
-    count++;
-  }
-  return shown;
-};
-
 export const assertJaInputLength = (text: string): void => {
   if (text.length > JA_MAX_INPUT_LENGTH) {
     throw new JaInputError(`the selection is longer than ${JA_MAX_INPUT_LENGTH.toLocaleString('en-US')} characters`);
@@ -96,29 +79,6 @@ export class JaOutputBuffer {
     return this.parts.join('');
   }
 }
-
-/**
- * Replaces every code point of `text` with `convert(ch)` (surrogate pairs are one code point and
- * are never split). The result is checked against `budget`.
- */
-export const mapJaChars = (text: string, budget: number, convert: (ch: string) => string): string => {
-  assertJaInputLength(text);
-  const output = new JaOutputBuffer(budget);
-  let pending = '';
-  for (const ch of text) {
-    pending += convert(ch);
-    if (pending.length >= 4096) {
-      output.push(pending);
-      pending = '';
-    }
-  }
-  output.push(pending);
-  return output.join();
-};
-
-/** A converter that maps the characters found in `table` and keeps every other character. */
-export const tableConverter = (table: ReadonlyMap<string, string>) =>
-  (ch: string): string => table.get(ch) ?? ch;
 
 // ---------------------------------------------------------------------------------------------
 // Lines

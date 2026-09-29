@@ -15,9 +15,7 @@ import {
   JaNoTargetError,
   KANJI_CLASS,
   KATAKANA_CLASS,
-  mapJaChars,
   mapJaLines,
-  tableConverter,
 } from '../../handler/jaCommon';
 import {
   charTypeCount,
@@ -148,9 +146,7 @@ suite('Japanese Text - conversions (jaConvert / jaCommon / jaTables)', () => {
 
     test('the budget and the input limit', () => {
       assert.throws(() => mapJaLines('12345', 4, (value) => value), EncOutputTooLargeError);
-      assert.throws(() => mapJaChars('abc', 2, (ch) => ch), EncOutputTooLargeError);
-      assert.strictEqual(mapJaChars('a𠮷b', 10, tableConverter(new Map([['𠮷', '吉']]))), 'a吉b');
-      throwsInput(() => mapJaChars('a'.repeat(JA_MAX_INPUT_LENGTH + 1), Infinity, (ch) => ch), 'the selection is longer than 1,000,000 characters');
+      throwsInput(() => mapJaLines('a'.repeat(JA_MAX_INPUT_LENGTH + 1), Infinity, (value) => value), 'the selection is longer than 1,000,000 characters');
     });
   });
 
