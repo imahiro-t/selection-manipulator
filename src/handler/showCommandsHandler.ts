@@ -3606,6 +3606,181 @@ export const myCommands = [
     "command": "selection-manipulator.unicode.transliterate-cyrillic",
     "title": "Unicode - Transliterate Cyrillic to Latin",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-js-string",
+    "title": "Convert to JS String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-python-string",
+    "title": "Convert to Python String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-java-string",
+    "title": "Convert to Java String Concatenation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-go-raw-string",
+    "title": "Convert to Go Raw String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-template-literal",
+    "title": "Convert to JS Template Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-regex",
+    "title": "Escape Regex Special Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-sql",
+    "title": "Escape SQL String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.quote-posix-shell",
+    "title": "Quote for POSIX Shell",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.quote-powershell",
+    "title": "Quote for PowerShell",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-csv-field",
+    "title": "Escape CSV Field",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-markdown",
+    "title": "Escape Markdown Special Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-typescript",
+    "title": "Convert JSON to TypeScript Interface",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-go-struct",
+    "title": "Convert JSON to Go Struct",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-python-typeddict",
+    "title": "Convert JSON to Python TypedDict",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-format",
+    "title": "Format SQL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-minify",
+    "title": "Minify SQL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-uppercase-keywords",
+    "title": "Uppercase SQL Keywords",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-minify",
+    "title": "Minify CSS",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-format",
+    "title": "Format CSS",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-to-hsl",
+    "title": "Convert Hex to HSL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hsl-to-hex",
+    "title": "Convert HSL to Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-shorten-expand",
+    "title": "Toggle Hex Color Short / Long",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.remove-console-log",
+    "title": "Remove console.log Statements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sort-imports",
+    "title": "Sort Import Statements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.concat-to-template",
+    "title": "Convert String Concatenation to Template Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.curl-to-fetch",
+    "title": "Convert curl Command to fetch",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.html-to-jsx",
+    "title": "Convert HTML to JSX",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.semver-bump",
+    "title": "Bump Semantic Version",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.chmod-convert",
+    "title": "Convert chmod Numeric / Symbolic",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-js-string.replace",
+    "title": "Convert to JS String Literal (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-regex.replace",
+    "title": "Escape Regex Special Characters (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-sql.replace",
+    "title": "Escape SQL String Literal (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+    "title": "Convert JSON to TypeScript Interface (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-format.replace",
+    "title": "Format SQL (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.html-to-jsx.replace",
+    "title": "Convert HTML to JSX (Replace)",
+    "canMultiSelection": true
   }
 ];
 
