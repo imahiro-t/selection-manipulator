@@ -3281,6 +3281,181 @@ export const myCommands = [
     "command": "selection-manipulator.generate.ipv4-sequence",
     "title": "Generate - IPv4 Sequence",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kana-to-romaji",
+    "title": "Japanese - Kana to Romaji (Hepburn)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.romaji-to-hiragana",
+    "title": "Japanese - Romaji to Hiragana",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-kanji",
+    "title": "Japanese - Number to Kanji Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kanji-to-number",
+    "title": "Japanese - Kanji Numeral to Number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-daiji",
+    "title": "Japanese - Number to Daiji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.punctuation-to-comma",
+    "title": "Japanese - Punctuation to Comma and Period (，．)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.punctuation-to-touten",
+    "title": "Japanese - Punctuation to Touten and Kuten (、。)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kyujitai-to-shinjitai",
+    "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.shinjitai-to-kyujitai",
+    "title": "Japanese - New Kanji to Old (Shinjitai to Kyujitai)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.small-kana-to-normal",
+    "title": "Japanese - Small Kana to Normal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.manuscript-count",
+    "title": "Japanese - Count Characters (Manuscript Paper)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.remove-ruby",
+    "title": "Japanese - Remove Ruby Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.ruby-to-html",
+    "title": "Japanese - Ruby Notation to HTML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.fullwidth-alnum-to-half",
+    "title": "Japanese - Full-width Alphanumerics to Half (Keep Kana)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.ideographic-space-to-space",
+    "title": "Japanese - Ideographic Space to Space",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.normalize-wave-dash",
+    "title": "Japanese - Normalize Wave Dash",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.normalize-hyphens",
+    "title": "Japanese - Normalize Hyphens and Long Vowel Marks",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.extract-kanji",
+    "title": "Japanese - Extract Kanji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.extract-katakana-words",
+    "title": "Japanese - Extract Katakana Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.char-type-count",
+    "title": "Japanese - Count by Character Type",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.circled-number-to-paren",
+    "title": "Japanese - Circled Numbers to Parentheses",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.prefecture-code",
+    "title": "Japanese - Prefecture Name to/from JIS Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.postal-code-format",
+    "title": "Japanese - Format Postal Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.hiragana-to-halfwidth-katakana",
+    "title": "Japanese - Hiragana to Half-width Katakana",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.remove-spaces-between-japanese",
+    "title": "Japanese - Remove Spaces Between Japanese Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.space-between-ja-en",
+    "title": "Japanese - Add Space Between Japanese and Alphanumerics",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.compose-dakuten",
+    "title": "Japanese - Compose Dakuten",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kana-to-romaji-kunrei",
+    "title": "Japanese - Kana to Romaji (Kunrei)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.detect-platform-dependent",
+    "title": "Japanese - Detect Platform-dependent Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+    "title": "Japanese - Kana to Romaji (Hepburn) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+    "title": "Japanese - Romaji to Hiragana (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-kanji.replace",
+    "title": "Japanese - Number to Kanji Numeral (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kanji-to-number.replace",
+    "title": "Japanese - Kanji Numeral to Number (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+    "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.space-between-ja-en.replace",
+    "title": "Japanese - Add Space Between Japanese and Alphanumerics (Replace)",
+    "canMultiSelection": true
   }
 ];
 
