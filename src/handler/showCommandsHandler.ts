@@ -3281,6 +3281,81 @@ export const myCommands = [
     "command": "selection-manipulator.generate.ipv4-sequence",
     "title": "Generate - IPv4 Sequence",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kana-to-romaji",
+    "title": "Japanese - Kana to Romaji (Hepburn)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.romaji-to-hiragana",
+    "title": "Japanese - Romaji to Hiragana",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-kanji",
+    "title": "Japanese - Number to Kanji Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kanji-to-number",
+    "title": "Japanese - Kanji Numeral to Number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-daiji",
+    "title": "Japanese - Number to Daiji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.punctuation-to-comma",
+    "title": "Japanese - Punctuation to Comma and Period (，．)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.punctuation-to-touten",
+    "title": "Japanese - Punctuation to Touten and Kuten (、。)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kyujitai-to-shinjitai",
+    "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.shinjitai-to-kyujitai",
+    "title": "Japanese - New Kanji to Old (Shinjitai to Kyujitai)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.small-kana-to-normal",
+    "title": "Japanese - Small Kana to Normal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+    "title": "Japanese - Kana to Romaji (Hepburn) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+    "title": "Japanese - Romaji to Hiragana (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.number-to-kanji.replace",
+    "title": "Japanese - Number to Kanji Numeral (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kanji-to-number.replace",
+    "title": "Japanese - Kanji Numeral to Number (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+    "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai) (Replace)",
+    "canMultiSelection": true
   }
 ];
 

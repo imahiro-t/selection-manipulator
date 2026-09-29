@@ -86,6 +86,7 @@ import { tableHandler } from './handler/tableHandler';
 import { numHandler } from './handler/numHandler';
 import { dateCommandHandler } from './handler/dateCommandHandler';
 import { genCommandHandler } from './handler/genCommandHandler';
+import { jaCommandHandler } from './handler/jaCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -806,6 +807,23 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.column-ruler', genCommandHandler('generate.column-ruler')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.guid-braced', genCommandHandler('generate.guid-braced')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.ipv4-sequence', genCommandHandler('generate.ipv4-sequence')));
+
+  // Japanese text commands (JA-001..035)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kana-to-romaji', jaCommandHandler('japanese.kana-to-romaji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.romaji-to-hiragana', jaCommandHandler('japanese.romaji-to-hiragana')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.number-to-kanji', jaCommandHandler('japanese.number-to-kanji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kanji-to-number', jaCommandHandler('japanese.kanji-to-number')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.number-to-daiji', jaCommandHandler('japanese.number-to-daiji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.punctuation-to-comma', jaCommandHandler('japanese.punctuation-to-comma')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.punctuation-to-touten', jaCommandHandler('japanese.punctuation-to-touten')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kyujitai-to-shinjitai', jaCommandHandler('japanese.kyujitai-to-shinjitai')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.shinjitai-to-kyujitai', jaCommandHandler('japanese.shinjitai-to-kyujitai')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.small-kana-to-normal', jaCommandHandler('japanese.small-kana-to-normal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kana-to-romaji.replace', jaCommandHandler('japanese.kana-to-romaji.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.romaji-to-hiragana.replace', jaCommandHandler('japanese.romaji-to-hiragana.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.number-to-kanji.replace', jaCommandHandler('japanese.number-to-kanji.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kanji-to-number.replace', jaCommandHandler('japanese.kanji-to-number.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kyujitai-to-shinjitai.replace', jaCommandHandler('japanese.kyujitai-to-shinjitai.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

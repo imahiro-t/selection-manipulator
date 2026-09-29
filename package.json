@@ -3401,6 +3401,81 @@
         "command": "selection-manipulator.generate.ipv4-sequence",
         "title": "Generate - IPv4 Sequence",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kana-to-romaji",
+        "title": "Japanese - Kana to Romaji (Hepburn)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.romaji-to-hiragana",
+        "title": "Japanese - Romaji to Hiragana",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.number-to-kanji",
+        "title": "Japanese - Number to Kanji Numeral",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kanji-to-number",
+        "title": "Japanese - Kanji Numeral to Number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.number-to-daiji",
+        "title": "Japanese - Number to Daiji",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.punctuation-to-comma",
+        "title": "Japanese - Punctuation to Comma and Period (，．)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.punctuation-to-touten",
+        "title": "Japanese - Punctuation to Touten and Kuten (、。)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kyujitai-to-shinjitai",
+        "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.shinjitai-to-kyujitai",
+        "title": "Japanese - New Kanji to Old (Shinjitai to Kyujitai)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.small-kana-to-normal",
+        "title": "Japanese - Small Kana to Normal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+        "title": "Japanese - Kana to Romaji (Hepburn) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+        "title": "Japanese - Romaji to Hiragana (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.number-to-kanji.replace",
+        "title": "Japanese - Number to Kanji Numeral (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kanji-to-number.replace",
+        "title": "Japanese - Kanji Numeral to Number (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+        "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -5540,6 +5615,66 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.random.sample-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kana-to-romaji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.romaji-to-hiragana"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.number-to-kanji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kanji-to-number"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.number-to-daiji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.punctuation-to-comma"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.punctuation-to-touten"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.shinjitai-to-kyujitai"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.small-kana-to-normal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kana-to-romaji.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.romaji-to-hiragana.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.number-to-kanji.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kanji-to-number.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace"
         }
       ],
       "editor/context": [
@@ -6938,6 +7073,66 @@
         {
           "command": "selection-manipulator.japanese.katakana-to-hiragana.replace",
           "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.japanese.kana-to-romaji",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.japanese.romaji-to-hiragana",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.japanese.number-to-kanji",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.japanese.kanji-to-number",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.japanese.number-to-daiji",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.japanese.punctuation-to-comma",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.japanese.punctuation-to-touten",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.japanese.shinjitai-to-kyujitai",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.japanese.small-kana-to-normal",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.japanese.number-to-kanji.replace",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.japanese.kanji-to-number.replace",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+          "group": "selection-manipulator@22"
         }
       ],
       "selection-manipulator.text.submenu": [
