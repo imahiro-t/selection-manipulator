@@ -2551,6 +2551,206 @@
         "command": "selection-manipulator.crypto.hash-blake2b512.replace",
         "title": "Create Hash (BLAKE2b-512) (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-keys",
+        "title": "Sort JSON Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-query-string",
+        "title": "Convert JSON to Query String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-env",
+        "title": "Convert JSON to Env",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-xml",
+        "title": "Convert JSON to XML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-toml",
+        "title": "Convert JSON to TOML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.to-json",
+        "title": "Convert TOML to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-ini",
+        "title": "Convert JSON to INI",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ini.to-json",
+        "title": "Convert INI to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-properties",
+        "title": "Convert JSON to .properties",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.properties.to-json",
+        "title": "Convert .properties to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.remove-nulls",
+        "title": "Remove Null Values from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-jsonl",
+        "title": "Convert JSON Array to JSON Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonl.to-json",
+        "title": "Convert JSON Lines to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonc.to-json",
+        "title": "Convert JSONC / JSON5 to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.get-path",
+        "title": "Extract JSON Value by Path",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.list-paths",
+        "title": "List JSON Paths",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.keys",
+        "title": "Extract JSON Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.merge-selections",
+        "title": "Merge JSON Objects (Selections)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.validate",
+        "title": "Validate JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.format",
+        "title": "Format YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.sort-keys",
+        "title": "Sort YAML Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.array-unique",
+        "title": "Remove Duplicates in JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.pluck",
+        "title": "Pluck Field from JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.group-by",
+        "title": "Group JSON Array by Field",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.count",
+        "title": "Count JSON Elements",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-schema",
+        "title": "Generate JSON Schema from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-js-object",
+        "title": "Convert JSON to JS Object Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.js-object.to-json",
+        "title": "Convert JS Object Literal to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cookie.to-json",
+        "title": "Parse Cookie Header to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.set-cookie.to-json",
+        "title": "Parse Set-Cookie to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.http-headers.to-json",
+        "title": "Parse HTTP Headers to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.user-agent.to-json",
+        "title": "Parse User-Agent to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.parse-nested",
+        "title": "Parse Nested JSON Strings",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-keys.replace",
+        "title": "Sort JSON Keys (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-xml.replace",
+        "title": "Convert JSON to XML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-toml.replace",
+        "title": "Convert JSON to TOML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.to-json.replace",
+        "title": "Convert TOML to JSON (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-jsonl.replace",
+        "title": "Convert JSON Array to JSON Lines (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonl.to-json.replace",
+        "title": "Convert JSON Lines to JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.format.replace",
+        "title": "Format YAML (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -2741,6 +2941,14 @@
       {
         "id": "selection-manipulator.encode.replace.submenu",
         "label": "Encode / Decode"
+      },
+      {
+        "id": "selection-manipulator.data.submenu",
+        "label": "Data Format"
+      },
+      {
+        "id": "selection-manipulator.data.replace.submenu",
+        "label": "Data Format"
       }
     ],
     "menus": {
@@ -4060,6 +4268,166 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.crypto.hash-blake2b512.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-query-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-env"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-xml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-toml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-ini"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ini.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-properties"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.properties.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.remove-nulls"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-jsonl"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonl.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonc.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.get-path"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.list-paths"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.merge-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.sort-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.array-unique"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.pluck"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.group-by"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-schema"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-js-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.js-object.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cookie.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.set-cookie.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.http-headers.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.user-agent.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.parse-nested"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-keys.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-xml.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-toml.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-jsonl.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonl.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.format.replace"
         }
       ],
       "editor/context": [
@@ -4474,6 +4842,11 @@
           "when": "editorHasSelection",
           "submenu": "selection-manipulator.checksum.submenu",
           "group": "selection-manipulator@17"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.data.submenu",
+          "group": "selection-manipulator@18"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -4697,6 +5070,11 @@
           "when": "editorHasSelection",
           "submenu": "selection-manipulator.encode.replace.submenu",
           "group": "selection-manipulator@7"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.data.replace.submenu",
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -6175,6 +6553,170 @@
         {
           "command": "selection-manipulator.checksum.luhn",
           "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.data.submenu": [
+        {
+          "command": "selection-manipulator.json.sort-keys",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.json.to-query-string",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.json.to-env",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.json.to-xml",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.json.to-toml",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.toml.to-json",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.json.to-ini",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.ini.to-json",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.json.to-properties",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.properties.to-json",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.json.remove-nulls",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.json.to-jsonl",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.jsonl.to-json",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.jsonc.to-json",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.json.get-path",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.json.list-paths",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.json.keys",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.json.merge-selections",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.json.validate",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.yaml.format",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.yaml.sort-keys",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.json.array-unique",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.json.pluck",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.json.group-by",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.json.count",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.json.to-schema",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.json.to-js-object",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.js-object.to-json",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.cookie.to-json",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.set-cookie.to-json",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.http-headers.to-json",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.user-agent.to-json",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.json.parse-nested",
+          "group": "selection-manipulator@32"
+        }
+      ],
+      "selection-manipulator.data.replace.submenu": [
+        {
+          "command": "selection-manipulator.json.sort-keys.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.json.to-xml.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.json.to-toml.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.toml.to-json.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.json.to-jsonl.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.jsonl.to-json.replace",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.yaml.format.replace",
+          "group": "selection-manipulator@6"
         }
       ]
     }

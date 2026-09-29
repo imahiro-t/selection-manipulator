@@ -2430,6 +2430,206 @@ export const myCommands = [
     "command": "selection-manipulator.crypto.hash-blake2b512.replace",
     "title": "Transform - Crypto - Create Hash (BLAKE2b-512) (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-keys",
+    "title": "Transform - Data Format - Sort JSON Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-query-string",
+    "title": "Transform - Data Format - Convert JSON to Query String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-env",
+    "title": "Transform - Data Format - Convert JSON to Env",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-xml",
+    "title": "Transform - Data Format - Convert JSON to XML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-toml",
+    "title": "Transform - Data Format - Convert JSON to TOML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.to-json",
+    "title": "Transform - Data Format - Convert TOML to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-ini",
+    "title": "Transform - Data Format - Convert JSON to INI",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ini.to-json",
+    "title": "Transform - Data Format - Convert INI to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-properties",
+    "title": "Transform - Data Format - Convert JSON to .properties",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.properties.to-json",
+    "title": "Transform - Data Format - Convert .properties to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.remove-nulls",
+    "title": "Transform - Data Format - Remove Null Values from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-jsonl",
+    "title": "Transform - Data Format - Convert JSON Array to JSON Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonl.to-json",
+    "title": "Transform - Data Format - Convert JSON Lines to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonc.to-json",
+    "title": "Transform - Data Format - Convert JSONC / JSON5 to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.get-path",
+    "title": "Transform - Data Format - Extract JSON Value by Path",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.list-paths",
+    "title": "Transform - Data Format - List JSON Paths",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.keys",
+    "title": "Transform - Data Format - Extract JSON Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.merge-selections",
+    "title": "Transform - Data Format - Merge JSON Objects (Selections)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.validate",
+    "title": "Transform - Data Format - Validate JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.format",
+    "title": "Transform - Data Format - Format YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.sort-keys",
+    "title": "Transform - Data Format - Sort YAML Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.array-unique",
+    "title": "Transform - Data Format - Remove Duplicates in JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.pluck",
+    "title": "Transform - Data Format - Pluck Field from JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.group-by",
+    "title": "Transform - Data Format - Group JSON Array by Field",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.count",
+    "title": "Transform - Data Format - Count JSON Elements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-schema",
+    "title": "Transform - Data Format - Generate JSON Schema from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-js-object",
+    "title": "Transform - Data Format - Convert JSON to JS Object Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.js-object.to-json",
+    "title": "Transform - Data Format - Convert JS Object Literal to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cookie.to-json",
+    "title": "Transform - Data Format - Parse Cookie Header to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.set-cookie.to-json",
+    "title": "Transform - Data Format - Parse Set-Cookie to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.http-headers.to-json",
+    "title": "Transform - Data Format - Parse HTTP Headers to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.user-agent.to-json",
+    "title": "Transform - Data Format - Parse User-Agent to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.parse-nested",
+    "title": "Transform - Data Format - Parse Nested JSON Strings",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-keys.replace",
+    "title": "Transform - Data Format - Sort JSON Keys (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-xml.replace",
+    "title": "Transform - Data Format - Convert JSON to XML (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-toml.replace",
+    "title": "Transform - Data Format - Convert JSON to TOML (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.to-json.replace",
+    "title": "Transform - Data Format - Convert TOML to JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-jsonl.replace",
+    "title": "Transform - Data Format - Convert JSON Array to JSON Lines (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonl.to-json.replace",
+    "title": "Transform - Data Format - Convert JSON Lines to JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.format.replace",
+    "title": "Transform - Data Format - Format YAML (Replace)",
+    "canMultiSelection": true
   }
 ];
 

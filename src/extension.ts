@@ -81,6 +81,7 @@ import { diffHandler } from './handler/diffHandler';
 import { whitespaceHandler, whitespaceInputHandler } from './handler/whitespaceHandler';
 import { lineCountStatsHandler, lineHandler } from './handler/lineHandler';
 import { hashExtendedHandler } from './handler/hashExtendedHandler';
+import { dataHandler } from './handler/dataHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -621,6 +622,48 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha384.replace', hashExtendedHandler('crypto.hash-sha384.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha3-256.replace', hashExtendedHandler('crypto.hash-sha3-256.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-blake2b512.replace', hashExtendedHandler('crypto.hash-blake2b512.replace')));
+
+  // Data format (DATA-001..040)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.sort-keys', dataHandler('json.sort-keys')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-query-string', dataHandler('json.to-query-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-env', dataHandler('json.to-env')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-xml', dataHandler('json.to-xml')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-toml', dataHandler('json.to-toml')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.toml.to-json', dataHandler('toml.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-ini', dataHandler('json.to-ini')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ini.to-json', dataHandler('ini.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-properties', dataHandler('json.to-properties')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.properties.to-json', dataHandler('properties.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.remove-nulls', dataHandler('json.remove-nulls')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-jsonl', dataHandler('json.to-jsonl')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jsonl.to-json', dataHandler('jsonl.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jsonc.to-json', dataHandler('jsonc.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.get-path', dataHandler('json.get-path')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.list-paths', dataHandler('json.list-paths')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.keys', dataHandler('json.keys')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.merge-selections', dataHandler('json.merge-selections')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.validate', dataHandler('json.validate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.format', dataHandler('yaml.format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.sort-keys', dataHandler('yaml.sort-keys')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.array-unique', dataHandler('json.array-unique')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.pluck', dataHandler('json.pluck')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.group-by', dataHandler('json.group-by')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.count', dataHandler('json.count')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-schema', dataHandler('json.to-schema')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-js-object', dataHandler('json.to-js-object')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.js-object.to-json', dataHandler('js-object.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.cookie.to-json', dataHandler('cookie.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.set-cookie.to-json', dataHandler('set-cookie.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.http-headers.to-json', dataHandler('http-headers.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.user-agent.to-json', dataHandler('user-agent.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.parse-nested', dataHandler('json.parse-nested')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.sort-keys.replace', dataHandler('json.sort-keys.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-xml.replace', dataHandler('json.to-xml.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-toml.replace', dataHandler('json.to-toml.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.toml.to-json.replace', dataHandler('toml.to-json.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-jsonl.replace', dataHandler('json.to-jsonl.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jsonl.to-json.replace', dataHandler('jsonl.to-json.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.format.replace', dataHandler('yaml.format.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

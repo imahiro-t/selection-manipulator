@@ -486,7 +486,7 @@ suite('Hash Commands (HASH-001..020) Test Suite', () => {
       ]);
       const parent: MenuItem[] = contributes.menus['selection-manipulator.transform.submenu'];
       assert.deepStrictEqual(parent.filter((item) => item.submenu === 'selection-manipulator.checksum.submenu'), [
-        { when: 'editorHasSelection', submenu: 'selection-manipulator.checksum.submenu', group: `selection-manipulator@${parent.length - 1}` },
+        { when: 'editorHasSelection', submenu: 'selection-manipulator.checksum.submenu', group: 'selection-manipulator@17' },
       ]);
       const ids = contributes.commands.map((c: { command: string }) => c.command);
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
