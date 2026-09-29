@@ -607,15 +607,18 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 
 #### Math & Statistics
 *   **Evaluate**: `1 + 2 * 3` -> `7`.
-*   **Statistics**: Sum, Average, Min, Max of selected numbers.
-*   **Base Conversion**: Hex <-> Decimal.
+*   **Statistics**: Sum, Average, Min, Max of selected numbers; Median, Mode, Standard Deviation, Variance, Count, Product, Range, Percentile and Statistics Summary of each selection on its own; Cumulative Sum (see [Number Commands](#number-commands) below).
+*   **Base Conversion**: Hex <-> Decimal; Decimal <-> Binary / Octal / Hex and any base from 2 to 36 (see [Number Commands](#number-commands) below).
+*   **Number Formatting**: Round, Floor, Ceil, Truncate, Abs, Negate, thousands separators, locale format, scientific notation, percent, bytes, English words, ordinals and fractions (see [Number Commands](#number-commands) below).
 
 #### Counting & Date
 *   **Increment/Decrement**: Increase/decrease numbers (From 1, From N, By 1, By N).
 *   **Date Calculation**: Days between dates.
 *   **Unit Conversion**:
-    *   **Length**: px <-> rem (Base 16).
+    *   **Length**: px <-> rem (Base 16), km <-> mile, cm <-> inch.
     *   **Weight**: kg <-> lb.
+    *   **Temperature**: Celsius <-> Fahrenheit.
+    *   The km / mile, cm / inch and Celsius / Fahrenheit commands are described in [Number Commands](#number-commands) below.
 
 #### Number Commands
 The statistics commands (**Math - Median** to **Math - Statistics Summary**) never change the text: they open the result in a new read-only editor, one line for each selection (in document order, joined with the document's line ending), so `1⏎3⏎2⏎10` -> `2.5`. All the other number commands (**Math - Cumulative Sum**, **Number - …** and **Unit: …**) replace each selection with its result (only the selections whose text changes, as one undo step). Every selection is computed on its own, also by the statistics commands: unlike the existing **Sum**, **Average**, **Min** and **Max**, which add up the numbers of all selections together, Median of two selections gives two lines. Empty selections and selections of only spaces, tabs and line breaks are skipped, and if nothing else is selected, the warning `Select the numbers to use.` is shown (before any input box). If any selection fails, no selection is changed and no editor is opened, and an error names the problem (`The selection was not changed: …` or `No result was shown: …`, with `selection 2 of 3: ` when there are several selections). A command that asks for input asks only once for all selections, reads the selections again after the input box closes, and does nothing if you cancel it; values you enter are not saved. The statistics commands are added to the **Calculate** context submenu, Cumulative Sum and the Number commands to the **Number** submenu of the **Replace** context submenu, and the Unit commands to the **Unit Conversion** submenu of the **Transform** context submenu, after the existing commands. The existing Sum, Average, Min, Max, Hex <-> Decimal, Increment / Decrement and px / rem / kg / lb commands are unchanged.
@@ -665,7 +668,7 @@ In the examples, `·` is a space, `⏎` is a line break, and a value in parenthe
 > *   **Size**: A selection can be up to 5,000,000 characters (a longer one is an error). A run whose results would exceed 10,000,000 characters in total (shared by all selections) is stopped while it is converting and refused with a warning (`…the result would be longer than 10,000,000 characters. Select less text.`); nothing is changed or opened. The digit limits above (1,000 for the base conversions, 30 for the byte conversions and Decimal to Fraction, 36 for To English Words, an exponent of 1,000 for From Scientific Notation) are checked before any conversion, so no input can make VS Code wait for long.
 > *   **Commas**: The statistics commands never read `1,234` as one thousand two hundred thirty-four; remove the separators first (Remove Thousands Separator).
 > *   **Add Thousands Separator**: A negative zero keeps its sign (`-000` -> `-0`), unlike Absolute Value and Negate.
-> *   **Floating point**: Commands that use floating-point numbers (see Precision above) cannot give more than 15 to 17 correct significant digits, and the statistics of many very large equal numbers can show a tiny rounding error instead of `σ=0` (for example, hundreds of thousands of `1e308`).
+> *   **Floating point**: Commands that use floating-point numbers (see Precision above) cannot give more than 15 to 17 correct significant digits, and the statistics of many very large equal numbers can show a nonzero σ that is small only relative to the numbers instead of `σ=0` (for example, about `σ=2.5e+296` for 300,000 copies of `1e308`).
 
 ### 11. Japanese Text Support
 *   **Width Conversion**: Full-width <-> Half-width (Alphanumeric + Katakana).
