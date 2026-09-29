@@ -12,6 +12,7 @@ import {
   JA_LETTER_CLASS,
   JA_MAX_INPUT_LENGTH,
   JaInputError,
+  JaNoTargetError,
   KANJI_CLASS,
   KATAKANA_CLASS,
   mapJaChars,
@@ -19,8 +20,28 @@ import {
   tableConverter,
 } from '../../handler/jaCommon';
 import {
+  charTypeCount,
+  charTypeOf,
+  circledNumberToParen,
+  composeDakuten,
+  extractKanji,
+  extractKatakanaWords,
+  findPlatformDependent,
+  formatPostalCode,
+  fullwidthAlnumToHalf,
+  hiraganaToHalfwidthKatakana,
+  ideographicSpaceToSpace,
+  JA_CHAR_TYPES,
   JA_MAX_NUMERAL,
   kanaToRomaji,
+  manuscriptCount,
+  normalizeHyphens,
+  normalizeWaveDash,
+  prefectureCode,
+  removeRuby,
+  removeSpacesBetweenJapanese,
+  rubyToHtml,
+  spaceBetweenJaEn,
   kanjiToNumber,
   kyujitaiToShinjitai,
   numberToDaiji,
@@ -299,6 +320,189 @@ suite('Japanese Text - conversions (jaConvert / jaCommon / jaTables)', () => {
         assert.ok(isHiragana(small) || isKatakana(small), small);
         assert.ok(isHiragana(normal) || isKatakana(normal), normal);
       }
+    });
+  });
+
+  suite('JA-011: manuscript paper count', () => {
+    test('line breaks are not counted, spaces are; sheets rounded half up to one decimal place', () => {
+      assert.strictEqual(manuscriptCount(['あ'.repeat(1234)]), '1,234 字 / 原稿用紙 3.1 枚');
+      assert.strictEqual(manuscriptCount(['あい\r\nう　え \nお']), '7 字 / 原稿用紙 0.0 枚');
+      assert.strictEqual(manuscriptCount(['あ'.repeat(19)]), '19 字 / 原稿用紙 0.0 枚');
+      assert.strictEqual(manuscriptCount(['あ'.repeat(20)]), '20 字 / 原稿用紙 0.1 枚');
+      assert.strictEqual(manuscriptCount(['あ'.repeat(400)]), '400 字 / 原稿用紙 1.0 枚');
+      assert.strictEqual(manuscriptCount(['あ'.repeat(3980)]), '3,980 字 / 原稿用紙 10.0 枚');
+      assert.strictEqual(manuscriptCount(['𠮷野', '家']), '3 字 / 原稿用紙 0.0 枚');
+      assert.throws(() => manuscriptCount(['\n\r\n']), JaNoTargetError);
+    });
+  });
+
+  suite('JA-012 / 013: ruby', () => {
+    test('remove ruby: the three forms, other text kept', () => {
+      assert.strictEqual(removeRuby('｜東京《とうきょう》'), '東京');
+      assert.strictEqual(removeRuby('|東京《とうきょう》タワー'), '東京タワー');
+      assert.strictEqual(removeRuby('私は漢字《かんじ》を書く'), '私は漢字を書く');
+      assert.strictEqual(removeRuby('東京（とうきょう）と大阪(おおさか)'), '東京と大阪');
+      assert.strictEqual(removeRuby('会社（カイシャ）'), '会社');
+      assert.strictEqual(removeRuby('｜ＡＢＣ《えーびーしー》'), 'ＡＢＣ');
+      // Not ruby: no matching 《》, 《》 after a kana, parentheses with other text or after a kana.
+      for (const text of ['｜東京', '｜東京《とう', '東京《》', 'かな《かな》', '東京（Tokyo）', 'かな（かな）', '東京（2024年）', '｜《ルビ》']) {
+        assert.strictEqual(removeRuby(text), text, text);
+      }
+      // A ｜ whose base would cross a line break is kept; the kanji before 《 are then the base.
+      assert.strictEqual(removeRuby('｜東\n京《とう》'), '｜東\n京');
+    });
+
+    test('ruby to HTML: escaped base and ruby, other text kept', () => {
+      assert.strictEqual(rubyToHtml('｜東京《とうきょう》'), '<ruby>東京<rt>とうきょう</rt></ruby>');
+      assert.strictEqual(rubyToHtml('これは漢字《かんじ》です'), 'これは<ruby>漢字<rt>かんじ</rt></ruby>です');
+      assert.strictEqual(rubyToHtml('｜<b>《"&\'》'), '<ruby>&lt;b&gt;<rt>&quot;&amp;&#39;</rt></ruby>');
+      assert.strictEqual(rubyToHtml('a<b>｜東京'), 'a<b>｜東京');
+      assert.strictEqual(rubyToHtml('東京（とうきょう）'), '東京（とうきょう）');
+      assert.strictEqual(rubyToHtml('𠮷野《よしの》'), '<ruby>𠮷野<rt>よしの</rt></ruby>');
+    });
+
+    test('long input without ruby is linear', () => {
+      const text = `${'｜'.repeat(100_000)}${'漢'.repeat(100_000)}${'《'.repeat(100_000)}`;
+      assert.strictEqual(rubyToHtml(text), text);
+      assert.strictEqual(removeRuby(text), text);
+    });
+  });
+
+  suite('JA-014 .. 017: width, spaces, wave dashes, hyphens', () => {
+    test('full-width alphanumerics and symbols only', () => {
+      assert.strictEqual(fullwidthAlnumToHalf('ＡＢＣ１２３カナ'), 'ABC123カナ');
+      assert.strictEqual(fullwidthAlnumToHalf('！～＠　。「」ｶﾅ'), '!~@　。「」ｶﾅ');
+    });
+
+    test('ideographic space', () => {
+      assert.strictEqual(ideographicSpaceToSpace('東京　大阪\t 京都'), '東京 大阪\t 京都');
+    });
+
+    test('wave dash: both ways; an unknown choice is an error', () => {
+      assert.strictEqual(normalizeWaveDash('1〜3、4～5', '〜'), '1〜3、4〜5');
+      assert.strictEqual(normalizeWaveDash('1〜3、4～5', '～'), '1～3、4～5');
+      assert.strictEqual(normalizeWaveDash('a~b', '〜'), 'a~b');
+      throwsInput(() => normalizeWaveDash('1〜3', '~'), /choose/);
+      throwsInput(() => normalizeWaveDash('1〜3', undefined), /choose/);
+    });
+
+    test('hyphens after kana, long vowel marks between digits', () => {
+      assert.strictEqual(normalizeHyphens('コ−ヒ− 03ー1234'), 'コーヒー 03-1234');
+      assert.strictEqual(normalizeHyphens('すご‐‐い'), 'すごーーい');
+      assert.strictEqual(normalizeHyphens('ｺ−ﾋ―'), 'ｺｰﾋｰ');
+      assert.strictEqual(normalizeHyphens('０３ー１２３４ ０３ｰ1 1－2'), '０３-１２３４ ０３-1 1-2');
+      // Kept: the ASCII hyphen, hyphens after other characters, long vowel marks not between digits.
+      assert.strictEqual(normalizeHyphens('テスト-1 漢字−A 03ー ーー'), 'テスト-1 漢字−A 03ー ーー');
+    });
+  });
+
+  suite('JA-018 / 019 / 020: character types', () => {
+    test('extract kanji: lines kept, lines without kanji dropped', () => {
+      assert.strictEqual(extractKanji('東京タワーへ行く'), '東京行');
+      assert.strictEqual(extractKanji('東京\r\nabc\n大阪へ\n'), '東京\r\n大阪');
+      assert.strictEqual(extractKanji('3ヶ月'), '月');
+      assert.strictEqual(extractKanji('々〆〇𠮷'), '々〆〇𠮷');
+      assert.strictEqual(extractKanji('かな'), '');
+    });
+
+    test('extract katakana words', () => {
+      assert.strictEqual(extractKatakanaWords('東京タワーとスカイツリー', '\n'), 'タワー\nスカイツリー');
+      assert.strictEqual(extractKatakanaWords('ジョン・スミスとジョン', '\r\n'), 'ジョン・スミス\r\nジョン');
+      assert.strictEqual(extractKatakanaWords('3ヶ月、霞ヶ関', '\n'), '');
+      assert.strictEqual(extractKatakanaWords('すごーいカ・ ﾃｽﾄ ・ア', '\n'), 'カ\nﾃｽﾄ\nア');
+      assert.strictEqual(extractKatakanaWords('ヶケ', '\n'), 'ヶケ');
+    });
+
+    test('count by character type: the classification of the plan', () => {
+      const types = (text: string) => [...text].map((ch) => JA_CHAR_TYPES[charTypeOf(ch)] ?? '-').join(',');
+      assert.strictEqual(types('々〆〇'), '漢字,漢字,漢字');
+      assert.strictEqual(types('ヶーｰ'), 'カタカナ,カタカナ,カタカナ');
+      assert.strictEqual(types('ゕゝ'), 'ひらがな,ひらがな');
+      assert.strictEqual(types('aZ9Ａｚ０'), '英数字,英数字,英数字,英数字,英数字,英数字');
+      assert.strictEqual(types('、・〜！゛-@😀'), '記号,記号,記号,記号,記号,記号,記号,記号');
+      assert.strictEqual(types('é①゙α한'), 'その他,その他,その他,その他,その他');
+      assert.strictEqual(types(' \t\n　'), '-,-,-,-');
+      assert.strictEqual(charTypeCount(['東京タワーへgo']), '漢字 2 / カタカナ 3 / ひらがな 1 / 英数字 2');
+      assert.strictEqual(charTypeCount(['①é!']), '記号 1 / その他 2');
+      assert.strictEqual(charTypeCount(['!', 'a', 'あ']), 'ひらがな 1 / 英数字 1 / 記号 1');
+      assert.strictEqual(charTypeCount(['あ'.repeat(1234)]), 'ひらがな 1,234');
+      assert.throws(() => charTypeCount(['　']), JaNoTargetError);
+    });
+  });
+
+  suite('JA-021 / 022 / 023: circled numbers, prefectures, postal codes', () => {
+    test('circled numbers', () => {
+      assert.strictEqual(circledNumberToParen('①②'), '(1)(2)');
+      assert.strictEqual(circledNumberToParen('⓪ ⑳㉑㊿ ⑴⒇ ❶'), '(0) (20)(21)(50) (1)(20) ❶');
+    });
+
+    test('prefectures: names to codes and codes to names', () => {
+      assert.strictEqual(prefectureCode('東京都'), '13');
+      assert.strictEqual(prefectureCode('東京'), '13');
+      assert.strictEqual(prefectureCode('北海道'), '01');
+      assert.strictEqual(prefectureCode('京都'), '26');
+      assert.strictEqual(prefectureCode('沖縄県'), '47');
+      assert.strictEqual(prefectureCode('13'), '東京都');
+      assert.strictEqual(prefectureCode('1'), '北海道');
+      assert.strictEqual(prefectureCode('01'), '北海道');
+      assert.strictEqual(prefectureCode('４７'), '沖縄県');
+      throwsInput(() => prefectureCode('0'), '"0" is not a prefecture code (01-47)');
+      throwsInput(() => prefectureCode('48'), '"48" is not a prefecture code (01-47)');
+      throwsInput(() => prefectureCode('東京府'), '"東京府" is not a prefecture name or code');
+      throwsInput(() => prefectureCode('013'), '"013" is not a prefecture name or code');
+      assert.strictEqual(mapJaLines('東京都\n\n 27 ', 1000, prefectureCode), '13\n\n 大阪府 ');
+    });
+
+    test('postal codes', () => {
+      assert.strictEqual(formatPostalCode('1000001'), '〒100-0001');
+      assert.strictEqual(formatPostalCode('100-0001'), '〒100-0001');
+      assert.strictEqual(formatPostalCode('〒100-0001'), '〒100-0001');
+      assert.strictEqual(formatPostalCode('〒 １００－０００１'), '〒100-0001');
+      for (const value of ['100001', '10000011', '10-00001', '100--0001', 'abc1234', '〒〒1000001']) {
+        throwsInput(() => formatPostalCode(value), `${JSON.stringify(value)} is not a 7-digit postal code`);
+      }
+    });
+  });
+
+  suite('JA-024 .. 027: kana and spacing', () => {
+    test('hiragana to half-width katakana: only hiragana and the ー after it', () => {
+      assert.strictEqual(hiraganaToHalfwidthKatakana('がっこう'), 'ｶﾞｯｺｳ');
+      assert.strictEqual(hiraganaToHalfwidthKatakana('すごーーい'), 'ｽｺﾞｰｰｲ');
+      assert.strictEqual(hiraganaToHalfwidthKatakana('がっこう。カタカナー'), 'ｶﾞｯｺｳ。カタカナー');
+      assert.strictEqual(hiraganaToHalfwidthKatakana('ゐゎゑ ぱゔ「あ」ヵ ー'), 'ゐゎゑ ﾊﾟｳﾞ「ｱ」ヵ ー');
+    });
+
+    test('remove spaces between Japanese characters', () => {
+      assert.strictEqual(removeSpacesBetweenJapanese('日本 語 の hello world'), '日本語の hello world');
+      assert.strictEqual(removeSpacesBetweenJapanese('東京　\t 大阪 、 京都'), '東京大阪、京都');
+      assert.strictEqual(removeSpacesBetweenJapanese('ＡＢＣ　ＤＥＦ 東京\n大阪 a'), 'ＡＢＣ　ＤＥＦ 東京\n大阪 a');
+    });
+
+    test('space between Japanese and alphanumerics', () => {
+      assert.strictEqual(spaceBetweenJaEn('Vue3で開発'), 'Vue3 で開発');
+      assert.strictEqual(spaceBetweenJaEn('第1章はAPIとSDKの話'), '第 1 章は API と SDK の話');
+      assert.strictEqual(spaceBetweenJaEn('Vue3 で開発、「React」。ＡＢＣで'), 'Vue3 で開発、「React」。ＡＢＣで');
+      assert.strictEqual(spaceBetweenJaEn(spaceBetweenJaEn('a漢b')), 'a 漢 b');
+    });
+
+    test('compose dakuten', () => {
+      assert.strictEqual(composeDakuten('か゛は゜'), 'がぱ');
+      assert.strictEqual(composeDakuten('ウ゛がパゝ゛'), 'ヴがパゞ');
+      // Kept: pairs that do not compose, marks after other characters, half-width kana.
+      assert.strictEqual(composeDakuten('あ゛が゛ー゛a゛ｶ゛゛'), 'あ゛が゛ー゛a゛ｶ゛゛');
+      assert.strictEqual(composeDakuten('か゛゛'), 'が゛');
+      assert.strictEqual(composeDakuten('é'), 'é');
+    });
+  });
+
+  suite('JA-029: platform-dependent characters', () => {
+    test('characters outside JIS X 0208 / 0201, surrogate pairs whole, line breaks and tabs never', () => {
+      const texts = (text: string) => findPlatformDependent(text).map(({ start, end }) => text.slice(start, end));
+      assert.deepStrictEqual(texts('①髙橋'), ['①', '髙']);
+      assert.deepStrictEqual(texts('𠮷野家\r\n\tＡ～〜㈱'), ['𠮷', '㈱']);
+      assert.deepStrictEqual(findPlatformDependent('a𠮷①'), [{ start: 1, end: 3 }, { start: 3, end: 4 }]);
+      assert.deepStrictEqual(texts('東京 ｱｲｳ abc'), []);
+      assert.strictEqual(findPlatformDependent('①'.repeat(100), 10).length, 11);
     });
   });
 

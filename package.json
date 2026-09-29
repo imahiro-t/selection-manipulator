@@ -3453,6 +3453,101 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.japanese.manuscript-count",
+        "title": "Japanese - Count Characters (Manuscript Paper)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.remove-ruby",
+        "title": "Japanese - Remove Ruby Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.ruby-to-html",
+        "title": "Japanese - Ruby Notation to HTML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.fullwidth-alnum-to-half",
+        "title": "Japanese - Full-width Alphanumerics to Half (Keep Kana)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.ideographic-space-to-space",
+        "title": "Japanese - Ideographic Space to Space",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.normalize-wave-dash",
+        "title": "Japanese - Normalize Wave Dash",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.normalize-hyphens",
+        "title": "Japanese - Normalize Hyphens and Long Vowel Marks",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.extract-kanji",
+        "title": "Japanese - Extract Kanji",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.extract-katakana-words",
+        "title": "Japanese - Extract Katakana Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.char-type-count",
+        "title": "Japanese - Count by Character Type",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.circled-number-to-paren",
+        "title": "Japanese - Circled Numbers to Parentheses",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.prefecture-code",
+        "title": "Japanese - Prefecture Name to/from JIS Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.postal-code-format",
+        "title": "Japanese - Format Postal Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.hiragana-to-halfwidth-katakana",
+        "title": "Japanese - Hiragana to Half-width Katakana",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.remove-spaces-between-japanese",
+        "title": "Japanese - Remove Spaces Between Japanese Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.space-between-ja-en",
+        "title": "Japanese - Add Space Between Japanese and Alphanumerics",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.compose-dakuten",
+        "title": "Japanese - Compose Dakuten",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.kana-to-romaji-kunrei",
+        "title": "Japanese - Kana to Romaji (Kunrei)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.detect-platform-dependent",
+        "title": "Japanese - Detect Platform-dependent Characters",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.japanese.kana-to-romaji.replace",
         "title": "Japanese - Kana to Romaji (Hepburn) (Replace)",
         "category": "Selection Manipulator"
@@ -3475,6 +3570,11 @@
       {
         "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
         "title": "Japanese - Old Kanji to New (Kyujitai to Shinjitai) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.space-between-ja-en.replace",
+        "title": "Japanese - Add Space Between Japanese and Alphanumerics (Replace)",
         "category": "Selection Manipulator"
       }
     ],
@@ -5658,6 +5758,82 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.manuscript-count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.remove-ruby"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.ruby-to-html"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.fullwidth-alnum-to-half"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.ideographic-space-to-space"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.normalize-wave-dash"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.normalize-hyphens"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.extract-kanji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.extract-katakana-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.char-type-count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.circled-number-to-paren"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.prefecture-code"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.postal-code-format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.hiragana-to-halfwidth-katakana"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.remove-spaces-between-japanese"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.space-between-ja-en"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.compose-dakuten"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.kana-to-romaji-kunrei"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.detect-platform-dependent"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.japanese.kana-to-romaji.replace"
         },
         {
@@ -5675,6 +5851,10 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.space-between-ja-en.replace"
         }
       ],
       "editor/context": [
@@ -7115,24 +7295,104 @@
           "group": "selection-manipulator@17"
         },
         {
-          "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+          "command": "selection-manipulator.japanese.manuscript-count",
           "group": "selection-manipulator@18"
         },
         {
-          "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+          "command": "selection-manipulator.japanese.remove-ruby",
           "group": "selection-manipulator@19"
         },
         {
-          "command": "selection-manipulator.japanese.number-to-kanji.replace",
+          "command": "selection-manipulator.japanese.ruby-to-html",
           "group": "selection-manipulator@20"
         },
         {
-          "command": "selection-manipulator.japanese.kanji-to-number.replace",
+          "command": "selection-manipulator.japanese.fullwidth-alnum-to-half",
           "group": "selection-manipulator@21"
         },
         {
-          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+          "command": "selection-manipulator.japanese.ideographic-space-to-space",
           "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.japanese.normalize-wave-dash",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.japanese.normalize-hyphens",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.japanese.extract-kanji",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.japanese.extract-katakana-words",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.japanese.char-type-count",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.japanese.circled-number-to-paren",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.japanese.prefecture-code",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.japanese.postal-code-format",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.japanese.hiragana-to-halfwidth-katakana",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.japanese.remove-spaces-between-japanese",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.japanese.space-between-ja-en",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.japanese.compose-dakuten",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.japanese.kana-to-romaji-kunrei",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.japanese.detect-platform-dependent",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.japanese.kana-to-romaji.replace",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.japanese.number-to-kanji.replace",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.japanese.kanji-to-number.replace",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.japanese.space-between-ja-en.replace",
+          "group": "selection-manipulator@42"
         }
       ],
       "selection-manipulator.text.submenu": [

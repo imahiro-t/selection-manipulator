@@ -819,11 +819,31 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kyujitai-to-shinjitai', jaCommandHandler('japanese.kyujitai-to-shinjitai')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.shinjitai-to-kyujitai', jaCommandHandler('japanese.shinjitai-to-kyujitai')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.small-kana-to-normal', jaCommandHandler('japanese.small-kana-to-normal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.manuscript-count', jaCommandHandler('japanese.manuscript-count')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.remove-ruby', jaCommandHandler('japanese.remove-ruby')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.ruby-to-html', jaCommandHandler('japanese.ruby-to-html')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.fullwidth-alnum-to-half', jaCommandHandler('japanese.fullwidth-alnum-to-half')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.ideographic-space-to-space', jaCommandHandler('japanese.ideographic-space-to-space')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.normalize-wave-dash', jaCommandHandler('japanese.normalize-wave-dash')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.normalize-hyphens', jaCommandHandler('japanese.normalize-hyphens')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.extract-kanji', jaCommandHandler('japanese.extract-kanji')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.extract-katakana-words', jaCommandHandler('japanese.extract-katakana-words')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.char-type-count', jaCommandHandler('japanese.char-type-count')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.circled-number-to-paren', jaCommandHandler('japanese.circled-number-to-paren')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.prefecture-code', jaCommandHandler('japanese.prefecture-code')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.postal-code-format', jaCommandHandler('japanese.postal-code-format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.hiragana-to-halfwidth-katakana', jaCommandHandler('japanese.hiragana-to-halfwidth-katakana')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.remove-spaces-between-japanese', jaCommandHandler('japanese.remove-spaces-between-japanese')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.space-between-ja-en', jaCommandHandler('japanese.space-between-ja-en')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.compose-dakuten', jaCommandHandler('japanese.compose-dakuten')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kana-to-romaji-kunrei', jaCommandHandler('japanese.kana-to-romaji-kunrei')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.detect-platform-dependent', jaCommandHandler('japanese.detect-platform-dependent')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kana-to-romaji.replace', jaCommandHandler('japanese.kana-to-romaji.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.romaji-to-hiragana.replace', jaCommandHandler('japanese.romaji-to-hiragana.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.number-to-kanji.replace', jaCommandHandler('japanese.number-to-kanji.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kanji-to-number.replace', jaCommandHandler('japanese.kanji-to-number.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.kyujitai-to-shinjitai.replace', jaCommandHandler('japanese.kyujitai-to-shinjitai.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.space-between-ja-en.replace', jaCommandHandler('japanese.space-between-ja-en.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

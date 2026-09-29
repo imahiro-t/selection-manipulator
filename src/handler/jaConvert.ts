@@ -6,11 +6,27 @@
  * Only local processing: no network, files or processes, no `eval` / `new Function`, no new
  * dependency. No regular expression is built from the user's text.
  */
-import { JaInputError, quoteText } from './jaCommon';
 import {
+  forEachJaLine,
+  HIRAGANA_CLASS,
+  isHiragana,
+  isKanji,
+  isKatakana,
+  JA_CHAR_CLASS,
+  JA_LETTER_CLASS,
+  JaInputError,
+  JaNoTargetError,
+  KANJI_CLASS,
+  KATAKANA_CLASS,
+  quoteText,
+} from './jaCommon';
+import { isJisX0208OrX0201 } from './jaJisX0208';
+import {
+  CIRCLED_NUMBERS,
   DAIJI_DIGITS,
   DAIJI_LARGE_UNITS,
   DAIJI_SMALL_UNITS,
+  HIRAGANA_TO_HALFWIDTH,
   KANA_DIGRAPH_ROMAJI,
   KANA_ROMAJI,
   KANJI_DIGITS,
@@ -21,6 +37,8 @@ import {
   NUMERAL_DIGIT_VALUES,
   NUMERAL_LARGE_UNIT_VALUES,
   NUMERAL_SMALL_UNIT_VALUES,
+  PREFECTURES,
+  prefectureShortName,
   ROMAJI_MAX_LENGTH,
   ROMAJI_TO_HIRAGANA,
   SHINJITAI_TO_KYUJITAI,
@@ -448,3 +466,479 @@ export const smallKanaToNormal = (text: string): string => mapText(text, SMALL_T
 export const punctuationToComma = (text: string): string => mapText(text, PUNCTUATION_TO_COMMA);
 /** JA-007: `今日は，晴れ．` → `今日は、晴れ。`. */
 export const punctuationToTouten = (text: string): string => mapText(text, PUNCTUATION_TO_TOUTEN);
+
+/** Maps every code point of the text with `convert` (surrogate pairs are never split). */
+const mapCodePoints = (text: string, convert: (ch: string) => string): string => {
+  let out = '';
+  for (const ch of text) {
+    out += convert(ch);
+  }
+  return out;
+};
+
+const formatCount = (count: number): string => count.toLocaleString('en-US');
+
+// ---------------------------------------------------------------------------------------------
+// JA-011: manuscript paper count
+// ---------------------------------------------------------------------------------------------
+
+/** Characters of one sheet of Japanese manuscript paper (genko yoshi). */
+export const MANUSCRIPT_SHEET = 400;
+
+/**
+ * JA-011: the characters of all selections together (code points; line breaks are not counted,
+ * spaces are) and the number of 400-character sheets, rounded half up to one decimal place:
+ * `1,234 字 / 原稿用紙 3.1 枚`.
+ */
+export const manuscriptCount = (texts: readonly string[]): string => {
+  let count = 0;
+  for (const text of texts) {
+    for (const ch of text) {
+      if (ch !== '\n' && ch !== '\r') {
+        count++;
+      }
+    }
+  }
+  if (count === 0) {
+    throw new JaNoTargetError();
+  }
+  // Tenths of a sheet, rounded half up with integers only.
+  const tenths = Math.floor((count * 10 + MANUSCRIPT_SHEET / 2) / MANUSCRIPT_SHEET);
+  return `${formatCount(count)} 字 / 原稿用紙 ${formatCount(Math.floor(tenths / 10))}.${tenths % 10} 枚`;
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-012 / 013: ruby notation
+// ---------------------------------------------------------------------------------------------
+
+const isRubyBar = (ch: string): boolean => ch === '｜' || ch === '|';
+
+/**
+ * The index of the `《` that ends the base text of a `｜base《ruby》` starting at `from`, or -1
+ * (the base is not empty and holds no `｜` `|` `《` `》` or line break).
+ */
+const rubyOpenAfterBar = (text: string, from: number): number => {
+  let j = from;
+  while (j < text.length) {
+    const ch = text[j];
+    if (isRubyBar(ch) || ch === '《' || ch === '》' || ch === '\n' || ch === '\r') {
+      break;
+    }
+    j++;
+  }
+  return j > from && text[j] === '《' ? j : -1;
+};
+
+/** The index of the `》` that closes a ruby text starting at `from`, or -1 (empty ruby, `《` or a line break first). */
+const rubyClose = (text: string, from: number): number => {
+  let j = from;
+  while (j < text.length) {
+    const ch = text[j];
+    if (ch === '《' || ch === '》' || ch === '\n' || ch === '\r') {
+      break;
+    }
+    j++;
+  }
+  return j > from && text[j] === '》' ? j : -1;
+};
+
+/**
+ * Replaces every ruby of the text with `render(base, ruby)`: `｜base《ruby》` (or `|`), and
+ * `kanji《ruby》` whose base is the run of kanji just before `《`. Everything else (a `｜` without
+ * a ruby, `《…》` after anything but a kanji) is kept. Every scan stops at the next `｜` / `《` /
+ * line break, so the work is linear in the text.
+ */
+const replaceRuby = (text: string, render: (base: string, ruby: string) => string): string => {
+  let out = '';
+  let plainStart = 0;
+  let kanjiStart = -1;
+  let i = 0;
+  while (i < text.length) {
+    const ch = String.fromCodePoint(text.codePointAt(i)!);
+    if (isRubyBar(ch)) {
+      const open = rubyOpenAfterBar(text, i + 1);
+      const close = open === -1 ? -1 : rubyClose(text, open + 1);
+      if (close !== -1) {
+        out += text.slice(plainStart, i) + render(text.slice(i + 1, open), text.slice(open + 1, close));
+        i = close + 1;
+        plainStart = i;
+        kanjiStart = -1;
+        continue;
+      }
+    } else if (ch === '《' && kanjiStart !== -1) {
+      const close = rubyClose(text, i + 1);
+      if (close !== -1) {
+        out += text.slice(plainStart, kanjiStart) + render(text.slice(kanjiStart, i), text.slice(i + 1, close));
+        i = close + 1;
+        plainStart = i;
+        kanjiStart = -1;
+        continue;
+      }
+    }
+    if (isKanji(ch)) {
+      if (kanjiStart === -1) {
+        kanjiStart = i;
+      }
+    } else {
+      kanjiStart = -1;
+    }
+    i += ch.length;
+  }
+  return out + text.slice(plainStart);
+};
+
+const KANA_CLASS = `${HIRAGANA_CLASS}${KATAKANA_CLASS}`;
+/** A reading in parentheses (only kana) right after a kanji: `漢字（かんじ）` / `漢字(かんじ)`. */
+const PAREN_READING = new RegExp(`(?<=[${KANJI_CLASS}])(?:（[${KANA_CLASS}]+）|\\([${KANA_CLASS}]+\\))`, 'gu');
+
+/**
+ * JA-012: removes ruby: `｜東京《とうきょう》` / `東京《とうきょう》` → `東京`, and a reading of only
+ * kana in parentheses right after a kanji (`東京（とうきょう）` → `東京`).
+ */
+export const removeRuby = (text: string): string => replaceRuby(text, (base) => base).replace(PAREN_READING, '');
+
+const HTML_ESCAPES: Readonly<Record<string, string>> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const escapeHtml = (value: string): string => value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]);
+
+/**
+ * JA-013: `｜東京《とうきょう》` and `東京《とうきょう》` → `<ruby>東京<rt>とうきょう</rt></ruby>`. The
+ * base and the ruby are HTML-escaped; the rest of the text is kept as it is.
+ */
+export const rubyToHtml = (text: string): string =>
+  replaceRuby(text, (base, ruby) => `<ruby>${escapeHtml(base)}<rt>${escapeHtml(ruby)}</rt></ruby>`);
+
+// ---------------------------------------------------------------------------------------------
+// JA-014 / 015 / 016: width, spaces and wave dashes
+// ---------------------------------------------------------------------------------------------
+
+/** JA-014: full-width ASCII letters, digits and symbols (U+FF01..FF5E) to half-width; kana and the ideographic space are kept. */
+export const fullwidthAlnumToHalf = (text: string): string =>
+  mapCodePoints(text, (ch) => {
+    const code = ch.codePointAt(0)!;
+    return code >= 0xFF01 && code <= 0xFF5E ? String.fromCharCode(code - 0xFEE0) : ch;
+  });
+
+/** JA-015: the ideographic space U+3000 to a space. */
+export const ideographicSpaceToSpace = (text: string): string => text.replace(/　/g, ' ');
+
+export const WAVE_DASH = '〜';
+export const FULLWIDTH_TILDE = '～';
+
+/** JA-016: the wave dash 〜 (U+301C) and the full-width tilde ～ (U+FF5E) to `choice` (one of them). */
+export const normalizeWaveDash = (text: string, choice: string | undefined): string => {
+  if (choice !== WAVE_DASH && choice !== FULLWIDTH_TILDE) {
+    throw new JaInputError('choose the wave dash or the full-width tilde');
+  }
+  return text.replace(/[〜～]/g, choice);
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-017: hyphens and long vowel marks
+// ---------------------------------------------------------------------------------------------
+
+/** Hyphen-like characters (not the ASCII `-`): ‐ ‑ ‒ – — ― − －. */
+const HYPHENS: ReadonlySet<string> = new Set(['‐', '‑', '‒', '–', '—', '―', '−', '－']);
+const LONG_VOWEL_MARKS: ReadonlySet<string> = new Set(['ー', 'ｰ']);
+const isDigitChar = (ch: string | undefined): boolean => ch !== undefined && /^[0-9０-９]$/.test(ch);
+const isHalfwidthKatakana = (ch: string): boolean => {
+  const code = ch.codePointAt(0)!;
+  return code >= 0xFF66 && code <= 0xFF9F;
+};
+
+/**
+ * JA-017: a hyphen-like character right after a kana becomes the long vowel mark (`ー`, or `ｰ`
+ * after a half-width katakana); a long vowel mark or hyphen-like character between two digits
+ * becomes `-` (`コ−ヒ− 03ー1234` → `コーヒー 03-1234`). The ASCII `-` after a kana is kept.
+ */
+export const normalizeHyphens = (text: string): string => {
+  const chars = [...text];
+  let out = '';
+  let previous: string | undefined;
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+    let result = ch;
+    if ((HYPHENS.has(ch) || LONG_VOWEL_MARKS.has(ch)) && isDigitChar(chars[i - 1]) && isDigitChar(chars[i + 1])) {
+      result = '-';
+    } else if (HYPHENS.has(ch) && previous !== undefined && (isHiragana(previous) || isKatakana(previous))) {
+      result = isHalfwidthKatakana(previous) ? 'ｰ' : 'ー';
+    }
+    out += result;
+    previous = result;
+  }
+  return out;
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-018 / 019 / 020: extracting and counting by character type
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * JA-018: only the kanji of every line (`東京タワーへ行く` → `東京行`). Lines without kanji are
+ * dropped; the kept lines keep their line breaks. `ヵ` `ヶ` are katakana, not kanji.
+ */
+export const extractKanji = (text: string): string => {
+  const kept: string[] = [];
+  forEachJaLine(text, (line, lineBreak) => {
+    let kanji = '';
+    for (const ch of line) {
+      if (isKanji(ch)) {
+        kanji += ch;
+      }
+    }
+    if (kanji !== '') {
+      kept.push(kanji, lineBreak);
+    }
+  });
+  // No line break after the last kept line.
+  kept.pop();
+  return kept.join('');
+};
+
+/** Characters that cannot start a katakana word. */
+const NOT_WORD_START: ReadonlySet<string> = new Set(['ー', 'ｰ', 'ﾞ', 'ﾟ', '・']);
+
+/**
+ * JA-019: the katakana words in text order, one per line (joined with `eol`), repeats kept. A word
+ * is the longest run of katakana with `・` only between two katakana, without leading `ー` (`ｰ`
+ * `ﾞ` `ﾟ`). A lone `ヵ` or `ヶ` (`3ヶ月`) is not a word.
+ */
+export const extractKatakanaWords = (text: string, eol: string): string => {
+  const chars = [...text];
+  const words: string[] = [];
+  let i = 0;
+  while (i < chars.length) {
+    if (!isKatakana(chars[i])) {
+      i++;
+      continue;
+    }
+    let j = i;
+    let word = '';
+    while (j < chars.length) {
+      if (isKatakana(chars[j])) {
+        word += chars[j];
+      } else if (chars[j] === '・' && j + 1 < chars.length && isKatakana(chars[j + 1])) {
+        word += '・';
+      } else {
+        break;
+      }
+      j++;
+    }
+    let start = 0;
+    while (start < word.length && NOT_WORD_START.has(word[start])) {
+      start++;
+    }
+    const trimmed = word.slice(start);
+    if (trimmed !== '' && trimmed !== 'ヵ' && trimmed !== 'ヶ') {
+      words.push(trimmed);
+    }
+    i = j;
+  }
+  return words.join(eol);
+};
+
+/** The character types of JA-020, in the order of the notification. */
+export const JA_CHAR_TYPES = ['漢字', 'カタカナ', 'ひらがな', '英数字', '記号', 'その他'] as const;
+
+const WHITE_SPACE = /^\s$/u;
+const SYMBOL = /^[\p{P}\p{S}]$/u;
+const isAlphanumeric = (code: number): boolean =>
+  (code >= 0x30 && code <= 0x39) || (code >= 0x41 && code <= 0x5A) || (code >= 0x61 && code <= 0x7A)
+  || (code >= 0xFF10 && code <= 0xFF19) || (code >= 0xFF21 && code <= 0xFF3A) || (code >= 0xFF41 && code <= 0xFF5A);
+
+/**
+ * The index in JA_CHAR_TYPES of the code point `ch`, or -1 for white space (not counted). The
+ * first matching type wins: kanji, katakana, hiragana (the shared classes), alphanumerics (ASCII
+ * and full-width), symbols (Unicode punctuation `\p{P}` or symbol `\p{S}`), others.
+ */
+export const charTypeOf = (ch: string): number => {
+  if (WHITE_SPACE.test(ch)) {
+    return -1;
+  }
+  if (isKanji(ch)) {
+    return 0;
+  }
+  if (isKatakana(ch)) {
+    return 1;
+  }
+  if (isHiragana(ch)) {
+    return 2;
+  }
+  if (isAlphanumeric(ch.codePointAt(0)!)) {
+    return 3;
+  }
+  return SYMBOL.test(ch) ? 4 : 5;
+};
+
+/**
+ * JA-020: the characters of all selections together by type, types without characters left out:
+ * `漢字 2 / カタカナ 3 / ひらがな 1 / 英数字 2`.
+ */
+export const charTypeCount = (texts: readonly string[]): string => {
+  const counts = JA_CHAR_TYPES.map(() => 0);
+  for (const text of texts) {
+    for (const ch of text) {
+      const type = charTypeOf(ch);
+      if (type !== -1) {
+        counts[type]++;
+      }
+    }
+  }
+  const parts = JA_CHAR_TYPES.flatMap((type, index) => (counts[index] === 0 ? [] : [`${type} ${formatCount(counts[index])}`]));
+  if (parts.length === 0) {
+    throw new JaNoTargetError();
+  }
+  return parts.join(' / ');
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-021 / 022 / 023: circled numbers, prefectures and postal codes
+// ---------------------------------------------------------------------------------------------
+
+const CIRCLED_TO_PAREN: ReadonlyMap<string, string> = new Map(
+  [...CIRCLED_NUMBERS].map(([ch, value]) => [ch, `(${value})`])
+);
+
+/** JA-021: circled and parenthesized numbers (⓪ ①..㊿ ⑴..⒇) to `(1)` (`①②` → `(1)(2)`). */
+export const circledNumberToParen = (text: string): string => mapCodePoints(text, (ch) => CIRCLED_TO_PAREN.get(ch) ?? ch);
+
+/** Official and short names of the prefectures → their JIS X 0401 codes. */
+const PREFECTURE_CODES: ReadonlyMap<string, number> = new Map(
+  PREFECTURES.flatMap((name, index) => [[name, index + 1], [prefectureShortName(name), index + 1]] as [string, number][])
+);
+
+/**
+ * JA-022: one value per line. A prefecture name (official `東京都` or short `東京`) → its
+ * two-digit JIS X 0401 code (`13`); a code (`13`, `1`, `01`, full-width digits) → the official name.
+ */
+export const prefectureCode = (value: string): string => {
+  const digits = toAsciiDigits(value);
+  if (/^[0-9]{1,2}$/.test(digits)) {
+    const code = Number(digits);
+    if (code >= 1 && code <= PREFECTURES.length) {
+      return PREFECTURES[code - 1];
+    }
+    throw new JaInputError(`${quoteText(value)} is not a prefecture code (01-47)`);
+  }
+  const code = PREFECTURE_CODES.get(value);
+  if (code === undefined) {
+    throw new JaInputError(`${quoteText(value)} is not a prefecture name or code`);
+  }
+  return String(code).padStart(2, '0');
+};
+
+const POSTAL_CODE = /^([0-9]{3})-?([0-9]{4})$/;
+
+/**
+ * JA-023: one value per line. Seven digits (full-width digits, a `-` / `－` after the third digit
+ * and a leading `〒` are accepted) → `〒100-0001`.
+ */
+export const formatPostalCode = (value: string): string => {
+  const match = POSTAL_CODE.exec(toAsciiDigits(value).replace(/^〒[ \t　]*/u, '').replace('－', '-'));
+  if (match === null) {
+    throw new JaInputError(`${quoteText(value)} is not a 7-digit postal code`);
+  }
+  return `〒${match[1]}-${match[2]}`;
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-024 .. 027: kana and spacing
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * JA-024: hiragana to half-width katakana (`がっこう` → `ｶﾞｯｺｳ`, voiced marks separated). A `ー`
+ * right after a converted hiragana (or a converted `ー`) becomes `ｰ` (`すごーい` → `ｽｺﾞｰｲ`).
+ * Katakana, a `ー` after katakana, punctuation, alphanumerics and ゎ ゐ ゑ are kept.
+ */
+export const hiraganaToHalfwidthKatakana = (text: string): string => {
+  let out = '';
+  let afterConverted = false;
+  for (const ch of text) {
+    const converted = HIRAGANA_TO_HALFWIDTH.get(ch);
+    if (converted !== undefined) {
+      out += converted;
+      afterConverted = true;
+    } else if (ch === 'ー' && afterConverted) {
+      out += 'ｰ';
+    } else {
+      out += ch;
+      afterConverted = false;
+    }
+  }
+  return out;
+};
+
+/** Spaces, tabs and ideographic spaces between two Japanese characters (not line breaks). */
+const SPACES_BETWEEN_JAPANESE = new RegExp(`(?<=[${JA_CHAR_CLASS}])[ \\t\\u3000]+(?=[${JA_CHAR_CLASS}])`, 'gu');
+
+/** JA-025: removes the spaces between Japanese characters (`日本 語 の hello world` → `日本語の hello world`). */
+export const removeSpacesBetweenJapanese = (text: string): string => text.replace(SPACES_BETWEEN_JAPANESE, '');
+
+/** A boundary between a Japanese letter and an ASCII letter or digit (either order). */
+const JA_EN_BOUNDARY = new RegExp(
+  `(?<=[${JA_LETTER_CLASS}])(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])(?=[${JA_LETTER_CLASS}])`, 'gu'
+);
+
+/** JA-026 / 035: a space between Japanese letters and ASCII letters / digits (`Vue3で開発` → `Vue3 で開発`). */
+export const spaceBetweenJaEn = (text: string): string => text.replace(JA_EN_BOUNDARY, ' ');
+
+/** Voiced / semi-voiced sound marks → the combining mark they stand for. */
+const SOUND_MARKS: ReadonlyMap<string, string> = new Map([
+  ['゙', '゙'], ['゚', '゚'], ['゛', '゙'], ['゜', '゚'],
+]);
+
+const isFullwidthKana = (ch: string): boolean => (isHiragana(ch) || isKatakana(ch)) && ch.codePointAt(0)! < 0xFF00;
+
+/**
+ * JA-027: a (semi-)voiced sound mark (combining U+3099 / 309A or ゛ ゜) right after a full-width
+ * kana is composed with it when the two make one character (`か゛は゜` → `がぱ`, `ウ゛` → `ヴ`).
+ * Other pairs are kept; the rest of the text is not normalized.
+ */
+export const composeDakuten = (text: string): string => {
+  const out: string[] = [];
+  let previousKana = false;
+  for (const ch of text) {
+    const mark = SOUND_MARKS.get(ch);
+    if (mark !== undefined && previousKana) {
+      const composed = (out[out.length - 1] + mark).normalize('NFC');
+      if (composed.length === 1) {
+        out[out.length - 1] = composed;
+        previousKana = false;
+        continue;
+      }
+    }
+    out.push(ch);
+    previousKana = isFullwidthKana(ch);
+  }
+  return out.join('');
+};
+
+// ---------------------------------------------------------------------------------------------
+// JA-029: platform-dependent characters
+// ---------------------------------------------------------------------------------------------
+
+/** A range of the text as UTF-16 offsets. */
+export interface JaTextRange {
+  start: number;
+  end: number;
+}
+
+/**
+ * JA-029: every character outside JIS X 0208 / JIS X 0201 (a surrogate pair is one character),
+ * in text order. Line breaks and tabs are never reported. The search stops once more than `limit`
+ * characters are found.
+ */
+export const findPlatformDependent = (text: string, limit = Number.POSITIVE_INFINITY): JaTextRange[] => {
+  const ranges: JaTextRange[] = [];
+  let offset = 0;
+  for (const ch of text) {
+    const code = ch.codePointAt(0)!;
+    if (ch !== '\n' && ch !== '\r' && ch !== '\t' && !isJisX0208OrX0201(code)) {
+      ranges.push({ start: offset, end: offset + ch.length });
+      if (ranges.length > limit) {
+        break;
+      }
+    }
+    offset += ch.length;
+  }
+  return ranges;
+};

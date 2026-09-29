@@ -817,7 +817,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | JA-013 | JA | 基本 | `selection-manipulator.japanese.ruby-to-html` | Japanese - Ruby Notation to HTML | 「｜漢字《かんじ》」形式のルビを HTML の ruby 要素にする | `｜東京《とうきょう》` → `<ruby>東京<rt>とうきょう</rt></ruby>` | なし | なし |
 | JA-014 | JA | 基本 | `selection-manipulator.japanese.fullwidth-alnum-to-half` | Japanese - Full-width Alphanumerics to Half (Keep Kana) | 全角英数字・記号だけを半角にし、仮名はそのまま残す（既存は仮名も変換する） | `ＡＢＣ１２３カナ` → `ABC123カナ` | なし | なし |
 | JA-015 | JA | 基本 | `selection-manipulator.japanese.ideographic-space-to-space` | Japanese - Ideographic Space to Space | 全角空白だけを半角空白にする | `東京　大阪` → `東京 大阪` | なし | なし |
-| JA-016 | JA | 基本 | `selection-manipulator.japanese.normalize-wave-dash` | Japanese - Normalize Wave Dash | 波ダッシュ（〜 U+301C）と全角チルダ（～ U+FF5E）を指定した一方に統一する | `1〜3、4～5` → `1〜3、4〜5` | なし | なし |
+| JA-016 | JA | 基本 | `selection-manipulator.japanese.normalize-wave-dash` | Japanese - Normalize Wave Dash | 波ダッシュ（〜 U+301C）と全角チルダ（～ U+FF5E）を指定した一方に統一する | `1〜3、4～5（〜）` → `1〜3、4〜5` | なし | なし |
 | JA-017 | JA | 基本 | `selection-manipulator.japanese.normalize-hyphens` | Japanese - Normalize Hyphens and Long Vowel Marks | 仮名の後ろのハイフン類を長音符「ー」に、数字の間の長音符をハイフンに統一する | `コ−ヒ− 03ー1234` → `コーヒー 03-1234` | なし | なし |
 | JA-018 | JA | 基本 | `selection-manipulator.japanese.extract-kanji` | Japanese - Extract Kanji | 漢字だけを取り出す | `東京タワーへ行く` → `東京行` | なし | なし |
 | JA-019 | JA | 基本 | `selection-manipulator.japanese.extract-katakana-words` | Japanese - Extract Katakana Words | カタカナ語を 1 行ずつ取り出す | `東京タワーとスカイツリー` → `タワー⏎スカイツリー` | なし | なし |

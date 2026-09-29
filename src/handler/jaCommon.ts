@@ -20,6 +20,17 @@ export class JaInputError extends Error {
   }
 }
 
+/**
+ * The selections hold nothing the command can work on (for example only ideographic spaces for a
+ * count): treated like empty selections, with the same warning.
+ */
+export class JaNoTargetError extends JaInputError {
+  constructor() {
+    super('the selection has nothing to work on');
+    this.name = 'JaNoTargetError';
+  }
+}
+
 /** Upper limit of the length (UTF-16 code units) of one selection. */
 export const JA_MAX_INPUT_LENGTH = 1_000_000;
 /** Maximum number of characters of the selected text quoted in a message. */

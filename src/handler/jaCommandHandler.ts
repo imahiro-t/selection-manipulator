@@ -1,6 +1,6 @@
 import { EndOfLine, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
 import { openTextDocument } from '../common';
-import { assertJaInputLength, isBlank, JaInputError } from './jaCommon';
+import { assertJaInputLength, isBlank, JaInputError, JaNoTargetError } from './jaCommon';
 import { JA_COMMAND_ENTRIES, JaCommandEntry, JaContext, JaQuickPickItem } from './jaTransforms';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
@@ -104,6 +104,10 @@ interface SelectionPosition {
 
 /** Shows why nothing was changed or shown. Not awaited: the Thenable only settles when the notification is dismissed. */
 const notifyFailure = (dependencies: JaDependencies, prefix: string, error: unknown, position?: SelectionPosition): void => {
+  if (error instanceof JaNoTargetError) {
+    void dependencies.notifier.showWarningMessage(JA_NOTHING_SELECTED);
+    return;
+  }
   if (error instanceof EncOutputTooLargeError) {
     void dependencies.notifier.showWarningMessage(`${prefix}${error.message}. Select less text.`);
     return;
@@ -168,7 +172,7 @@ const selectRanges = (
     for (const [index, selection] of selections.entries()) {
       current = index;
       const base = document.offsetAt(selection.start);
-      for (const { start, end } of entry.select!(texts[index])) {
+      for (const { start, end } of entry.select!(texts[index], JA_MAX_SELECT_RANGES - found.length)) {
         if (found.length === JA_MAX_SELECT_RANGES) {
           throw new JaTooManyRangesError();
         }
@@ -238,6 +242,10 @@ const applyTransform = async (
     return;
   }
   if (entry.output === 'new-tab') {
+    if (entry.emptyMessage !== undefined && results.every(({ result }) => result === '')) {
+      void dependencies.notifier.showInformationMessage(entry.emptyMessage);
+      return;
+    }
     await dependencies.openResult(results.map(({ result }) => result).join(eol));
     return;
   }

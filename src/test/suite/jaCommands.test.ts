@@ -113,7 +113,7 @@ const roadmapRows = (): [string, string, string, string, string][] =>
       return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
     });
 
-/** Commands of a fake table that exercise the outputs no JA-001..010 command uses. */
+/** Commands of a fake table that exercise the notify / select / quick pick paths in isolation. */
 const FAKE_ENTRIES: readonly JaCommandEntry[] = [
   {
     id: 'FAKE-1', name: 'test.count', title: 'Count', output: 'notify',
@@ -170,6 +170,17 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
             break;
           case 'new-tab':
             assert.deepStrictEqual([opened, infos], [[[example.expected, example.expected].join('\n')], []]);
+            assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+            break;
+          case 'notify':
+            assert.ok(example.twice !== undefined, entry.id);
+            assert.deepStrictEqual([infos, opened], [[example.twice], []]);
+            assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+            break;
+          case 'select':
+            assert.ok(example.selected !== undefined, entry.id);
+            assert.deepStrictEqual([infos, opened], [[], []]);
+            assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), [...example.selected, ...example.selected]);
             assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
             break;
           default:
@@ -309,6 +320,98 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
     });
   });
 
+  suite('commands JA-011..029, JA-035', () => {
+    test('JA-016: the quick pick offers both characters once; cancelling changes nothing', async () => {
+      const text = '1〜3、4～5';
+      for (const [choice, expected] of [['～', '1～3、4～5'], [undefined, text]] as const) {
+        const { dependencies, picks, errors } = recorder(choice);
+        const editor = await createTextEditor(text);
+        selectWholeDocument(editor);
+        await run(entryOf('JA-016'), dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), expected);
+        assert.deepStrictEqual(picks.map(({ items }) => items.map((item) => item.value)), [['〜', '～']]);
+        assert.deepStrictEqual(errors, []);
+      }
+    });
+
+    test('JA-020: selections of only ideographic spaces warn like empty ones; JA-011 counts them', async () => {
+      const blank = recorder();
+      const blankEditor = await createTextEditor('\u3000\u3000');
+      selectWholeDocument(blankEditor);
+      await run(entryOf('JA-020'), blank.dependencies)(blankEditor);
+      assert.deepStrictEqual([blank.infos, blank.warnings, blank.errors], [[], [JA_NOTHING_SELECTED], []]);
+      const { dependencies, infos } = recorder();
+      const editor = await createTextEditor('\u3000a\nb');
+      selectWholeDocument(editor);
+      await run(entryOf('JA-011'), dependencies)(editor);
+      assert.deepStrictEqual(infos, ['3 字 / 原稿用紙 0.0 枚']);
+    });
+
+    test('JA-018 / 019: nothing found shows a message instead of an empty editor', async () => {
+      for (const [id, message] of [['JA-018', 'No kanji was found in the selection.'], ['JA-019', 'No katakana word was found in the selection.']]) {
+        const { dependencies, infos, opened } = recorder();
+        const blocks = ['ひらがな', 'かな'];
+        const editor = await createTextEditor(blocks.join(SEPARATOR));
+        selectBlocks(editor, blocks);
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual([infos, opened], [[message], []], id);
+      }
+      const { dependencies, opened } = recorder();
+      const blocks = ['ひらがな', '漢字'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('JA-018'), dependencies)(editor);
+      assert.deepStrictEqual(opened, ['\n漢字']);
+    });
+
+    test('JA-022 / 023: a value that cannot be converted names the line', async () => {
+      for (const [id, text, message] of [
+        ['JA-022', '東京都\n東京府', 'No result was shown: line 2: "東京府" is not a prefecture name or code'],
+        ['JA-023', '1000001\n12345', 'The selection was not changed: line 2: "12345" is not a 7-digit postal code'],
+      ]) {
+        const { dependencies, errors, opened } = recorder();
+        const editor = await createTextEditor(text);
+        selectWholeDocument(editor);
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual([opened, errors], [[], [message]], id);
+        assert.strictEqual(editor.document.getText(), text);
+      }
+    });
+
+    test('JA-029: surrogate pairs are selected whole; nothing found keeps the selection', async () => {
+      const found = recorder();
+      const editor = await createTextEditor('𠮷野家\n①');
+      selectWholeDocument(editor);
+      await run(entryOf('JA-029'), found.dependencies)(editor);
+      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), ['𠮷', '①']);
+
+      const none = recorder();
+      const plain = await createTextEditor('東京タワー');
+      selectWholeDocument(plain);
+      await run(entryOf('JA-029'), none.dependencies)(plain);
+      assert.deepStrictEqual(none.infos, [entryOf('JA-029').noMatchMessage]);
+      assert.strictEqual(plain.document.getText(plain.selection), '東京タワー');
+    });
+
+    test('JA-029: more than the limit of characters selects nothing', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createTextEditor('①'.repeat(JA_MAX_SELECT_RANGES + 1));
+      selectWholeDocument(editor);
+      await run(entryOf('JA-029'), dependencies)(editor);
+      assert.deepStrictEqual(errors, ['Nothing was selected: more than 10,000 places were found; select less text']);
+      assert.strictEqual(editor.selections.length, 1);
+    });
+
+    test('JA-017 / 025 / 026: Replace keeps the CRLF line breaks', async () => {
+      const editor = await crlfEditor('コ−ヒ− 03ー1234\n日本 語\nVue3で');
+      selectWholeDocument(editor);
+      for (const id of ['JA-017', 'JA-025', 'JA-035']) {
+        await run(entryOf(id), recorder().dependencies)(editor);
+      }
+      assert.strictEqual(editor.document.getText(), 'コーヒー 03-1234\r\n日本語\r\nVue3 で');
+    });
+  });
+
   suite('line breaks (document EOL)', () => {
     test('Replace keeps the CRLF line breaks', async () => {
       const editor = await crlfEditor('1234\n\n10000\n');
@@ -416,8 +519,8 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
       assert.strictEqual(rows.length, 35);
       const byId = new Map(rows.map((row) => [row[0], row]));
       const order = rows.map(([id]) => id);
-      const ids = JA_COMMAND_ENTRIES.map((entry) => entry.id);
-      assert.deepStrictEqual(ids, order.filter((id) => ids.includes(id)), 'ROADMAP order');
+      assert.deepStrictEqual(JA_COMMAND_ENTRIES.map((entry) => entry.id), order, 'every ROADMAP row, in its order');
+      assert.deepStrictEqual(Object.keys(JA_ROADMAP_EXAMPLES).sort(), [...order].sort(), 'an example for every row');
       for (const entry of JA_COMMAND_ENTRIES) {
         const row = byId.get(entry.id);
         assert.ok(row, entry.id);
@@ -431,14 +534,18 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
         const expected = JA_ROADMAP_EXAMPLES[id];
         let input = match[1].replace(/⏎/g, '\n');
         const typed = /^(.*)（(.*)）$/s.exec(input);
-        if (typed) {
+        if (expected.roadmapInput !== undefined) {
+          // The ROADMAP describes the text; the test uses a concrete one.
+          assert.strictEqual(input, expected.roadmapInput, id);
+        } else if (typed) {
           input = typed[1];
           assert.strictEqual(typed[2], expected.note, id);
+          assert.strictEqual(input, expected.input, id);
         } else {
           assert.strictEqual(expected.note, undefined, id);
+          assert.strictEqual(input, expected.input, id);
         }
-        assert.strictEqual(input, expected.input, id);
-        assert.strictEqual(match[2].replace(/⏎/g, '\n'), expected.expected, id);
+        assert.strictEqual(match[2].replace(/⏎/g, '\n'), expected.roadmapOutput ?? expected.expected, id);
       }
     });
 
