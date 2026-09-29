@@ -1,10 +1,12 @@
 import * as assert from 'assert';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import {
+  cleanNumber,
   extractNumbers,
   findNumPromptProblem,
   formatA,
   formatB,
+  formatInteger,
   isBlank,
   isSupportedLocale,
   mapLines,
@@ -65,6 +67,30 @@ suite('Number Commands common helpers (NUM) Test Suite', () => {
     test('Infinity and NaN are errors', () => {
       assert.throws(() => formatA(Infinity), /the result is out of range/);
       assert.throws(() => formatA(NaN), /the result is out of range/);
+    });
+  });
+
+  suite('cleanNumber / formatInteger (16-digit integers are exact)', () => {
+    test('a safe integer is kept, other values are cut to 15 significant digits', () => {
+      assert.strictEqual(cleanNumber(9007199254740991), 9007199254740991);
+      assert.strictEqual(cleanNumber(-1234567890123456), -1234567890123456);
+      assert.strictEqual(cleanNumber(0.1 + 0.2), 0.3);
+      assert.strictEqual(cleanNumber(1234567890123456.2), 1234567890123460);
+      assert.ok(Object.is(cleanNumber(-0), 0));
+      assert.throws(() => cleanNumber(Infinity), /the result is out of range/);
+    });
+
+    test('formatA keeps a 16-digit safe integer', () => {
+      assert.strictEqual(formatA(9007199254740991), '9007199254740991');
+      assert.strictEqual(formatA(1727612345678901), '1727612345678901');
+      assert.strictEqual(formatA(2 ** 53), '9007199254740990');
+    });
+
+    test('formatInteger writes the double as it is', () => {
+      assert.strictEqual(formatInteger(12345678901234567890), '12345678901234567000');
+      assert.strictEqual(formatInteger(-0), '0');
+      assert.strictEqual(formatInteger(1e21), '1e+21');
+      assert.throws(() => formatInteger(NaN), /the result is out of range/);
     });
   });
 

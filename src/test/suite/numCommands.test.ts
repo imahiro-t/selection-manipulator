@@ -7,7 +7,7 @@ import { findNumPromptProblem } from '../../handler/numCommon';
 import { NumDependencies, numHandlerInternal, NUM_NOTHING_SELECTED } from '../../handler/numHandler';
 import { NUM_COMMAND_ENTRIES, NumCommandEntry } from '../../handler/numTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
-import { NUM_INVALID_INPUT, NUM_ROADMAP_BEFORE_UPDATE, NUM_ROADMAP_EXAMPLES } from './numExamples';
+import { NUM_INVALID_INPUT, NUM_ROADMAP_EXAMPLES } from './numExamples';
 import { createTextEditor } from './testUtils';
 
 const SEPARATOR = '\n---\n';
@@ -433,9 +433,6 @@ suite('Number Commands (NUM-001..040) Test Suite', () => {
         if (output.endsWith('…')) {
           // NUM-009: the example is shortened.
           assert.ok(expected.expected.startsWith(output.slice(0, -1)), `${id}: ${expected.expected}`);
-        } else if (NUM_ROADMAP_BEFORE_UPDATE[id] !== undefined && output === NUM_ROADMAP_BEFORE_UPDATE[id]) {
-          // Written with 3 decimals before the rounding was fixed; the documentation step updates it.
-          assert.ok(expected.expected !== output, id);
         } else {
           assert.strictEqual(output, expected.expected, id);
         }

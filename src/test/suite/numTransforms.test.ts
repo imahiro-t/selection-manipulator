@@ -281,4 +281,117 @@ suite('Number Commands transforms (NUM-001..040) Test Suite', () => {
       assert.strictEqual(NUM_COMMAND_ENTRIES[0].transform('1 3', [], 1), '2');
     });
   });
+
+  suite('round 2 fixes', () => {
+    test('NUM-012..014: 16-digit integers (up to 2^53 - 1) are not changed', () => {
+      const integers = '9007199254740991\n1727612345678901\n-1234567890123456';
+      expectAll('NUM-012', [[integers, integers], ['1234567890123456.7', '1234567890123456'], ['12345678901234567890', '12345678901234567000']]);
+      expectAll('NUM-013', [[integers, integers], ['1234567890123456.2', '1234567890123457'], ['1e21', '1e+21']]);
+      expectAll('NUM-014', [[integers, integers], ['-1234567890123456.7', '-1234567890123456']]);
+    });
+
+    test('NUM-010: a safe integer total is exact, other totals keep rule A', () => {
+      expectAll('NUM-010', [['1234567890123456', '1234567890123456'], ['9007199254740990\n1', '9007199254740990\n9007199254740991'],
+        ['0.1\n0.2\n0.7', '0.1\n0.3\n1']]);
+    });
+
+    test('rule A statistics keep 16-digit integers', () => {
+      expectAll('NUM-001', [['1234567890123456', '1234567890123456']]);
+      expectAll('NUM-007', [['9007199254740991 0', '9007199254740991']]);
+    });
+
+    test('NUM-027: the error is removed without a detour through text; 16 digits survive a round trip with NUM-028', () => {
+      expectAll('NUM-027', [['1234567890123456', '1.234567890123456e+15'], ['0.1', '1e-1']]);
+      assert.strictEqual(transformOf('NUM-028')(transformOf('NUM-027')('1234567890123456')), '1234567890123456');
+    });
+
+    test('NUM-031 reads ZB / YB and ZiB / YiB', () => {
+      expectAll('NUM-031', [['1 ZiB', '1180591620717411303424'], ['1 YB', '1000000000000000000000000'], ['1 zb', '1000000000000000000000'],
+        ['1 YiB', `${2n ** 80n}`], ['1.5YiB', `${3n * 2n ** 79n}`]]);
+    });
+
+    test('NUM-030 → NUM-031 round trip for every unit up to YiB', () => {
+      const toHuman = transformOf('NUM-030');
+      const toBytes = transformOf('NUM-031');
+      for (let power = 0n; power <= 8n; power++) {
+        [1n, 3n].forEach((times) => {
+          const bytes = `${times * 1024n ** power}`;
+          assert.strictEqual(toBytes(toHuman(bytes)), bytes, bytes);
+        });
+      }
+      assert.strictEqual(toHuman(`${2n ** 90n}`), '1024 YiB');
+      assert.strictEqual(toBytes('1024 YiB'), `${2n ** 90n}`);
+    });
+
+    test('NUM-003 / 004 / 009: squares do not overflow while the result is finite', () => {
+      expectAll('NUM-003', [['1e155 -1e155', 'σ=1e+155, s=1.41421356237309e+155'], ['1e308 -1e308', 'σ=1e+308, s=1.4142135623731e+308']]);
+      expectAll('NUM-009', [['1e155 -1e155', 'count=2, sum=0, mean=0, min=-1e+155, max=1e+155, median=0, σ=1e+155, s=1.41421356237309e+155']]);
+      expectAll('NUM-003', [['0 0', 'σ=0, s=0'], ['1e-300 3e-300', 'σ=0, s=0']]);
+      expectErrors('NUM-004', ['1e160 3e160'], /^the result is out of range$/);
+    });
+
+    test('NUM-017: leading zeros of the integer part are removed', () => {
+      expectAll('NUM-017', [['-0012345', '-12,345'], ['000.5', '0.5'], ['0,012,345', '12,345'], ['0', '0'], ['0001234', '1,234']]);
+    });
+
+    test('NUM-002: the result is counted against the budget while it is built', () => {
+      const transform = NUM_COMMAND_ENTRIES.find((entry) => entry.id === 'NUM-002')!.transform;
+      assert.throws(() => transform('1 1 2 2', [], 3), EncOutputTooLargeError);
+      assert.strictEqual(transform('1 1 2 2', [], 4), '1, 2');
+      // 1,000 tied modes of 12 or 13 characters each (about 14,000 characters with the separators).
+      const ties = Array.from({ length: 1_000 }, (_, i) => `0.${i + 1}23456789 0.${i + 1}23456789`).join(' ');
+      assert.throws(() => transform(ties, [], 10_000), EncOutputTooLargeError);
+    });
+
+    test('NUM-019: one formatter for many lines (finishes quickly)', () => {
+      const lines = 200_000;
+      const started = Date.now();
+      const result = transformOf('NUM-019')('1234.5\n'.repeat(lines), ['de-DE']);
+      assert.strictEqual(result, '1.234,5\n'.repeat(lines));
+      assert.ok(Date.now() - started < 5_000, `${Date.now() - started} ms`);
+    });
+
+    test('NUM-034: the fast search gives the same fractions as trying every denominator exactly', () => {
+      const gcd = (a: bigint, b: bigint): bigint => (b === 0n ? a : gcd(b, a % b));
+      // The search of round 1: every denominator 1..99 checked with BigInt.
+      const reference = (value: string): string => {
+        const decimals = value.slice(2);
+        const n = BigInt(decimals);
+        const scale = 10n ** BigInt(decimals.length);
+        for (let q = 1n; q <= 99n; q++) {
+          const p = ((2n * n - 1n) * q + 2n * scale - 1n) / (2n * scale);
+          if (p * scale < (n + 1n) * q) {
+            let rest = Number(q);
+            while (rest % 2 === 0) { rest /= 2; }
+            while (rest % 5 === 0) { rest /= 5; }
+            if (rest > 1) {
+              return `${p}/${q}`;
+            }
+            break;
+          }
+        }
+        const g = gcd(n, scale);
+        return `${n / g}/${scale / g}`;
+      };
+      const toFraction = transformOf('NUM-034');
+      for (let q = 3; q <= 99; q++) {
+        for (let p = 1; p < q; p++) {
+          [6, 9, 17, 28].forEach((d) => {
+            const k = (BigInt(p) * 10n ** BigInt(d)) / BigInt(q);
+            [k - 1n, k, k + 1n, k + 2n].forEach((digits) => {
+              const value = `0.${digits.toString().padStart(d, '0')}`;
+              assert.strictEqual(toFraction(value), reference(value), value);
+            });
+          });
+        }
+      }
+    });
+
+    test('NUM-034: 30-digit decimals on many lines finish quickly', () => {
+      const started = Date.now();
+      const text = '0.3333333333333333333333333337\n'.repeat(50_000);
+      transformOf('NUM-034')(text);
+      assert.ok(Date.now() - started < 5_000, `${Date.now() - started} ms`);
+    });
+  });
 });

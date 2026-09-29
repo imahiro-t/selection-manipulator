@@ -295,11 +295,28 @@ const assertFinite = (value: number): void => {
   }
 };
 
-/** Rule A: the floating-point error removed with 15 significant digits (`0.1 + 0.2` → `0.3`, `-0` → `0`). */
-export const formatA = (value: number): string => {
+/**
+ * The floating-point error of a finite double removed (`0.1 + 0.2` → `0.3`, `-0` → `0`): a safe
+ * integer (|x| ≤ 2^53 − 1) is exact and kept as it is (so that a 16-digit integer is not changed),
+ * any other value is cut to 15 significant digits. Infinity / NaN are `the result is out of range`.
+ */
+export const cleanNumber = (value: number): number => {
   assertFinite(value);
-  const cleaned = Number(value.toPrecision(15));
-  return String(cleaned === 0 ? 0 : cleaned);
+  const cleaned = Number.isSafeInteger(value) ? value : Number(value.toPrecision(15));
+  return cleaned === 0 ? 0 : cleaned;
+};
+
+/** Rule A: a double written after `cleanNumber` (`0.1 + 0.2` → `0.3`, `9007199254740991` kept). */
+export const formatA = (value: number): string => String(cleanNumber(value));
+
+/**
+ * An integer result (floor / ceil / truncate) written exactly as the double holds it: there is no
+ * floating-point error to remove, so no digit is cut (`-0` → `0`, 1e21 and above in JavaScript's
+ * exponent form).
+ */
+export const formatInteger = (value: number): string => {
+  assertFinite(value);
+  return String(value === 0 ? 0 : value);
 };
 
 /** Rounds a double to `decimals` digits after the point, half away from zero (on its decimal form). */
@@ -312,13 +329,10 @@ export const roundNumber = (value: number, decimals: number): number => {
 };
 
 /**
- * Rule B (values with a division, a square root or a conversion factor): the error removed as in
- * rule A, then rounded to 4 digits after the point, half away from zero, without trailing zeros.
+ * Rule B (values with a division, a square root or a conversion factor): the error removed with
+ * `cleanNumber`, then rounded to 4 digits after the point, half away from zero, without trailing zeros.
  */
-export const formatB = (value: number): string => {
-  assertFinite(value);
-  return String(roundNumber(Number(value.toPrecision(15)), NUM_ROUNDED_DECIMALS));
-};
+export const formatB = (value: number): string => String(roundNumber(cleanNumber(value), NUM_ROUNDED_DECIMALS));
 
 // ---------------------------------------------------------------------------------------------
 // Values typed into the input boxes

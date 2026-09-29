@@ -82,10 +82,14 @@ const readGrouping = (value: string): { sign: string; digits: string; fraction: 
   return { sign: match[1], digits: match[2].replace(/,/g, ''), fraction: match[3] ?? '' };
 };
 
-/** NUM-017: `1234567.89` → `1,234,567.89` (already separated input is accepted as it is). */
+/**
+ * NUM-017: `1234567.89` → `1,234,567.89` (already separated input is accepted as it is). The
+ * leading zeros of the integer part are removed (`0012345` → `12,345`, `000.5` → `0.5`), since
+ * grouping them (`0,012,345`) makes no sense.
+ */
 export const addSeparator = (value: string): string => {
   const { sign, digits, fraction } = readGrouping(value);
-  return `${sign}${group(digits)}${fraction}`;
+  return `${sign}${group(trimLeadingZeros(digits))}${fraction}`;
 };
 
 /** NUM-018: `1,234,567` → `1234567`; separators in wrong places are an error. */
@@ -233,10 +237,13 @@ export const bytesToHuman = (value: string): string => {
   return `${joinDecimal('', whole.toString(), fraction)} ${BYTE_UNITS[unit]}`;
 };
 
-const HUMAN = /^(?:(\d+)(?:\.(\d*))?|\.(\d+))[ \t]*([KMGTPE]i?B|B)$/i;
-const SI_POWER: Record<string, number> = { K: 1, M: 2, G: 3, T: 4, P: 5, E: 6 };
+const HUMAN = /^(?:(\d+)(?:\.(\d*))?|\.(\d+))[ \t]*([KMGTPEZY]i?B|B)$/i;
+const SI_POWER: Record<string, number> = { K: 1, M: 2, G: 3, T: 4, P: 5, E: 6, Z: 7, Y: 8 };
 
-/** NUM-031: `1.5 MiB` → `1572864` (KB… = powers of 1000, KiB… = powers of 1024; rounded half up). */
+/**
+ * NUM-031: `1.5 MiB` → `1572864` (KB…YB = powers of 1000, KiB…YiB = powers of 1024; rounded half
+ * up). Every unit NUM-030 writes (up to YiB) is read back.
+ */
 export const humanToBytes = (value: string): string => {
   const match = HUMAN.exec(value);
   if (!match) {
@@ -351,20 +358,44 @@ const repeats = (q: number): boolean => {
   return rest > 1;
 };
 
+/** The greatest common divisor of two small non-negative integers. */
+const smallGcd = (a: number, b: number): number => {
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+};
+
 /**
  * The fraction with the smallest denominator (up to NUM_FRACTION_MAX_DENOMINATOR) in
  * [n/10^d − 0.5×10^-d, n/10^d + 10^-d), i.e. a fraction whose expansion rounds or truncates to
- * the d typed decimals. Trying every denominator from 1 up gives the same answer as a
+ * the d typed decimals (d ≥ 6). Trying every denominator from 1 up gives the same answer as a
  * Stern-Brocot search, in at most 99 steps whatever the input.
+ *
+ * Most denominators are ruled out with doubles, and only the rest is checked exactly with BigInt:
+ * - `fraction` is the typed decimals as a double in [0, 1). Adding an integer to a fraction keeps
+ *   its denominator, so only the decimals matter.
+ * - A fraction p/q of the interval is within 10^-d (≤ 10^-6) of them, so p is
+ *   `Math.round(fraction × q)` (q × 10^-6 < 0.5) and the double differs by at most 10^-d plus the
+ *   error of the double (about 10^-16); a q whose nearest fraction is farther is skipped.
+ * - When p/q is not reduced, the same value was already checked with a smaller denominator.
  */
-const smallestFractionNear = (n: bigint, d: number): [bigint, bigint] | undefined => {
+const smallestFractionNear = (n: bigint, d: number, fraction: number): [bigint, bigint] | undefined => {
+  const tolerance = 10 ** -d + 1e-12;
   const scale = 10n ** BigInt(d);
+  const twiceScale = 2n * scale;
   const low = 2n * n - 1n;
-  for (let q = 1n; q <= BigInt(NUM_FRACTION_MAX_DENOMINATOR); q++) {
+  const high = n + 1n;
+  for (let q = 1; q <= NUM_FRACTION_MAX_DENOMINATOR; q++) {
+    const nearest = Math.round(fraction * q);
+    if (Math.abs(nearest / q - fraction) > tolerance || (q > 1 && smallGcd(nearest, q) > 1)) {
+      continue;
+    }
+    const big = BigInt(q);
     // The smallest p with p/q >= (2n − 1) / (2 × 10^d).
-    const p = (low * q + 2n * scale - 1n) / (2n * scale);
-    if (p * scale < (n + 1n) * q) {
-      return [p, q];
+    const p = (low * big + twiceScale - 1n) / twiceScale;
+    if (p * scale < high * big) {
+      return [p, big];
     }
   }
   return undefined;
@@ -395,7 +426,7 @@ export const toFraction = (value: string): string => {
   numerator /= divisor;
   denominator /= divisor;
   if (d >= NUM_FRACTION_MIN_REPEATING_DECIMALS) {
-    const near = smallestFractionNear(n, d);
+    const near = smallestFractionNear(n, d, Number(`0.${parts.fraction}`));
     if (near !== undefined && repeats(Number(near[1]))) {
       [numerator, denominator] = near;
     }

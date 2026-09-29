@@ -683,8 +683,8 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 |---|---|---|---|---|---|---|---|---|
 | NUM-001 | NUM | 基本 | `selection-manipulator.math.median` | Math - Median | 選択した数値の中央値を通知・挿入する | `1⏎3⏎2⏎10` → `2.5` | なし | なし |
 | NUM-002 | NUM | 基本 | `selection-manipulator.math.mode` | Math - Mode | 最頻値を求める | `1⏎2⏎2⏎3` → `2` | なし | なし |
-| NUM-003 | NUM | 基本 | `selection-manipulator.math.stddev` | Math - Standard Deviation | 母標準偏差と標本標準偏差を求める | `2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.138` | なし | なし |
-| NUM-004 | NUM | 基本 | `selection-manipulator.math.variance` | Math - Variance | 母分散と標本分散を求める | `1⏎2⏎3` → `0.667 / 1` | なし | なし |
+| NUM-003 | NUM | 基本 | `selection-manipulator.math.stddev` | Math - Standard Deviation | 母標準偏差と標本標準偏差を求める | `2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.1381` | なし | なし |
+| NUM-004 | NUM | 基本 | `selection-manipulator.math.variance` | Math - Variance | 母分散と標本分散を求める | `1⏎2⏎3` → `0.6667 / 1` | なし | なし |
 | NUM-005 | NUM | 基本 | `selection-manipulator.math.count` | Math - Count Numbers | 選択範囲に含まれる数値の個数を数える | `a 1 b 2.5` → `2` | なし | なし |
 | NUM-006 | NUM | 基本 | `selection-manipulator.math.product` | Math - Product | 数値の積を求める | `2⏎3⏎4` → `24` | なし | なし |
 | NUM-007 | NUM | 基本 | `selection-manipulator.math.range` | Math - Range | 最大値と最小値の差を求める | `3⏎9⏎1` → `8` | なし | なし |

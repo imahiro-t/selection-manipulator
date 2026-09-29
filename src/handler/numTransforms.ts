@@ -14,9 +14,11 @@
  * `eval` / `new Function`, no new dependency (`Intl` and `BigInt` only).
  */
 import {
+  cleanNumber,
   extractNumbers,
   formatA,
   formatB,
+  formatInteger,
   mapLines,
   NumInputError,
   NumNoNumbersError,
@@ -52,7 +54,11 @@ export interface NumPrompt {
   rule: NumPromptRule;
 }
 
-/** A transform of one selection; `inputs` are the answers to the prompts, in order. */
+/**
+ * A transform of one selection. `inputs` are the answers to the prompts, in order, already
+ * checked with `findNumPromptProblem` and trimmed by the caller (the handler), so a transform
+ * uses them as they are.
+ */
 export type NumTransform = (text: string, inputs: readonly string[], budget: number) => string;
 
 export interface NumCommandEntry {
@@ -101,30 +107,50 @@ const percentileOf = (values: Float64Array, p: number): number => {
 
 const medianOf = (values: Float64Array): number => percentileOf(values, 50);
 
-/** The sum of the squared deviations from the mean (two passes, for accuracy). */
-const squaredDeviations = (numbers: readonly number[]): number => {
-  const mean = sumOf(numbers) / numbers.length;
-  let total = 0;
+/**
+ * The population and sample variances, computed on the numbers divided by a power of two near
+ * their largest magnitude. The division is exact, so the result is the same as without it, but the
+ * squares cannot overflow while the result itself is finite (`1e155 -1e155` → σ = 1e155). The
+ * variances are returned as `scaled × scale²` so that the standard deviation can take the square
+ * root before scaling back (a variance beyond the range of a double is still out of range).
+ */
+interface Deviations {
+  /** Population variance / scale². */
+  population: number;
+  /** Sample variance / scale², or `undefined` for one number. */
+  sample: number | undefined;
+  scale: number;
+}
+
+const deviations = (numbers: readonly number[]): Deviations => {
+  let largest = 0;
   for (const n of numbers) {
-    total += (n - mean) ** 2;
+    largest = Math.max(largest, Math.abs(n));
   }
-  return total;
+  // 2^1023 is the largest finite power of two (log2 of a value just below 2^1024 may round to 1024).
+  const scale = largest === 0 ? 1 : 2 ** Math.min(1023, Math.floor(Math.log2(largest)));
+  let sum = 0;
+  for (const n of numbers) {
+    sum += n / scale;
+  }
+  const mean = sum / numbers.length;
+  let squares = 0;
+  for (const n of numbers) {
+    squares += (n / scale - mean) ** 2;
+  }
+  return {
+    population: squares / numbers.length,
+    sample: numbers.length > 1 ? squares / (numbers.length - 1) : undefined,
+    scale,
+  };
 };
 
 const NOT_AVAILABLE = 'n/a';
 
-const deviations = (numbers: readonly number[]): { populationVariance: number; sampleVariance: number | undefined } => {
-  const squares = squaredDeviations(numbers);
-  return {
-    populationVariance: squares / numbers.length,
-    sampleVariance: numbers.length > 1 ? squares / (numbers.length - 1) : undefined,
-  };
-};
-
 const standardDeviations = (numbers: readonly number[]): string => {
-  const { populationVariance, sampleVariance } = deviations(numbers);
-  const s = sampleVariance === undefined ? NOT_AVAILABLE : formatB(Math.sqrt(sampleVariance));
-  return `σ=${formatB(Math.sqrt(populationVariance))}, s=${s}`;
+  const { population, sample, scale } = deviations(numbers);
+  const s = sample === undefined ? NOT_AVAILABLE : formatB(Math.sqrt(sample) * scale);
+  return `σ=${formatB(Math.sqrt(population) * scale)}, s=${s}`;
 };
 
 /** A statistics transform: one result line per selection. */
@@ -136,7 +162,8 @@ const statistic = (compute: (text: string, inputs: readonly string[]) => string)
 
 const median: NumTransform = statistic((text) => formatA(medianOf(sorted(numbersOf(text)))));
 
-const mode: NumTransform = statistic((text) => {
+/** NUM-002: the result is counted against the budget number by number, never built in full first. */
+const mode: NumTransform = (text, _inputs, budget) => {
   const numbers = numbersOf(text);
   const counts = new Map<number, number>();
   let most = 0;
@@ -149,14 +176,22 @@ const mode: NumTransform = statistic((text) => {
     throw new NumInputError('every number appears once, so there is no mode');
   }
   const modes = [...counts].filter(([, count]) => count === most).map(([n]) => n).sort((a, b) => a - b);
-  return modes.map(formatA).join(', ');
-});
+  const output = new NumOutputBuffer(budget);
+  modes.forEach((n, index) => {
+    if (index > 0) {
+      output.push(', ');
+    }
+    output.push(formatA(n));
+  });
+  return output.join();
+};
 
 const stddev: NumTransform = statistic((text) => standardDeviations(numbersOf(text)));
 
 const variance: NumTransform = statistic((text) => {
-  const { populationVariance, sampleVariance } = deviations(numbersOf(text));
-  return `${formatB(populationVariance)} / ${sampleVariance === undefined ? NOT_AVAILABLE : formatB(sampleVariance)}`;
+  const { population, sample, scale } = deviations(numbersOf(text));
+  const scaleBack = (scaled: number): string => formatB(scaled * scale * scale);
+  return `${scaleBack(population)} / ${sample === undefined ? NOT_AVAILABLE : scaleBack(sample)}`;
 });
 
 const count: NumTransform = statistic((text) => String(extractNumbers(text).length));
@@ -175,7 +210,7 @@ const range: NumTransform = statistic((text) => {
 });
 
 const percentile: NumTransform = statistic((text, inputs) =>
-  formatA(percentileOf(sorted(numbersOf(text)), Number(inputs[0].trim()))));
+  formatA(percentileOf(sorted(numbersOf(text)), Number(inputs[0]))));
 
 const summary: NumTransform = statistic((text) => {
   const numbers = numbersOf(text);
@@ -204,6 +239,7 @@ const perLine = (convert: (value: string, inputs: readonly string[]) => string):
 const numeric = (compute: (n: number) => number, format: (n: number) => string = formatA): NumTransform =>
   perLine((value) => format(compute(parseBasicNumber(value))));
 
+/** NUM-010: rule A on every running total (a safe integer total, e.g. of 16-digit integers, is kept exact). */
 const cumulativeSum: NumTransform = (text, _inputs, budget) => {
   let sum = 0;
   return mapLines(text, budget, (value) => {
@@ -213,14 +249,18 @@ const cumulativeSum: NumTransform = (text, _inputs, budget) => {
 };
 
 const round = perLine((value, inputs) => {
-  const result = roundNumber(parseBasicNumber(value), Number(inputs[0].trim()));
+  const result = roundNumber(parseBasicNumber(value), Number(inputs[0]));
   return String(result);
 });
 
-const formatLocale = perLine((value, inputs) =>
-  new Intl.NumberFormat(inputs[0].trim(), { maximumFractionDigits: 20 }).format(parseBasicNumber(value)));
+/** NUM-019: one formatter per selection, shared by every line (building one is expensive). */
+const formatLocale: NumTransform = (text, inputs, budget) => {
+  const formatter = new Intl.NumberFormat(inputs[0], { maximumFractionDigits: 20 });
+  return mapLines(text, budget, (value) => formatter.format(parseBasicNumber(value)));
+};
 
-const toScientific = perLine((value) => Number(formatA(parseBasicNumber(value))).toExponential());
+/** NUM-027: the floating-point error removed (rule A) before writing the exponent form. */
+const toScientific = perLine((value) => cleanNumber(parseBasicNumber(value)).toExponential());
 
 const plain = (convert: (value: string) => string): NumTransform => perLine((value) => convert(value));
 
@@ -249,9 +289,9 @@ export const NUM_COMMAND_ENTRIES: readonly NumCommandEntry[] = [
   entry('NUM-011', 'number.round', 'Number - Round', 'replace', round, [
     { prompt: 'Digits after the decimal point (0-15)', placeHolder: '2', rule: { kind: 'integer', min: 0, max: 15 } },
   ]),
-  entry('NUM-012', 'number.floor', 'Number - Floor', 'replace', numeric(Math.floor)),
-  entry('NUM-013', 'number.ceil', 'Number - Ceil', 'replace', numeric(Math.ceil)),
-  entry('NUM-014', 'number.truncate', 'Number - Truncate', 'replace', numeric(Math.trunc)),
+  entry('NUM-012', 'number.floor', 'Number - Floor', 'replace', numeric(Math.floor, formatInteger)),
+  entry('NUM-013', 'number.ceil', 'Number - Ceil', 'replace', numeric(Math.ceil, formatInteger)),
+  entry('NUM-014', 'number.truncate', 'Number - Truncate', 'replace', numeric(Math.trunc, formatInteger)),
   entry('NUM-015', 'number.abs', 'Number - Absolute Value', 'replace', plain(absolute)),
   entry('NUM-016', 'number.negate', 'Number - Negate', 'replace', plain(negate)),
   entry('NUM-017', 'number.add-separator', 'Number - Add Thousands Separator', 'replace', plain(addSeparator)),
@@ -266,7 +306,7 @@ export const NUM_COMMAND_ENTRIES: readonly NumCommandEntry[] = [
   entry('NUM-024', 'number.to-octal', 'Number - Decimal to Octal', 'replace', plain(decimalToBase(8))),
   entry('NUM-025', 'number.from-octal', 'Number - Octal to Decimal', 'replace', plain(baseToDecimal(8))),
   entry('NUM-026', 'number.convert-base', 'Number - Convert Base (2-36)', 'replace',
-    perLine((value, inputs) => convertBase(Number(inputs[0].trim()), Number(inputs[1].trim()))(value)), [
+    perLine((value, inputs) => convertBase(Number(inputs[0]), Number(inputs[1]))(value)), [
       { prompt: 'Base of the selected numbers (2-36)', placeHolder: '16', rule: baseRule },
       { prompt: 'Base to convert to (2-36)', placeHolder: '10', rule: baseRule },
     ]),

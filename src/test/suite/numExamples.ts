@@ -56,14 +56,5 @@ export const NUM_ROADMAP_EXAMPLES: Record<string, NumExample> = {
   'NUM-040': { input: '1', inputs: [], expected: '2.54' },
 };
 
-/**
- * ROADMAP examples written before the implementation fixed the rounding (rule B, 4 decimals).
- * The documentation step updates them to the exact results; until then the old text is accepted.
- */
-export const NUM_ROADMAP_BEFORE_UPDATE: Record<string, string> = {
-  'NUM-003': 'σ=2, s=2.138',
-  'NUM-004': '0.667 / 1',
-};
-
 /** Text that no command accepts (not a number in any base, and no number token for the statistics). */
 export const NUM_INVALID_INPUT = 'a?c';
