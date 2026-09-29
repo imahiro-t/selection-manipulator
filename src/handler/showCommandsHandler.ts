@@ -4,7 +4,7 @@ import {
   commands,
 } from 'vscode';
 
-const myCommands = [
+export const myCommands = [
   {
     "command": "selection-manipulator.multi-selection",
     "title": "Select - Convert to Multi Selection",
@@ -183,6 +183,156 @@ const myCommands = [
   {
     "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
     "title": "Extract - Sort Lines Descending by occurrence (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.natural.ascending",
+    "title": "Extract - Sort Lines Ascending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.natural.descending",
+    "title": "Extract - Sort Lines Descending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.ascending",
+    "title": "Extract - Sort Lines Ascending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.descending",
+    "title": "Extract - Sort Lines Descending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.locale.ascending",
+    "title": "Extract - Sort Lines Ascending by locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.locale.descending",
+    "title": "Extract - Sort Lines Descending by locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.japanese.ascending",
+    "title": "Extract - Sort Lines Ascending by kana order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.ascending",
+    "title": "Extract - Sort Lines Ascending by column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.descending",
+    "title": "Extract - Sort Lines Descending by column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.regex-key.ascending",
+    "title": "Extract - Sort Lines Ascending by regex capture",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.date.ascending",
+    "title": "Extract - Sort Lines Ascending by date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.date.descending",
+    "title": "Extract - Sort Lines Descending by date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.semver.ascending",
+    "title": "Extract - Sort Lines Ascending by semantic version",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ip.ascending",
+    "title": "Extract - Sort Lines Ascending by IP address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.word-count.ascending",
+    "title": "Extract - Sort Lines Ascending by word count",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.last-word.ascending",
+    "title": "Extract - Sort Lines Ascending by last word",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.suffix.ascending",
+    "title": "Extract - Sort Lines Ascending by reversed string",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.unique.ascending",
+    "title": "Extract - Sort Lines Ascending and remove duplicates",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.paragraph.ascending",
+    "title": "Extract - Sort Paragraphs Ascending",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.indent-block.ascending",
+    "title": "Extract - Sort Lines Ascending keeping indented children",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.hex.ascending",
+    "title": "Extract - Sort Lines Ascending by hex number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.natural.ascending",
+    "title": "Extract - Sort Selections Ascending by natural order",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.ignore-case.ascending",
+    "title": "Extract - Sort Selections Ascending ignoring case",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.length.ascending",
+    "title": "Extract - Sort Selections Ascending by length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.length.descending",
+    "title": "Extract - Sort Selections Descending by length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by natural order (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending ignoring case (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by column (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+    "title": "Extract - Sort Lines Ascending by semantic version (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.sort.natural.ascending.clipboard",
+    "title": "Extract - Sort Selections Ascending by natural order (Clipboard)",
     "canMultiSelection": true
   },
   {
@@ -1101,6 +1251,156 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.case.swap",
+    "title": "Change Case Swap",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.sentence-preserve-acronyms",
+    "title": "Change Case Sentence (Preserve Acronyms)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.title-apa",
+    "title": "Change Case Title (APA Style)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-first",
+    "title": "Change Case Upper First",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-first",
+    "title": "Change Case Lower First",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.cobol",
+    "title": "Change Case Cobol",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.ada",
+    "title": "Change Case Ada",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.flat",
+    "title": "Change Case Flat",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-flat",
+    "title": "Change Case Upper Flat",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.camel-snake",
+    "title": "Change Case Camel Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.pascal-snake",
+    "title": "Change Case Pascal Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.alternating-words",
+    "title": "Change Case Alternating Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.acronym",
+    "title": "Change Case Acronym",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.detect",
+    "title": "Change Case Detect Style",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.cycle",
+    "title": "Change Case Cycle",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-acronyms",
+    "title": "Change Case Uppercase Known Acronyms",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.sentence-each",
+    "title": "Change Case Sentence (Each Sentence)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.capitalize-lines",
+    "title": "Change Case Capitalize Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-line-start",
+    "title": "Change Case Lowercase Each Line Start",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.upper-locale",
+    "title": "Change Case Upper (Locale)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.lower-locale",
+    "title": "Change Case Lower (Locale)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-camel",
+    "title": "Change Case JSON Keys to Camel",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-snake",
+    "title": "Change Case JSON Keys to Snake",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-kebab",
+    "title": "Change Case JSON Keys to Kebab",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.json-keys-pascal",
+    "title": "Change Case JSON Keys to Pascal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.css-variable",
+    "title": "Change Case CSS Custom Property",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.bem",
+    "title": "Change Case BEM",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.pluralize",
+    "title": "Change Case Pluralize",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.singularize",
+    "title": "Change Case Singularize",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.case.hashtag",
+    "title": "Change Case Hashtag",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.text.remove-accents",
     "title": "Text - Remove Accents",
     "canMultiSelection": true
@@ -1246,6 +1546,156 @@ const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.enclose.custom",
+    "title": "Enclose - Enclose: Custom (Prefix / Suffix)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.each-line.custom",
+    "title": "Enclose - Enclose Each Line: Custom",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-line.double",
+    "title": "Enclose - Quote Each Line: Double (\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-line.single",
+    "title": "Enclose - Quote Each Line: Single ('')",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.each-word.double",
+    "title": "Enclose - Quote Each Word: Double (\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.list.sql-in",
+    "title": "Enclose - Quote: SQL IN List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.list.array",
+    "title": "Enclose - Quote: Array Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.triple-double",
+    "title": "Enclose - Quote: Triple Double (\"\"\" \"\"\")",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.guillemets",
+    "title": "Enclose - Quote: Guillemets («»)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.smart-double",
+    "title": "Enclose - Quote: Smart Double (“”)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.smart-single",
+    "title": "Enclose - Quote: Smart Single (‘’)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quote.double-escaped",
+    "title": "Enclose - Quote: Double with Escaping",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unquote.each-line",
+    "title": "Enclose - Unquote Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.white-lenticular",
+    "title": "Enclose - Enclose: Japanese White Lenticular Bracket (〖〗)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+    "title": "Enclose - Enclose: Japanese Tortoise Shell Bracket (〔〕)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.double-angle",
+    "title": "Enclose - Enclose: Japanese Double Angle Bracket (《》)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.japanese.single-angle",
+    "title": "Enclose - Enclose: Japanese Single Angle Bracket (〈〉)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.html-tag",
+    "title": "Enclose - Enclose: HTML Tag (Custom)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.html-comment",
+    "title": "Enclose - Enclose: HTML Comment",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.block-comment",
+    "title": "Enclose - Enclose: Block Comment (/* */)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.placeholder",
+    "title": "Enclose - Enclose: Placeholder (${})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.mustache",
+    "title": "Enclose - Enclose: Mustache ({{ }})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.percent",
+    "title": "Enclose - Enclose: Percent (%%)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.pipes",
+    "title": "Enclose - Enclose: Pipes (||)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.ascii-box",
+    "title": "Enclose - Enclose: ASCII Box",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.each-word.paren",
+    "title": "Enclose - Enclose Each Word: Parentheses (())",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.lines-block",
+    "title": "Enclose - Enclose: Lines Block (Before / After Lines)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.cycle-brackets",
+    "title": "Enclose - Enclose: Cycle Brackets",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.remove-outer-brackets",
+    "title": "Enclose - Enclose: Remove Matching Outer Brackets",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.enclose.markdown-inline-code",
+    "title": "Enclose - Enclose: Backtick Code (Auto Fence)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.markdown.link",
     "title": "Markdown - Create Link",
     "canMultiSelection": true
@@ -1303,6 +1753,1233 @@ const myCommands = [
   {
     "command": "selection-manipulator.text.select-matches",
     "title": "Text - Select Matches",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.tabs-to-spaces-2",
+    "title": "Whitespace: Leading Tabs to Spaces (2)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.tabs-to-spaces-4",
+    "title": "Whitespace: Leading Tabs to Spaces (4)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.spaces-to-tabs-2",
+    "title": "Whitespace: Leading Spaces to Tabs (2)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.spaces-to-tabs-4",
+    "title": "Whitespace: Leading Spaces to Tabs (4)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.reindent-2-to-4",
+    "title": "Whitespace: Re-indent 2 to 4 Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.reindent-4-to-2",
+    "title": "Whitespace: Re-indent 4 to 2 Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.dedent",
+    "title": "Whitespace: Remove Common Indent (Dedent)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.trim-leading",
+    "title": "Whitespace: Trim Leading Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.collapse-blank-lines",
+    "title": "Whitespace: Collapse Consecutive Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-all",
+    "title": "Whitespace: Remove All Whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unwrap-paragraphs",
+    "title": "Whitespace: Unwrap Paragraphs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.hard-wrap-80",
+    "title": "Whitespace: Hard Wrap at 80 Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.hard-wrap-n",
+    "title": "Whitespace: Hard Wrap at N Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.nbsp-to-space",
+    "title": "Whitespace: Special Spaces to Normal Space",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.visualize",
+    "title": "Whitespace: Visualize Spaces and Tabs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unvisualize",
+    "title": "Whitespace: Restore Visualized Spaces and Tabs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.center-align",
+    "title": "Whitespace: Center Align Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.right-align",
+    "title": "Whitespace: Right Align Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.pad-to-longest",
+    "title": "Whitespace: Pad Lines to Same Length",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-equals",
+    "title": "Whitespace: Align by Equals Sign (=)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-colon",
+    "title": "Whitespace: Align by Colon (:)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-comma",
+    "title": "Whitespace: Align Columns by \",\"",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.align-custom",
+    "title": "Whitespace: Align by Custom Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.blank-line-between",
+    "title": "Whitespace: Insert Blank Line Between Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-trailing-blank-lines",
+    "title": "Whitespace: Remove Trailing Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-leading-blank-lines",
+    "title": "Whitespace: Remove Leading Blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.collapse-inline",
+    "title": "Whitespace: Collapse Inline Spaces (Keep Indent)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.space-around-operators",
+    "title": "Whitespace: Add Spaces Around Operators",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.remove-space-before-punctuation",
+    "title": "Whitespace: Remove Space Before Punctuation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.space-after-comma",
+    "title": "Whitespace: Ensure Space After Comma",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.indent-n",
+    "title": "Whitespace: Indent Lines by N Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.outdent-n",
+    "title": "Whitespace: Outdent Lines by N Spaces",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.expand-tabs",
+    "title": "Whitespace: Expand All Tabs (Tab Stops)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.unexpand-tabs",
+    "title": "Whitespace: Unexpand Spaces to Tabs (Tab Stops)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.whitespace.clear-blank-only-lines",
+    "title": "Whitespace: Clear Whitespace-only Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-contains",
+    "title": "Line: Keep Lines Containing Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-not-contains",
+    "title": "Line: Remove Lines Containing Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-regex",
+    "title": "Line: Keep Lines Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-not-regex",
+    "title": "Line: Remove Lines Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.add-numbers",
+    "title": "Line: Add Line Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.add-numbers-padded",
+    "title": "Line: Add Line Numbers (Zero Padded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-duplicates",
+    "title": "Line: Keep Only Duplicated Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-unique-only",
+    "title": "Line: Keep Lines Appearing Once",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-ignore-case",
+    "title": "Line: Remove Duplicate Lines (Ignore Case)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+    "title": "Line: Remove Duplicate Lines (Ignore Whitespace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-adjacent",
+    "title": "Line: Remove Adjacent Duplicate Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.reverse-words",
+    "title": "Line: Reverse Word Order in Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.rotate",
+    "title": "Line: Rotate Lines Down",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-every-nth",
+    "title": "Line: Keep Every Nth Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-every-nth",
+    "title": "Line: Remove Every Nth Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-odd",
+    "title": "Line: Keep Odd Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-even",
+    "title": "Line: Keep Even Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.head",
+    "title": "Line: Keep First N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.tail",
+    "title": "Line: Keep Last N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.duplicate-each",
+    "title": "Line: Duplicate Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.swap-pairs",
+    "title": "Line: Swap Adjacent Line Pairs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-continuation",
+    "title": "Line: Join Backslash-continued Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.move-matching-to-top",
+    "title": "Line: Move Lines Containing Text to Top",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-prefix",
+    "title": "Line: Remove Prefix from Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-suffix",
+    "title": "Line: Remove Suffix from Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.interleave-halves",
+    "title": "Line: Interleave First and Second Half",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-every-n",
+    "title": "Line: Join Every N Lines (Custom Delimiter)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-sentences",
+    "title": "Line: Split Sentences into Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-fixed-width",
+    "title": "Line: Split into Fixed-width Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.remove-comment-lines",
+    "title": "Line: Remove Comment Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.count-stats",
+    "title": "Line: Count Lines, Words and Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-between-markers",
+    "title": "Line: Extract Lines Between Markers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-longest",
+    "title": "Line: Extract Longest Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-shortest",
+    "title": "Line: Extract Shortest Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-contains.clipboard",
+    "title": "Line: Keep Lines Containing Text (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.filter-regex.clipboard",
+    "title": "Line: Keep Lines Matching Regex (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-duplicates.clipboard",
+    "title": "Line: Keep Only Duplicated Lines (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-unique-only.clipboard",
+    "title": "Line: Keep Lines Appearing Once (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+    "title": "Line: Remove Adjacent Duplicate Lines (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.extract-between-markers.clipboard",
+    "title": "Line: Extract Lines Between Markers (Clipboard)",
+    "canMultiSelection": true
+  }
+,
+  {
+    "command": "selection-manipulator.html.encode",
+    "title": "Transform - Encode - Encode HTML Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.decode",
+    "title": "Transform - Encode - Decode HTML Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.encode-numeric",
+    "title": "Transform - Encode - Encode All Characters as Numeric Entities",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape",
+    "title": "Transform - Encode - Escape Unicode (\\uXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.unescape",
+    "title": "Transform - Encode - Unescape Unicode (\\uXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape-es6",
+    "title": "Transform - Encode - Escape Unicode (\\u{...})",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64url.encode",
+    "title": "Transform - Encode - Encode Base64URL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64url.decode",
+    "title": "Transform - Encode - Decode Base64URL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.encode",
+    "title": "Transform - Encode - Encode Base32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.decode",
+    "title": "Transform - Encode - Decode Base32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base58.encode",
+    "title": "Transform - Encode - Encode Base58",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base58.decode",
+    "title": "Transform - Encode - Decode Base58",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.encode",
+    "title": "Transform - Encode - Encode Hex (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.decode",
+    "title": "Transform - Encode - Decode Hex (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.binary.encode",
+    "title": "Transform - Encode - Encode Binary (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.binary.decode",
+    "title": "Transform - Encode - Decode Binary (UTF-8 Bytes)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.punycode.encode",
+    "title": "Transform - Encode - Encode Punycode (IDN)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.punycode.decode",
+    "title": "Transform - Encode - Decode Punycode (IDN)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quoted-printable.encode",
+    "title": "Transform - Encode - Encode Quoted-Printable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.quoted-printable.decode",
+    "title": "Transform - Encode - Decode Quoted-Printable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.rot13",
+    "title": "Transform - Encode - Cipher: ROT13",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.rot47",
+    "title": "Transform - Encode - Cipher: ROT47",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.caesar",
+    "title": "Transform - Encode - Cipher: Caesar Shift (N)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cipher.atbash",
+    "title": "Transform - Encode - Cipher: Atbash",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii85.encode",
+    "title": "Transform - Encode - Encode Ascii85",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ascii85.decode",
+    "title": "Transform - Encode - Decode Ascii85",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.gzip",
+    "title": "Transform - Encode - Gzip Base64",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.gunzip",
+    "title": "Transform - Encode - Gunzip Base64",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-form",
+    "title": "Transform - Encode - Encode Form (x-www-form-urlencoded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.decode-form",
+    "title": "Transform - Encode - Decode Form (x-www-form-urlencoded)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.encode-each-line",
+    "title": "Transform - Encode - Encode Base64 (Each Line)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base64.decode-each-line",
+    "title": "Transform - Encode - Decode Base64 (Each Line)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.nato.encode",
+    "title": "Transform - Encode - Text to NATO Phonetic Alphabet",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.data-uri.encode-text",
+    "title": "Transform - Encode - Encode as Data URI (text/plain)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.encode.replace",
+    "title": "Transform - Encode - Encode HTML Entities (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.html.decode.replace",
+    "title": "Transform - Encode - Decode HTML Entities (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape.replace",
+    "title": "Transform - Encode - Escape Unicode (\\uXXXX) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.unescape.replace",
+    "title": "Transform - Encode - Unescape Unicode (\\uXXXX) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.encode.replace",
+    "title": "Transform - Encode - Encode Hex (UTF-8 Bytes) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.hex.decode.replace",
+    "title": "Transform - Encode - Decode Hex (UTF-8 Bytes) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha224",
+    "title": "Transform - Crypto - Create Hash (SHA-224)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha384",
+    "title": "Transform - Crypto - Create Hash (SHA-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-256",
+    "title": "Transform - Crypto - Create Hash (SHA3-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-512",
+    "title": "Transform - Crypto - Create Hash (SHA3-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha512-256",
+    "title": "Transform - Crypto - Create Hash (SHA-512/256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2b512",
+    "title": "Transform - Crypto - Create Hash (BLAKE2b-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2s256",
+    "title": "Transform - Crypto - Create Hash (BLAKE2s-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha1",
+    "title": "Transform - Crypto - Create HMAC (SHA-1)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha384",
+    "title": "Transform - Crypto - Create HMAC (SHA-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha3-256",
+    "title": "Transform - Crypto - Create HMAC (SHA3-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc32",
+    "title": "Transform - Checksum - Checksum: CRC-32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.adler32",
+    "title": "Transform - Checksum - Checksum: Adler-32",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.fnv1a-32",
+    "title": "Transform - Checksum - Checksum: FNV-1a 32-bit",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha256-base64",
+    "title": "Transform - Crypto - Create Hash (SHA-256, Base64)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.sri-sha384",
+    "title": "Transform - Crypto - Create SRI Hash (sha384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha256-each-line",
+    "title": "Transform - Crypto - Create Hash per Line (SHA-256)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.luhn",
+    "title": "Transform - Checksum - Checksum: Luhn Validate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha384.replace",
+    "title": "Transform - Crypto - Create Hash (SHA-384) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+    "title": "Transform - Crypto - Create Hash (SHA3-256) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+    "title": "Transform - Crypto - Create Hash (BLAKE2b-512) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-keys",
+    "title": "Transform - Data Format - Sort JSON Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-query-string",
+    "title": "Transform - Data Format - Convert JSON to Query String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-env",
+    "title": "Transform - Data Format - Convert JSON to Env",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-xml",
+    "title": "Transform - Data Format - Convert JSON to XML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-toml",
+    "title": "Transform - Data Format - Convert JSON to TOML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.to-json",
+    "title": "Transform - Data Format - Convert TOML to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-ini",
+    "title": "Transform - Data Format - Convert JSON to INI",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ini.to-json",
+    "title": "Transform - Data Format - Convert INI to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-properties",
+    "title": "Transform - Data Format - Convert JSON to .properties",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.properties.to-json",
+    "title": "Transform - Data Format - Convert .properties to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.remove-nulls",
+    "title": "Transform - Data Format - Remove Null Values from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-jsonl",
+    "title": "Transform - Data Format - Convert JSON Array to JSON Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonl.to-json",
+    "title": "Transform - Data Format - Convert JSON Lines to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonc.to-json",
+    "title": "Transform - Data Format - Convert JSONC / JSON5 to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.get-path",
+    "title": "Transform - Data Format - Extract JSON Value by Path",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.list-paths",
+    "title": "Transform - Data Format - List JSON Paths",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.keys",
+    "title": "Transform - Data Format - Extract JSON Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.merge-selections",
+    "title": "Transform - Data Format - Merge JSON Objects (Selections)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.validate",
+    "title": "Transform - Data Format - Validate JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.format",
+    "title": "Transform - Data Format - Format YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.sort-keys",
+    "title": "Transform - Data Format - Sort YAML Keys",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.array-unique",
+    "title": "Transform - Data Format - Remove Duplicates in JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.pluck",
+    "title": "Transform - Data Format - Pluck Field from JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.group-by",
+    "title": "Transform - Data Format - Group JSON Array by Field",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.count",
+    "title": "Transform - Data Format - Count JSON Elements",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-schema",
+    "title": "Transform - Data Format - Generate JSON Schema from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-js-object",
+    "title": "Transform - Data Format - Convert JSON to JS Object Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.js-object.to-json",
+    "title": "Transform - Data Format - Convert JS Object Literal to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.cookie.to-json",
+    "title": "Transform - Data Format - Parse Cookie Header to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.set-cookie.to-json",
+    "title": "Transform - Data Format - Parse Set-Cookie to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.http-headers.to-json",
+    "title": "Transform - Data Format - Parse HTTP Headers to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.user-agent.to-json",
+    "title": "Transform - Data Format - Parse User-Agent to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.parse-nested",
+    "title": "Transform - Data Format - Parse Nested JSON Strings",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-keys.replace",
+    "title": "Transform - Data Format - Sort JSON Keys (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-xml.replace",
+    "title": "Transform - Data Format - Convert JSON to XML (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-toml.replace",
+    "title": "Transform - Data Format - Convert JSON to TOML (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.to-json.replace",
+    "title": "Transform - Data Format - Convert TOML to JSON (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-jsonl.replace",
+    "title": "Transform - Data Format - Convert JSON Array to JSON Lines (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.jsonl.to-json.replace",
+    "title": "Transform - Data Format - Convert JSON Lines to JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.format.replace",
+    "title": "Transform - Data Format - Format YAML (Replace)",
+    "canMultiSelection": true
+  }
+,
+  {
+    "command": "selection-manipulator.csv.to-json",
+    "title": "Transform - CSV - Convert to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-json",
+    "title": "Transform - CSV - Convert from JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-tsv",
+    "title": "Transform - CSV - Convert to TSV",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-tsv",
+    "title": "Transform - CSV - Convert from TSV",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.transpose",
+    "title": "Transform - CSV - Transpose",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.extract-column",
+    "title": "Transform - CSV - Extract Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.remove-column",
+    "title": "Transform - CSV - Remove Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.swap-columns",
+    "title": "Transform - CSV - Swap Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.align-columns",
+    "title": "Transform - CSV - Align Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.trim-cells",
+    "title": "Transform - CSV - Trim Cell Padding",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-html-table",
+    "title": "Transform - CSV - Convert to HTML Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-sql-insert",
+    "title": "Transform - CSV - Convert to SQL INSERT",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.dedupe-rows",
+    "title": "Transform - CSV - Remove Duplicate Rows",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.filter-rows",
+    "title": "Transform - CSV - Filter Rows by Column Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.sum-column",
+    "title": "Transform - CSV - Sum Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.add-index",
+    "title": "Transform - CSV - Add Index Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.change-delimiter",
+    "title": "Transform - CSV - Change Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.quote-all",
+    "title": "Transform - CSV - Quote All Fields",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.unquote",
+    "title": "Transform - CSV - Remove Unnecessary Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-yaml",
+    "title": "Transform - CSV - Convert to YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-ascii-table",
+    "title": "Transform - CSV - Convert to ASCII Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-whitespace",
+    "title": "Transform - CSV - Convert from Whitespace-separated Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.info",
+    "title": "Transform - CSV - Show Row and Column Count",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.fill-down",
+    "title": "Transform - CSV - Fill Empty Cells from Above",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-records",
+    "title": "Transform - CSV - Convert Rows to Key-Value Records",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-json.replace",
+    "title": "Transform - CSV - Convert to JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.from-json.replace",
+    "title": "Transform - CSV - Convert from JSON Array (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-tsv.replace",
+    "title": "Transform - CSV - Convert to TSV (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.transpose.replace",
+    "title": "Transform - CSV - Transpose (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.to-html-table.replace",
+    "title": "Transform - CSV - Convert to HTML Table (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.median",
+    "title": "Math - Median",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.mode",
+    "title": "Math - Mode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.stddev",
+    "title": "Math - Standard Deviation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.variance",
+    "title": "Math - Variance",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.count",
+    "title": "Math - Count Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.product",
+    "title": "Math - Product",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.range",
+    "title": "Math - Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.percentile",
+    "title": "Math - Percentile",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.summary",
+    "title": "Math - Statistics Summary",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.cumulative-sum",
+    "title": "Math - Cumulative Sum",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round",
+    "title": "Replace - Number - Round",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.floor",
+    "title": "Replace - Number - Floor",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.ceil",
+    "title": "Replace - Number - Ceil",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.truncate",
+    "title": "Replace - Number - Truncate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.abs",
+    "title": "Replace - Number - Absolute Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.negate",
+    "title": "Replace - Number - Negate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.add-separator",
+    "title": "Replace - Number - Add Thousands Separator",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.remove-separator",
+    "title": "Replace - Number - Remove Thousands Separator",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.format-locale",
+    "title": "Replace - Number - Format by Locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-hex",
+    "title": "Replace - Number - Decimal to Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-hex",
+    "title": "Replace - Number - Hex to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-binary",
+    "title": "Replace - Number - Decimal to Binary",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-binary",
+    "title": "Replace - Number - Binary to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-octal",
+    "title": "Replace - Number - Decimal to Octal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-octal",
+    "title": "Replace - Number - Octal to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.convert-base",
+    "title": "Replace - Number - Convert Base (2-36)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-scientific",
+    "title": "Replace - Number - To Scientific Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-scientific",
+    "title": "Replace - Number - From Scientific Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-percent",
+    "title": "Replace - Number - To Percent",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.bytes-to-human",
+    "title": "Replace - Number - Bytes to Human Readable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.human-to-bytes",
+    "title": "Replace - Number - Human Readable to Bytes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-words-en",
+    "title": "Replace - Number - To English Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.ordinal-en",
+    "title": "Replace - Number - Add English Ordinal Suffix",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-fraction",
+    "title": "Replace - Number - Decimal to Fraction",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+    "title": "Unit - Celsius to Fahrenheit",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+    "title": "Unit - Fahrenheit to Celsius",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.km-to-mile",
+    "title": "Unit - km to mile",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.mile-to-km",
+    "title": "Unit - mile to km",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.cm-to-inch",
+    "title": "Unit - cm to inch",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.inch-to-cm",
+    "title": "Unit - inch to cm",
     "canMultiSelection": true
   }
 ];

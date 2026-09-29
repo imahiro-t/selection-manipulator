@@ -1,8 +1,16 @@
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
 import { runTests } from '@vscode/test-electron';
 
 async function main() {
+  // VS Code creates its IPC socket inside the user data dir, and the socket
+  // path must stay under the OS limit (103 chars on macOS). The default
+  // `.vscode-test/user-data` breaks that when the repo lives in a deep path
+  // (e.g. a git worktree), so use a short directory under the OS temp dir.
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sm-test-'));
+
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
@@ -12,11 +20,18 @@ async function main() {
     // Passed to --extensionTestsPath
     const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
-    // Download VS Code, unzip it and run the integration test
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
+    // Download VS Code, unzip it and run the integration test.
+    // The `--user-data-dir=` form makes test-electron skip its own default.
+    await runTests({
+      extensionDevelopmentPath,
+      extensionTestsPath,
+      launchArgs: [`--user-data-dir=${userDataDir}`],
+    });
   } catch (err) {
-    console.error('Failed to run tests');
-    process.exit(1);
+    console.error('Failed to run tests', err);
+    process.exitCode = 1;
+  } finally {
+    fs.rmSync(userDataDir, { recursive: true, force: true });
   }
 }
 

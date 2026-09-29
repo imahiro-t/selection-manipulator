@@ -228,6 +228,156 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.sort-line.natural.ascending",
+        "title": "Sort Lines Ascending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.natural.descending",
+        "title": "Sort Lines Descending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.ascending",
+        "title": "Sort Lines Ascending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.descending",
+        "title": "Sort Lines Descending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.locale.ascending",
+        "title": "Sort Lines Ascending by locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.locale.descending",
+        "title": "Sort Lines Descending by locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.japanese.ascending",
+        "title": "Sort Lines Ascending by kana order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.ascending",
+        "title": "Sort Lines Ascending by column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.descending",
+        "title": "Sort Lines Descending by column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.regex-key.ascending",
+        "title": "Sort Lines Ascending by regex capture",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.date.ascending",
+        "title": "Sort Lines Ascending by date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.date.descending",
+        "title": "Sort Lines Descending by date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.semver.ascending",
+        "title": "Sort Lines Ascending by semantic version",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ip.ascending",
+        "title": "Sort Lines Ascending by IP address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.word-count.ascending",
+        "title": "Sort Lines Ascending by word count",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.last-word.ascending",
+        "title": "Sort Lines Ascending by last word",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.suffix.ascending",
+        "title": "Sort Lines Ascending by reversed string",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.unique.ascending",
+        "title": "Sort Lines Ascending and remove duplicates",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.paragraph.ascending",
+        "title": "Sort Paragraphs Ascending",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.indent-block.ascending",
+        "title": "Sort Lines Ascending keeping indented children",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.hex.ascending",
+        "title": "Sort Lines Ascending by hex number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.natural.ascending",
+        "title": "Sort Selections Ascending by natural order",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.ignore-case.ascending",
+        "title": "Sort Selections Ascending ignoring case",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.length.ascending",
+        "title": "Sort Selections Ascending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.length.descending",
+        "title": "Sort Selections Descending by length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+        "title": "Sort Lines Ascending by natural order (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+        "title": "Sort Lines Ascending ignoring case (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+        "title": "Sort Lines Ascending by column (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+        "title": "Sort Lines Ascending by semantic version (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.sort.natural.ascending.clipboard",
+        "title": "Sort Selections Ascending by natural order (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.json.format",
         "title": "Format JSON (Pretty Print)",
         "category": "Selection Manipulator"
@@ -615,6 +765,156 @@
       {
         "command": "selection-manipulator.case.lower",
         "title": "Change Case Lower",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.swap",
+        "title": "Change Case Swap",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.sentence-preserve-acronyms",
+        "title": "Change Case Sentence (Preserve Acronyms)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.title-apa",
+        "title": "Change Case Title (APA Style)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-first",
+        "title": "Change Case Upper First",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-first",
+        "title": "Change Case Lower First",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.cobol",
+        "title": "Change Case Cobol",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.ada",
+        "title": "Change Case Ada",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.flat",
+        "title": "Change Case Flat",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-flat",
+        "title": "Change Case Upper Flat",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.camel-snake",
+        "title": "Change Case Camel Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pascal-snake",
+        "title": "Change Case Pascal Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.alternating-words",
+        "title": "Change Case Alternating Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.acronym",
+        "title": "Change Case Acronym",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.detect",
+        "title": "Change Case Detect Style",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.cycle",
+        "title": "Change Case Cycle",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-acronyms",
+        "title": "Change Case Uppercase Known Acronyms",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.sentence-each",
+        "title": "Change Case Sentence (Each Sentence)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.capitalize-lines",
+        "title": "Change Case Capitalize Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-line-start",
+        "title": "Change Case Lowercase Each Line Start",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.upper-locale",
+        "title": "Change Case Upper (Locale)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.lower-locale",
+        "title": "Change Case Lower (Locale)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-camel",
+        "title": "Change Case JSON Keys to Camel",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-snake",
+        "title": "Change Case JSON Keys to Snake",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-kebab",
+        "title": "Change Case JSON Keys to Kebab",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.json-keys-pascal",
+        "title": "Change Case JSON Keys to Pascal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.css-variable",
+        "title": "Change Case CSS Custom Property",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.bem",
+        "title": "Change Case BEM",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.pluralize",
+        "title": "Change Case Pluralize",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.singularize",
+        "title": "Change Case Singularize",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.case.hashtag",
+        "title": "Change Case Hashtag",
         "category": "Selection Manipulator"
       },
       {
@@ -1308,6 +1608,156 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.enclose.custom",
+        "title": "Enclose: Custom (Prefix / Suffix)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.each-line.custom",
+        "title": "Enclose Each Line: Custom",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-line.double",
+        "title": "Quote Each Line: Double (\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-line.single",
+        "title": "Quote Each Line: Single ('')",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.each-word.double",
+        "title": "Quote Each Word: Double (\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.list.sql-in",
+        "title": "Quote: SQL IN List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.list.array",
+        "title": "Quote: Array Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.triple-double",
+        "title": "Quote: Triple Double (\"\"\" \"\"\")",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.guillemets",
+        "title": "Quote: Guillemets («»)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.smart-double",
+        "title": "Quote: Smart Double (“”)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.smart-single",
+        "title": "Quote: Smart Single (‘’)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quote.double-escaped",
+        "title": "Quote: Double with Escaping",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unquote.each-line",
+        "title": "Unquote Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.white-lenticular",
+        "title": "Enclose: Japanese White Lenticular Bracket (〖〗)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+        "title": "Enclose: Japanese Tortoise Shell Bracket (〔〕)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.double-angle",
+        "title": "Enclose: Japanese Double Angle Bracket (《》)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.japanese.single-angle",
+        "title": "Enclose: Japanese Single Angle Bracket (〈〉)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.html-tag",
+        "title": "Enclose: HTML Tag (Custom)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.html-comment",
+        "title": "Enclose: HTML Comment",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.block-comment",
+        "title": "Enclose: Block Comment (/* */)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.placeholder",
+        "title": "Enclose: Placeholder (${})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.mustache",
+        "title": "Enclose: Mustache ({{ }})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.percent",
+        "title": "Enclose: Percent (%%)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.pipes",
+        "title": "Enclose: Pipes (||)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.ascii-box",
+        "title": "Enclose: ASCII Box",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.each-word.paren",
+        "title": "Enclose Each Word: Parentheses (())",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.lines-block",
+        "title": "Enclose: Lines Block (Before / After Lines)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.cycle-brackets",
+        "title": "Enclose: Cycle Brackets",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.remove-outer-brackets",
+        "title": "Enclose: Remove Matching Outer Brackets",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.enclose.markdown-inline-code",
+        "title": "Enclose: Backtick Code (Auto Fence)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.ascii.daemon",
         "title": "ASCII Art - Daemon",
         "category": "Selection Manipulator"
@@ -1426,6 +1876,1231 @@
         "command": "selection-manipulator.diff",
         "title": "Diff Selections",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.tabs-to-spaces-2",
+        "title": "Whitespace: Leading Tabs to Spaces (2)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.tabs-to-spaces-4",
+        "title": "Whitespace: Leading Tabs to Spaces (4)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.spaces-to-tabs-2",
+        "title": "Whitespace: Leading Spaces to Tabs (2)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.spaces-to-tabs-4",
+        "title": "Whitespace: Leading Spaces to Tabs (4)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.reindent-2-to-4",
+        "title": "Whitespace: Re-indent 2 to 4 Spaces",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.reindent-4-to-2",
+        "title": "Whitespace: Re-indent 4 to 2 Spaces",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.dedent",
+        "title": "Whitespace: Remove Common Indent (Dedent)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.trim-leading",
+        "title": "Whitespace: Trim Leading Whitespace",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.collapse-blank-lines",
+        "title": "Whitespace: Collapse Consecutive Blank Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.remove-all",
+        "title": "Whitespace: Remove All Whitespace",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.unwrap-paragraphs",
+        "title": "Whitespace: Unwrap Paragraphs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.hard-wrap-80",
+        "title": "Whitespace: Hard Wrap at 80 Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.hard-wrap-n",
+        "title": "Whitespace: Hard Wrap at N Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.nbsp-to-space",
+        "title": "Whitespace: Special Spaces to Normal Space",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.visualize",
+        "title": "Whitespace: Visualize Spaces and Tabs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.unvisualize",
+        "title": "Whitespace: Restore Visualized Spaces and Tabs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.center-align",
+        "title": "Whitespace: Center Align Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.right-align",
+        "title": "Whitespace: Right Align Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.pad-to-longest",
+        "title": "Whitespace: Pad Lines to Same Length",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.align-equals",
+        "title": "Whitespace: Align by Equals Sign (=)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.align-colon",
+        "title": "Whitespace: Align by Colon (:)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.align-comma",
+        "title": "Whitespace: Align Columns by \",\"",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.align-custom",
+        "title": "Whitespace: Align by Custom Delimiter",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.blank-line-between",
+        "title": "Whitespace: Insert Blank Line Between Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.remove-trailing-blank-lines",
+        "title": "Whitespace: Remove Trailing Blank Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.remove-leading-blank-lines",
+        "title": "Whitespace: Remove Leading Blank Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.collapse-inline",
+        "title": "Whitespace: Collapse Inline Spaces (Keep Indent)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.space-around-operators",
+        "title": "Whitespace: Add Spaces Around Operators",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.remove-space-before-punctuation",
+        "title": "Whitespace: Remove Space Before Punctuation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.space-after-comma",
+        "title": "Whitespace: Ensure Space After Comma",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.indent-n",
+        "title": "Whitespace: Indent Lines by N Spaces",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.outdent-n",
+        "title": "Whitespace: Outdent Lines by N Spaces",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.expand-tabs",
+        "title": "Whitespace: Expand All Tabs (Tab Stops)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.unexpand-tabs",
+        "title": "Whitespace: Unexpand Spaces to Tabs (Tab Stops)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.whitespace.clear-blank-only-lines",
+        "title": "Whitespace: Clear Whitespace-only Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-contains",
+        "title": "Line: Keep Lines Containing Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-not-contains",
+        "title": "Line: Remove Lines Containing Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-regex",
+        "title": "Line: Keep Lines Matching Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-not-regex",
+        "title": "Line: Remove Lines Matching Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.add-numbers",
+        "title": "Line: Add Line Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.add-numbers-padded",
+        "title": "Line: Add Line Numbers (Zero Padded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-duplicates",
+        "title": "Line: Keep Only Duplicated Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-unique-only",
+        "title": "Line: Keep Lines Appearing Once",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-ignore-case",
+        "title": "Line: Remove Duplicate Lines (Ignore Case)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+        "title": "Line: Remove Duplicate Lines (Ignore Whitespace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-adjacent",
+        "title": "Line: Remove Adjacent Duplicate Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.reverse-words",
+        "title": "Line: Reverse Word Order in Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.rotate",
+        "title": "Line: Rotate Lines Down",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-every-nth",
+        "title": "Line: Keep Every Nth Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-every-nth",
+        "title": "Line: Remove Every Nth Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-odd",
+        "title": "Line: Keep Odd Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-even",
+        "title": "Line: Keep Even Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.head",
+        "title": "Line: Keep First N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.tail",
+        "title": "Line: Keep Last N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.duplicate-each",
+        "title": "Line: Duplicate Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.swap-pairs",
+        "title": "Line: Swap Adjacent Line Pairs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-continuation",
+        "title": "Line: Join Backslash-continued Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.move-matching-to-top",
+        "title": "Line: Move Lines Containing Text to Top",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-prefix",
+        "title": "Line: Remove Prefix from Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-suffix",
+        "title": "Line: Remove Suffix from Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.interleave-halves",
+        "title": "Line: Interleave First and Second Half",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-every-n",
+        "title": "Line: Join Every N Lines (Custom Delimiter)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-sentences",
+        "title": "Line: Split Sentences into Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-fixed-width",
+        "title": "Line: Split into Fixed-width Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.remove-comment-lines",
+        "title": "Line: Remove Comment Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.count-stats",
+        "title": "Line: Count Lines, Words and Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-between-markers",
+        "title": "Line: Extract Lines Between Markers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-longest",
+        "title": "Line: Extract Longest Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-shortest",
+        "title": "Line: Extract Shortest Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-contains.clipboard",
+        "title": "Line: Keep Lines Containing Text (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.filter-regex.clipboard",
+        "title": "Line: Keep Lines Matching Regex (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-duplicates.clipboard",
+        "title": "Line: Keep Only Duplicated Lines (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-unique-only.clipboard",
+        "title": "Line: Keep Lines Appearing Once (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+        "title": "Line: Remove Adjacent Duplicate Lines (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.extract-between-markers.clipboard",
+        "title": "Line: Extract Lines Between Markers (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode",
+        "title": "Encode HTML Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.decode",
+        "title": "Decode HTML Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode-numeric",
+        "title": "Encode All Characters as Numeric Entities",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape",
+        "title": "Escape Unicode (\\uXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.unescape",
+        "title": "Unescape Unicode (\\uXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape-es6",
+        "title": "Escape Unicode (\\u{...})",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64url.encode",
+        "title": "Encode Base64URL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64url.decode",
+        "title": "Decode Base64URL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.encode",
+        "title": "Encode Base32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.decode",
+        "title": "Decode Base32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base58.encode",
+        "title": "Encode Base58",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base58.decode",
+        "title": "Decode Base58",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.encode",
+        "title": "Encode Hex (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.decode",
+        "title": "Decode Hex (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.binary.encode",
+        "title": "Encode Binary (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.binary.decode",
+        "title": "Decode Binary (UTF-8 Bytes)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.punycode.encode",
+        "title": "Encode Punycode (IDN)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.punycode.decode",
+        "title": "Decode Punycode (IDN)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quoted-printable.encode",
+        "title": "Encode Quoted-Printable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.quoted-printable.decode",
+        "title": "Decode Quoted-Printable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.rot13",
+        "title": "Cipher: ROT13",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.rot47",
+        "title": "Cipher: ROT47",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.caesar",
+        "title": "Cipher: Caesar Shift (N)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cipher.atbash",
+        "title": "Cipher: Atbash",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii85.encode",
+        "title": "Encode Ascii85",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ascii85.decode",
+        "title": "Decode Ascii85",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.gzip",
+        "title": "Gzip Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.gunzip",
+        "title": "Gunzip Base64",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-form",
+        "title": "Encode Form (x-www-form-urlencoded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.decode-form",
+        "title": "Decode Form (x-www-form-urlencoded)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.encode-each-line",
+        "title": "Encode Base64 (Each Line)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base64.decode-each-line",
+        "title": "Decode Base64 (Each Line)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.nato.encode",
+        "title": "Text to NATO Phonetic Alphabet",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.data-uri.encode-text",
+        "title": "Encode as Data URI (text/plain)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.encode.replace",
+        "title": "Encode HTML Entities (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.html.decode.replace",
+        "title": "Decode HTML Entities (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape.replace",
+        "title": "Escape Unicode (\\uXXXX) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.unescape.replace",
+        "title": "Unescape Unicode (\\uXXXX) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.encode.replace",
+        "title": "Encode Hex (UTF-8 Bytes) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.hex.decode.replace",
+        "title": "Decode Hex (UTF-8 Bytes) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha224",
+        "title": "Create Hash (SHA-224)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha384",
+        "title": "Create Hash (SHA-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-256",
+        "title": "Create Hash (SHA3-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-512",
+        "title": "Create Hash (SHA3-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha512-256",
+        "title": "Create Hash (SHA-512/256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2b512",
+        "title": "Create Hash (BLAKE2b-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2s256",
+        "title": "Create Hash (BLAKE2s-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha1",
+        "title": "Create HMAC (SHA-1)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha384",
+        "title": "Create HMAC (SHA-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha3-256",
+        "title": "Create HMAC (SHA3-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc32",
+        "title": "Checksum: CRC-32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.adler32",
+        "title": "Checksum: Adler-32",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.fnv1a-32",
+        "title": "Checksum: FNV-1a 32-bit",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256-base64",
+        "title": "Create Hash (SHA-256, Base64)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.sri-sha384",
+        "title": "Create SRI Hash (sha384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha256-each-line",
+        "title": "Create Hash per Line (SHA-256)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.luhn",
+        "title": "Checksum: Luhn Validate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha384.replace",
+        "title": "Create Hash (SHA-384) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+        "title": "Create Hash (SHA3-256) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+        "title": "Create Hash (BLAKE2b-512) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-keys",
+        "title": "Sort JSON Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-query-string",
+        "title": "Convert JSON to Query String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-env",
+        "title": "Convert JSON to Env",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-xml",
+        "title": "Convert JSON to XML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-toml",
+        "title": "Convert JSON to TOML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.to-json",
+        "title": "Convert TOML to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-ini",
+        "title": "Convert JSON to INI",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ini.to-json",
+        "title": "Convert INI to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-properties",
+        "title": "Convert JSON to .properties",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.properties.to-json",
+        "title": "Convert .properties to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.remove-nulls",
+        "title": "Remove Null Values from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-jsonl",
+        "title": "Convert JSON Array to JSON Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonl.to-json",
+        "title": "Convert JSON Lines to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonc.to-json",
+        "title": "Convert JSONC / JSON5 to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.get-path",
+        "title": "Extract JSON Value by Path",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.list-paths",
+        "title": "List JSON Paths",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.keys",
+        "title": "Extract JSON Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.merge-selections",
+        "title": "Merge JSON Objects (Selections)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.validate",
+        "title": "Validate JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.format",
+        "title": "Format YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.sort-keys",
+        "title": "Sort YAML Keys",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.array-unique",
+        "title": "Remove Duplicates in JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.pluck",
+        "title": "Pluck Field from JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.group-by",
+        "title": "Group JSON Array by Field",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.count",
+        "title": "Count JSON Elements",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-schema",
+        "title": "Generate JSON Schema from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-js-object",
+        "title": "Convert JSON to JS Object Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.js-object.to-json",
+        "title": "Convert JS Object Literal to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.cookie.to-json",
+        "title": "Parse Cookie Header to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.set-cookie.to-json",
+        "title": "Parse Set-Cookie to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.http-headers.to-json",
+        "title": "Parse HTTP Headers to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.user-agent.to-json",
+        "title": "Parse User-Agent to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.parse-nested",
+        "title": "Parse Nested JSON Strings",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-keys.replace",
+        "title": "Sort JSON Keys (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-xml.replace",
+        "title": "Convert JSON to XML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-toml.replace",
+        "title": "Convert JSON to TOML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.to-json.replace",
+        "title": "Convert TOML to JSON (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-jsonl.replace",
+        "title": "Convert JSON Array to JSON Lines (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.jsonl.to-json.replace",
+        "title": "Convert JSON Lines to JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.format.replace",
+        "title": "Format YAML (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-json",
+        "title": "CSV - Convert to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-json",
+        "title": "CSV - Convert from JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-tsv",
+        "title": "CSV - Convert to TSV",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-tsv",
+        "title": "CSV - Convert from TSV",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.transpose",
+        "title": "CSV - Transpose",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.extract-column",
+        "title": "CSV - Extract Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.remove-column",
+        "title": "CSV - Remove Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.swap-columns",
+        "title": "CSV - Swap Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.align-columns",
+        "title": "CSV - Align Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.trim-cells",
+        "title": "CSV - Trim Cell Padding",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-html-table",
+        "title": "CSV - Convert to HTML Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-sql-insert",
+        "title": "CSV - Convert to SQL INSERT",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.dedupe-rows",
+        "title": "CSV - Remove Duplicate Rows",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.filter-rows",
+        "title": "CSV - Filter Rows by Column Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.sum-column",
+        "title": "CSV - Sum Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.add-index",
+        "title": "CSV - Add Index Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.change-delimiter",
+        "title": "CSV - Change Delimiter",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.quote-all",
+        "title": "CSV - Quote All Fields",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.unquote",
+        "title": "CSV - Remove Unnecessary Quotes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-yaml",
+        "title": "CSV - Convert to YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-ascii-table",
+        "title": "CSV - Convert to ASCII Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-whitespace",
+        "title": "CSV - Convert from Whitespace-separated Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.info",
+        "title": "CSV - Show Row and Column Count",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.fill-down",
+        "title": "CSV - Fill Empty Cells from Above",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-records",
+        "title": "CSV - Convert Rows to Key-Value Records",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-json.replace",
+        "title": "CSV - Convert to JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.from-json.replace",
+        "title": "CSV - Convert from JSON Array (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-tsv.replace",
+        "title": "CSV - Convert to TSV (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.transpose.replace",
+        "title": "CSV - Transpose (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.to-html-table.replace",
+        "title": "CSV - Convert to HTML Table (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.median",
+        "title": "Math - Median",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.mode",
+        "title": "Math - Mode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.stddev",
+        "title": "Math - Standard Deviation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.variance",
+        "title": "Math - Variance",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.count",
+        "title": "Math - Count Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.product",
+        "title": "Math - Product",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.range",
+        "title": "Math - Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.percentile",
+        "title": "Math - Percentile",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.summary",
+        "title": "Math - Statistics Summary",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.cumulative-sum",
+        "title": "Math - Cumulative Sum",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round",
+        "title": "Number - Round",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.floor",
+        "title": "Number - Floor",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.ceil",
+        "title": "Number - Ceil",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.truncate",
+        "title": "Number - Truncate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.abs",
+        "title": "Number - Absolute Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.negate",
+        "title": "Number - Negate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.add-separator",
+        "title": "Number - Add Thousands Separator",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.remove-separator",
+        "title": "Number - Remove Thousands Separator",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.format-locale",
+        "title": "Number - Format by Locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-hex",
+        "title": "Number - Decimal to Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-hex",
+        "title": "Number - Hex to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-binary",
+        "title": "Number - Decimal to Binary",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-binary",
+        "title": "Number - Binary to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-octal",
+        "title": "Number - Decimal to Octal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-octal",
+        "title": "Number - Octal to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.convert-base",
+        "title": "Number - Convert Base (2-36)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-scientific",
+        "title": "Number - To Scientific Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-scientific",
+        "title": "Number - From Scientific Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-percent",
+        "title": "Number - To Percent",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.bytes-to-human",
+        "title": "Number - Bytes to Human Readable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.human-to-bytes",
+        "title": "Number - Human Readable to Bytes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-words-en",
+        "title": "Number - To English Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.ordinal-en",
+        "title": "Number - Add English Ordinal Suffix",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-fraction",
+        "title": "Number - Decimal to Fraction",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+        "title": "Unit: Celsius to Fahrenheit",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+        "title": "Unit: Fahrenheit to Celsius",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.km-to-mile",
+        "title": "Unit: km to mile",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.mile-to-km",
+        "title": "Unit: mile to km",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.cm-to-inch",
+        "title": "Unit: cm to inch",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.inch-to-cm",
+        "title": "Unit: inch to cm",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -1518,6 +3193,10 @@
         "label": "Crypto"
       },
       {
+        "id": "selection-manipulator.checksum.submenu",
+        "label": "Checksum"
+      },
+      {
         "id": "selection-manipulator.har.submenu",
         "label": "HAR"
       },
@@ -1596,6 +3275,38 @@
       {
         "id": "selection-manipulator.morse.submenu",
         "label": "Morse Code"
+      },
+      {
+        "id": "selection-manipulator.whitespace.submenu",
+        "label": "Whitespace"
+      },
+      {
+        "id": "selection-manipulator.line.submenu",
+        "label": "Line"
+      },
+      {
+        "id": "selection-manipulator.encode.submenu",
+        "label": "Encode / Decode"
+      },
+      {
+        "id": "selection-manipulator.encode.replace.submenu",
+        "label": "Encode / Decode"
+      },
+      {
+        "id": "selection-manipulator.data.submenu",
+        "label": "Data Format"
+      },
+      {
+        "id": "selection-manipulator.data.replace.submenu",
+        "label": "Data Format"
+      },
+      {
+        "id": "selection-manipulator.table.submenu",
+        "label": "CSV / TSV"
+      },
+      {
+        "id": "selection-manipulator.table.replace.submenu",
+        "label": "CSV / TSV"
       }
     ],
     "menus": {
@@ -1743,6 +3454,126 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.sort-line.occurrence.descending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.locale.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.locale.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.japanese.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.regex-key.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.date.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.date.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.semver.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ip.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.word-count.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.last-word.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.suffix.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.unique.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.paragraph.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.indent-block.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.hex.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.natural.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.ignore-case.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.length.ascending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.length.descending"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.natural.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.column.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort-line.semver.ascending.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.sort.natural.ascending.clipboard"
         },
         {
           "when": "editorHasSelection && !editorHasMultipleSelections",
@@ -2026,6 +3857,126 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.case.swap"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.sentence-preserve-acronyms"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.title-apa"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-first"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-first"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.cobol"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.ada"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.flat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-flat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.camel-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pascal-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.alternating-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.acronym"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.detect"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.cycle"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-acronyms"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.sentence-each"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.capitalize-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-line-start"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.upper-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.lower-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-camel"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-snake"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-kebab"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.json-keys-pascal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.css-variable"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.bem"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.pluralize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.singularize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.case.hashtag"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.zero-padding"
         },
         {
@@ -2087,6 +4038,1034 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.text.unsmart-quotes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.tabs-to-spaces-2"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.tabs-to-spaces-4"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.spaces-to-tabs-2"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.spaces-to-tabs-4"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.reindent-2-to-4"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.reindent-4-to-2"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.dedent"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.trim-leading"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.collapse-blank-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.remove-all"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.unwrap-paragraphs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.hard-wrap-80"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.hard-wrap-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.nbsp-to-space"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.visualize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.unvisualize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.center-align"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.right-align"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.pad-to-longest"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.align-equals"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.align-colon"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.align-comma"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.align-custom"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.blank-line-between"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.remove-trailing-blank-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.remove-leading-blank-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.collapse-inline"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.space-around-operators"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.remove-space-before-punctuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.space-after-comma"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.indent-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.outdent-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.expand-tabs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.unexpand-tabs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.whitespace.clear-blank-only-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-contains"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-not-contains"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-not-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.add-numbers"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.add-numbers-padded"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-duplicates"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-unique-only"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-ignore-case"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-ignore-whitespace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-adjacent"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.reverse-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.rotate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-every-nth"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-every-nth"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-odd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-even"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.head"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.tail"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.duplicate-each"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.swap-pairs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-continuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.move-matching-to-top"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-prefix"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-suffix"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.interleave-halves"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-sentences"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-fixed-width"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.remove-comment-lines"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.count-stats"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-between-markers"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-longest"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-shortest"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-contains.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.filter-regex.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-duplicates.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-unique-only.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-adjacent.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.extract-between-markers.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.each-line.custom"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-line.double"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-line.single"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.each-word.double"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.list.sql-in"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quote.list.array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unquote.each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.ascii-box"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.each-word.paren"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.lines-block"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.cycle-brackets"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.enclose.remove-outer-brackets"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode-numeric"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.unescape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape-es6"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64url.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64url.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base58.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base58.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.binary.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.binary.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.punycode.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.punycode.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quoted-printable.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.quoted-printable.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.rot13"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.rot47"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.caesar"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cipher.atbash"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ascii85.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ascii85.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.gzip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.gunzip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-form"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.decode-form"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.encode-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base64.decode-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.nato.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.data-uri.encode-text"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.encode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.html.decode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.unescape.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.encode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.hex.decode.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha224"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha512-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2b512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2s256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha3-256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.adler32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.fnv1a-32"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha256-base64"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.sri-sha384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha256-each-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.luhn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha384.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-256.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-blake2b512.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-query-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-env"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-xml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-toml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-ini"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ini.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-properties"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.properties.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.remove-nulls"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-jsonl"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonl.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonc.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.get-path"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.list-paths"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.merge-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.sort-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.array-unique"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.pluck"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.group-by"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-schema"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-js-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.js-object.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.cookie.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.set-cookie.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.http-headers.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.user-agent.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.parse-nested"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-keys.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-xml.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-toml.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-jsonl.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.jsonl.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.format.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-tsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-tsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.transpose"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.extract-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.remove-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.swap-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.align-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.trim-cells"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-html-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-sql-insert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.dedupe-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.filter-rows"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.sum-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.add-index"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.change-delimiter"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.quote-all"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.unquote"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-yaml"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-ascii-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-whitespace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.info"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.fill-down"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-records"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.from-json.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-tsv.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.transpose.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.to-html-table.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.median"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.mode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.stddev"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.variance"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.product"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.percentile"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.summary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.cumulative-sum"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.floor"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.ceil"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.truncate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.abs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.negate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.add-separator"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.remove-separator"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.format-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-binary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-binary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-octal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-octal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.convert-base"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-scientific"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-scientific"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-percent"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.bytes-to-human"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.human-to-bytes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-words-en"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.ordinal-en"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-fraction"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.celsius-to-fahrenheit"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.fahrenheit-to-celsius"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.km-to-mile"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.mile-to-km"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.cm-to-inch"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.inch-to-cm"
         }
       ],
       "editor/context": [
@@ -2252,6 +5231,26 @@
         {
           "command": "selection-manipulator.sort.number.descending.clipboard",
           "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.sort.natural.ascending",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.sort.natural.ascending.clipboard",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.sort.ignore-case.ascending",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.sort.length.ascending",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.sort.length.descending",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.sort-line.submenu": [
@@ -2302,6 +5301,106 @@
         {
           "command": "selection-manipulator.sort-line.occurrence.descending.clipboard",
           "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.ascending",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.ascending.clipboard",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.sort-line.natural.descending",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.ascending",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ignore-case.descending",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.sort-line.locale.ascending",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.sort-line.locale.descending",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.sort-line.japanese.ascending",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.ascending",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.ascending.clipboard",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.sort-line.column.descending",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.sort-line.regex-key.ascending",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.sort-line.date.ascending",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.sort-line.date.descending",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.sort-line.semver.ascending",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.sort-line.semver.ascending.clipboard",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.sort-line.ip.ascending",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.sort-line.word-count.ascending",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.sort-line.last-word.ascending",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.sort-line.suffix.ascending",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.sort-line.unique.ascending",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.sort-line.paragraph.ascending",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.sort-line.indent-block.ascending",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.sort-line.hex.ascending",
+          "group": "selection-manipulator@36"
         }
       ],
       "selection-manipulator.transform.submenu": [
@@ -2371,6 +5470,26 @@
         {
           "submenu": "selection-manipulator.markdown.submenu",
           "group": "selection-manipulator@15"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.encode.submenu",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.checksum.submenu",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.data.submenu",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.table.submenu",
+          "group": "selection-manipulator@19"
         }
       ],
       "selection-manipulator.json.submenu": [
@@ -2493,6 +5612,58 @@
         {
           "command": "selection-manipulator.crypto.hash-sha1",
           "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha224",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha384",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-256",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-512",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha512-256",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2b512",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2s256",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha1",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha384",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha3-256",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256-base64",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.crypto.sri-sha384",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha256-each-line",
+          "group": "selection-manipulator@22"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -2537,6 +5708,21 @@
         {
           "submenu": "selection-manipulator.text.replace.submenu",
           "group": "selection-manipulator@6"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.encode.replace.submenu",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.data.replace.submenu",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "when": "editorHasSelection",
+          "submenu": "selection-manipulator.table.replace.submenu",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.case.submenu": [
@@ -2611,6 +5797,126 @@
         {
           "command": "selection-manipulator.case.lower",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.case.swap",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.case.sentence-preserve-acronyms",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.case.title-apa",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.case.upper-first",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.case.lower-first",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.case.cobol",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.case.ada",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.case.flat",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.case.upper-flat",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.case.camel-snake",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.case.pascal-snake",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.case.alternating-words",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.case.acronym",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.case.detect",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.case.cycle",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.case.upper-acronyms",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.case.sentence-each",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.case.capitalize-lines",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.case.lower-line-start",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.case.upper-locale",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.case.lower-locale",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-camel",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-snake",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-kebab",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.case.json-keys-pascal",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.case.css-variable",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.case.bem",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.case.pluralize",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.case.singularize",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.case.hashtag",
+          "group": "selection-manipulator@48"
         }
       ],
       "selection-manipulator.number.submenu": [
@@ -2649,6 +5955,106 @@
         {
           "command": "selection-manipulator.decrement-by-n",
           "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.math.cumulative-sum",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.number.round",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.number.floor",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.number.ceil",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.number.truncate",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.number.abs",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.number.negate",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.number.add-separator",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.number.remove-separator",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.number.format-locale",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.number.to-hex",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.number.from-hex",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.number.to-binary",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.number.from-binary",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.number.to-octal",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.number.from-octal",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.number.convert-base",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.number.to-scientific",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.number.from-scientific",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.number.to-percent",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.number.bytes-to-human",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.number.human-to-bytes",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.number.to-words-en",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.number.ordinal-en",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.number.to-fraction",
+          "group": "selection-manipulator@33"
         }
       ],
       "selection-manipulator.json.replace.submenu": [
@@ -2721,6 +6127,18 @@
         {
           "command": "selection-manipulator.crypto.hash-md5.replace",
           "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha384.replace",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-256.replace",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-blake2b512.replace",
+          "group": "selection-manipulator@8"
         }
       ],
       "selection-manipulator.lookup.submenu": [
@@ -2796,6 +6214,42 @@
         {
           "command": "selection-manipulator.calculation.date",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.math.median",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.math.mode",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.math.stddev",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.math.variance",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.math.count",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.math.product",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.math.range",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.math.percentile",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.math.summary",
+          "group": "selection-manipulator@10"
         }
       ],
       "selection-manipulator.regex.submenu": [
@@ -2991,6 +6445,14 @@
         {
           "submenu": "selection-manipulator.morse.submenu",
           "group": "selection-manipulator@12"
+        },
+        {
+          "submenu": "selection-manipulator.whitespace.submenu",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "submenu": "selection-manipulator.line.submenu",
+          "group": "selection-manipulator@14"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -3147,6 +6609,126 @@
         {
           "command": "selection-manipulator.enclose.japanese.curly",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.enclose.custom",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.enclose.each-line.custom",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.quote.each-line.double",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.quote.each-line.single",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.quote.each-word.double",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.quote.list.sql-in",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.quote.list.array",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.quote.triple-double",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.quote.guillemets",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.quote.smart-double",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.quote.smart-single",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.quote.double-escaped",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.unquote.each-line",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.white-lenticular",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.tortoise-shell",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.double-angle",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.enclose.japanese.single-angle",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.enclose.html-tag",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.enclose.html-comment",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.enclose.block-comment",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.enclose.placeholder",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.enclose.mustache",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.enclose.percent",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.enclose.pipes",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.enclose.ascii-box",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.enclose.each-word.paren",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.enclose.lines-block",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.enclose.cycle-brackets",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.enclose.remove-outer-brackets",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.enclose.markdown-inline-code",
+          "group": "selection-manipulator@43"
         }
       ],
       "selection-manipulator.unit.submenu": [
@@ -3165,6 +6747,30 @@
         {
           "command": "selection-manipulator.unit.lb-to-kg",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.unit.km-to-mile",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.unit.mile-to-km",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.unit.cm-to-inch",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.unit.inch-to-cm",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.markdown.submenu": [
@@ -3270,17 +6876,791 @@
           "command": "selection-manipulator.morse.from-morse.kana.replace",
           "group": "selection-manipulator@5"
         }
+      ],
+      "selection-manipulator.whitespace.submenu": [
+        {
+          "command": "selection-manipulator.whitespace.tabs-to-spaces-2",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.whitespace.tabs-to-spaces-4",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.whitespace.spaces-to-tabs-2",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.whitespace.spaces-to-tabs-4",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.whitespace.reindent-2-to-4",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.whitespace.reindent-4-to-2",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.whitespace.dedent",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.whitespace.trim-leading",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.whitespace.collapse-blank-lines",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.whitespace.remove-all",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.whitespace.unwrap-paragraphs",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.whitespace.hard-wrap-80",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.whitespace.hard-wrap-n",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.whitespace.nbsp-to-space",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.whitespace.visualize",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.whitespace.unvisualize",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.whitespace.center-align",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.whitespace.right-align",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.whitespace.pad-to-longest",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.whitespace.align-equals",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.whitespace.align-colon",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.whitespace.align-comma",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.whitespace.align-custom",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.whitespace.blank-line-between",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.whitespace.remove-trailing-blank-lines",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.whitespace.remove-leading-blank-lines",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.whitespace.collapse-inline",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.whitespace.space-around-operators",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.whitespace.remove-space-before-punctuation",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.whitespace.space-after-comma",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.whitespace.indent-n",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.whitespace.outdent-n",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.whitespace.expand-tabs",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.whitespace.unexpand-tabs",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.whitespace.clear-blank-only-lines",
+          "group": "selection-manipulator@34"
+        }
+      ],
+      "selection-manipulator.line.submenu": [
+        {
+          "command": "selection-manipulator.line.filter-contains",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.line.filter-not-contains",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.line.filter-regex",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.line.filter-not-regex",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.line.add-numbers",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.line.add-numbers-padded",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.line.keep-duplicates",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.line.keep-unique-only",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-ignore-case",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-ignore-whitespace",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-adjacent",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.line.reverse-words",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.line.rotate",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.line.keep-every-nth",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.line.remove-every-nth",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.line.keep-odd",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.line.keep-even",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.line.head",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.line.tail",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.line.duplicate-each",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.line.swap-pairs",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.line.join-continuation",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.line.move-matching-to-top",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.line.remove-prefix",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.line.remove-suffix",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.line.interleave-halves",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.line.join-every-n",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.line.split-sentences",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.line.split-fixed-width",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.line.remove-comment-lines",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.line.count-stats",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.line.extract-between-markers",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.line.extract-longest",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.line.extract-shortest",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.line.filter-contains.clipboard",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.line.filter-regex.clipboard",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.line.keep-duplicates.clipboard",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.line.keep-unique-only.clipboard",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-adjacent.clipboard",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.line.extract-between-markers.clipboard",
+          "group": "selection-manipulator@39"
+        }
+      ],
+      "selection-manipulator.encode.submenu": [
+        {
+          "command": "selection-manipulator.html.encode",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.html.decode",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.html.encode-numeric",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.unicode.unescape",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape-es6",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.base64url.encode",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.base64url.decode",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.base32.encode",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.base32.decode",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.base58.encode",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.base58.decode",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.hex.encode",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.hex.decode",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.binary.encode",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.binary.decode",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.punycode.encode",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.punycode.decode",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.quoted-printable.encode",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.quoted-printable.decode",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.cipher.rot13",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.cipher.rot47",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.cipher.caesar",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.cipher.atbash",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.ascii85.encode",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.ascii85.decode",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.base64.gzip",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.base64.gunzip",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.url.encode-form",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.url.decode-form",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.base64.encode-each-line",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.base64.decode-each-line",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.nato.encode",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.data-uri.encode-text",
+          "group": "selection-manipulator@33"
+        }
+      ],
+      "selection-manipulator.encode.replace.submenu": [
+        {
+          "command": "selection-manipulator.html.encode.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.html.decode.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.unicode.unescape.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.hex.encode.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.hex.decode.replace",
+          "group": "selection-manipulator@5"
+        }
+      ],
+      "selection-manipulator.checksum.submenu": [
+        {
+          "command": "selection-manipulator.checksum.crc32",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.checksum.adler32",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.checksum.fnv1a-32",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.checksum.luhn",
+          "group": "selection-manipulator@3"
+        }
+      ],
+      "selection-manipulator.data.submenu": [
+        {
+          "command": "selection-manipulator.json.sort-keys",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.json.to-query-string",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.json.to-env",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.json.to-xml",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.json.to-toml",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.toml.to-json",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.json.to-ini",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.ini.to-json",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.json.to-properties",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.properties.to-json",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.json.remove-nulls",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.json.to-jsonl",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.jsonl.to-json",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.jsonc.to-json",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.json.get-path",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.json.list-paths",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.json.keys",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.json.merge-selections",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.json.validate",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.yaml.format",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.yaml.sort-keys",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.json.array-unique",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.json.pluck",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.json.group-by",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.json.count",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.json.to-schema",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.json.to-js-object",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.js-object.to-json",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.cookie.to-json",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.set-cookie.to-json",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.http-headers.to-json",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.user-agent.to-json",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.json.parse-nested",
+          "group": "selection-manipulator@32"
+        }
+      ],
+      "selection-manipulator.data.replace.submenu": [
+        {
+          "command": "selection-manipulator.json.sort-keys.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.json.to-xml.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.json.to-toml.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.toml.to-json.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.json.to-jsonl.replace",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.jsonl.to-json.replace",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.yaml.format.replace",
+          "group": "selection-manipulator@6"
+        }
+      ],
+      "selection-manipulator.table.submenu": [
+        {
+          "command": "selection-manipulator.csv.to-json",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.csv.from-json",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.csv.to-tsv",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.csv.from-tsv",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.csv.transpose",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.csv.extract-column",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.csv.remove-column",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.csv.swap-columns",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.csv.align-columns",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.csv.trim-cells",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.csv.to-html-table",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.csv.to-sql-insert",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.csv.dedupe-rows",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.csv.filter-rows",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.csv.sum-column",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.csv.add-index",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.csv.change-delimiter",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.csv.quote-all",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.csv.unquote",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.csv.to-yaml",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.csv.to-ascii-table",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.csv.from-whitespace",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.csv.info",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.csv.fill-down",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.csv.to-records",
+          "group": "selection-manipulator@24"
+        }
+      ],
+      "selection-manipulator.table.replace.submenu": [
+        {
+          "command": "selection-manipulator.csv.to-json.replace",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.csv.from-json.replace",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.csv.to-tsv.replace",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.csv.transpose.replace",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.csv.to-html-table.replace",
+          "group": "selection-manipulator@4"
+        }
       ]
     }
   },
   "scripts": {
     "vscode:prepublish": "npm run esbuild-base -- --minify",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild main=./src/extension.ts lineRegexWorker=./src/handler/lineRegexWorker.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "watch": "npm run esbuild-watch",
     "test-compile": "tsc -p ./",
-    "test": "npm run test-compile && node ./out/test/runTest.js"
+    "test": "npm run test-compile && npm run esbuild && node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",
@@ -3291,7 +7671,7 @@
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8",
+    "@vscode/test-electron": "~3.1.0",
     "esbuild": "^0.27.2",
     "eslint": "^8.54.0",
     "glob": "^13.0.0",
