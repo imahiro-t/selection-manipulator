@@ -892,9 +892,9 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | DEV-009 | DEV | 基本 | `selection-manipulator.programmatic.quote-powershell` | Quote for PowerShell | PowerShell の単一引用符文字列にする（' を '' にする。実行しない） | `it's` → `'it''s'` | なし | なし |
 | DEV-010 | DEV | 基本 | `selection-manipulator.programmatic.escape-csv-field` | Escape CSV Field | CSV の 1 フィールドとして正しく引用・エスケープする | `a,"b"` → `"a,""b"""` | なし | なし |
 | DEV-011 | DEV | 基本 | `selection-manipulator.programmatic.escape-markdown` | Escape Markdown Special Characters | Markdown の記号（\* \_ \` # など）をバックスラッシュでエスケープする | `*a* _b_` → `\*a\* \_b\_` | なし | なし |
-| DEV-012 | DEV | 基本 | `selection-manipulator.programmatic.json-to-typescript` | Convert JSON to TypeScript Interface | サンプル JSON から TypeScript の interface を生成する | `{"id":1,"tags":["a"]}` → `interface Root { id: number; tags: string[]; }` | なし | なし |
-| DEV-013 | DEV | 基本 | `selection-manipulator.programmatic.json-to-go-struct` | Convert JSON to Go Struct | サンプル JSON から json タグ付きの Go 構造体を生成する | `{"user_id":1}` → ``type Root struct { UserID int `json:"user_id"` }`` | なし | なし |
-| DEV-014 | DEV | 基本 | `selection-manipulator.programmatic.json-to-python-typeddict` | Convert JSON to Python TypedDict | サンプル JSON から Python の TypedDict 定義を生成する | `{"id":1}` → `class Root(TypedDict):⏎····id: int` | なし | なし |
+| DEV-012 | DEV | 基本 | `selection-manipulator.programmatic.json-to-typescript` | Convert JSON to TypeScript Interface | サンプル JSON から TypeScript の interface を生成する | `{"id":1,"tags":["a"]}` → `interface Root {⏎··id: number;⏎··tags: string[];⏎}` | なし | なし |
+| DEV-013 | DEV | 基本 | `selection-manipulator.programmatic.json-to-go-struct` | Convert JSON to Go Struct | サンプル JSON から json タグ付きの Go 構造体を生成する | `{"user_id":1}` → ``type Root struct {⏎⇥UserID int `json:"user_id"`⏎}`` | なし | なし |
+| DEV-014 | DEV | 基本 | `selection-manipulator.programmatic.json-to-python-typeddict` | Convert JSON to Python TypedDict | サンプル JSON から Python の TypedDict 定義を生成する | `{"id":1}` → `from typing import TypedDict⏎⏎⏎class Root(TypedDict):⏎····id: int` | なし | なし |
 | DEV-015 | DEV | 基本 | `selection-manipulator.programmatic.sql-format` | Format SQL | 主要なキーワードの前で改行・インデントする簡易 SQL 整形（自前実装。実行しない） | `select a from t where b=1` → `SELECT a⏎FROM t⏎WHERE b = 1` | なし | なし |
 | DEV-016 | DEV | 基本 | `selection-manipulator.programmatic.sql-minify` | Minify SQL | SQL のコメントと余分な空白・改行を取り除く | `SELECT a⏎-- c⏎FROM t` → `SELECT a FROM t` | なし | なし |
 | DEV-017 | DEV | 基本 | `selection-manipulator.programmatic.sql-uppercase-keywords` | Uppercase SQL Keywords | 文字列リテラル以外の SQL キーワードだけを大文字にする | `select name from users` → `SELECT name FROM users` | なし | なし |
@@ -913,7 +913,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | DEV-030 | DEV | 派生:DEV-001 | `selection-manipulator.programmatic.to-js-string.replace` | Convert to JS String Literal (Replace) | DEV-001 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `it's⏎ok` → `'it\'s\nok'` | なし | なし |
 | DEV-031 | DEV | 派生:DEV-006 | `selection-manipulator.programmatic.escape-regex.replace` | Escape Regex Special Characters (Replace) | DEV-006 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `a.b*c?` → `a\.b\*c\?` | なし | なし |
 | DEV-032 | DEV | 派生:DEV-007 | `selection-manipulator.programmatic.escape-sql.replace` | Escape SQL String Literal (Replace) | DEV-007 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `O'Reilly` → `O''Reilly` | なし | なし |
-| DEV-033 | DEV | 派生:DEV-012 | `selection-manipulator.programmatic.json-to-typescript.replace` | Convert JSON to TypeScript Interface (Replace) | DEV-012 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `{"id":1,"tags":["a"]}` → `interface Root { id: number; tags: string[]; }` | なし | なし |
+| DEV-033 | DEV | 派生:DEV-012 | `selection-manipulator.programmatic.json-to-typescript.replace` | Convert JSON to TypeScript Interface (Replace) | DEV-012 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `{"id":1,"tags":["a"]}` → `interface Root {⏎··id: number;⏎··tags: string[];⏎}` | なし | なし |
 | DEV-034 | DEV | 派生:DEV-015 | `selection-manipulator.programmatic.sql-format.replace` | Format SQL (Replace) | DEV-015 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `select a from t where b=1` → `SELECT a⏎FROM t⏎WHERE b = 1` | なし | なし |
 | DEV-035 | DEV | 派生:DEV-027 | `selection-manipulator.programmatic.html-to-jsx.replace` | Convert HTML to JSX (Replace) | DEV-027 の出力先違いの版。同じ変換を行い、選択範囲をその場で置き換える | `<label class="a" for="b">` → `<label className="a" htmlFor="b">` | なし | なし |
 

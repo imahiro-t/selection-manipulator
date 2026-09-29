@@ -891,9 +891,19 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.quote-powershell', devCommandHandler('programmatic.quote-powershell')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-csv-field', devCommandHandler('programmatic.escape-csv-field')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-markdown', devCommandHandler('programmatic.escape-markdown')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-typescript', devCommandHandler('programmatic.json-to-typescript')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-go-struct', devCommandHandler('programmatic.json-to-go-struct')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-python-typeddict', devCommandHandler('programmatic.json-to-python-typeddict')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-format', devCommandHandler('programmatic.sql-format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-minify', devCommandHandler('programmatic.sql-minify')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-uppercase-keywords', devCommandHandler('programmatic.sql-uppercase-keywords')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-minify', devCommandHandler('programmatic.css-minify')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-format', devCommandHandler('programmatic.css-format')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-js-string.replace', devCommandHandler('programmatic.to-js-string.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-regex.replace', devCommandHandler('programmatic.escape-regex.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-sql.replace', devCommandHandler('programmatic.escape-sql.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-typescript.replace', devCommandHandler('programmatic.json-to-typescript.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-format.replace', devCommandHandler('programmatic.sql-format.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

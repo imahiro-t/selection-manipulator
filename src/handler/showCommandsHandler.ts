@@ -3663,6 +3663,46 @@ export const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.programmatic.json-to-typescript",
+    "title": "Convert JSON to TypeScript Interface",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-go-struct",
+    "title": "Convert JSON to Go Struct",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-python-typeddict",
+    "title": "Convert JSON to Python TypedDict",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-format",
+    "title": "Format SQL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-minify",
+    "title": "Minify SQL",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-uppercase-keywords",
+    "title": "Uppercase SQL Keywords",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-minify",
+    "title": "Minify CSS",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-format",
+    "title": "Format CSS",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.programmatic.to-js-string.replace",
     "title": "Convert to JS String Literal (Replace)",
     "canMultiSelection": true
@@ -3675,6 +3715,16 @@ export const myCommands = [
   {
     "command": "selection-manipulator.programmatic.escape-sql.replace",
     "title": "Escape SQL String Literal (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+    "title": "Convert JSON to TypeScript Interface (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-format.replace",
+    "title": "Format SQL (Replace)",
     "canMultiSelection": true
   }
 ];

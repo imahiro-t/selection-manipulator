@@ -1363,6 +1363,46 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.programmatic.json-to-typescript",
+        "title": "Convert JSON to TypeScript Interface",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-go-struct",
+        "title": "Convert JSON to Go Struct",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-python-typeddict",
+        "title": "Convert JSON to Python TypedDict",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-format",
+        "title": "Format SQL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-minify",
+        "title": "Minify SQL",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-uppercase-keywords",
+        "title": "Uppercase SQL Keywords",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-minify",
+        "title": "Minify CSS",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-format",
+        "title": "Format CSS",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.programmatic.to-js-string.replace",
         "title": "Convert to JS String Literal (Replace)",
         "category": "Selection Manipulator"
@@ -1375,6 +1415,16 @@
       {
         "command": "selection-manipulator.programmatic.escape-sql.replace",
         "title": "Escape SQL String Literal (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+        "title": "Convert JSON to TypeScript Interface (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-format.replace",
+        "title": "Format SQL (Replace)",
         "category": "Selection Manipulator"
       },
       {
@@ -6246,6 +6296,38 @@
         },
         {
           "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-typescript"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-go-struct"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-python-typeddict"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-minify"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-uppercase-keywords"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-minify"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-format"
+        },
+        {
+          "when": "editorHasSelection",
           "command": "selection-manipulator.programmatic.to-js-string.replace"
         },
         {
@@ -6255,6 +6337,14 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.programmatic.escape-sql.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-typescript.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-format.replace"
         }
       ],
       "editor/context": [
@@ -7665,16 +7755,56 @@
           "group": "selection-manipulator@19"
         },
         {
-          "command": "selection-manipulator.programmatic.to-js-string.replace",
+          "command": "selection-manipulator.programmatic.json-to-typescript",
           "group": "selection-manipulator@20"
         },
         {
-          "command": "selection-manipulator.programmatic.escape-regex.replace",
+          "command": "selection-manipulator.programmatic.json-to-go-struct",
           "group": "selection-manipulator@21"
         },
         {
-          "command": "selection-manipulator.programmatic.escape-sql.replace",
+          "command": "selection-manipulator.programmatic.json-to-python-typeddict",
           "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-format",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-minify",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-uppercase-keywords",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-minify",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-format",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-js-string.replace",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-regex.replace",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-sql.replace",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-typescript.replace",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-format.replace",
+          "group": "selection-manipulator@32"
         }
       ],
       "selection-manipulator.japanese.submenu": [

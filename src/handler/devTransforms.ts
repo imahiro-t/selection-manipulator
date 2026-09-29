@@ -8,6 +8,8 @@
  * dependency. SQL, shell, curl and HTML texts are only converted as strings, never run.
  */
 import { assertDevInputLength, assertWithinBudget } from './devCommon';
+import { cssFormat, cssMinify } from './devCss';
+import { jsonToGoStruct, jsonToPythonTypedDict, jsonToTypeScript } from './devJsonTypes';
 import {
   escapeCsvField,
   escapeMarkdown,
@@ -21,6 +23,7 @@ import {
   toPythonString,
   toTemplateLiteral,
 } from './devLiterals';
+import { sqlFormat, sqlMinify, sqlUppercaseKeywords } from './devSql';
 
 /** Where a command puts its result. */
 export type DevOutput = 'new-tab' | 'replace';
@@ -121,6 +124,14 @@ const ESCAPE_SQL = base({
   id: 'DEV-007', name: 'escape-sql', title: 'Escape SQL String Literal', acceptsBlank: true,
   transform: text(escapeSql),
 });
+const JSON_TO_TYPESCRIPT = base({
+  id: 'DEV-012', name: 'json-to-typescript', title: 'Convert JSON to TypeScript Interface', acceptsBlank: false,
+  transform: withBudget((value, context, budget) => jsonToTypeScript(value, context.eol, budget)),
+});
+const SQL_FORMAT = base({
+  id: 'DEV-015', name: 'sql-format', title: 'Format SQL', acceptsBlank: false,
+  transform: withBudget((value, context, budget) => sqlFormat(value, context.eol, budget)),
+});
 
 /** The commands in the order of the DEV table of docs/ROADMAP.md. */
 export const DEV_COMMAND_ENTRIES: readonly DevCommandEntry[] = [
@@ -159,7 +170,35 @@ export const DEV_COMMAND_ENTRIES: readonly DevCommandEntry[] = [
     id: 'DEV-011', name: 'escape-markdown', title: 'Escape Markdown Special Characters', acceptsBlank: true,
     transform: text(escapeMarkdown),
   }),
+  JSON_TO_TYPESCRIPT,
+  base({
+    id: 'DEV-013', name: 'json-to-go-struct', title: 'Convert JSON to Go Struct', acceptsBlank: false,
+    transform: withBudget((value, context, budget) => jsonToGoStruct(value, context.eol, budget)),
+  }),
+  base({
+    id: 'DEV-014', name: 'json-to-python-typeddict', title: 'Convert JSON to Python TypedDict', acceptsBlank: false,
+    transform: withBudget((value, context, budget) => jsonToPythonTypedDict(value, context.eol, budget)),
+  }),
+  SQL_FORMAT,
+  base({
+    id: 'DEV-016', name: 'sql-minify', title: 'Minify SQL', acceptsBlank: false,
+    transform: text(sqlMinify),
+  }),
+  base({
+    id: 'DEV-017', name: 'sql-uppercase-keywords', title: 'Uppercase SQL Keywords', acceptsBlank: false,
+    transform: text(sqlUppercaseKeywords),
+  }),
+  base({
+    id: 'DEV-018', name: 'css-minify', title: 'Minify CSS', acceptsBlank: false,
+    transform: withBudget((value, _context, budget) => cssMinify(value, budget)),
+  }),
+  base({
+    id: 'DEV-019', name: 'css-format', title: 'Format CSS', acceptsBlank: false,
+    transform: withBudget((value, context, budget) => cssFormat(value, context.eol, budget)),
+  }),
   replaceOf('DEV-030', TO_JS_STRING),
   replaceOf('DEV-031', ESCAPE_REGEX),
   replaceOf('DEV-032', ESCAPE_SQL),
+  replaceOf('DEV-033', JSON_TO_TYPESCRIPT),
+  replaceOf('DEV-034', SQL_FORMAT),
 ];

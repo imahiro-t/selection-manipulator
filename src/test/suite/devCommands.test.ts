@@ -108,8 +108,8 @@ const roadmapRows = (): [string, string, string, string, string][] =>
       return [cells[0].replace(/^\| /, ''), cells[2], codeSpan(cells[3]), cells[4], cells[6]];
     });
 
-/** Expands the notation of the ROADMAP examples: `⏎` (line break) and `·` (space). */
-const expandNotation = (text: string): string => text.replace(/⏎/g, '\n').replace(/·/g, ' ');
+/** Expands the notation of the ROADMAP examples: `⏎` (line break), `⇥` (tab) and `·` (space). */
+const expandNotation = (text: string): string => text.replace(/⏎/g, '\n').replace(/⇥/g, '\t').replace(/·/g, ' ');
 
 /** Commands of a fake table that exercise the error, blank and quick pick paths in isolation. */
 const FAKE_ENTRIES: readonly DevCommandEntry[] = [
@@ -166,10 +166,12 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       test(`${entry.id} ${entry.name}: only empty selections${entry.acceptsBlank ? '' : ' or blank selections'} warn`, async () => {
         const { dependencies, warnings, errors, opened, picks } = recorder(example.choice);
         const text = `${example.input}\n  \n\t\n`;
+        // The blank lines follow the example, which may have several lines.
+        const blank = example.input.split('\n').length;
         const editor = await createTextEditor(text);
         editor.selections = entry.acceptsBlank
-          ? [new vscode.Selection(0, 0, 0, 0), new vscode.Selection(1, 1, 1, 1)]
-          : [new vscode.Selection(0, 0, 0, 0), new vscode.Selection(1, 0, 3, 0)];
+          ? [new vscode.Selection(0, 0, 0, 0), new vscode.Selection(blank, 1, blank, 1)]
+          : [new vscode.Selection(0, 0, 0, 0), new vscode.Selection(blank, 0, blank + 2, 0)];
         await run(entry, dependencies)(editor);
         assert.strictEqual(editor.document.getText(), text);
         assert.deepStrictEqual([warnings, errors, opened], [[DEV_NOTHING_SELECTED], [], []]);
@@ -321,6 +323,73 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       const powershell = recorder();
       await run(entryOf('DEV-009'), powershell.dependencies)(editor);
       assert.deepStrictEqual(powershell.opened, ['\'\'\'; rm -rf ~ #\n$(id)\u2019\u2019\'']);
+    });
+  });
+
+  suite('commands DEV-012..019, DEV-033..034', () => {
+    test('DEV-012 / 013 / 014 / 015 / 019: multi-line results use the document EOL (CRLF)', async () => {
+      const cases: [string, string, string][] = [
+        ['DEV-012', '{"a":{"b":1}}', 'interface Root {\r\n  a: A;\r\n}\r\n\r\ninterface A {\r\n  b: number;\r\n}'],
+        ['DEV-013', '{"a":1}', 'type Root struct {\r\n\tA int `json:"a"`\r\n}'],
+        ['DEV-014', '{"a":1}', 'from typing import TypedDict\r\n\r\n\r\nclass Root(TypedDict):\r\n    a: int'],
+        ['DEV-015', 'select a\nfrom t', 'SELECT a\r\nFROM t'],
+        ['DEV-019', 'a{b:c}', 'a {\r\n  b: c;\r\n}'],
+      ];
+      for (const [id, input, expected] of cases) {
+        const editor = await crlfEditor(input);
+        selectWholeDocument(editor);
+        const { dependencies, opened, errors } = recorder();
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual([opened, errors], [[expected], []], id);
+      }
+    });
+
+    test('DEV-016 / 017 / 018: the line breaks of the selection are kept or removed', async () => {
+      const editor = await crlfEditor('select a\n-- c\nfrom t');
+      selectWholeDocument(editor);
+      const minified = recorder();
+      await run(entryOf('DEV-016'), minified.dependencies)(editor);
+      assert.deepStrictEqual(minified.opened, ['select a from t']);
+      const upper = recorder();
+      await run(entryOf('DEV-017'), upper.dependencies)(editor);
+      assert.deepStrictEqual(upper.opened, ['SELECT a\r\n-- c\r\nFROM t']);
+      const css = await crlfEditor('a {\n  b: c;\n}');
+      selectWholeDocument(css);
+      const minifiedCss = recorder();
+      await run(entryOf('DEV-018'), minifiedCss.dependencies)(css);
+      assert.deepStrictEqual(minifiedCss.opened, ['a{b:c}']);
+    });
+
+    test('invalid JSON, SQL or CSS in one selection shows nothing and names the selection', async () => {
+      const cases: [string, string[], string][] = [
+        ['DEV-012', ['{"a":1}', '{"a":'], 'selection 2 of 2: the selection is not valid JSON'],
+        ['DEV-014', ['[]', '{}'], 'selection 1 of 2: the JSON array is empty: there is nothing to infer the types from'],
+        ['DEV-015', ['select \'a', 'select 1'], 'selection 1 of 2: a \' string is not closed'],
+        ['DEV-018', ['a{}', 'a{'], 'selection 2 of 2: a { is not closed'],
+      ];
+      for (const [id, blocks, message] of cases) {
+        const editor = await createTextEditor(blocks.join(SEPARATOR));
+        selectBlocks(editor, blocks);
+        const { dependencies, opened, errors } = recorder();
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual(opened, [], id);
+        assert.strictEqual(errors.length, 1, id);
+        assert.ok(errors[0].startsWith(`${NOT_SHOWN}${message}`), errors[0]);
+      }
+    });
+
+    test('DEV-033 / 034: Replace changes nothing when one selection is invalid, and keeps the rest of the document', async () => {
+      const blocks = ['select a from t', 'select (b'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      const failed = recorder();
+      await run(entryOf('DEV-034'), failed.dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(failed.errors, [`${NOT_CHANGED}selection 2 of 2: the parentheses are not balanced`]);
+      const json = await createTextEditor('const x = {"id":1};');
+      json.selection = new vscode.Selection(0, 10, 0, 18);
+      await run(entryOf('DEV-033'), recorder().dependencies)(json);
+      assert.strictEqual(json.document.getText(), 'const x = interface Root {\n  id: number;\n};');
     });
   });
 

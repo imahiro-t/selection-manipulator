@@ -236,7 +236,12 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
       for (const entry of DEV_COMMAND_ENTRIES) {
         for (const input of inputs) {
           const started = Date.now();
-          entry.transform(input, { eol: '\r\n' }, 10_000_000);
+          try {
+            entry.transform(input, { eol: '\r\n' }, 10_000_000);
+          } catch (error) {
+            // Commands that parse their input (JSON, SQL, CSS) may refuse it; only the time counts.
+            assert.ok(error instanceof DevInputError, `${entry.id}: ${error}`);
+          }
           assert.ok(Date.now() - started < 3000, `${entry.id}: ${Date.now() - started} ms`);
         }
       }
