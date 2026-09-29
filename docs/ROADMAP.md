@@ -981,7 +981,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | MD-019 | MD | 基本 | `selection-manipulator.markdown.to-html` | Markdown: Convert to HTML | Markdown を HTML にする。完全な CommonMark 準拠は自前実装の負担が大きい | `# a⏎**b**` → `<h1>a</h1>⏎<p><strong>b</strong></p>` | なし | あり（CommonMark 準拠パーサ（例: markdown-it）。代替案: 見出し・強調・リスト・リンクだけのサブセットを自前実装する） |
 | MD-020 | MD | 基本 | `selection-manipulator.markdown.strip` | Markdown: Strip Formatting | Markdown の記号を取り除いてプレーンテキストにする | `# A **b** [c](d)` → `A b c` | なし | なし |
 | MD-021 | MD | 基本 | `selection-manipulator.markdown.heading-to-anchor` | Markdown: Heading to Anchor Link | 見出しから GitHub 形式のアンカーリンクを作る | `## Hello World!` → `[Hello World!](#hello-world)` | なし | なし |
-| MD-022 | MD | 基本 | `selection-manipulator.markdown.footnote` | Markdown: Convert to Footnote | 選択テキストを脚注にし、本文に参照記号を残して末尾へ脚注定義を追加する | `本文（補足）` → `本文[^1] … [^1]: 補足` | なし | なし |
+| MD-022 | MD | 基本 | `selection-manipulator.markdown.footnote` | Markdown: Convert to Footnote | 選択テキストを脚注にし、本文に参照記号を残して末尾へ脚注定義を追加する | `本文補足（「補足」を選択）` → `本文[^1]⏎⏎[^1]: 補足` | なし | なし |
 | MD-023 | MD | 基本 | `selection-manipulator.markdown.reference-links` | Markdown: Inline Links to Reference Links | インラインリンクを参照リンクに変換し、定義を末尾にまとめる | `[a](https://x.example)` → `[a][1]⏎⏎[1]: https://x.example` | なし | なし |
 | MD-024 | MD | 基本 | `selection-manipulator.markdown.details` | Markdown: Wrap in Details Block | 選択範囲を折りたたみ（details / summary 要素）で囲む | `長い本文（要約: 詳細）` → `<details><summary>詳細</summary>⏎⏎長い本文⏎⏎</details>` | なし | なし |
 | MD-025 | MD | 基本 | `selection-manipulator.markdown.front-matter-to-json` | Markdown: Front Matter to JSON | 先頭の YAML フロントマターを js-yaml で読み込み JSON にする | `---⏎title: a⏎---` → `{"title":"a"}` | なし | なし |
