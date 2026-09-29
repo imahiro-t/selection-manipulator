@@ -237,6 +237,8 @@ interface Request {
   form: [string, string][];
   /** Whether there was a `-F` / `--form-string`, even when all its fields are files (TODO comments). */
   hasForm: boolean;
+  /** Whether a body is read from a file or the standard input (`-d @file`, `--json @file` …): a TODO comment. */
+  bodyFromFile: boolean;
   todos: string[];
   ignored: string[];
 }
@@ -280,6 +282,7 @@ const urlencodedPart = (request: Request, value: string): string | undefined => 
   }
   if (at >= 0) {
     request.todos.push(fileTodo('--data-urlencode', value.slice(at + 1)));
+    request.bodyFromFile = true;
     return undefined;
   }
   return encodeURIComponent(value);
@@ -298,6 +301,7 @@ const applyOption = (request: Request, option: string, value: string): void => {
     case '--data-binary':
       if (value.startsWith('@')) {
         request.todos.push(fileTodo(option, value.slice(1)));
+        request.bodyFromFile = true;
       } else {
         request.data.push(value);
       }
@@ -315,6 +319,7 @@ const applyOption = (request: Request, option: string, value: string): void => {
     case '--json':
       if (value.startsWith('@')) {
         request.todos.push(fileTodo(option, value.slice(1)));
+        request.bodyFromFile = true;
       } else {
         request.json.push(value);
       }
@@ -351,12 +356,11 @@ const applyOption = (request: Request, option: string, value: string): void => {
       }
       const name = value.slice(0, equals);
       const content = value.slice(equals + 1);
+      request.hasForm = true;
       if (option === '--form' && (content.startsWith('@') || content.startsWith('<'))) {
         const file = content.slice(1).split(';')[0];
         request.todos.push(`TODO: formData.append(${toJsString(name)}, …) — curl ${option} reads the file ${toJsString(file)}; this conversion does not read files`);
-        request.hasForm = true;
       } else {
-        request.hasForm = true;
         request.form.push([name, content]);
       }
       return;
@@ -373,7 +377,7 @@ const applyOption = (request: Request, option: string, value: string): void => {
 const parseCurl = (words: readonly string[]): Request => {
   const request: Request = {
     urls: [], head: false, get: false, headers: [], removedHeaders: new Set(), data: [], json: [], form: [], hasForm: false,
-    todos: [], ignored: [],
+    bodyFromFile: false, todos: [], ignored: [],
   };
   const takeValue = (option: string, index: number): string => {
     if (index >= words.length) {
@@ -427,16 +431,36 @@ const parseCurl = (words: readonly string[]): Request => {
           break;
         }
         const flagName = SHORT_FLAGS[letter];
-        if (flagName !== undefined) {
-          flag(flagName);
-        } else {
-          request.ignored.push(`-${letter}`);
+        if (flagName === undefined) {
+          // An unknown letter: the rest of the word is not read as more options (curl stops there too).
+          request.ignored.push(`-${word.slice(j)}`);
+          break;
         }
+        flag(flagName);
       }
     }
   }
   return request;
 };
+
+/**
+ * An option name that can be written in a `//` comment as it is: `-` / `--` and ASCII letters,
+ * digits, `-` and `.`. Any other ignored word (it is the user's text, and could hold a line break
+ * that ends the comment) is written as a JavaScript string literal.
+ */
+const PLAIN_OPTION = /^--?[A-Za-z0-9][A-Za-z0-9.-]*$/;
+const ignoredOptionName = (option: string): string => (PLAIN_OPTION.test(option) ? option : toJsString(option));
+
+/** `url` with a query string added before its `#fragment` (which is never sent to the server). */
+const withQuery = (url: string, query: string): string => {
+  const hash = url.indexOf('#');
+  const base = hash < 0 ? url : url.slice(0, hash);
+  const fragment = hash < 0 ? '' : url.slice(hash);
+  return `${base}${base.includes('?') ? '&' : '?'}${query}${fragment}`;
+};
+
+/** A URL with a scheme (`https://…`); curl adds `http://` to one without, and so does this conversion. */
+const HAS_SCHEME = /^[A-Za-z][A-Za-z0-9+.-]*:\/\//;
 
 /** The headers with the same name (ignoring case) joined like `Headers.append` does. */
 const mergedHeaders = (headers: readonly Header[]): Header[] => {
@@ -475,20 +499,23 @@ export const curlToFetch = (text: string, eol: string, budget: number): string =
       : `the curl command has ${request.urls.length} URLs (${request.urls.map(quoteText).join(', ')}); select a command with one URL`);
   }
   const form = request.hasForm;
+  if (request.get && (form || request.json.length > 0)) {
+    throw new DevInputError(`the curl command mixes -G with ${form ? '-F' : '--json'}; select a command that sends its data with -d instead`);
+  }
   if (form && (request.data.length > 0 || request.json.length > 0)) {
     throw new DevInputError('the curl command mixes -F (a form) with -d / --json (a body); curl does not allow that either');
   }
   if (request.data.length > 0 && request.json.length > 0) {
     throw new DevInputError('the curl command mixes -d with --json; select a command with one kind of body');
   }
-  let url = request.urls[0];
+  let url = HAS_SCHEME.test(request.urls[0]) ? request.urls[0] : `http://${request.urls[0]}`;
   let body: string | undefined;
   const headers = [...request.headers];
   const hasHeader = (name: string): boolean =>
     headers.some((header) => header.name.toLowerCase() === name) || request.removedHeaders.has(name);
   if (request.get) {
     if (request.data.length > 0) {
-      url += (url.includes('?') ? '&' : '?') + request.data.join('&');
+      url = withQuery(url, request.data.join('&'));
     }
   } else if (request.data.length > 0) {
     body = request.data.join('&');
@@ -504,14 +531,18 @@ export const curlToFetch = (text: string, eol: string, budget: number): string =
       headers.push({ name: 'Accept', value: 'application/json' });
     }
   }
-  const sendsBody = !request.get && (request.data.length > 0 || request.json.length > 0 || form
-    || request.todos.some((todo) => todo.includes('--data') || todo.includes('--json')));
+  const sendsBody = !request.get && (request.data.length > 0 || request.json.length > 0 || form || request.bodyFromFile);
   const method = request.method ?? (request.head ? 'HEAD' : request.get ? 'GET' : sendsBody ? 'POST' : 'GET');
+  const upperMethod = method.toUpperCase();
+  if (sendsBody && (upperMethod === 'GET' || upperMethod === 'HEAD')) {
+    // fetch() throws a TypeError for a GET / HEAD request with a body (curl refuses -I with -d too).
+    throw new DevInputError(`the curl command sends a body with the ${upperMethod} method, which fetch() does not allow; use -G to put -d data in the URL, or another method`);
+  }
 
   const out = new DevOutputBuffer(budget);
   const line = (value: string): void => out.push(value + eol);
   if (request.ignored.length > 0) {
-    line(`// Ignored curl options: ${[...new Set(request.ignored)].join(', ')}`);
+    line(`// Ignored curl options: ${[...new Set(request.ignored)].map(ignoredOptionName).join(', ')}`);
   }
   if (stoppedAt !== undefined) {
     line(`// Ignored the rest of the shell command after ${toJsString(stoppedAt)}`);
@@ -531,7 +562,7 @@ export const curlToFetch = (text: string, eol: string, budget: number): string =
     merged.forEach((header) => options.push(`    ${toJsString(header.name)}: ${toJsString(header.value)},`));
     options.push('  },');
   }
-  if (form && !request.get) {
+  if (form) {
     options.push('  body: formData,');
   } else if (body !== undefined) {
     options.push(`  body: ${toJsString(body)},`);

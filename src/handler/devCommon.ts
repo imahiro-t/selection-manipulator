@@ -100,3 +100,34 @@ export const splitDevLines = (text: string): DevLine[] => {
   lines.push({ text: text.slice(start), lineBreak: '' });
   return lines;
 };
+
+/**
+ * Converts every non-blank line of `text` with `convert` on its own: blank lines, the spaces around
+ * each value and the line breaks are kept. When `convert` returns undefined for a line, the whole
+ * text is an error: `line N: "…" is not <what>` (the line number only when there are several lines).
+ */
+export const convertEachLine = (
+  text: string,
+  budget: number,
+  convert: (value: string) => string | undefined,
+  what: string,
+): string => {
+  const out = new DevOutputBuffer(budget);
+  const lines = splitDevLines(text);
+  lines.forEach((line, index) => {
+    if (isBlank(line.text)) {
+      out.push(line.text + line.lineBreak);
+      return;
+    }
+    const start = line.text.length - line.text.trimStart().length;
+    const end = line.text.trimEnd().length;
+    const value = line.text.slice(start, end);
+    const converted = convert(value);
+    if (converted === undefined) {
+      const where = lines.length > 1 ? `line ${index + 1}: ` : '';
+      throw new DevInputError(`${where}${quoteText(value)} is not ${what}`);
+    }
+    out.push(line.text.slice(0, start) + converted + line.text.slice(end) + line.lineBreak);
+  });
+  return out.join();
+};

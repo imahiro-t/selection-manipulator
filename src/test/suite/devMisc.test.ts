@@ -134,6 +134,29 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
       assert.strictEqual(removeLogs(lines('a()', 'console.log(1)', 'b()')), lines('a()', 'b()'));
     });
 
+    test('a call whose removal would join code across lines stays', () => {
+      const kept = [
+        // Without a ;, the call continues into a next line that starts with ( [ ` or an operator.
+        lines('x = y', 'console.log(1)', '[1, 2].forEach(f)'),
+        lines('x = y;', 'console.log(1)', '(a || b).c()'),
+        lines('x = y;', 'console.log(1)', '`t`'),
+        lines('{', '  console.log(1)', '  .then(f)', '}'),
+        // With a ;, the code before the call would continue into the next line.
+        lines('x = y', 'console.log(1);', '[1, 2].forEach(f)'),
+        lines('x = y', 'console.log(1);', '/re/.test(s)'),
+        lines('x = {}', 'console.log(1);', '(f)()'),
+      ];
+      for (const text of kept) {
+        assert.strictEqual(removeLogs(text), text, text);
+      }
+      // The next line starts a statement of its own (JavaScript inserts the ;): the call goes.
+      assert.strictEqual(removeLogs(lines('x = y', 'console.log(1)', 'f()')), lines('x = y', 'f()'));
+      assert.strictEqual(removeLogs(lines('x = y', 'console.log(1)', '++i')), lines('x = y', '++i'));
+      assert.strictEqual(removeLogs(lines('x = y;', 'console.log(1);', '[1, 2].forEach(f)')), lines('x = y;', '[1, 2].forEach(f)'));
+      assert.strictEqual(removeLogs(lines('{', '  console.log(1);', '  [a] = b', '}')), lines('{', '  [a] = b', '}'));
+      assert.strictEqual(removeLogs(lines('x = y', 'console.log(1)', '// c', '}')), lines('x = y', '// c', '}'));
+    });
+
     test('calls inside strings, template literals and comments stay', () => {
       const text = lines('const s = `', 'console.log(1)', '`;', '/*', 'console.log(2)', '*/');
       assert.strictEqual(removeLogs(text), text);
@@ -406,6 +429,50 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
       refuses(() => curl('curl -F a=1 -d b=2 https://x.test'), /mixes -F/);
     });
 
+    test('an ignored option name that is not plain is quoted, so it cannot end the comment', () => {
+      const breaks: [string, string][] = [['\n', '\\n'], ['\r', '\\r'], ['\u2028', '\\u2028'], ['\u2029', '\\u2029']];
+      for (const [breakChar, escaped] of breaks) {
+        const result = curl(`curl '--x${breakChar}alert(document.cookie)' https://a.example`);
+        assert.strictEqual(result, lines(`// Ignored curl options: '--x${escaped}alert(document.cookie)'`, 'fetch(\'https://a.example\');'), escaped);
+      }
+      // An unknown short option ends its word: the rest is not read as more options.
+      assert.strictEqual(curl('curl $\'-\\u2028evil()\' http://a'), lines('// Ignored curl options: \'-\\u2028evil()\'', 'fetch(\'http://a\');'));
+      assert.strictEqual(curl('curl -Wv --foo-bar --http1.1 http://a'), lines('// Ignored curl options: -Wv, --foo-bar', 'fetch(\'http://a\');'));
+    });
+
+    test('the method depends on the options, not on the text of a TODO comment', () => {
+      assert.strictEqual(curl('curl -H @"--data" http://a'), lines(
+        '// TODO: curl -H reads the file \'--data\'; this conversion does not read files', 'fetch(\'http://a\');'));
+      for (const option of ['-d @f', '--data-urlencode n@f', '--json @f']) {
+        assert.ok(curl(`curl ${option} http://a`).includes('method: \'POST\''), option);
+      }
+    });
+
+    test('-G puts the data before the #fragment; -G with --json or -F is refused', () => {
+      assert.strictEqual(curl('curl -G -d \'a=1\' \'https://e.com#frag\''), 'fetch(\'https://e.com?a=1#frag\');');
+      assert.strictEqual(curl('curl -G --data-urlencode \'q=a b\' \'https://e.com/p?x=1#top\''), 'fetch(\'https://e.com/p?x=1&q=a%20b#top\');');
+      refuses(() => curl('curl -G --json \'{"a":1}\' https://e.com'), /mixes -G with --json/);
+      refuses(() => curl('curl -G -F a=1 https://e.com'), /mixes -G with -F/);
+    });
+
+    test('a body with GET or HEAD is refused (fetch() throws a TypeError for it)', () => {
+      refuses(() => curl('curl -X GET -d x https://e.com'), /body with the GET method/);
+      refuses(() => curl('curl -X get -d x https://e.com'), /body with the GET method/);
+      refuses(() => curl('curl -I -d x https://e.com'), /body with the HEAD method/);
+      refuses(() => curl('curl --head https://e.com -d x'), /body with the HEAD method/);
+      refuses(() => curl('curl -X HEAD -d a https://e.com'), /body with the HEAD method/);
+      refuses(() => curl('curl -I -F a=1 https://e.com'), /body with the HEAD method/);
+      refuses(() => curl('curl -X GET -d @f https://e.com'), /body with the GET method/);
+      // With -G the data goes in the URL: no body.
+      assert.strictEqual(curl('curl -I -G -d x https://e.com'), lines('fetch(\'https://e.com?x\', {', '  method: \'HEAD\',', '});'));
+    });
+
+    test('a URL without a scheme gets http://, as curl does', () => {
+      assert.strictEqual(curl('curl example.com/a'), 'fetch(\'http://example.com/a\');');
+      assert.strictEqual(curl('curl localhost:3000/a'), 'fetch(\'http://localhost:3000/a\');');
+      assert.strictEqual(curl('curl HTTPS://example.com'), 'fetch(\'HTTPS://example.com\');');
+    });
+
     test('shell words: quotes, escapes, comments', () => {
       assert.deepStrictEqual(splitShellWords('a\'b c\'"d\\"e\\x"\\ f # g\nh\'\''), { words: ['ab cd"e\\x f', 'h'] });
       assert.deepStrictEqual(splitShellWords('a ""').words, ['a', '']);
@@ -453,12 +520,26 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
     });
 
     test('unclosed or unsupported markup is refused', () => {
-      refuses(() => jsx('<div class="a'), /attribute class of <div> is not closed/);
-      refuses(() => jsx('<div'), /<div> is not closed/);
+      refuses(() => jsx('<div class="a'), /attribute "class" of "<div" is not closed/);
+      refuses(() => jsx('<div'), /"<div" is not closed/);
       refuses(() => jsx('<!-- x'), /comment is not closed/);
-      refuses(() => jsx('<script>x'), /<script> element is not closed/);
+      refuses(() => jsx('<script>x'), /"<script>" element is not closed/);
       refuses(() => jsx('<![CDATA[x]]>'), /is not supported/);
       refuses(() => jsx('<div ="a">'), /unexpected "="/);
+    });
+
+    test('tag and attribute names that would be JSX syntax are refused', () => {
+      refuses(() => jsx('<img {...evil()} src="a.png">'), /"\{\.\.\.evil\(\)\}" is not an attribute name/);
+      refuses(() => jsx('<div {...alert(1)} class="a">x</div>'), /is not an attribute name/);
+      refuses(() => jsx('<div{...evil()}>x</div>'), /"div\{\.\.\.evil\(\)\}" is not a tag name/);
+      refuses(() => jsx('<b>x</b{evil()}>'), /"b\{evil\(\)\}" is not a tag name/);
+      refuses(() => jsx('<br>x</br{evil()}>'), /is not a tag name/);
+      refuses(() => jsx('<a x.y="1">'), /"x\.y" is not an attribute name/);
+      refuses(() => jsx('<a @click="f">'), /is not an attribute name/);
+      // Names with letters, digits, - _ and one : are kept.
+      assert.strictEqual(
+        jsx('<svg:rect xlink:href="a" data-x_1="1" stroke-width="2" _a></svg:rect><my-el>x</my-el>'),
+        '<svg:rect xlinkHref="a" data-x_1="1" strokeWidth="2" _a></svg:rect><my-el>x</my-el>');
     });
 
     test('DEV-035 is the Replace variant of DEV-027', () => {
@@ -514,6 +595,9 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
         `curl ${'-H a:b '.repeat(Math.floor(n / 8))}`,
         '`${`${'.repeat(Math.floor(n / 6)),
         '\\'.repeat(n),
+        'x\nconsole.log(1);\n'.repeat(Math.floor(n / 17)),
+        `curl ${'-\u2028'.repeat(Math.floor(n / 3) - 5)} a`,
+        '<a b '.repeat(Math.floor(n / 5)),
       ];
       for (const id of ids) {
         const entry = DEV_COMMAND_ENTRIES.find((candidate) => candidate.id === id)!;

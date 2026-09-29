@@ -46,6 +46,15 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.strictEqual(sqlMinify('x-- c'), 'x');
     });
 
+    test('the line break after a # (a MySQL comment) is kept, so the next line never becomes comment', () => {
+      assert.strictEqual(sqlMinify('DELETE FROM users # all?\nWHERE id = 1'), 'DELETE FROM users # all?\nWHERE id = 1');
+      assert.strictEqual(sqlMinify('DELETE FROM users #all?\r\n  WHERE id = 1 -- c\n  AND b = 2'), 'DELETE FROM users #all?\r\nWHERE id = 1 AND b = 2');
+      assert.strictEqual(sqlMinify('SELECT f(a # c\n) FROM t # end\n'), 'SELECT f(a # c\n) FROM t # end');
+      assert.strictEqual(sqlMinify('SELECT a # x /* y\n */ FROM t'), 'SELECT a # x\nFROM t');
+      // A SQL Server #temp table keeps a line break too, which does not change the query.
+      assert.strictEqual(sqlMinify('SELECT #t.a\n  FROM #t\n  WHERE x = 1'), 'SELECT #t.a\nFROM #t\nWHERE x = 1');
+    });
+
     test('optimizer hints and MySQL executable comments are kept', () => {
       assert.strictEqual(sqlMinify('SELECT /*+ INDEX(t i) */ a FROM t /*!40101 SET x=1 */'), 'SELECT /*+ INDEX(t i) */ a FROM t /*!40101 SET x=1 */');
     });
@@ -129,6 +138,18 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       ));
     });
 
+    test('a comment inside a join prefix does not split the join', () => {
+      assert.strictEqual(format('select a from t left /* c */ outer join u on t.id=u.id'),
+        lines('SELECT a', 'FROM t', 'LEFT /* c */ OUTER JOIN u ON t.id = u.id'));
+      assert.strictEqual(format('select a from t natural left outer join u cross /* c */ join v'),
+        lines('SELECT a', 'FROM t', 'NATURAL LEFT OUTER JOIN u', 'CROSS /* c */ JOIN v'));
+    });
+
+    test('a line break after a # (a MySQL comment) is kept', () => {
+      assert.strictEqual(format('select a # note\n, b from t'), lines('SELECT a # note', '  , b', 'FROM t'));
+      assert.strictEqual(format('delete from users # no filter\nwhere id = 1'), lines('DELETE FROM users # no filter', 'WHERE id = 1'));
+    });
+
     test('the document line break is used', () => {
       assert.strictEqual(format('select a from t; select b from u', '\r\n'), 'SELECT a\r\nFROM t;\r\n\r\nSELECT b\r\nFROM u');
     });
@@ -149,6 +170,25 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
         refuses(() => sqlMinify(sql), message);
         refuses(() => format(sql), message);
       }
+    });
+
+    test('forms of other dialects that would be misread are refused by every command', () => {
+      const cases: [string, RegExp][] = [
+        ['SELECT $$a -- b\nc$$ FROM t', /dollar-quoted strings/],
+        ['SELECT $body$ x $body$', /dollar-quoted strings/],
+        ['SELECT /* a /* b */ c */ 1', /nested \/\* comments/],
+        ['SELECT E\'it\\\'s -- x\' FROM t', /E'…' strings/],
+        ['SELECT e\'\\n\' FROM t', /E'…' strings/],
+        ['SELECT \'it\\\'s -- x\' FROM t', /backslash escape/],
+        ['SELECT \'C:\\\' FROM t', /backslash escape/],
+      ];
+      for (const [sql, message] of cases) {
+        refuses(() => sqlUppercaseKeywords(sql), message);
+        refuses(() => sqlMinify(sql), message);
+        refuses(() => format(sql), message);
+      }
+      // Still supported: $1 parameters, names with $, an E column, an even number of backslashes.
+      assert.strictEqual(sqlMinify('SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1'), 'SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1');
     });
 
     test('formatting refuses unbalanced or too deeply nested parentheses', () => {
@@ -173,6 +213,8 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
         '('.repeat(DEV_MAX_INPUT_LENGTH / 2) + ')'.repeat(DEV_MAX_INPUT_LENGTH / 2),
         '\'\''.repeat(DEV_MAX_INPUT_LENGTH / 2),
         '-'.repeat(DEV_MAX_INPUT_LENGTH),
+        '# a\n'.repeat(DEV_MAX_INPUT_LENGTH / 4),
+        'left /**/ '.repeat(DEV_MAX_INPUT_LENGTH / 10),
       ];
       for (const convert of [sqlUppercaseKeywords, sqlMinify, (sql: string) => sqlFormat(sql, '\n', 10_000_000)]) {
         for (const input of inputs) {

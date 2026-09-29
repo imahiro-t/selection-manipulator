@@ -136,14 +136,13 @@ const HTML_TO_JSX = base({
   id: 'DEV-027', name: 'html-to-jsx', title: 'Convert HTML to JSX', acceptsBlank: false,
   transform: withBudget((value, _context, budget) => htmlToJsx(value, budget)),
 });
-
-/** The parts of a version DEV-028 can raise (the value is `context.choice`). */
-const SEMVER_PARTS: readonly SemverPart[] = ['patch', 'minor', 'major'];
-
 const SQL_FORMAT = base({
   id: 'DEV-015', name: 'sql-format', title: 'Format SQL', acceptsBlank: false,
   transform: withBudget((value, context, budget) => sqlFormat(value, context.eol, budget)),
 });
+
+/** The parts of a version DEV-028 can raise (the value is `context.choice`). */
+const SEMVER_PARTS: readonly SemverPart[] = ['patch', 'minor', 'major'];
 
 /** The commands in the order of the DEV table of docs/ROADMAP.md. */
 export const DEV_COMMAND_ENTRIES: readonly DevCommandEntry[] = [

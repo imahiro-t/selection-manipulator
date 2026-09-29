@@ -6,7 +6,7 @@
  * linear in the length of its input (plus the sort of DEV-024), and the regular expressions are
  * constants anchored at both ends without nested quantifiers.
  */
-import { DevInputError, DevOutputBuffer, isBlank, quoteText, splitDevLines } from './devCommon';
+import { assertWithinBudget, convertEachLine, DevInputError, DevOutputBuffer, quoteText } from './devCommon';
 import { isTrivia, JsToken, tokenizeJs } from './devJsLexer';
 
 /** Words that never end an expression (a line after them continues the same statement). */
@@ -96,7 +96,9 @@ const matchingBrackets = (tokens: readonly JsToken[]): Map<number, number> => {
  * removed with all its lines; the end of the call is found on the tokens, so parentheses in
  * strings, template literals, comments and regular expressions do not count. A call that shares
  * its line with other code, or that is the body of `if (…)`, `for (…)`, `while (…)`, `else`, `do`
- * or an arrow function (removing it would change what the code does), is kept.
+ * or an arrow function (removing it would change what the code does), is kept; so is a call
+ * whose removal would join code across lines (the next line starts with `(`, `[`, `` ` `` or an
+ * operator, and the call has no `;` or the code before it has none).
  */
 export const removeConsoleLog = (text: string, budget: number): string => {
   const tokens = tokenizeJs(text);
@@ -112,9 +114,11 @@ export const removeConsoleLog = (text: string, budget: number): string => {
   while (i < tokens.length) {
     const first = skipSpaces(tokens, i);
     const token = tokens[first];
-    const call = token !== undefined ? consoleCall(tokens, first, brackets) : -1;
-    if (call >= 0 && canRemoveAfter(tokens, previousCode, controlEnds)) {
+    const found = token !== undefined ? consoleCall(tokens, first, brackets) : undefined;
+    if (found !== undefined && canRemoveAfter(tokens, previousCode, controlEnds)
+      && !joinsWithNextLine(tokens, previousCode, found)) {
       // `call` is the index of the line break after the call (or tokens.length at the end).
+      const call = found.end;
       const end = call < tokens.length ? tokens[call].end : text.length;
       removed.push([lineStart, end]);
       reachedEnd ||= call >= tokens.length;
@@ -134,59 +138,106 @@ export const removeConsoleLog = (text: string, budget: number): string => {
     lineStart = j < tokens.length ? tokens[j].end : text.length;
     lineStartToken = i;
   }
-  const out = new DevOutputBuffer(budget);
-  let kept = '';
-  let position = 0;
   const parts: string[] = [];
+  let position = 0;
   for (const [start, end] of removed) {
     parts.push(text.slice(position, start));
     position = end;
   }
   parts.push(text.slice(position));
-  kept = parts.join('');
-  if (reachedEnd) {
-    // The last line was removed: the line break before it now ends the text and is removed too.
-    kept = kept.replace(/(?:\r\n|[\n\r\u2028\u2029])$/, '');
-  }
-  out.push(kept);
-  return out.join();
+  const kept = parts.join('');
+  // When the last line was removed, the line break before it now ends the text and is removed too.
+  const result = reachedEnd ? kept.replace(/(?:\r\n|[\n\r\u2028\u2029])$/, '') : kept;
+  assertWithinBudget(result.length, budget);
+  return result;
 };
+
+/** A `console.log(…)` / `console.debug(…)` call that fills the rest of its line. */
+interface ConsoleCall {
+  /** The index of the line break token after the call (tokens.length at the end of the text). */
+  end: number;
+  /** Whether the call is ended by a `;`. */
+  semicolon: boolean;
+}
 
 /**
  * When the tokens from `first` are `console.log(…)` / `console.debug(…)` followed only by an
- * optional `;`, spaces and an optional comment up to the end of the line, the index of the line
- * break token after it (tokens.length at the end of the text); otherwise -1.
+ * optional `;`, spaces and an optional comment up to the end of the line, where the call ends;
+ * otherwise undefined.
  */
-const consoleCall = (tokens: readonly JsToken[], first: number, brackets: Map<number, number>): number => {
+const consoleCall = (tokens: readonly JsToken[], first: number, brackets: Map<number, number>): ConsoleCall | undefined => {
   const word = tokens[first];
   if (word.kind !== 'word' || word.text !== 'console') {
-    return -1;
+    return undefined;
   }
   let i = skipSpaces(tokens, first + 1);
   if (!isPunct(tokens[i], '.')) {
-    return -1;
+    return undefined;
   }
   i = skipSpaces(tokens, i + 1);
   const method = tokens[i];
   if (method?.kind !== 'word' || (method.text !== 'log' && method.text !== 'debug')) {
-    return -1;
+    return undefined;
   }
   i = skipSpaces(tokens, i + 1);
   if (!isPunct(tokens[i], '(')) {
-    return -1;
+    return undefined;
   }
   const close = brackets.get(i) ?? -1;
   if (close < 0) {
-    return -1;
+    return undefined;
   }
   i = skipSpaces(tokens, close + 1);
-  if (isPunct(tokens[i], ';')) {
+  const semicolon = isPunct(tokens[i], ';');
+  if (semicolon) {
     i = skipSpaces(tokens, i + 1);
   }
   if (tokens[i]?.kind === 'comment' && tokens[i].text.startsWith('//')) {
     i++;
   }
-  return i >= tokens.length || tokens[i].kind === 'newline' ? i : -1;
+  return i >= tokens.length || tokens[i].kind === 'newline' ? { end: i, semicolon } : undefined;
+};
+
+/** Punctuators after which a line break does not end the statement before them (ASI does not apply). */
+const STATEMENT_ENDS = new Set(['}', ';', '++', '--']);
+
+/**
+ * Whether `token` (the first code after a line break) could continue the expression on the line
+ * before it: `(`, `[`, a template literal, `/…/`, an operator, `in` / `instanceof`. JavaScript inserts no
+ * `;` before such a token, so `a⏎(b)` is the call `a(b)`.
+ */
+const continuesExpression = (token: JsToken | undefined): boolean => {
+  if (token === undefined) {
+    return false;
+  }
+  switch (token.kind) {
+    case 'punct':
+      return !STATEMENT_ENDS.has(token.text);
+    case 'template':
+    case 'regex':
+      // After a value, `/re/` reads as a division.
+      return true;
+    case 'word':
+      return token.text === 'in' || token.text === 'instanceof';
+    default:
+      return false;
+  }
+};
+
+/**
+ * Whether removing `call` would join code: the call itself continues into the next line (no `;`
+ * and the next line starts with `(`, `[`, `` ` `` …: `console.log(1)⏎[1, 2].forEach(f)` is one
+ * expression), or the code before the call has no `;` and would continue into the next line once
+ * the call is gone (`x = y⏎console.log(1);⏎[1, 2].forEach(f)` would become `x = y[1, 2]…`).
+ */
+const joinsWithNextLine = (tokens: readonly JsToken[], previous: number, call: ConsoleCall): boolean => {
+  if (!continuesExpression(tokens[skipTrivia(tokens, call.end)])) {
+    return false;
+  }
+  if (!call.semicolon) {
+    return true;
+  }
+  return previous >= 0 && !isPunct(tokens[previous], ';') && !isPunct(tokens[previous], '{');
 };
 
 /**
@@ -634,26 +685,11 @@ const bump = (version: Semver, part: SemverPart): string => {
  * each line (`v1.2.3`, `1.0.0-rc.1+build.5` …). Empty lines and the spaces around a version are
  * kept. The numbers can be of any size.
  */
-export const semverBump = (text: string, part: SemverPart, budget: number): string => {
-  const out = new DevOutputBuffer(budget);
-  const lines = splitDevLines(text);
-  lines.forEach((line, index) => {
-    if (isBlank(line.text)) {
-      out.push(line.text + line.lineBreak);
-      return;
-    }
-    const start = line.text.length - line.text.trimStart().length;
-    const end = line.text.trimEnd().length;
-    const value = line.text.slice(start, end);
+export const semverBump = (text: string, part: SemverPart, budget: number): string =>
+  convertEachLine(text, budget, (value) => {
     const version = parseSemver(value);
-    if (version === undefined) {
-      const where = lines.length > 1 ? `line ${index + 1}: ` : '';
-      throw new DevInputError(`${where}${quoteText(value)} is not a semantic version (MAJOR.MINOR.PATCH, e.g. 1.2.3 or v1.2.3-rc.1)`);
-    }
-    out.push(line.text.slice(0, start) + bump(version, part) + line.text.slice(end) + line.lineBreak);
-  });
-  return out.join();
-};
+    return version === undefined ? undefined : bump(version, part);
+  }, 'a semantic version (MAJOR.MINOR.PATCH, e.g. 1.2.3 or v1.2.3-rc.1)');
 
 // ---------------------------------------------------------------------------------------------
 // DEV-029 chmod numeric ↔ symbolic
@@ -707,23 +743,5 @@ const chmodValue = (value: string): string | undefined => {
  * and the symbolic (`rwxr-xr-x`, also with the file type of `ls -l` such as `-rwxr-xr-x` or
  * `drwxr-xr-x`) permission notation. Empty lines and the spaces around a mode are kept.
  */
-export const chmodConvert = (text: string, budget: number): string => {
-  const out = new DevOutputBuffer(budget);
-  const lines = splitDevLines(text);
-  lines.forEach((line, index) => {
-    if (isBlank(line.text)) {
-      out.push(line.text + line.lineBreak);
-      return;
-    }
-    const start = line.text.length - line.text.trimStart().length;
-    const end = line.text.trimEnd().length;
-    const value = line.text.slice(start, end);
-    const converted = chmodValue(value);
-    if (converted === undefined) {
-      const where = lines.length > 1 ? `line ${index + 1}: ` : '';
-      throw new DevInputError(`${where}${quoteText(value)} is not a file mode (755, 4755, rwxr-xr-x or -rwxr-xr-x)`);
-    }
-    out.push(line.text.slice(0, start) + converted + line.text.slice(end) + line.lineBreak);
-  });
-  return out.join();
-};
+export const chmodConvert = (text: string, budget: number): string =>
+  convertEachLine(text, budget, chmodValue, 'a file mode (755, 4755, rwxr-xr-x or -rwxr-xr-x)');

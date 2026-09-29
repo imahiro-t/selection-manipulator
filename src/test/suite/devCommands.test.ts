@@ -432,7 +432,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
         ['DEV-026', ['wget x', 'curl https://x.test'], 'selection 1 of 2: the selection is not a curl command'],
         ['DEV-025', ['\'a\' + b', '\'a\' + b - 1'], 'selection 2 of 2: the expression has a top-level binary "-"'],
         ['DEV-028', ['1.2.3', '1.2'], 'selection 2 of 2: "1.2" is not a semantic version', 'patch'],
-        ['DEV-027', ['<p>', '<p class="a'], 'selection 2 of 2: the value of the attribute class of <p> is not closed'],
+        ['DEV-027', ['<p>', '<p class="a'], 'selection 2 of 2: the value of the attribute "class" of "<p" is not closed'],
       ];
       for (const [id, blocks, message, choice] of cases) {
         const editor = await createTextEditor(blocks.join(SEPARATOR));
@@ -456,7 +456,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       const failed = recorder();
       await run(entryOf('DEV-035'), failed.dependencies)(failing);
       assert.strictEqual(failing.document.getText(), blocks.join(SEPARATOR));
-      assert.deepStrictEqual(failed.errors, [`${NOT_CHANGED}selection 2 of 2: the value of the attribute class of <p> is not closed`]);
+      assert.deepStrictEqual(failed.errors, [`${NOT_CHANGED}selection 2 of 2: the value of the attribute "class" of "<p" is not closed`]);
     });
   });
 

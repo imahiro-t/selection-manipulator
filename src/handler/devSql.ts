@@ -7,8 +7,11 @@
  *
  * Supported lexical forms: `'…'` strings (`''` inside), `"…"` / `` `…` `` / `[…]` quoted
  * identifiers (with the closing character doubled inside), `--` line comments and `/* … *\/`
- * block comments. Not supported (documented): PostgreSQL `$$` / `E'…'` strings, MySQL `#`
- * comments and backslash escapes.
+ * block comments. The forms of other dialects whose content this tokenizer would misread are
+ * refused (`checkSupported`): PostgreSQL `$$` / `$tag$` and `E'…'` strings, nested `/* /* *\/ *\/`
+ * comments and a `\'` backslash escape (MySQL) at the end of a string. A `#` (a MySQL line
+ * comment, or part of a name such as `#temp` in SQL Server) is read as part of a word, and the line
+ * break after it is kept by the formatter and the minifier so that such a comment still ends there.
  */
 import { DEV_MAX_NESTING, DevInputError, DevOutputBuffer } from './devCommon';
 
@@ -77,8 +80,62 @@ const endOfQuoted = (text: string, start: number, close: string, what: string): 
   }
 };
 
-/** Splits SQL into tokens (linear). Unclosed strings, quoted identifiers and comments are errors. */
+/** A PostgreSQL dollar-quoted string starts with `$$` or `$tag$`. */
+const DOLLAR_QUOTE = /^\$[A-Za-z_]*\$/;
+
+/** The number of `\` right before the closing `'` of a string token. */
+const trailingBackslashes = (token: SqlToken): number => {
+  let count = 0;
+  for (let i = token.text.length - 2; i > 0 && token.text[i] === '\\'; i--) {
+    count++;
+  }
+  return count;
+};
+
+/**
+ * Refuses the forms of other dialects that the tokenizer would read differently from the database,
+ * so that no command changes a string or turns code into a comment (or back) without saying so.
+ */
+const checkSupported = (tokens: readonly SqlToken[]): void => {
+  tokens.forEach((token, i) => {
+    if (token.type === 'word' && DOLLAR_QUOTE.test(token.text)) {
+      throw new DevInputError('dollar-quoted strings ($$…$$, PostgreSQL) are not supported');
+    }
+    if (token.type === 'word' && (token.text === 'E' || token.text === 'e') && tokens[i + 1]?.type === 'string') {
+      throw new DevInputError('E\'…\' strings with backslash escapes (PostgreSQL) are not supported');
+    }
+    if (token.type === 'block-comment' && token.text.indexOf('/*', 2) >= 0) {
+      throw new DevInputError('nested /* comments are not supported');
+    }
+    if (token.type === 'string' && trailingBackslashes(token) % 2 === 1) {
+      throw new DevInputError('a string ends with \\\' (a backslash escape, MySQL), which is not supported');
+    }
+  });
+};
+
+/** Whether the token may start a MySQL `#` line comment: a word (or number) that holds `#`. */
+const hasHash = (token: SqlToken): boolean => (token.type === 'word' || token.type === 'number') && token.text.includes('#');
+
+/** The first line break (`\r\n`, `\n` or `\r`) in `text`, or undefined. */
+const firstLineBreak = (text: string): string | undefined => {
+  const index = text.search(/[\r\n]/);
+  if (index < 0) {
+    return undefined;
+  }
+  return text[index] === '\r' && text[index + 1] === '\n' ? '\r\n' : text[index];
+};
+
+/**
+ * Splits SQL into tokens (linear). Unclosed strings, quoted identifiers and comments, and the
+ * unsupported forms of `checkSupported`, are errors.
+ */
 export const tokenizeSql = (text: string): SqlToken[] => {
+  const tokens = readSqlTokens(text);
+  checkSupported(tokens);
+  return tokens;
+};
+
+const readSqlTokens = (text: string): SqlToken[] => {
   const tokens: SqlToken[] = [];
   let i = 0;
   const push = (type: SqlTokenType, end: number) => {
@@ -209,20 +266,40 @@ const isKeptComment = (token: SqlToken): boolean =>
 /**
  * DEV-016: comments removed (each one becomes a space, as SQL reads a comment as white space;
  * `/*+ … *\/` hints and `/*! … *\/` are kept), runs of white space made one space, the space
- * after `(` and before `)` `,` `;` removed, and the ends trimmed. Literals are not touched.
+ * after `(` and before `)` `,` `;` removed, and the ends trimmed. Literals are not touched. The
+ * first line break after a `#` is kept (in MySQL, `#` starts a comment that ends there; joining
+ * the next line would turn it into comment too).
  */
 export const sqlMinify = (text: string): string => {
   const SPACE: SqlToken = { type: 'ws', text: ' ' };
   const tokens: SqlToken[] = [];
+  // A `#` since the last kept line break: the next line break is kept (it may end a MySQL comment).
+  let hash = false;
   for (const token of tokenizeSql(text)) {
-    const replaced = token.type === 'ws' || (isComment(token) && !isKeptComment(token)) ? SPACE : token;
-    if (replaced === SPACE && tokens[tokens.length - 1] === SPACE) {
+    let replaced = token.type === 'ws' || (isComment(token) && !isKeptComment(token)) ? SPACE : token;
+    if (replaced === SPACE && hash) {
+      const lineBreak = firstLineBreak(token.text);
+      if (lineBreak !== undefined) {
+        replaced = { type: 'ws', text: lineBreak };
+        hash = false;
+      }
+    }
+    hash ||= hasHash(token);
+    const last = tokens[tokens.length - 1];
+    if (replaced === SPACE && last?.type === 'ws') {
       continue;
+    }
+    if (replaced.type === 'ws' && last === SPACE) {
+      // A kept line break takes the place of the space before it.
+      tokens.pop();
     }
     tokens.push(replaced);
   }
   const out: string[] = [];
   tokens.forEach((token, i) => {
+    if (token.type === 'ws' && i === tokens.length - 1) {
+      return;
+    }
     if (token === SPACE) {
       const before = tokens[i - 1];
       const after = tokens[i + 1];
@@ -254,6 +331,8 @@ interface FormatToken extends SqlToken {
   keyword?: string;
   /** Whether white space or a comment came before it in the input. */
   spaced: boolean;
+  /** Whether a line break came before it in the input (since the previous kept token). */
+  lineBreakBefore: boolean;
 }
 
 /** One level of parentheses (the statement itself is the outermost level). */
@@ -370,9 +449,11 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
   const keywords = keywordsOf(raw);
   const tokens: FormatToken[] = [];
   let spaced = false;
+  let lineBreakBefore = false;
   raw.forEach((token, i) => {
     if (token.type === 'ws') {
       spaced = true;
+      lineBreakBefore ||= firstLineBreak(token.text) !== undefined;
       return;
     }
     tokens.push({
@@ -380,8 +461,10 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
       text: token.type === 'line-comment' ? token.text.trimEnd() : keywords[i] ?? token.text,
       keyword: keywords[i],
       spaced,
+      lineBreakBefore,
     });
     spaced = isComment(token);
+    lineBreakBefore = false;
   });
 
   const lines = new SqlLines();
@@ -391,14 +474,17 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
   let beforePrevious: FormatToken | undefined;
   let pendingLine = false;
   let pendingStatement = false;
-  const nextKeyword = (from: number): string | undefined => {
-    for (let i = from; i < tokens.length; i++) {
-      if (!isComment(tokens[i])) {
-        return tokens[i].keyword;
-      }
+  // A `#` (a MySQL line comment?) on the current line: a line break of the input after it is kept.
+  let hash = false;
+  /** The index of the first token at or after `from` that is not a comment (tokens.length if none). */
+  const nextSignificant = (from: number): number => {
+    let i = from;
+    while (i < tokens.length && isComment(tokens[i])) {
+      i++;
     }
-    return undefined;
+    return i;
   };
+  const nextKeyword = (from: number): string | undefined => tokens[nextSignificant(from)]?.keyword;
   const write = (token: FormatToken) => {
     lines.write(token.text, spaceBetween(previous, token, beforePrevious));
     beforePrevious = previous;
@@ -406,12 +492,16 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
   };
   const breakLine = (indent: number) => {
     lines.newLine(indent);
+    hash = false;
     beforePrevious = undefined;
     previous = undefined;
   };
 
   tokens.forEach((token, i) => {
-    let level = levels[levels.length - 1];
+    const level = levels[levels.length - 1];
+    if (hash && token.lineBreakBefore) {
+      pendingLine = true;
+    }
     if (pendingStatement) {
       lines.blankLine();
       breakLine(0);
@@ -423,7 +513,12 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
     }
     const keyword = token.keyword;
     if (keyword !== undefined && level.query) {
-      const before = previous?.keyword;
+      // The keyword before this one, across comments (`LEFT /* c */ OUTER JOIN`).
+      let back = i - 1;
+      while (back >= 0 && isComment(tokens[back])) {
+        back--;
+      }
+      const before = back >= 0 && previous !== undefined ? tokens[back].keyword : undefined;
       let clause: string | undefined;
       if (CLAUSE_KEYWORDS.has(keyword)) {
         const inline = (keyword === 'FROM' && (before === 'DELETE' || before === 'DISTINCT'))
@@ -434,8 +529,12 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
       } else if (keyword === 'JOIN' && !JOIN_PREFIXES.has(before ?? '')) {
         clause = 'JOIN';
       } else if (JOIN_PREFIXES.has(keyword) && !JOIN_PREFIXES.has(before ?? '')) {
-        const second = nextKeyword(i + 1);
-        if (second === 'JOIN' || (JOIN_PREFIXES.has(second ?? '') && nextKeyword(i + 2) === 'JOIN')) {
+        // Only the first word of a run of prefixes gets here, so the runs are read once in total.
+        let next = nextSignificant(i + 1);
+        while (JOIN_PREFIXES.has(tokens[next]?.keyword ?? '')) {
+          next = nextSignificant(next + 1);
+        }
+        if (tokens[next]?.keyword === 'JOIN') {
           clause = 'JOIN';
         }
       }
@@ -475,6 +574,7 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
       return;
     }
     write(token);
+    hash ||= hasHash(token);
     if (token.type === 'line-comment') {
       pendingLine = true;
     } else if (token.type === 'semicolon') {

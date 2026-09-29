@@ -6,29 +6,7 @@
  * error. Every regular expression is a constant anchored at both ends without nested quantifiers,
  * and every function is linear in the length of its input.
  */
-import { DevInputError, DevOutputBuffer, isBlank, quoteText, splitDevLines } from './devCommon';
-
-/** Converts every non-blank line with `convert`, keeping the spaces around it and the line breaks. */
-const eachLine = (text: string, budget: number, convert: (value: string) => string | undefined, what: string): string => {
-  const out = new DevOutputBuffer(budget);
-  const lines = splitDevLines(text);
-  lines.forEach((line, index) => {
-    if (isBlank(line.text)) {
-      out.push(line.text + line.lineBreak);
-      return;
-    }
-    const start = line.text.length - line.text.trimStart().length;
-    const end = line.text.trimEnd().length;
-    const value = line.text.slice(start, end);
-    const converted = convert(value);
-    if (converted === undefined) {
-      const where = lines.length > 1 ? `line ${index + 1}: ` : '';
-      throw new DevInputError(`${where}${quoteText(value)} is not ${what}`);
-    }
-    out.push(line.text.slice(0, start) + converted + line.text.slice(end) + line.lineBreak);
-  });
-  return out.join();
-};
+import { convertEachLine } from './devCommon';
 
 const HEX_COLOR = /^(#?)([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
@@ -89,7 +67,7 @@ const hexToHslValue = (value: string): string | undefined => {
  * at most two decimals.
  */
 export const hexToHsl = (text: string, budget: number): string =>
-  eachLine(text, budget, hexToHslValue, 'a hex color (#rgb, #rgba, #rrggbb or #rrggbbaa)');
+  convertEachLine(text, budget, hexToHslValue, 'a hex color (#rgb, #rgba, #rrggbb or #rrggbbaa)');
 
 // ---------------------------------------------------------------------------------------------
 // DEV-021 HSL → hex
@@ -167,7 +145,7 @@ const hslToHexValue = (value: string): string | undefined => {
  * below 1), in lower case.
  */
 export const hslToHex = (text: string, budget: number): string =>
-  eachLine(text, budget, hslToHexValue, 'an HSL color (hsl(h, s%, l%) or hsla(h, s%, l%, a))');
+  convertEachLine(text, budget, hslToHexValue, 'an HSL color (hsl(h, s%, l%) or hsla(h, s%, l%, a))');
 
 // ---------------------------------------------------------------------------------------------
 // DEV-022 hex short ↔ long
@@ -199,4 +177,4 @@ const toggleHexValue = (value: string): string | undefined => {
  * case of the digits and the `#` (or its absence) are kept.
  */
 export const toggleHexLength = (text: string, budget: number): string =>
-  eachLine(text, budget, toggleHexValue, 'a hex color (#rgb, #rgba, #rrggbb or #rrggbbaa)');
+  convertEachLine(text, budget, toggleHexValue, 'a hex color (#rgb, #rgba, #rrggbb or #rrggbbaa)');

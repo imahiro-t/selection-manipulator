@@ -196,7 +196,7 @@ const readStartTag = (html: string, start: number): Tag => {
     }
     const space = html.slice(spaceStart, i);
     if (i >= html.length) {
-      throw new DevInputError(`the tag <${tag.name}> is not closed with ">"`);
+      throw new DevInputError(`the tag ${quoteText(`<${tag.name}`)} is not closed with ">"`);
     }
     if (html[i] === '>') {
       tag.spaces.push(space);
@@ -218,7 +218,7 @@ const readStartTag = (html: string, start: number): Tag => {
       i++;
     }
     if (i === nameStart) {
-      throw new DevInputError(`the tag <${tag.name}> has an unexpected ${quoteText(html[i])}`);
+      throw new DevInputError(`the tag ${quoteText(`<${tag.name}`)} has an unexpected ${quoteText(html[i])}`);
     }
     const attribute: Attribute = { name: html.slice(nameStart, i) };
     let j = i;
@@ -234,7 +234,7 @@ const readStartTag = (html: string, start: number): Tag => {
       if (quote === '"' || quote === '\'') {
         const close = html.indexOf(quote, j + 1);
         if (close < 0) {
-          throw new DevInputError(`the value of the attribute ${attribute.name} of <${tag.name}> is not closed`);
+          throw new DevInputError(`the value of the attribute ${quoteText(attribute.name)} of ${quoteText(`<${tag.name}`)} is not closed`);
         }
         attribute.value = html.slice(j + 1, close);
         i = close + 1;
@@ -253,6 +253,9 @@ const readStartTag = (html: string, start: number): Tag => {
 };
 
 const writeAttribute = (attribute: Attribute): string => {
+  if (!ATTRIBUTE_NAME.test(attribute.name)) {
+    throw new DevInputError(`${quoteText(attribute.name)} is not an attribute name this conversion supports (letters, digits, "-", "_" and one ":")`);
+  }
   const name = jsxAttributeName(attribute.name);
   if (attribute.value === undefined) {
     return name;
@@ -263,8 +266,22 @@ const writeAttribute = (attribute: Attribute): string => {
   return `${name}=${jsxValue(attribute.value)}`;
 };
 
+/**
+ * The names that are written into the JSX as they are (after the case and camelCase changes): a
+ * tag name (`div`, `my-element`, `svg:rect`) and an attribute name (`class`, `data-x`,
+ * `xlink:href`). Anything else (`{...evil()}`, `a"b`) would be JSX syntax, not a name, and is
+ * refused, since HTML accepts almost any character in these names.
+ */
+const TAG_NAME = /^[A-Za-z][\w-]*(?::[A-Za-z][\w-]*)?$/;
+const ATTRIBUTE_NAME = /^[A-Za-z_][\w-]*(?::[A-Za-z_][\w-]*)?$/;
+
 /** An HTML tag name for JSX: HTML names are case-insensitive, and a capital letter would mean a component. */
-const jsxTagName = (name: string): string => (/^[A-Z]/.test(name) ? name.toLowerCase() : name);
+const jsxTagName = (name: string): string => {
+  if (!TAG_NAME.test(name)) {
+    throw new DevInputError(`${quoteText(name)} is not a tag name this conversion supports (letters, digits, "-", "_" and one ":")`);
+  }
+  return /^[A-Z]/.test(name) ? name.toLowerCase() : name;
+};
 
 /**
  * DEV-027: converts HTML to JSX: `class` → `className`, `for` → `htmlFor`, other attributes to
@@ -323,9 +340,9 @@ export const htmlToJsx = (html: string, budget: number): string => {
       if (close < 0) {
         throw new DevInputError(`the end tag ${quoteText(html.slice(i, i + 20))} is not closed with ">"`);
       }
-      const name = html.slice(i + 2, close).trim();
+      const name = jsxTagName(html.slice(i + 2, close).trim());
       if (!VOID_ELEMENTS.has(name.toLowerCase())) {
-        out.push(`</${jsxTagName(name)}>`);
+        out.push(`</${name}>`);
       }
       i = close + 1;
       textStart = i;
@@ -347,7 +364,7 @@ export const htmlToJsx = (html: string, budget: number): string => {
       if (RAW_TEXT_ELEMENTS.has(lowerName) && !tag.selfClosing) {
         const close = lowerHtml.indexOf(`</${lowerName}`, i);
         if (close < 0) {
-          throw new DevInputError(`the <${tag.name}> element is not closed`);
+          throw new DevInputError(`the ${quoteText(`<${tag.name}>`)} element is not closed`);
         }
         if (close > i) {
           out.push(`{\`${escapeTemplateLiteral(html.slice(i, close))}\`}`);
