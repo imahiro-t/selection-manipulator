@@ -181,6 +181,41 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.strictEqual(format('select a from #t where x=1\norder by a'), lines('SELECT a', 'FROM #t where x=1', 'ORDER BY a'));
     });
 
+    test('a # / -- comment that starts a line in the input stays on its own line (SELEC-00060)', () => {
+      // `#`, `-- ` and `--x` at the start of a line do not move to the end of the line before them.
+      assert.strictEqual(format('SELECT a\n# note\nFROM t'), lines('SELECT a', '  # note', 'FROM t'));
+      assert.strictEqual(format('SELECT a\n-- note\nFROM t'), lines('SELECT a', '  -- note', 'FROM t'));
+      assert.strictEqual(format('SELECT a\n--x\nFROM t'), lines('SELECT a', '  --x', 'FROM t'));
+      assert.strictEqual(format('  # lead\nselect 1'), lines('# lead', 'SELECT 1'));
+      // In the middle of a WHERE clause, after white space before the comment, and with CRLF.
+      assert.strictEqual(format('select a from t where x=1\n# c\nand y=2'), lines('SELECT a', 'FROM t', 'WHERE x = 1', '  # c', '  AND y = 2'));
+      assert.strictEqual(format('select a\n   \t# c\nfrom t'), lines('SELECT a', '  # c', 'FROM t'));
+      assert.strictEqual(format('SELECT a\r\n# note\r\nFROM t', '\r\n'), 'SELECT a\r\n  # note\r\nFROM t');
+      assert.strictEqual(format('SELECT a\r-- note\rFROM t'), lines('SELECT a', '  -- note', 'FROM t'));
+      // After a line comment or a block comment on the line before.
+      assert.strictEqual(format('select a -- c\n-- d\nfrom t'), lines('SELECT a -- c', '  -- d', 'FROM t'));
+      assert.strictEqual(format('select a /* c */\n# d\nfrom t'), lines('SELECT a /* c */', '  # d', 'FROM t'));
+      // A SQL Server #temp that starts a line stays a line of its own and does not join a name.
+      assert.strictEqual(format('select a from\n#t where x=1'), lines('SELECT a', 'FROM', '  #t where x=1'));
+    });
+
+    test('code after a line-start comment is not taken into it; comments in a row stay apart (SELEC-00060)', () => {
+      assert.strictEqual(format('SELECT a\n# note\nFROM t WHERE b=1'), lines('SELECT a', '  # note', 'FROM t', 'WHERE b = 1'));
+      assert.strictEqual(format('# a\n# b\nselect 1'), lines('# a', '# b', 'SELECT 1'));
+      assert.strictEqual(format('select a, # c\n  # d\n b from t'), lines('SELECT a, # c', '  # d', '  b', 'FROM t'));
+      // Right after a statement: still one blank line between the statements.
+      assert.strictEqual(format('select 1;\n# c\nselect 2'), lines('SELECT 1;', '', '# c', 'SELECT 2'));
+    });
+
+    test('a # or a line comment that does not start a line keeps its place (SELEC-00060)', () => {
+      assert.strictEqual(format('select a # c\nfrom t'), lines('SELECT a # c', 'FROM t'));
+      assert.strictEqual(format('select a -- c\nfrom t'), lines('SELECT a -- c', 'FROM t'));
+      assert.strictEqual(format('select a /* c */ # d\nfrom t'), lines('SELECT a /* c */ # d', 'FROM t'));
+      assert.strictEqual(format('select a/* c */# d\nfrom t'), lines('SELECT a /* c */ # d', 'FROM t'));
+      assert.strictEqual(format('select a#b, c from t'), 'SELECT a#b, c from t');
+      assert.strictEqual(format('select a from#x'), 'SELECT a from#x');
+    });
+
     test('-- not followed by a space is kept as it is and ends its line', () => {
       assert.strictEqual(format('DELETE FROM t WHERE 1 --1 AND id=3'), lines('DELETE FROM t', 'WHERE 1 --1 AND id=3'));
     });

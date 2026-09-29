@@ -399,6 +399,11 @@ interface FormatToken extends SqlToken {
   keyword?: string;
   /** Whether white space or a comment came before it in the input. */
   spaced: boolean;
+  /**
+   * Whether it started a line in the input: the white space before it had a line break (or it was
+   * the first token of the input).
+   */
+  lineStart: boolean;
 }
 
 /** One level of parentheses (the statement itself is the outermost level). */
@@ -512,7 +517,8 @@ const spaceBetween = (previous: FormatToken | undefined, token: FormatToken, bef
  * `AND` / `OR` of `WHERE` / `HAVING` start new lines indented by two spaces; comparison and
  * assignment operators get a space on both sides and commas a space after them; a `(SELECT …)`
  * subquery is indented one level deeper; statements are separated by a blank line after `;`.
- * Comments are kept (a line comment ends its line). A `raw-line` (`#…`, `--x…`) is written as it is
+ * Comments are kept (a line comment ends its line; a line comment or a `raw-line` that started a
+ * line in the input also starts its line in the output). A `raw-line` (`#…`, `--x…`) is written as it is
  * and ends its line: nothing in it is uppercased or starts a new line, as it may be a MySQL comment.
  */
 export const sqlFormat = (text: string, eol: string, budget: number): string => {
@@ -520,9 +526,14 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
   const keywords = keywordsOf(raw);
   const tokens: FormatToken[] = [];
   let spaced = false;
+  // The first token of the input starts a line; it makes no difference to the output (the output
+  // is still empty then), but it keeps the meaning of the flag simple.
+  let lineStart = true;
   raw.forEach((token, i) => {
     if (token.type === 'ws') {
       spaced = true;
+      // Lines end at `\n` or `\r` only, as in `endOfLine`.
+      lineStart ||= /[\r\n]/.test(token.text);
       return;
     }
     tokens.push({
@@ -530,8 +541,10 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
       text: endsLine(token) ? token.text.trimEnd() : keywords[i] ?? token.text,
       keyword: keywords[i],
       spaced,
+      lineStart,
     });
     spaced = isComment(token);
+    lineStart = false;
   });
 
   const lines = new SqlLines();
@@ -576,6 +589,11 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
     } else if (pendingLine) {
       breakLine(level.clause === undefined ? level.indent : level.indent + 2);
       pendingLine = false;
+    } else if (endsLine(token) && token.lineStart) {
+      // A line comment (or a `raw-line`) that started a line in the input stays on its own line
+      // instead of moving to the end of the line before it. The indentation is the one of a line
+      // after a line comment; the line is empty already when a line break came just before.
+      breakLine(level.clause === undefined ? level.indent : level.indent + 2);
     }
     const keyword = token.keyword;
     if (keyword !== undefined && level.query) {
