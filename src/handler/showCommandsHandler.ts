@@ -3131,6 +3131,101 @@ export const myCommands = [
     "command": "selection-manipulator.unit.inch-to-cm",
     "title": "Unit - inch to cm",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.uuid-v7",
+    "title": "Random - UUID v7",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.ulid",
+    "title": "Random - ULID",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.nanoid",
+    "title": "Random - NanoID",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.hex",
+    "title": "Random - Hex String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.base64",
+    "title": "Random - Base64 Token",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.integer",
+    "title": "Random - Integer in Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.float",
+    "title": "Random - Float in Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.pick-line",
+    "title": "Random - Pick One Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.sample-lines",
+    "title": "Random - Pick N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.mac",
+    "title": "Random - MAC Address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.color",
+    "title": "Random - Hex Color",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.date",
+    "title": "Random - Date in Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.email",
+    "title": "Random - Dummy Email",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.name",
+    "title": "Random - Dummy Name",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.name-ja",
+    "title": "Random - Dummy Japanese Name",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.phone-jp",
+    "title": "Random - Dummy Phone Number (JP)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.text-ja",
+    "title": "Random - Japanese Dummy Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.boolean",
+    "title": "Random - Boolean",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.dice",
+    "title": "Random - Dice Roll",
+    "canMultiSelection": true
   }
 ];
 

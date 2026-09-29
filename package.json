@@ -3251,6 +3251,101 @@
         "command": "selection-manipulator.date.from-compact.replace",
         "title": "Date - Convert from Compact (YYYYMMDD) (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.uuid-v7",
+        "title": "Random - UUID v7",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.ulid",
+        "title": "Random - ULID",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.nanoid",
+        "title": "Random - NanoID",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.hex",
+        "title": "Random - Hex String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.base64",
+        "title": "Random - Base64 Token",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.integer",
+        "title": "Random - Integer in Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.float",
+        "title": "Random - Float in Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.pick-line",
+        "title": "Random - Pick One Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.sample-lines",
+        "title": "Random - Pick N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.mac",
+        "title": "Random - MAC Address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.color",
+        "title": "Random - Hex Color",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.date",
+        "title": "Random - Date in Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.email",
+        "title": "Random - Dummy Email",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.name",
+        "title": "Random - Dummy Name",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.name-ja",
+        "title": "Random - Dummy Japanese Name",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.phone-jp",
+        "title": "Random - Dummy Phone Number (JP)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.text-ja",
+        "title": "Random - Japanese Dummy Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.boolean",
+        "title": "Random - Boolean",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.dice",
+        "title": "Random - Dice Roll",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -5378,6 +5473,14 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.date.from-compact.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.random.pick-line"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.random.sample-lines"
         }
       ],
       "editor/context": [
@@ -6582,6 +6685,82 @@
         {
           "command": "selection-manipulator.random.lorem-ipsum",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.random.uuid-v7",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.random.ulid",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.random.nanoid",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.random.hex",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.random.base64",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.random.integer",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.random.float",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.random.pick-line",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.random.sample-lines",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.random.mac",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.random.color",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.random.date",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.random.email",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.random.name",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.random.name-ja",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.random.phone-jp",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.random.text-ja",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.random.boolean",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.random.dice",
+          "group": "selection-manipulator@20"
         }
       ],
       "selection-manipulator.programmatic.submenu": [
