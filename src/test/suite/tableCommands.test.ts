@@ -243,7 +243,9 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 
-    test('the output limit is shared by all selections and only warns', async () => {
+    test('the output limit is shared by all selections and only warns', async function () {
+      // A document of millions of characters: Mocha's default of 2 seconds is too tight for a slow CI machine.
+      this.timeout(60_000);
       const { dependencies, opened, warnings, errors } = recorder();
       // Each selection gives about 4,000,000 characters; together they exceed the limit.
       const block = `${'"a",'.repeat(1_000_000)}b`;
@@ -256,7 +258,9 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
       assert.ok(warnings[0].includes(MAX_OUTPUT_LENGTH.toLocaleString('en-US')), warnings[0]);
     });
 
-    test('the grid limit warns and changes nothing', async () => {
+    test('the grid limit warns and changes nothing', async function () {
+      // A document of millions of characters: Mocha's default of 2 seconds is too tight for a slow CI machine.
+      this.timeout(60_000);
       const { dependencies, warnings, errors } = recorder();
       const text = `${','.repeat(1_999)}\n${'a\n'.repeat(5_000)}`;
       const editor = await createTextEditor(text);
@@ -267,7 +271,9 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
       assert.deepStrictEqual(warnings, ['The selection was not changed: the table is too large: 5,001 rows × 2,000 columns is more than 10,000,000 cells. Select less text.']);
     });
 
-    test('a selection longer than 5,000,000 characters is refused', async () => {
+    test('a selection longer than 5,000,000 characters is refused', async function () {
+      // A document of millions of characters: Mocha's default of 2 seconds is too tight for a slow CI machine.
+      this.timeout(60_000);
       const { dependencies, errors, opened } = recorder();
       const editor = await createTextEditor('a'.repeat(5_000_001));
       selectWholeDocument(editor);

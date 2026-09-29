@@ -156,7 +156,8 @@ export const parseDelimited = (text: string, delimiter: string): string[][] => {
           if (c === d || c === CR || c === LF) {
             break;
           }
-          if ((c === SPACE || c === TAB) && c !== d) {
+          // The delimiter was checked first, so a tab here is not the TSV delimiter.
+          if (c === SPACE || c === TAB) {
             i++;
             continue;
           }

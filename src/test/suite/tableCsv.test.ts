@@ -37,7 +37,13 @@ const random = (seed: number) => () => {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
 
-suite('Table CSV parser and writer (tableCsv) Test Suite', () => {
+suite('Table CSV parser and writer (tableCsv) Test Suite', function () {
+  // Some tests below convert inputs of millions of characters and check a time budget (withinBudget
+  // / Date.now). The budgets are at least about 10 times the time measured on a development machine
+  // and far below that of the quadratic behaviour they guard against; Mocha's default of 2 seconds
+  // per test would be stricter than them, so the whole suite gets 60 seconds (as DATA in da52348).
+  this.timeout(60_000);
+
   suite('parseDelimited (RFC 4180)', () => {
     test('plain fields, LF / CRLF / CR records and a mix of them', () => {
       assert.deepStrictEqual(csv('a,b\n1,2'), [['a', 'b'], ['1', '2']]);

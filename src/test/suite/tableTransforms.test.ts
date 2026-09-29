@@ -70,7 +70,13 @@ const withinBudget = <T>(budget: number, convert: () => T): T => {
 const ALL_IDS = TABLE_COMMAND_ENTRIES.map((e) => e.id);
 const JSON_INPUT = new Set(['TABLE-002', 'TABLE-027']);
 
-suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
+suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
+  // Some tests below convert inputs of millions of characters and check a time budget (withinBudget
+  // / Date.now). The budgets are at least about 10 times the time measured on a development machine
+  // and far below that of the quadratic behaviour they guard against; Mocha's default of 2 seconds
+  // per test would be stricter than them, so the whole suite gets 60 seconds (as DATA in da52348).
+  this.timeout(60_000);
+
   suite('ROADMAP examples', () => {
     TABLE_COMMAND_ENTRIES.forEach(({ id }) => {
       test(`${id}`, () => {
@@ -251,6 +257,15 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
       assert.strictEqual(run('TABLE-002', `[{"a":${'['.repeat(400)}${']'.repeat(400)}}]`).split('\n')[0], 'a');
     });
 
+    test('JSON -> CSV: a number out of the double range is an error, not the text null (002 / 027)', () => {
+      for (const id of ['TABLE-002', 'TABLE-027']) {
+        rejects(() => run(id, '[{"w":1e400}]'), /^element 1: a number is out of range$/);
+        rejects(() => run(id, '[{"a":1},{"b":-1e400}]'), /^element 2: a number is out of range$/);
+        rejects(() => run(id, '[{"a":{"b":[1,{"c":1e999}]}}]'), /^element 1: a number is out of range$/);
+      }
+      assert.strictEqual(run('TABLE-002', '[{"w":1e308,"x":null,"y":5e-324}]'), 'w,x,y\n1e+308,,5e-324');
+    });
+
     test('CSV -> JSON -> CSV round trip', () => {
       const csv = 'id,name,note\n1,"O\'Neil, J","say ""hi"""\n2,,"x\ny"';
       assert.strictEqual(run('TABLE-002', run('TABLE-001', csv)), csv);
@@ -366,6 +381,20 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
       rejects(() => run('TABLE-012', 'a\n1', ['t\u0000']), /^the table name contains a control character$/);
     });
 
+    test('a backslash in a value, a column name or the table name is an error (MySQL reads it as an escape)', () => {
+      const reason = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
+        (error: unknown) => error instanceof TableInputError && error.message === message);
+      // The attack of the security review: `\'` would end the first literal early in MySQL.
+      refused('a,b\n\\,); DROP TABLE users; -- ', 'users', `row 2, column 1 contains ${reason}`);
+      refused('a,b\n1,2\n3,x\\y', 't', `row 3, column 2 contains ${reason}`);
+      refused('a,"b\\"""\n1,2', 't', `column 2 of the header contains ${reason}`);
+      refused('a\n1', 'my\\table', `the table name contains ${reason}`);
+      refused('a\n1', 'app.\\', `the table name contains ${reason}`);
+      // Nothing else changed: characters that are special to MySQL only outside a literal stay inside it.
+      assert.strictEqual(run('TABLE-012', 'a\n"%_""`/*"', ['t']), "INSERT INTO t (a) VALUES ('%_\"`/*');");
+    });
+
     test('the output limit stops long INSERT lists', () => {
       const text = `${Array.from({ length: 100 }, (_, i) => `column_${i}`).join(',')}\n${`${'1,'.repeat(99)}1\n`.repeat(20_000)}`;
       tooLarge(() => run('TABLE-012', text, ['t']));
@@ -400,6 +429,13 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
       assert.deepStrictEqual(notice('TABLE-015', 'v\n1\n\nx\n1,2\n0x10\n1e999\n2', ['v']), { message: 'sum=4, avg=1.33333333333333 (3 non-numeric cells skipped)' });
       assert.deepStrictEqual(notice('TABLE-015', 'v\n1\nabc', ['v']), { message: 'sum=1, avg=1 (1 non-numeric cell skipped)' });
       assert.deepStrictEqual(notice('TABLE-015', 'v\nabc\n', ['v']), { message: 'no numeric cells in the column (1 non-numeric cell skipped)', warning: true });
+    });
+
+    test('a sum past the double range is a warning, not Infinity', () => {
+      assert.deepStrictEqual(notice('TABLE-015', 'n,v\na,1e308\nb,1e308', ['v']), { message: 'the sum is out of range', warning: true });
+      assert.deepStrictEqual(notice('TABLE-015', 'v\n-1e308\n-1e308\nx', ['v']),
+        { message: 'the sum is out of range (1 non-numeric cell skipped)', warning: true });
+      assert.deepStrictEqual(notice('TABLE-015', 'v\n1e308\n-1e308', ['v']), { message: 'sum=0, avg=0' });
     });
 
     test('long runs of digits are checked in linear time', () => {
@@ -460,6 +496,17 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
       const text = `${'x'.repeat(50_000)}\n${'a\n'.repeat(250)}`;
       tooLarge(() => withinBudget(2_000, () => run('TABLE-021', text)));
     });
+
+    test('tabs in cells become one space each, so that the borders stay aligned', () => {
+      assert.strictEqual(run('TABLE-021', 'a\n"x\ty"\n"\t\tz"'), [
+        '+-----+',
+        '| a   |',
+        '+-----+',
+        '| x y |',
+        '|   z |',
+        '+-----+',
+      ].join('\n'));
+    });
   });
 
   suite('TABLE-022 whitespace-separated', () => {
@@ -491,6 +538,16 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', () => {
 
     test('records: header: value lines separated by one empty line', () => {
       assert.strictEqual(run('TABLE-025', 'a,b\n1,2\n3,4'), 'a: 1\nb: 2\n\na: 3\nb: 4');
+    });
+
+    test('records: line breaks in headers and values become one space each (one pair per line)', () => {
+      // The cases of the code / QA reviews: an empty line inside a value, line breaks in a header.
+      assert.strictEqual(run('TABLE-025', 'a,b\n"x\n\nb: z",2\n3,4'), 'a: x  b: z\nb: 2\n\na: 3\nb: 4');
+      assert.strictEqual(run('TABLE-025', '"a\nx",b\n1,"2\r\n3"'), 'a x: 1\nb: 2 3');
+      assert.strictEqual(run('TABLE-025', '"h\r1",h2\n"\n",""\n"a\r\n\r\nb",c'), 'h 1:  \nh2: \n\nh 1: a  b\nh2: c');
+      // Every line is a pair or the empty line between records.
+      const lines = run('TABLE-025', '"k\n\n",v\n"\n\n","\r\r"\n"x\ny",z').split('\n');
+      assert.deepStrictEqual(lines.filter((line) => line === '').length, 1);
     });
   });
 

@@ -176,6 +176,33 @@ const jsonCell = (value: JsonValue | undefined): string => {
   return JSON.stringify(value);
 };
 
+/**
+ * Whether a parsed JSON value holds a number out of the double range (`1e400` is read as
+ * Infinity, which JSON.stringify would write as `null`). Iterative: the depth is limited by
+ * parseJson, but no call stack is needed either way.
+ */
+const hasNonFiniteNumber = (value: JsonValue): boolean => {
+  const stack: JsonValue[] = [value];
+  while (stack.length > 0) {
+    const item = stack.pop()!;
+    if (typeof item === 'number') {
+      if (!Number.isFinite(item)) {
+        return true;
+      }
+    } else if (Array.isArray(item)) {
+      // One push per element: spreading a long array would exceed the argument limit.
+      for (const element of item) {
+        stack.push(element);
+      }
+    } else if (item !== null && typeof item === 'object') {
+      for (const key of Object.keys(item)) {
+        stack.push(item[key]);
+      }
+    }
+  }
+  return false;
+};
+
 /** TABLE-002 / 027: array of objects -> CSV; the header is the union of the keys in first-seen order. */
 export const jsonToCsv: TableTransform = (text) => {
   let value: JsonValue;
@@ -194,6 +221,9 @@ export const jsonToCsv: TableTransform = (text) => {
   value.forEach((item, index) => {
     if (!isJsonObject(item)) {
       throw new TableInputError(`element ${index + 1} of the array is not an object`);
+    }
+    if (hasNonFiniteNumber(item)) {
+      throw new TableInputError(`element ${index + 1}: a number is out of range`);
     }
     Object.keys(item).forEach((key) => keys.add(key));
   });
@@ -262,6 +292,20 @@ export const swapColumns: TableTransform = (text, [first, second]) => {
 };
 
 /**
+ * The width (number of code points) of every cell and the widest cell of every column, for the
+ * padding of TABLE-009 / 021.
+ */
+const measureColumns = (rows: readonly (readonly string[])[]): { widths: number[]; cellWidths: number[][] } => {
+  const widths: number[] = [];
+  const cellWidths = rows.map((row) => row.map((cell, column) => {
+    const width = codePointWidth(cell);
+    widths[column] = Math.max(widths[column] ?? 0, width);
+    return width;
+  }));
+  return { widths, cellWidths };
+};
+
+/**
  * TABLE-009: pads every cell but the last of each row with spaces to the widest cell of its
  * column (as written, quotes included; width = number of code points). The length of the result
  * is computed before it is built.
@@ -269,12 +313,7 @@ export const swapColumns: TableTransform = (text, [first, second]) => {
 export const alignColumns: TableTransform = (text) => {
   // A row of one empty cell is written as `""` (as by writeDelimited), so that it is not an empty line.
   const written = readCsv(text).map((row) => (row.length === 1 && row[0] === '' ? ['""'] : row.map((cell) => writeCell(cell, ','))));
-  const widths: number[] = [];
-  const cellWidths = written.map((row) => row.map((cell, column) => {
-    const width = codePointWidth(cell);
-    widths[column] = Math.max(widths[column] ?? 0, width);
-    return width;
-  }));
+  const { widths, cellWidths } = measureColumns(written);
   let total = Math.max(0, written.length - 1);
   written.forEach((row, r) => {
     row.forEach((cell, column) => {
@@ -314,6 +353,13 @@ const SQL_FORBIDDEN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 const quoteIdentifier = (name: string): string => `"${name.replace(/"/g, '""')}"`;
 
+/**
+ * Why a backslash is refused: the literals and quoted names are standard SQL, where `\` is an
+ * ordinary character, but MySQL / MariaDB in their default mode (without NO_BACKSLASH_ESCAPES)
+ * read `\'` / `\"` as an escaped quote, so a cell could end the literal and inject SQL there.
+ */
+const SQL_BACKSLASH_REASON = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+
 /** A table name: `name` or `schema.name` of plain identifiers as it is, anything else quoted as one identifier. */
 export const sqlTableName = (name: string): string => {
   if (name === '') {
@@ -321,6 +367,9 @@ export const sqlTableName = (name: string): string => {
   }
   if (SQL_FORBIDDEN.test(name)) {
     throw new TableInputError('the table name contains a control character');
+  }
+  if (name.includes('\\')) {
+    throw new TableInputError(`the table name contains ${SQL_BACKSLASH_REASON}`);
   }
   return name.split('.').every((part) => SQL_IDENTIFIER.test(part)) ? name : quoteIdentifier(name);
 };
@@ -332,13 +381,16 @@ const sqlColumnName = (name: string, column: number): string => {
   if (SQL_FORBIDDEN.test(name)) {
     throw new TableInputError(`column ${column + 1} of the header contains a control character`);
   }
+  if (name.includes('\\')) {
+    throw new TableInputError(`column ${column + 1} of the header contains ${SQL_BACKSLASH_REASON}`);
+  }
   return SQL_IDENTIFIER.test(name) ? name : quoteIdentifier(name);
 };
 
 /**
  * TABLE-012: one `INSERT INTO t (c1, c2) VALUES ('v1', 'v2');` per data row. Every value is a
- * string literal (`'` doubled, an empty cell is `''`), names follow standard SQL. The SQL is
- * only generated.
+ * string literal (`'` doubled, an empty cell is `''`), names follow standard SQL. A backslash
+ * in a value or a name is an error (see SQL_BACKSLASH_REASON). The SQL is only generated.
  */
 export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
   const table = sqlTableName(tableName);
@@ -350,6 +402,9 @@ export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
     const values = row.map((value, column) => {
       if (SQL_FORBIDDEN.test(value)) {
         throw new TableInputError(`row ${r + 2}, column ${column + 1} contains a control character`);
+      }
+      if (value.includes('\\')) {
+        throw new TableInputError(`row ${r + 2}, column ${column + 1} contains ${SQL_BACKSLASH_REASON}`);
       }
       return `'${value.replace(/'/g, "''")}'`;
     });
@@ -420,6 +475,10 @@ export const sumColumn: TableNotify = (text, [column]) => {
   if (count === 0) {
     return { message: `no numeric cells in the column${skippedText}`, warning: true };
   }
+  if (!Number.isFinite(sum)) {
+    // Every cell is finite, but the sum went past the double range (`1e308` + `1e308`).
+    return { message: `the sum is out of range${skippedText}`, warning: true };
+  }
   return { message: `sum=${formatNumber(sum)}, avg=${formatNumber(sum / count)}${skippedText}` };
 };
 
@@ -451,26 +510,23 @@ export const csvToYaml: TableTransform = (text) => {
   return dumped.endsWith('\n') ? dumped.slice(0, -1) : dumped;
 };
 
-/** Line breaks inside a cell would break the ASCII table: each becomes one space. */
+/** Line breaks inside a cell would break a line-based output (TABLE-021 / 025): each becomes one space. */
 const oneLine = (cell: string): string => cell.replace(/\r\n|\r|\n/g, ' ');
+
+/** A cell of the ASCII table (TABLE-021): line breaks and tabs, whose width is not 1, become one space each. */
+const asciiTableCell = (cell: string): string => oneLine(cell).replace(/\t/g, ' ');
 
 /** TABLE-021: a table with `+---+` borders, also under the header (width = number of code points). */
 export const csvToAsciiTable: TableTransform = (text) => {
-  const rows = normalizeRows(readCsv(text)).map((row) => row.map(oneLine));
-  const columns = rows[0].length;
-  const widths = new Array<number>(columns).fill(0);
-  const cellWidths = rows.map((row) => row.map((cell, column) => {
-    const width = codePointWidth(cell);
-    widths[column] = Math.max(widths[column], width);
-    return width;
-  }));
+  const rows = normalizeRows(readCsv(text)).map((row) => row.map(asciiTableCell));
+  const { widths, cellWidths } = measureColumns(rows);
   // Exact length before building: border lines and cell lines.
   const borderLength = widths.reduce((sum, width) => sum + width + 3, 1);
   const borders = rows.length > 1 ? 3 : 2;
   let total = borders * borderLength + rows.length + borders - 1;
-  for (const row of rows) {
-    row.forEach((cell, column) => {
-      total += cell.length + widths[column] - codePointWidth(cell) + 3;
+  for (let r = 0; r < rows.length; r++) {
+    rows[r].forEach((cell, column) => {
+      total += cell.length + widths[column] - cellWidths[r][column] + 3;
     });
     total += 1;
     if (total > MAX_OUTPUT_LENGTH) {
@@ -549,16 +605,21 @@ export const fillDown: TableTransform = (text) => {
   return writeDelimited(rows, ',');
 };
 
-/** TABLE-025: `header: value` lines per row, records separated by one empty line. */
+/**
+ * TABLE-025: `header: value` lines per row, records separated by one empty line. Line breaks in
+ * a header or a value become one space each (as in TABLE-021), so that every line is one
+ * `header: value` pair and an empty line only separates records.
+ */
 export const csvToRecords: TableTransform = (text) => {
   const { header, data } = headedRows(readCsv(text));
   requireDataRows(data);
+  const keys = header.map(oneLine);
   const out = new OutputBuffer();
   data.forEach((row, index) => {
     if (index > 0) {
       out.push('');
     }
-    row.forEach((value, column) => out.push(`${header[column]}: ${value}`));
+    row.forEach((value, column) => out.push(`${keys[column]}: ${oneLine(value)}`));
   });
   return out.join('\n');
 };
