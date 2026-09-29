@@ -139,8 +139,8 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
     test('MD-003: a cursor inserts the table of contents of the whole document and selects it', async () => {
       const editor = await open('\n# A\n## B', [[0, 0]]);
       await run(entryOf('MD-003'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), '- [A](#a)\n  - [B](#b)\n# A\n## B');
-      assert.deepStrictEqual(selectionsOf(editor), [[0, 21]]);
+      assert.strictEqual(editor.document.getText(), '- [A](#a)\n  - [B](#b)\n\n# A\n## B');
+      assert.deepStrictEqual(selectionsOf(editor), [[0, 22]]);
     });
 
     test('MD-003: repeated headings in several selections are numbered like the whole document', async () => {
@@ -151,7 +151,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const lastB = text.lastIndexOf('# B');
       const editor = await open(text, [[second, second + 3], [third, lastB + 3]]);
       await run(entryOf('MD-003'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), '# A\n- [A](#a-1)\ntext\n- [A](#a-2)\n  - [B](#b)\n- [B](#b-1)');
+      assert.strictEqual(editor.document.getText(), '# A\n\n- [A](#a-1)\n\ntext\n\n- [A](#a-2)\n  - [B](#b)\n- [B](#b-1)');
       assert.deepStrictEqual(selectionsOf(editor).length, 2);
       // The same anchors as a table of contents of the whole document (inserted at a cursor).
       const whole = await open(text, [[0, 0]]);
@@ -188,8 +188,8 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
     test('partial lines: fences and definitions stand on lines of their own (MD-014, MD-023)', async () => {
       const fence = await open('say a=1 now', [[4, 7]]);
       await run(entryOf('MD-014'), recorder(['js']).dependencies)(fence);
-      assert.strictEqual(fence.document.getText(), 'say \n```js\na=1\n```\n now');
-      assert.deepStrictEqual(selectionsOf(fence), [[4, 19]]);
+      assert.strictEqual(fence.document.getText(), 'say\n```js\na=1\n```\nnow');
+      assert.deepStrictEqual(selectionsOf(fence), [[3, 18]]);
       const text = 'x [a](u) y [b](v) z\nnext';
       const links = await open(text, [[2, 8], [11, 17]]);
       await run(entryOf('MD-023'), recorder().dependencies)(links);
@@ -197,6 +197,26 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.deepStrictEqual(selectionsOf(links), [[2, 8], [11, 17]]);
       await vscode.commands.executeCommand('undo');
       assert.strictEqual(links.document.getText(), text, 'one undo restores the text');
+    });
+
+    test('a text line right after the block is not taken into it (MD-003, MD-024; QA round 2)', async () => {
+      // MD-003: a cursor on the blank line under the title, followed by a paragraph.
+      const text = '# Title\n\nIntro\n## B';
+      const toc = await open(text, [[8, 8]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(toc);
+      assert.strictEqual(toc.document.getText(), '# Title\n\n- [Title](#title)\n  - [B](#b)\n\nIntro\n## B');
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(toc.document.getText(), text, 'one undo restores the text');
+      // MD-003: the headings selected up to the end of the last one, then a text line.
+      const selected = await open('# A\n## B\ntail', [[0, 8]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(selected);
+      assert.strictEqual(selected.document.getText(), '- [A](#a)\n  - [B](#b)\n\ntail');
+      // MD-024: "foo" selected without its line break (Shift+End), then a text line.
+      const details = await open('foo\n**bar**', [[0, 3]]);
+      await run(entryOf('MD-024'), recorder(['S']).dependencies)(details);
+      assert.strictEqual(details.document.getText(), '<details><summary>S</summary>\n\nfoo\n\n</details>\n\n**bar**');
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(details.document.getText(), 'foo\n**bar**', 'one undo restores the text');
     });
 
     test('CRLF documents: the new line breaks are CRLF (MD-019, MD-003, MD-022)', async () => {
@@ -289,7 +309,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const editor = await open('a b', [[0, 1], [2, 3]]);
       await run(entryOf('MD-024'), dependencies)(editor);
       assert.strictEqual(boxes.length, 1);
-      assert.strictEqual(editor.document.getText(), '<details><summary>S</summary>\n\na\n\n</details>\n\n \n<details><summary>S</summary>\n\nb\n\n</details>');
+      assert.strictEqual(editor.document.getText(), '<details><summary>S</summary>\n\na\n\n</details>\n\n\n<details><summary>S</summary>\n\nb\n\n</details>');
     });
   });
 

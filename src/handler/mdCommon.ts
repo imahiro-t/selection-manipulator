@@ -442,7 +442,7 @@ export interface LinkTail {
   titleSource?: string;
 }
 
-const isSpaceOrTab = (c: string | undefined): boolean => c === ' ' || c === '\t';
+export const isSpaceOrTab = (c: string | undefined): boolean => c === ' ' || c === '\t';
 
 /**
  * The first offset at or after `from` where `stop` holds (the text length if none). The last
@@ -469,7 +469,7 @@ export class ForwardSearch {
   }
 }
 
-const isLineBreak = (c: string): boolean => c === '\n' || c === '\r';
+export const isLineBreak = (c: string | undefined): boolean => c === '\n' || c === '\r';
 
 /**
  * Reads the `(destination "title")` parts of the inline links of one text. Linear over all the
@@ -553,44 +553,101 @@ export class LinkTailParser {
 
 /**
  * What is around offsets of a text on their lines (for the commands that write whole-line blocks
- * around or after a selection). Linear in the text overall when the offsets are asked in
- * increasing order, as the selections are.
+ * around or after a selection).
+ *
+ * Every method expects its offsets in increasing order (the order of the selections, which the
+ * callers keep): each one remembers how far it has read, so that all the calls together read the
+ * text about once. An offset that goes back is still answered correctly, but `textBefore` and
+ * `textOnPreviousLine` then look back without remembering (so a caller that does not sort its
+ * offsets can be as slow as the number of offsets times the line length).
  */
 export class LineContext {
+  /** How far `textBefore` / `textOnPreviousLine` have read. */
   private sweep = 0;
-  /** The last offset before `sweep` that is not a space or a tab (-1: none). */
-  private lastSignificant = -1;
+  /** Whether the line `sweep` is on has text other than spaces and tabs before `sweep`. */
+  private currentLineText = false;
+  /** Whether the line before the one `sweep` is on has text other than spaces and tabs. */
+  private previousLineText = false;
   private readonly nextSignificant: ForwardSearch;
   private readonly nextLineBreak: ForwardSearch;
+  /** A separate search for `textOnNextLine`, so that its offsets stay in increasing order too. */
+  private readonly nextSignificantOnNextLine: ForwardSearch;
 
   constructor(private readonly text: string) {
-    this.nextSignificant = new ForwardSearch(text, (c) => !isSpaceOrTab(c));
+    const significant = (c: string): boolean => !isSpaceOrTab(c);
+    this.nextSignificant = new ForwardSearch(text, significant);
     this.nextLineBreak = new ForwardSearch(text, isLineBreak);
+    this.nextSignificantOnNextLine = new ForwardSearch(text, significant);
+  }
+
+  /** Reads on to `offset`; false when `offset` is behind what has been read. */
+  private advance(offset: number): boolean {
+    const text = this.text;
+    if (offset < this.sweep) {
+      return false;
+    }
+    for (; this.sweep < offset; this.sweep++) {
+      const c = text[this.sweep];
+      if (isLineBreak(c)) {
+        // "\r\n" is one line break.
+        if (c !== '\n' || text[this.sweep - 1] !== '\r') {
+          this.previousLineText = this.currentLineText;
+          this.currentLineText = false;
+        }
+      } else if (!isSpaceOrTab(c)) {
+        this.currentLineText = true;
+      }
+    }
+    return true;
+  }
+
+  /** Whether there is text other than spaces and tabs before `offset` on its line (looking back). */
+  private lookBack(offset: number): boolean {
+    let i = offset - 1;
+    while (i >= 0 && isSpaceOrTab(this.text[i])) {
+      i--;
+    }
+    return i >= 0 && !isLineBreak(this.text[i]);
   }
 
   /** Whether there is text other than spaces and tabs before `offset` on its line. */
   textBefore(offset: number): boolean {
+    return this.advance(offset) ? this.currentLineText : this.lookBack(offset);
+  }
+
+  /** Whether the line before the line of `offset` has text other than spaces and tabs. */
+  textOnPreviousLine(offset: number): boolean {
+    if (this.advance(offset)) {
+      return this.previousLineText;
+    }
     const text = this.text;
-    if (offset < this.sweep) {
-      // Not in increasing order: look back without remembering.
-      let i = offset - 1;
-      while (i >= 0 && isSpaceOrTab(text[i])) {
-        i--;
-      }
-      return i >= 0 && !isLineBreak(text[i]);
+    let lineStart = offset;
+    while (lineStart > 0 && !isLineBreak(text[lineStart - 1])) {
+      lineStart--;
     }
-    for (; this.sweep < offset; this.sweep++) {
-      if (!isSpaceOrTab(text[this.sweep])) {
-        this.lastSignificant = this.sweep;
-      }
+    if (lineStart === 0) {
+      return false;
     }
-    return this.lastSignificant !== -1 && !isLineBreak(text[this.lastSignificant]);
+    // The previous line ends where the line break before lineStart starts ("\r\n" is one).
+    return this.lookBack(text[lineStart - 1] === '\n' && text[lineStart - 2] === '\r' ? lineStart - 2 : lineStart - 1);
   }
 
   /** Whether there is text other than spaces and tabs from `offset` to the end of its line. */
   textAfter(offset: number): boolean {
     const i = this.nextSignificant.find(offset);
     return i < this.text.length && !isLineBreak(this.text[i]);
+  }
+
+  /** Whether the line after the line of `offset` has text other than spaces and tabs. */
+  textOnNextLine(offset: number): boolean {
+    const text = this.text;
+    const lineEnd = this.lineEnd(offset);
+    if (lineEnd >= text.length) {
+      return false;
+    }
+    const next = lineEnd + (text[lineEnd] === '\r' && text[lineEnd + 1] === '\n' ? 2 : 1);
+    const i = this.nextSignificantOnNextLine.find(next);
+    return i < text.length && !isLineBreak(text[i]);
   }
 
   /** The end of the line of `offset`: the offset of its line break, or the text length. */

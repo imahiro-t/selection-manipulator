@@ -174,25 +174,26 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
   suite('MD-003 table of contents', () => {
     test('a cursor inserts the table of contents of the whole document', () => {
       const text = '\n# A\n## B\n### C\n```\n# not\n```';
-      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 0, end: 0 }] }), `- [A](#a)\n  - [B](#b)\n    - [C](#c)${text}`);
+      // The cursor's empty line becomes a blank line after the list (a text line follows it).
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 0, end: 0 }] }), `- [A](#a)\n  - [B](#b)\n    - [C](#c)\n${text}`);
     });
 
     test('a selection is replaced with the table of contents of its headings; other lines go', () => {
       const text = 'intro\n## B\ntext\n### C\nend';
-      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 6, end: text.indexOf('\nend') }] }), 'intro\n- [B](#b)\n  - [C](#c)\nend');
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 6, end: text.indexOf('\nend') }] }), 'intro\n\n- [B](#b)\n  - [C](#c)\n\nend');
     });
 
     test('repeated headings are numbered over the whole document', () => {
       const text = '# A\n# A\n## A';
       // Only the last heading is selected: it is the third "a" of the document.
-      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 8, end: 12 }] }), '# A\n# A\n- [A](#a-2)');
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 8, end: 12 }] }), '# A\n# A\n\n- [A](#a-2)');
       assert.deepStrictEqual(documentHeadings(text).map(({ slug }) => slug), ['a', 'a-1', 'a-2']);
     });
 
     test('selections without headings are left; no headings at all informs', () => {
       assert.strictEqual(run('MD-003', 'text'), `info: ${MD_NO_HEADINGS}`);
       assert.strictEqual(run('MD-003', 'text', { ranges: [{ start: 0, end: 0 }] }), `info: ${MD_NO_HEADINGS}`);
-      assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 0, end: 1 }, { start: 2, end: 5 }] }), 'x\n- [A](#a)');
+      assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 0, end: 1 }, { start: 2, end: 5 }] }), 'x\n\n- [A](#a)');
     });
 
     test('skipped levels nest only one step deeper; a shallower heading goes back to its parent', () => {
@@ -488,22 +489,31 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
 
     test('MD-014: line breaks around the fences when the selection starts or ends inside a line', () => {
       const text = 'say a=1 now';
-      assert.strictEqual(run('MD-014', text, { inputs: ['js'], ranges: [select(text, 'a=1')] }), 'say \n```js\na=1\n```\n now');
-      assert.strictEqual(run('MD-014', 'x foo', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), 'x \n```\nfoo\n```');
-      assert.strictEqual(run('MD-014', 'foo y', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\n y');
+      // The spaces where the line is split are dropped.
+      assert.strictEqual(run('MD-014', text, { inputs: ['js'], ranges: [select(text, 'a=1')] }), 'say\n```js\na=1\n```\nnow');
+      assert.strictEqual(run('MD-014', 'x foo', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), 'x\n```\nfoo\n```');
+      assert.strictEqual(run('MD-014', 'foo y', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\ny');
+      assert.strictEqual(run('MD-014', 'x \t foo \t y', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), 'x\n```\nfoo\n```\ny');
       // Only indentation before, only spaces after, a selection ending with its line break: no extra line breaks.
       assert.strictEqual(run('MD-014', '  foo  ', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), '  ```\nfoo\n```  ');
-      assert.strictEqual(run('MD-014', 'x foo\ny', { inputs: [''], ranges: [{ start: 2, end: 6 }] }), 'x \n```\nfoo\n```\ny');
+      assert.strictEqual(run('MD-014', 'x foo\ny', { inputs: [''], ranges: [{ start: 2, end: 6 }] }), 'x\n```\nfoo\n```\ny');
+      // The closing fence ends the block: a text line right after it needs no blank line.
+      assert.strictEqual(run('MD-014', 'foo\nbar', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\nbar');
       // Two selections on one line; CRLF.
       const two = 'a b c';
-      assert.strictEqual(run('MD-014', two, { inputs: [''], ranges: [select(two, 'a'), select(two, 'c')] }), '```\na\n```\n b \n```\nc\n```');
-      assert.strictEqual(run('MD-014', 'say a=1 now', { inputs: [''], ranges: [{ start: 4, end: 7 }], eol: '\r\n' }), 'say \r\n```\r\na=1\r\n```\r\n now');
+      assert.strictEqual(run('MD-014', two, { inputs: [''], ranges: [select(two, 'a'), select(two, 'c')] }), '```\na\n```\nb\n```\nc\n```');
+      assert.strictEqual(run('MD-014', 'say a=1 now', { inputs: [''], ranges: [{ start: 4, end: 7 }], eol: '\r\n' }), 'say\r\n```\r\na=1\r\n```\r\nnow');
+      // The dropped spaces never reach into another selection (here a cursor right after the space).
+      const cursor = result('MD-014', 'a  b', { inputs: [''], ranges: [{ start: 0, end: 1 }, { start: 2, end: 2 }] });
+      assert.ok(cursor.kind === 'edit');
+      assert.strictEqual(applied('a  b', cursor), '```\na\n```\n b');
+      assert.deepStrictEqual(cursor.ranges.map(({ start, end }) => [start, end]), [[0, 10], [10, 10]]);
     });
 
     test('MD-024: a line break before <details>, a blank line after </details> when text follows', () => {
       const text = 'x foo y';
       assert.strictEqual(run('MD-024', text, { inputs: ['s'], ranges: [select(text, 'foo')] }),
-        'x \n<details><summary>s</summary>\n\nfoo\n\n</details>\n\n y');
+        'x\n<details><summary>s</summary>\n\nfoo\n\n</details>\n\ny');
       // A whole line followed by a text line: a blank line ends the HTML block.
       assert.strictEqual(run('MD-024', 'foo\ny', { inputs: [''], ranges: [{ start: 0, end: 4 }] }),
         '<details><summary>Details</summary>\n\nfoo\n\n</details>\n\ny');
@@ -512,6 +522,26 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
         '<details><summary>Details</summary>\n\nfoo\n\n</details>\n\ny');
       assert.strictEqual(run('MD-024', 'foo\n', { inputs: [''], ranges: [{ start: 0, end: 3 }] }),
         '<details><summary>Details</summary>\n\nfoo\n\n</details>\n');
+    });
+
+    test('MD-024: a selection ending at the end of its line without the line break, followed by a text line (QA round 2)', () => {
+      // Shift+End on "foo": the next line would be part of the HTML block without a blank line.
+      assert.strictEqual(run('MD-024', 'foo\nbar', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>S</summary>\n\nfoo\n\n</details>\n\nbar');
+      assert.strictEqual(run('MD-024', 'foo\r\n**bar**', { inputs: ['S'], ranges: [{ start: 0, end: 3 }], eol: '\r\n' }),
+        '<details><summary>S</summary>\r\n\r\nfoo\r\n\r\n</details>\r\n\r\n**bar**');
+      // Spaces at the end of the line make it a blank line; the next line is blank or missing: nothing added.
+      assert.strictEqual(run('MD-024', 'foo  \nbar', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>S</summary>\n\nfoo\n\n</details>\n  \nbar');
+      assert.strictEqual(run('MD-024', 'foo\n\nbar', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>S</summary>\n\nfoo\n\n</details>\n\nbar');
+      assert.strictEqual(run('MD-024', 'foo\n  \nbar', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>S</summary>\n\nfoo\n\n</details>\n  \nbar');
+      assert.strictEqual(run('MD-024', 'x\nfoo', { inputs: ['S'], ranges: [{ start: 2, end: 5 }] }),
+        'x\n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      // Several lines selected up to the end of the last one.
+      assert.strictEqual(run('MD-024', 'a\nb\nc', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>S</summary>\n\na\nb\n\n</details>\n\nc');
     });
 
     test('MD-023: a selection ending inside a line puts its definitions after the end of the line', () => {
@@ -557,9 +587,44 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
     test('MD-003: a cursor or selection inside a line puts the table of contents on lines of its own', () => {
       const text = '# A\n## B';
       assert.strictEqual(run('MD-003', text, { ranges: [{ start: 0, end: 0 }] }), '- [A](#a)\n  - [B](#b)\n\n# A\n## B');
-      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 3, end: 3 }] }), '# A\n- [A](#a)\n  - [B](#b)\n## B');
-      assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 1, end: 5 }] }), 'x\n- [A](#a)');
-      assert.strictEqual(run('MD-003', '# A tail', { ranges: [{ start: 0, end: 3 }] }), '- [A tail](#a-tail)\n\n tail');
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 3, end: 3 }] }), '# A\n\n- [A](#a)\n  - [B](#b)\n\n## B');
+      assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 1, end: 5 }] }), 'x\n\n- [A](#a)');
+      // The spaces where the line is split are dropped.
+      assert.strictEqual(run('MD-003', '# A tail', { ranges: [{ start: 0, end: 3 }] }), '- [A tail](#a-tail)\n\ntail');
+      assert.strictEqual(run('MD-003', 'a  b\n# A', { ranges: [{ start: 2, end: 2 }] }), 'a\n\n- [A](#a)\n\nb\n# A');
+    });
+
+    test('MD-003: a text line right after the table of contents is not taken into its last item (QA round 2)', () => {
+      // A cursor on the blank line under the title, followed by a paragraph.
+      const text = '# Title\n\nIntro\n## B';
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 8, end: 8 }] }), '# Title\n\n- [Title](#title)\n  - [B](#b)\n\nIntro\n## B');
+      // Headings selected up to the end of the last one (without its line break), then a text line.
+      assert.strictEqual(run('MD-003', '# A\n## B\ntail', { ranges: [{ start: 0, end: 8 }] }), '- [A](#a)\n  - [B](#b)\n\ntail');
+      // With the line break: the text line starts right after the selection.
+      assert.strictEqual(run('MD-003', '# A\n## B\ntail', { ranges: [{ start: 0, end: 9 }] }), '- [A](#a)\n  - [B](#b)\n\ntail');
+      // With the line break and the blank line after it: the blank line stays.
+      assert.strictEqual(run('MD-003', '# A\n## B\n\ntail', { ranges: [{ start: 0, end: 9 }] }), '- [A](#a)\n  - [B](#b)\n\ntail');
+      // A cursor on an empty first line, followed by the headings.
+      assert.strictEqual(run('MD-003', '\n# A\n## B', { ranges: [{ start: 0, end: 0 }] }), '- [A](#a)\n  - [B](#b)\n\n# A\n## B');
+      // Nothing follows, or a blank line already does: nothing is added.
+      assert.strictEqual(run('MD-003', '# A\n## B', { ranges: [{ start: 0, end: 8 }] }), '- [A](#a)\n  - [B](#b)');
+      assert.strictEqual(run('MD-003', '# A\n## B\n\ntail', { ranges: [{ start: 0, end: 8 }] }), '- [A](#a)\n  - [B](#b)\n\ntail');
+      assert.strictEqual(run('MD-003', '# A\n## B\n  \ntail', { ranges: [{ start: 0, end: 8 }] }), '- [A](#a)\n  - [B](#b)\n  \ntail');
+      // CRLF.
+      assert.strictEqual(run('MD-003', '# A\r\n## B\r\ntail', { ranges: [{ start: 0, end: 9 }], eol: '\r\n' }), '- [A](#a)\r\n  - [B](#b)\r\n\r\ntail');
+    });
+
+    test('MD-003: a blank line before the table of contents when a text line comes right before it', () => {
+      // A list item right before would take the table of contents into its list.
+      assert.strictEqual(run('MD-003', '- item\n\n# A', { ranges: [{ start: 7, end: 7 }] }), '- item\n\n- [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', '- item\n# A', { ranges: [{ start: 7, end: 10 }] }), '- item\n\n- [A](#a)');
+      // Indentation only before the cursor: it is dropped with the new blank line.
+      assert.strictEqual(run('MD-003', '- item\n  \n# A', { ranges: [{ start: 9, end: 9 }] }), '- item\n\n- [A](#a)\n\n# A');
+      // A blank line (or the start of the text) before: nothing is added, and indentation stays.
+      assert.strictEqual(run('MD-003', 'x\n\n# A', { ranges: [{ start: 3, end: 6 }] }), 'x\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '  # A', { ranges: [{ start: 2, end: 5 }] }), '  - [A](#a)');
+      // CRLF.
+      assert.strictEqual(run('MD-003', 'p\r\n# A', { ranges: [{ start: 3, end: 6 }], eol: '\r\n' }), 'p\r\n\r\n- [A](#a)');
     });
   });
 
@@ -597,6 +662,17 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(lines.textBefore(1), true);
       assert.deepStrictEqual([0, 2, 5, 7, 9, 11].map((offset) => lines.textAfter(offset)), [true, false, true, true, false, false]);
       assert.deepStrictEqual([0, 3, 4, 5, 11].map((offset) => lines.lineEnd(offset)), [4, 4, 4, 9, 11]);
+    });
+
+    test('line context: text on the previous / next line', () => {
+      const text = 'ab\n  \r\ncd\rx';
+      const offsets = [0, 1, 3, 5, 7, 8, 10, 11];
+      const lines = new LineContext(text);
+      assert.deepStrictEqual(offsets.map((offset) => lines.textOnPreviousLine(offset)), [false, false, true, true, false, false, true, true]);
+      // Out of order still answers correctly.
+      assert.deepStrictEqual([...offsets].reverse().map((offset) => lines.textOnPreviousLine(offset)), [true, true, false, false, true, true, false, false]);
+      const next = new LineContext(text);
+      assert.deepStrictEqual(offsets.map((offset) => next.textOnNextLine(offset)), [false, false, true, true, true, true, false, false]);
     });
 
     test('forward search: remembered searches give the same answers', () => {

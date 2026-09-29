@@ -21,7 +21,12 @@
  *   the end of a selection as a line and keep it as it is.
  * - What a command writes as a block never shares a line with other text, even when a selection
  *   starts or ends inside a line: line breaks are added around MD-003's list, MD-014's fences and
- *   MD-024's tags, and MD-023 writes its definitions after the end of the line (see each).
+ *   MD-024's tags, and MD-023 writes its definitions after the end of the line (see each). The
+ *   spaces and tabs where a line is split are dropped. A block that the next line would
+ *   otherwise continue (MD-003's list, MD-024's HTML block) is followed by a blank line when
+ *   text follows it on its line or on the next line, and MD-003's list also has a blank line
+ *   before it when text comes before it (MD-014's closing fence and MD-023's definitions end by
+ *   themselves).
  * - The heading and list commands (MD-001..003, 009, 013, 020, 021) leave the lines of fenced
  *   code blocks alone.
  * - The results of all selections together may be at most `MAX_OUTPUT_LENGTH` characters.
@@ -56,7 +61,9 @@ import {
   InlineLink,
   isBlank,
   isFenceLanguage,
+  isLineBreak,
   isQuoteLine,
+  isSpaceOrTab,
   isThematicBreak,
   joinLines,
   LineContext,
@@ -111,8 +118,6 @@ export class MdInputError extends Error {
   }
 }
 
-/** MD-014: the language of a code fence (the same rule as the `class` MD-019 writes). */
-export const MD_LANGUAGE_MAX_LENGTH = FENCE_LANGUAGE_MAX_LENGTH;
 /** MD-016 / 024: the alt text and the summary. */
 export const MD_LABEL_MAX_LENGTH = 1000;
 
@@ -158,38 +163,84 @@ export const replaceSelections = (text: string, ranges: readonly MdRange[], repl
 export interface LineEdges {
   /** There is text other than spaces and tabs before the selection on the line where it starts. */
   textBefore: boolean;
-  /** There is text other than spaces and tabs after the selection on the line where it ends. */
+  /**
+   * There is text other than spaces and tabs after the selection on the line where it ends (for a
+   * selection that ends with a line break, that is the next line).
+   */
   textAfter: boolean;
+  /** The line after the line where the selection ends has text other than spaces and tabs. */
+  textOnNextLine: boolean;
 }
 
-const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false };
+const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false, textOnNextLine: false };
 
 /** A command that transforms the text of every non-empty selection on its own. */
 type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[], edges: LineEdges) => string;
 
 /**
+ * Whether a selection `[start, end)` ends inside a line (so that a line break written after it
+ * splits the line): it does not end with a line break, and it is not a cursor at a line start.
+ */
+const endsInsideLine = (text: string, end: number): boolean => end > 0 && !isLineBreak(text[end - 1]);
+
+/**
+ * Where to edit a selection `[start, end)` whose result starts a new line before it
+ * (`breakBefore`) or splits its line after it (`breakAfter`): the spaces and tabs at the split
+ * are taken into the edit, so that the split lines do not keep them at their end or start. The
+ * edit does not reach before `floor` (the end of the previous selection's edit) or after
+ * `ceiling` (the start of the next selection). The spaces read are next to one selection each,
+ * so this is linear over all the selections.
+ */
+const editRange = (text: string, range: MdRange, breakBefore: boolean, breakAfter: boolean, floor: number, ceiling: number): MdRange => {
+  let start = range.start;
+  if (breakBefore) {
+    while (start > floor && isSpaceOrTab(text[start - 1])) {
+      start--;
+    }
+  }
+  let end = range.end;
+  if (breakAfter) {
+    while (end < ceiling && isSpaceOrTab(text[end])) {
+      end++;
+    }
+  }
+  return start === range.start && end === range.end ? range : { start, end, reversed: range.reversed };
+};
+
+/**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
- * lines of the selection's ends; otherwise `NO_LINE_EDGES`). The changed results are counted as
- * they are made, so that the output limit stops a run before all of them are built.
+ * lines of the selection's ends, and the spaces and tabs where it splits a line are taken into
+ * the edit; otherwise it gets `NO_LINE_EDGES`). The changed results are counted as they are
+ * made, so that the output limit stops a run before all of them are built.
  */
 const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
   let total = 0;
-  return replaceSelections(text, ranges, ranges.map((range) => {
+  let floor = 0;
+  const edited: MdRange[] = [];
+  const replacements = ranges.map((range, i) => {
+    edited.push(range);
     if (range.start === range.end) {
+      floor = range.end;
       return undefined;
     }
     const value = text.slice(range.start, range.end);
     const edges = lines === undefined
       ? NO_LINE_EDGES
-      : { textBefore: lines.textBefore(range.start), textAfter: lines.textAfter(range.end) };
+      : { textBefore: lines.textBefore(range.start), textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end) };
     const replacement = transform(value, eol, inputs, edges);
     if (replacement !== value) {
       total += replacement.length;
       assertOutputLength(total);
+      if (lines !== undefined) {
+        const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
+        edited[i] = editRange(text, range, edges.textBefore, edges.textAfter && endsInsideLine(text, range.end), floor, ceiling);
+      }
     }
+    floor = edited[i].end;
     return replacement;
-  }));
+  });
+  return replaceSelections(text, edited, replacements);
 };
 
 /** Applies `transform` to the lines of `value` (one trailing line break kept as it is). */
@@ -343,12 +394,14 @@ const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol, used:
 /**
  * MD-003: a selection is replaced with the table of contents of the headings in it (a selection
  * without headings is left); a cursor inserts the table of contents of the whole document. The
- * anchors of repeated headings are numbered over the whole document. The list is always on
- * lines of its own: a line break is added before it when it starts after other text on the
- * line, and a blank line after it when other text follows on the line (which would otherwise
- * continue its last item). The headings of a selection are found by walking the headings and
- * the selections (both in document order) together, and the whole table of contents is made
- * once for all cursors.
+ * anchors of repeated headings are numbered over the whole document. The list is a block of its
+ * own, with a blank line (or the start / end of the text) before and after it: a blank line is
+ * added before it when text comes before it on its line or on the line before, and after it when
+ * text follows it on its line or on the line after (a text line right after the list would
+ * continue its last item, and a list item right before it would take it into its list). The
+ * spaces and tabs where a line is split are dropped. The headings of a selection are found by
+ * walking the headings and the selections (both in document order) together, and the whole
+ * table of contents is made once for all cursors.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
@@ -356,7 +409,8 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
   let whole: string | undefined;
   let total = 0;
   let next = 0;
-  const replacements = ranges.map((range) => {
+  /** The table of contents for one selection (in order), or undefined when it has no headings. */
+  const tocOf = (range: MdRange): string | undefined => {
     let toc: string | undefined;
     if (range.start === range.end) {
       whole ??= headings.length === 0 ? undefined : tableOfContents(headings, eol, 0);
@@ -372,19 +426,33 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
       }
       toc = last === next ? undefined : tableOfContents(headings.slice(next, last), eol, total);
     }
+    return toc;
+  };
+  let floor = 0;
+  const edited: MdRange[] = [];
+  const replacements = ranges.map((range, i) => {
+    edited.push(range);
+    const toc = tocOf(range);
     if (toc === undefined) {
+      floor = range.end;
       return undefined;
     }
-    const before = lines.textBefore(range.start) ? eol : '';
-    const after = lines.textAfter(range.end) ? eol + eol : '';
+    const textBefore = lines.textBefore(range.start);
+    const textAfter = lines.textAfter(range.end);
+    const before = textBefore ? eol + eol : lines.textOnPreviousLine(range.start) ? eol : '';
+    const after = textAfter ? eol + eol : lines.textOnNextLine(range.end) ? eol : '';
     total += before.length + toc.length + after.length;
     assertOutputLength(total);
-    return before === '' && after === '' ? toc : before + toc + after;
+    const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
+    edited[i] = editRange(text, range, before !== '', textAfter && endsInsideLine(text, range.end), floor, ceiling);
+    floor = edited[i].end;
+    return before + toc + after;
   });
   if (replacements.every((replacement) => replacement === undefined)) {
     return { kind: 'info', message: MD_NO_HEADINGS };
   }
-  return replaceSelections(text, ranges, replacements);
+  return replaceSelections(text, edited, replacements);
+
 };
 
 // ---------------------------------------------------------------------------
@@ -512,8 +580,8 @@ const hasLineBreak = (value: string): boolean => value.includes('\n') || value.i
 
 /** MD-014: the language may be empty, or up to 50 letters, digits and `_ + # . -`. */
 export const validateLanguageInput = (value: string): string | undefined => {
-  if (value.length > MD_LANGUAGE_MAX_LENGTH) {
-    return `Enter at most ${MD_LANGUAGE_MAX_LENGTH} characters`;
+  if (value.length > FENCE_LANGUAGE_MAX_LENGTH) {
+    return `Enter at most ${FENCE_LANGUAGE_MAX_LENGTH} characters`;
   }
   if (!isFenceLanguage(value)) {
     return 'Use only letters, digits and _ + # . - (or leave it empty)';
@@ -544,7 +612,9 @@ const assertValid = (validate: (value: string) => string | undefined, value: str
  * MD-014: a code fence longer than any backtick run in the selection (at least 3), with the
  * language. The fences are always on lines of their own: a line break is added before the
  * opening fence when the selection starts after other text on its line, and after the closing
- * fence when other text follows the selection on its line.
+ * fence when other text follows the selection on its line (the spaces and tabs at such a split
+ * are dropped by `perSelection`). The closing fence ends the block, so text on the next line
+ * needs no blank line.
  */
 export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLanguageInput, language);
@@ -600,9 +670,10 @@ const lineBreakCount = (breaks: string): number => (breaks.length === 0 ? 0 : li
 /**
  * MD-024: `<details><summary>…</summary>`, a blank line, the selection, a blank line,
  * `</details>`. The tags are always on lines of their own: a line break is added before
- * `<details>` when the selection starts after other text on its line; when text follows the
- * selection, a blank line is made after `</details>` (an HTML block runs to the next blank line,
- * so the text would otherwise be part of it).
+ * `<details>` when the selection starts after other text on its line. `</details>` is always
+ * followed by a blank line (or by the end of the text) when text comes after it, whether on the
+ * rest of its line or on the next line: an HTML block runs to the next blank line, so that text
+ * would otherwise be part of it.
  */
 export const toDetails = (value: string, eol: MdEol, summary: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLabelInput, summary);
@@ -610,8 +681,13 @@ export const toDetails = (value: string, eol: MdEol, summary: string, edges: Lin
   const [body, trailing] = splitTrailingBreaks(value);
   const before = edges.textBefore ? eol : '';
   let after = '';
-  if (edges.textAfter) {
-    after = trailing === '' ? eol + eol : lineBreakCount(trailing) === 1 ? eol : '';
+  if (trailing === '') {
+    // Text on the rest of the line: split it off with a blank line. The line ends here and the
+    // next line has text: make the end of this line a blank line.
+    after = edges.textAfter ? eol + eol : edges.textOnNextLine ? eol : '';
+  } else if (lineBreakCount(trailing) === 1 && edges.textAfter) {
+    // The selection ends with its line break and the next line has text.
+    after = eol;
   }
   return `${before}<details><summary>${label}</summary>${eol}${eol}${body}${eol}${eol}</details>${trailing}${after}`;
 };
@@ -1220,7 +1296,7 @@ export const MD_COMMAND_ENTRIES: readonly MdCommandEntry[] = [
   {
     id: 'MD-014', name: 'markdown.code-block', title: 'Markdown: Wrap in Code Fence',
     inputs: [{
-      prompt: `Language of the code fence (optional; up to ${MD_LANGUAGE_MAX_LENGTH} letters, digits and _ + # . -)`,
+      prompt: `Language of the code fence (optional; up to ${FENCE_LANGUAGE_MAX_LENGTH} letters, digits and _ + # . -)`,
       placeHolder: 'e.g. python',
       validate: validateLanguageInput,
     }],
