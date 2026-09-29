@@ -17,6 +17,17 @@ export type LineRegexRunner = (pattern: string, lines: string[], timeoutMs: numb
 export type LineRegexCaptureRunner = (pattern: string, lines: string[], timeoutMs: number) => Promise<(string | null)[]>;
 
 /**
+ * MSEL-018: the non-empty matches of every text as `[start, end]` offsets, or `undefined` when
+ * there are more than `maxMatches` in all texts together.
+ */
+export type LineRegexSplitRunner = (
+  pattern: string,
+  texts: string[],
+  timeoutMs: number,
+  maxMatches: number
+) => Promise<[number, number][][] | undefined>;
+
+/**
  * Runs the worker script on `data` and resolves with what `pick` takes from its result.
  * Rejects with `LineRegexTimeoutError` when it takes longer than `timeoutMs`, which bounds the
  * time a catastrophic pattern such as `^(a+)+$` can take.
@@ -81,3 +92,17 @@ export const runRegexInWorker: LineRegexRunner = (pattern, lines, timeoutMs) =>
  */
 export const runRegexCaptureInWorker: LineRegexCaptureRunner = (pattern, lines, timeoutMs) =>
   runWorker({ pattern, lines, mode: 'capture' }, timeoutMs, (result) => ('keys' in result ? result.keys : undefined));
+
+/**
+ * MSEL-018: finds the non-empty matches of `pattern` (flags `gu`) in every text in a worker
+ * thread and resolves with them as `[start, end]` offsets per text, or with `undefined` when
+ * there are more than `maxMatches` matches. Same time limit and security properties as
+ * `runRegexInWorker`.
+ */
+export const runRegexSplitInWorker: LineRegexSplitRunner = (pattern, texts, timeoutMs, maxMatches) =>
+  runWorker<{ splits?: [number, number][][] }>({ pattern, lines: texts, mode: 'split', maxMatches }, timeoutMs, (result) => {
+    if ('tooMany' in result) {
+      return {};
+    }
+    return 'splits' in result ? { splits: result.splits } : undefined;
+  }).then((value) => value.splits);

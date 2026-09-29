@@ -3781,6 +3781,156 @@ export const myCommands = [
     "command": "selection-manipulator.programmatic.html-to-jsx.replace",
     "title": "Convert HTML to JSX (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-odd",
+    "title": "Selection - Keep Odd Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-even",
+    "title": "Selection - Keep Even Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-every-nth",
+    "title": "Selection - Keep Every Nth Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.remove-first",
+    "title": "Selection - Remove First Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.remove-last",
+    "title": "Selection - Remove Last Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-matching",
+    "title": "Selection - Keep Selections Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.remove-matching",
+    "title": "Selection - Remove Selections Matching Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.remove-empty",
+    "title": "Selection - Remove Empty Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.remove-duplicate-text",
+    "title": "Selection - Deselect Duplicate Texts",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.align-cursors",
+    "title": "Selection - Align Cursors",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-word",
+    "title": "Selection - Expand to Word",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-quotes",
+    "title": "Selection - Expand to Inside Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-brackets",
+    "title": "Selection - Expand to Inside Brackets",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.trim",
+    "title": "Selection - Trim Whitespace from Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.shrink-both-sides",
+    "title": "Selection - Shrink Selections by One Character",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.extend-to-delimiter",
+    "title": "Selection - Extend to Next Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.split-by-delimiter",
+    "title": "Selection - Split Selections by Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.split-by-regex",
+    "title": "Selection - Split Selections by Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.split-words",
+    "title": "Selection - Split into Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.cursor-to-line-content-start",
+    "title": "Selection - Cursors to First Non-whitespace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-column",
+    "title": "Selection - Select Column N",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-numbers",
+    "title": "Selection - Select All Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-strings",
+    "title": "Selection - Select All Quoted Strings",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-urls",
+    "title": "Selection - Select All URLs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.rotate-forward",
+    "title": "Selection - Rotate Texts Forward",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.rotate-backward",
+    "title": "Selection - Rotate Texts Backward",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.swap-two",
+    "title": "Selection - Swap Two Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.copy-first-to-all",
+    "title": "Selection - Copy First Selection to All",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.info",
+    "title": "Selection - Show Selection Info",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-indentation",
+    "title": "Selection - Select Leading Indentation",
+    "canMultiSelection": true
   }
 ];
 

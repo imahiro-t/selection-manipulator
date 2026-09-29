@@ -88,6 +88,7 @@ import { dateCommandHandler } from './handler/dateCommandHandler';
 import { genCommandHandler } from './handler/genCommandHandler';
 import { jaCommandHandler } from './handler/jaCommandHandler';
 import { uniCommandHandler } from './handler/uniCommandHandler';
+import { mselCommandHandler } from './handler/mselCommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -915,6 +916,38 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-typescript.replace', devCommandHandler('programmatic.json-to-typescript.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-format.replace', devCommandHandler('programmatic.sql-format.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.html-to-jsx.replace', devCommandHandler('programmatic.html-to-jsx.replace')));
+
+  // Multi cursor & selection (MSEL-001..030)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-odd', mselCommandHandler('selection.keep-odd')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-even', mselCommandHandler('selection.keep-even')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-every-nth', mselCommandHandler('selection.keep-every-nth')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.remove-first', mselCommandHandler('selection.remove-first')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.remove-last', mselCommandHandler('selection.remove-last')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-matching', mselCommandHandler('selection.keep-matching')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.remove-matching', mselCommandHandler('selection.remove-matching')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.remove-empty', mselCommandHandler('selection.remove-empty')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.remove-duplicate-text', mselCommandHandler('selection.remove-duplicate-text')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.align-cursors', mselCommandHandler('selection.align-cursors')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-word', mselCommandHandler('selection.expand-to-word')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-quotes', mselCommandHandler('selection.expand-to-quotes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-brackets', mselCommandHandler('selection.expand-to-brackets')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.trim', mselCommandHandler('selection.trim')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.shrink-both-sides', mselCommandHandler('selection.shrink-both-sides')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.extend-to-delimiter', mselCommandHandler('selection.extend-to-delimiter')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.split-by-delimiter', mselCommandHandler('selection.split-by-delimiter')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.split-by-regex', mselCommandHandler('selection.split-by-regex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.split-words', mselCommandHandler('selection.split-words')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.cursor-to-line-content-start', mselCommandHandler('selection.cursor-to-line-content-start')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-column', mselCommandHandler('selection.select-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-numbers', mselCommandHandler('selection.select-numbers')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-strings', mselCommandHandler('selection.select-strings')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-urls', mselCommandHandler('selection.select-urls')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.rotate-forward', mselCommandHandler('selection.rotate-forward')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.rotate-backward', mselCommandHandler('selection.rotate-backward')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.swap-two', mselCommandHandler('selection.swap-two')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.copy-first-to-all', mselCommandHandler('selection.copy-first-to-all')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.info', mselCommandHandler('selection.info')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-indentation', mselCommandHandler('selection.select-indentation')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

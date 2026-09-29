@@ -923,36 +923,36 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 
 | ID | カテゴリ | 種別 | 提案コマンド ID | タイトル | 概要 | 入出力例 | 外部通信 | 新規依存 |
 |---|---|---|---|---|---|---|---|---|
-| MSEL-001 | MSEL | 基本 | `selection-manipulator.selection.keep-odd` | Selection - Keep Odd Selections | 複数選択のうち奇数番目だけを残す | `[a] [b] [c]` → `[a] [c]` | なし | なし |
-| MSEL-002 | MSEL | 基本 | `selection-manipulator.selection.keep-even` | Selection - Keep Even Selections | 複数選択のうち偶数番目だけを残す | `[a] [b] [c]` → `[b]` | なし | なし |
-| MSEL-003 | MSEL | 基本 | `selection-manipulator.selection.keep-every-nth` | Selection - Keep Every Nth Selection | N 個ごとに 1 つの選択だけを残す | `[a] [b] [c] [d]（N=2）` → `[b] [d]` | なし | なし |
+| MSEL-001 | MSEL | 基本 | `selection-manipulator.selection.keep-odd` | Selection - Keep Odd Selections | 複数選択のうち文書順で奇数番目（1・3・5…）だけを残す（選択が 1 個なら警告） | `[a] [b] [c]` → `[a] [c]` | なし | なし |
+| MSEL-002 | MSEL | 基本 | `selection-manipulator.selection.keep-even` | Selection - Keep Even Selections | 複数選択のうち文書順で偶数番目（2・4・6…）だけを残す（選択が 1 個なら警告） | `[a] [b] [c]` → `[b]` | なし | なし |
+| MSEL-003 | MSEL | 基本 | `selection-manipulator.selection.keep-every-nth` | Selection - Keep Every Nth Selection | N（1〜1,000,000）を入力し、文書順で N・2N・3N… 番目の選択だけを残す（N 番目がなければ警告） | `[a] [b] [c] [d]（N=2）` → `[b] [d]` | なし | なし |
 | MSEL-004 | MSEL | 基本 | `selection-manipulator.selection.remove-first` | Selection - Remove First Selection | 文書順で最初の選択を外す | `[a] [b] [c]` → `[b] [c]` | なし | なし |
 | MSEL-005 | MSEL | 基本 | `selection-manipulator.selection.remove-last` | Selection - Remove Last Selection | 文書順で最後の選択を外す | `[a] [b] [c]` → `[a] [b]` | なし | なし |
-| MSEL-006 | MSEL | 基本 | `selection-manipulator.selection.keep-matching` | Selection - Keep Selections Matching Regex | 入力した正規表現に一致する選択だけを残す | `[a1] [b] [c2]（\d）` → `[a1] [c2]` | なし | なし |
-| MSEL-007 | MSEL | 基本 | `selection-manipulator.selection.remove-matching` | Selection - Remove Selections Matching Regex | 入力した正規表現に一致する選択を外す | `[a1] [b] [c2]（\d）` → `[b]` | なし | なし |
+| MSEL-006 | MSEL | 基本 | `selection-manipulator.selection.keep-matching` | Selection - Keep Selections Matching Regex | 入力した正規表現（`u` フラグ・大文字小文字を区別・最大 500 文字）に一致する選択だけを残す。ワーカーで実行し 2 秒で打ち切る（選択の合計 10,000,000 文字まで） | `[a1] [b] [c2]（\d）` → `[a1] [c2]` | なし | なし |
+| MSEL-007 | MSEL | 基本 | `selection-manipulator.selection.remove-matching` | Selection - Remove Selections Matching Regex | 入力した正規表現（`u` フラグ・大文字小文字を区別・最大 500 文字）に一致する選択を外す。ワーカーで実行し 2 秒で打ち切る（選択の合計 10,000,000 文字まで） | `[a1] [b] [c2]（\d）` → `[b]` | なし | なし |
 | MSEL-008 | MSEL | 基本 | `selection-manipulator.selection.remove-empty` | Selection - Remove Empty Selections | 空の選択（カーソルのみ）を外す | `[a] [] [b]` → `[a] [b]` | なし | なし |
-| MSEL-009 | MSEL | 基本 | `selection-manipulator.selection.remove-duplicate-text` | Selection - Deselect Duplicate Texts | 同じテキストの選択が複数あれば最初の 1 つだけを残す | `[a] [b] [a]` → `[a] [b]` | なし | なし |
-| MSEL-010 | MSEL | 基本 | `selection-manipulator.selection.align-cursors` | Selection - Align Cursors | 各カーソルの前に空白を入れて、すべてのカーソルを同じ桁に揃える | `a\|=1⏎bbb\|=2（\| はカーソル）` → `a··\|=1⏎bbb\|=2` | なし | なし |
+| MSEL-009 | MSEL | 基本 | `selection-manipulator.selection.remove-duplicate-text` | Selection - Deselect Duplicate Texts | 同じテキスト（大文字小文字を区別）の選択が複数あれば文書順で最初の 1 つだけを残す | `[a] [b] [a]` → `[a] [b]` | なし | なし |
+| MSEL-010 | MSEL | 基本 | `selection-manipulator.selection.align-cursors` | Selection - Align Cursors | 各カーソルの前に半角空白を入れて、すべてのカーソルを同じ表示桁（タブは tabSize で展開）に揃える。同じ行の複数カーソルは k 番目どうしを揃える | `a\|=1⏎bbb\|=2（\| はカーソル）` → `a··\|=1⏎bbb\|=2` | なし | なし |
 | MSEL-011 | MSEL | 基本 | `selection-manipulator.selection.expand-to-word` | Selection - Expand to Word | 各カーソルを単語全体の選択に広げる | `he\|llo` → `[hello]` | なし | なし |
-| MSEL-012 | MSEL | 基本 | `selection-manipulator.selection.expand-to-quotes` | Selection - Expand to Inside Quotes | 各カーソルを囲んでいる引用符の内側全体の選択に広げる | `"he\|llo"` → `"[hello]"` | なし | なし |
-| MSEL-013 | MSEL | 基本 | `selection-manipulator.selection.expand-to-brackets` | Selection - Expand to Inside Brackets | 各カーソルを囲んでいる括弧の内側全体の選択に広げる | `f(a,\|b)` → `f([a,b])` | なし | なし |
-| MSEL-014 | MSEL | 基本 | `selection-manipulator.selection.trim` | Selection - Trim Whitespace from Selections | 各選択の前後の空白を選択範囲から外す | `[··ab·]` → `··[ab]·` | なし | なし |
-| MSEL-015 | MSEL | 基本 | `selection-manipulator.selection.shrink-both-sides` | Selection - Shrink Selections by One Character | 各選択の両端を 1 文字ずつ内側に縮める（テキストは変更しない） | `["ab"]` → `"[ab]"` | なし | なし |
-| MSEL-016 | MSEL | 基本 | `selection-manipulator.selection.extend-to-delimiter` | Selection - Extend to Next Delimiter | 各選択の終端を、入力した区切り文字の直前まで伸ばす | `[a]bc,d（,）` → `[abc],d` | なし | なし |
-| MSEL-017 | MSEL | 基本 | `selection-manipulator.selection.split-by-delimiter` | Selection - Split Selections by Delimiter | 1 つの選択を、入力した区切り文字で複数の選択に分ける | `[a,b,c]（,）` → `[a],[b],[c]` | なし | なし |
-| MSEL-018 | MSEL | 基本 | `selection-manipulator.selection.split-by-regex` | Selection - Split Selections by Regex | 1 つの選択を、正規表現に一致する部分で分けて複数の選択にする | `[a1b2c]（\d）` → `[a]1[b]2[c]` | なし | なし |
-| MSEL-019 | MSEL | 基本 | `selection-manipulator.selection.split-words` | Selection - Split into Words | 各選択を単語ごとの選択に分ける | `[foo bar]` → `[foo] [bar]` | なし | なし |
-| MSEL-020 | MSEL | 基本 | `selection-manipulator.selection.cursor-to-line-content-start` | Selection - Cursors to First Non-whitespace | 選択範囲の各行で、最初の空白以外の文字の前にカーソルを置く | `··a⏎····b` → `··\|a⏎····\|b` | なし | なし |
-| MSEL-021 | MSEL | 基本 | `selection-manipulator.selection.select-column` | Selection - Select Column N | 各行で、入力した区切り文字の N 列目を選択する | `a,b⏎c,d（列 2）` → `a,[b]⏎c,[d]` | なし | なし |
-| MSEL-022 | MSEL | 基本 | `selection-manipulator.selection.select-numbers` | Selection - Select All Numbers | 選択範囲内の数値をすべて選択する | `a1 b22` → `a[1] b[22]` | なし | なし |
-| MSEL-023 | MSEL | 基本 | `selection-manipulator.selection.select-strings` | Selection - Select All Quoted Strings | 選択範囲内の引用符で囲まれた文字列の中身をすべて選択する | `f("a", 'b')` → `f("[a]", '[b]')` | なし | なし |
-| MSEL-024 | MSEL | 基本 | `selection-manipulator.selection.select-urls` | Selection - Select All URLs | 選択範囲内の URL をすべて選択する（既存 Extract URL は抽出、こちらは選択） | `see https://a.example and https://b.example` → `see [https://a.example] and [https://b.example]` | なし | なし |
+| MSEL-012 | MSEL | 基本 | `selection-manipulator.selection.expand-to-quotes` | Selection - Expand to Inside Quotes | 各カーソルを囲んでいる同じ行の引用符（`"` `'` `` ` ``、エスケープは無視）の内側全体の選択に広げる | `"he\|llo"` → `"[hello]"` | なし | なし |
+| MSEL-013 | MSEL | 基本 | `selection-manipulator.selection.expand-to-brackets` | Selection - Expand to Inside Brackets | 各カーソルを囲んでいる括弧（`()` `[]` `{}`、行をまたいでよい）の内側全体の選択に広げる。繰り返すと外側へ広がる（文字列・コメント内の括弧は区別しない） | `f(a,\|b)` → `f([a,b])` | なし | なし |
+| MSEL-014 | MSEL | 基本 | `selection-manipulator.selection.trim` | Selection - Trim Whitespace from Selections | 各選択の前後の空白（タブ・改行・全角空白を含む）を選択範囲から外す | `[··ab·]` → `··[ab]·` | なし | なし |
+| MSEL-015 | MSEL | 基本 | `selection-manipulator.selection.shrink-both-sides` | Selection - Shrink Selections by One Character | 各選択の両端を 1 文字（コードポイント、CRLF は 1 文字）ずつ内側に縮める（テキストは変更しない。2 文字未満の選択は変えない） | `["ab"]` → `"[ab]"` | なし | なし |
+| MSEL-016 | MSEL | 基本 | `selection-manipulator.selection.extend-to-delimiter` | Selection - Extend to Next Delimiter | 各選択の終端を、同じ行で次に現れる入力した区切り文字（1〜100 文字、そのまま一致）の直前まで伸ばす | `[a]bc,d（,）` → `[abc],d` | なし | なし |
+| MSEL-017 | MSEL | 基本 | `selection-manipulator.selection.split-by-delimiter` | Selection - Split Selections by Delimiter | 1 つの選択を、入力した区切り文字（1〜100 文字、そのまま一致）で複数の選択に分ける（空の部分はカーソルになる） | `[a,b,c]（,）` → `[a],[b],[c]` | なし | なし |
+| MSEL-018 | MSEL | 基本 | `selection-manipulator.selection.split-by-regex` | Selection - Split Selections by Regex | 1 つの選択を、正規表現（`gu` フラグ・最大 500 文字、ワーカーで実行し 2 秒で打ち切る）に一致する部分で分けて複数の選択にする（幅 0 の一致は使わない） | `[a1b2c]（\d）` → `[a]1[b]2[c]` | なし | なし |
+| MSEL-019 | MSEL | 基本 | `selection-manipulator.selection.split-words` | Selection - Split into Words | 各選択を単語（文字・数字・`_` の連続）ごとの選択に分ける | `[foo bar]` → `[foo] [bar]` | なし | なし |
+| MSEL-020 | MSEL | 基本 | `selection-manipulator.selection.cursor-to-line-content-start` | Selection - Cursors to First Non-whitespace | 選択範囲の各行で、最初の空白・タブ以外の文字の前にカーソルを置く（空行・空白だけの行は対象外） | `··a⏎····b` → `··\|a⏎····\|b` | なし | なし |
+| MSEL-021 | MSEL | 基本 | `selection-manipulator.selection.select-column` | Selection - Select Column N | 区切り文字（既定値 `,`）と列番号 N（1〜1,000）を入力し、各行の N 列目を選択する（引用符付き CSV は解釈しない） | `a,b⏎c,d（列 2）` → `a,[b]⏎c,[d]` | なし | なし |
+| MSEL-022 | MSEL | 基本 | `selection-manipulator.selection.select-numbers` | Selection - Select All Numbers | 選択範囲内の数値（`123`・`1.5`、符号の `-` を含む）をすべて選択する | `a1 b22` → `a[1] b[22]` | なし | なし |
+| MSEL-023 | MSEL | 基本 | `selection-manipulator.selection.select-strings` | Selection - Select All Quoted Strings | 選択範囲内の引用符（`"` `'` `` ` ``、エスケープ対応）で囲まれた文字列の中身をすべて選択する | `f("a", 'b')` → `f("[a]", '[b]')` | なし | なし |
+| MSEL-024 | MSEL | 基本 | `selection-manipulator.selection.select-urls` | Selection - Select All URLs | 選択範囲内の `http(s)://` の URL（末尾の句読点・対応のない閉じ括弧を除く）をすべて選択する（既存 Extract URL は抽出、こちらは選択） | `see https://a.example and https://b.example` → `see [https://a.example] and [https://b.example]` | なし | なし |
 | MSEL-025 | MSEL | 基本 | `selection-manipulator.selection.rotate-forward` | Selection - Rotate Texts Forward | 選択どうしのテキストを 1 つ後ろへ循環させる | `[a] [b] [c]` → `[c] [a] [b]` | なし | なし |
 | MSEL-026 | MSEL | 基本 | `selection-manipulator.selection.rotate-backward` | Selection - Rotate Texts Backward | 選択どうしのテキストを 1 つ前へ循環させる | `[a] [b] [c]` → `[b] [c] [a]` | なし | なし |
-| MSEL-027 | MSEL | 基本 | `selection-manipulator.selection.swap-two` | Selection - Swap Two Selections | 2 つの選択のテキストを入れ替える | `[foo] = [bar]` → `[bar] = [foo]` | なし | なし |
-| MSEL-028 | MSEL | 基本 | `selection-manipulator.selection.copy-first-to-all` | Selection - Copy First Selection to All | 最初の選択のテキストを他のすべての選択に書き込む | `[x] [a] [b]` → `[x] [x] [x]` | なし | なし |
-| MSEL-029 | MSEL | 基本 | `selection-manipulator.selection.info` | Selection - Show Selection Info | 選択数・各選択の文字数・行番号の一覧を通知表示する | `[ab] [c]` → `2 selections: L1 (2), L3 (1)（通知）` | なし | なし |
-| MSEL-030 | MSEL | 基本 | `selection-manipulator.selection.select-indentation` | Selection - Select Leading Indentation | 選択範囲の各行の先頭インデント部分を選択する | `··a⏎····b` → `[··]a⏎[····]b` | なし | なし |
+| MSEL-027 | MSEL | 基本 | `selection-manipulator.selection.swap-two` | Selection - Swap Two Selections | ちょうど 2 つの選択のテキストを入れ替える（2 つ以外は警告） | `[foo] = [bar]` → `[bar] = [foo]` | なし | なし |
+| MSEL-028 | MSEL | 基本 | `selection-manipulator.selection.copy-first-to-all` | Selection - Copy First Selection to All | 文書順で最初の選択のテキストを他のすべての選択に書き込む | `[x] [a] [b]` → `[x] [x] [x]` | なし | なし |
+| MSEL-029 | MSEL | 基本 | `selection-manipulator.selection.info` | Selection - Show Selection Info | 選択数・各選択の開始行番号・文字数（コードポイント数）の一覧を通知表示する（先頭 50 個まで） | `[ab]⏎⏎[c]` → `2 selections: L1 (2), L3 (1)（通知）` | なし | なし |
+| MSEL-030 | MSEL | 基本 | `selection-manipulator.selection.select-indentation` | Selection - Select Leading Indentation | 選択範囲の各行の先頭インデント（空白・タブ）部分を選択する（インデントのない行は対象外） | `··a⏎····b` → `[··]a⏎[····]b` | なし | なし |
 
 ### MD
 

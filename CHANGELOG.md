@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- ✨ Add 30 multi-cursor and selection commands (ROADMAP MSEL-001..030), also grouped in a new `Multi Cursor` context submenu
+  - Filtering: Keep Odd / Even Selections, Keep Every Nth Selection, Remove First / Last Selection, Keep / Remove Selections Matching Regex (`u` flag, case-sensitive; run in a worker thread and stopped after 2 seconds, pattern up to 500 characters, selections up to 10,000,000 characters; if the document is edited while the pattern is running, nothing is changed and a warning is shown), Remove Empty Selections, Deselect Duplicate Texts
+  - Aligning, expanding and shrinking: Align Cursors (inserts spaces; tabs follow the editor's tab size), Expand to Word, Expand to Inside Quotes, Expand to Inside Brackets (running it again goes one level out), Trim Whitespace from Selections, Shrink Selections by One Character, Extend to Next Delimiter
+  - Splitting: Split Selections by Delimiter (literal, 1 to 100 characters; empty parts become cursors), Split Selections by Regex (same worker and limits as above; empty matches are not used), Split into Words
+  - Cursors on every line: Cursors to First Non-whitespace, Select Column N (delimiter and column number you enter; quoted CSV is not parsed), Select Leading Indentation
+  - Selecting inside the selections: Select All Numbers, Select All Quoted Strings, Select All URLs (the same URL rule as Extract URL, without trailing punctuation)
+  - Exchanging the texts: Rotate Texts Forward / Backward, Swap Two Selections, Copy First Selection to All (the new texts are selected, and one undo restores the text)
+  - Show Selection Info (the number of selections and the line and length of each, in a notification)
+  - The selections are counted in document order; a command whose result would leave no selection, or more than 100,000 selections, changes nothing and shows a warning (see README for limitations)
+
 - ✨ Add 30 case conversion commands (ROADMAP CASE-001..030)
   - Case only: Swap, Sentence (Preserve Acronyms), Title (APA Style), Upper First, Lower First, Alternating Words, Uppercase Known Acronyms, Sentence (Each Sentence), Capitalize Each Line, Lowercase Each Line Start, Upper (Locale), Lower (Locale)
   - Naming conventions: Cobol, Ada, Flat, Upper Flat, Camel Snake, Pascal Snake, Acronym, CSS Custom Property, BEM, Hashtag
