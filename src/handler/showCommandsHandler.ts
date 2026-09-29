@@ -2781,6 +2781,206 @@ export const myCommands = [
     "command": "selection-manipulator.csv.to-html-table.replace",
     "title": "Transform - CSV - Convert to HTML Table (Replace)",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.median",
+    "title": "Math - Median",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.mode",
+    "title": "Math - Mode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.stddev",
+    "title": "Math - Standard Deviation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.variance",
+    "title": "Math - Variance",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.count",
+    "title": "Math - Count Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.product",
+    "title": "Math - Product",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.range",
+    "title": "Math - Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.percentile",
+    "title": "Math - Percentile",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.summary",
+    "title": "Math - Statistics Summary",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.cumulative-sum",
+    "title": "Math - Cumulative Sum",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round",
+    "title": "Replace - Number - Round",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.floor",
+    "title": "Replace - Number - Floor",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.ceil",
+    "title": "Replace - Number - Ceil",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.truncate",
+    "title": "Replace - Number - Truncate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.abs",
+    "title": "Replace - Number - Absolute Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.negate",
+    "title": "Replace - Number - Negate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.add-separator",
+    "title": "Replace - Number - Add Thousands Separator",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.remove-separator",
+    "title": "Replace - Number - Remove Thousands Separator",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.format-locale",
+    "title": "Replace - Number - Format by Locale",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-hex",
+    "title": "Replace - Number - Decimal to Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-hex",
+    "title": "Replace - Number - Hex to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-binary",
+    "title": "Replace - Number - Decimal to Binary",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-binary",
+    "title": "Replace - Number - Binary to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-octal",
+    "title": "Replace - Number - Decimal to Octal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-octal",
+    "title": "Replace - Number - Octal to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.convert-base",
+    "title": "Replace - Number - Convert Base (2-36)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-scientific",
+    "title": "Replace - Number - To Scientific Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-scientific",
+    "title": "Replace - Number - From Scientific Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-percent",
+    "title": "Replace - Number - To Percent",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.bytes-to-human",
+    "title": "Replace - Number - Bytes to Human Readable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.human-to-bytes",
+    "title": "Replace - Number - Human Readable to Bytes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-words-en",
+    "title": "Replace - Number - To English Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.ordinal-en",
+    "title": "Replace - Number - Add English Ordinal Suffix",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-fraction",
+    "title": "Replace - Number - Decimal to Fraction",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+    "title": "Unit - Celsius to Fahrenheit",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+    "title": "Unit - Fahrenheit to Celsius",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.km-to-mile",
+    "title": "Unit - km to mile",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.mile-to-km",
+    "title": "Unit - mile to km",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.cm-to-inch",
+    "title": "Unit - cm to inch",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.inch-to-cm",
+    "title": "Unit - inch to cm",
+    "canMultiSelection": true
   }
 ];
 

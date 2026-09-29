@@ -83,6 +83,7 @@ import { lineCountStatsHandler, lineHandler } from './handler/lineHandler';
 import { hashExtendedHandler } from './handler/hashExtendedHandler';
 import { dataHandler } from './handler/dataHandler';
 import { tableHandler } from './handler/tableHandler';
+import { numHandler } from './handler/numHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -697,6 +698,48 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-tsv.replace', tableHandler('csv.to-tsv.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.transpose.replace', tableHandler('csv.transpose.replace')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.to-html-table.replace', tableHandler('csv.to-html-table.replace')));
+
+  // Number, statistics and unit commands (NUM-001..040)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.median', numHandler('math.median')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.mode', numHandler('math.mode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.stddev', numHandler('math.stddev')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.variance', numHandler('math.variance')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.count', numHandler('math.count')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.product', numHandler('math.product')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.range', numHandler('math.range')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.percentile', numHandler('math.percentile')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.summary', numHandler('math.summary')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.cumulative-sum', numHandler('math.cumulative-sum')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.round', numHandler('number.round')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.floor', numHandler('number.floor')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.ceil', numHandler('number.ceil')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.truncate', numHandler('number.truncate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.abs', numHandler('number.abs')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.negate', numHandler('number.negate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.add-separator', numHandler('number.add-separator')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.remove-separator', numHandler('number.remove-separator')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.format-locale', numHandler('number.format-locale')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-hex', numHandler('number.to-hex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-hex', numHandler('number.from-hex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-binary', numHandler('number.to-binary')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-binary', numHandler('number.from-binary')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-octal', numHandler('number.to-octal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-octal', numHandler('number.from-octal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.convert-base', numHandler('number.convert-base')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-scientific', numHandler('number.to-scientific')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-scientific', numHandler('number.from-scientific')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-percent', numHandler('number.to-percent')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.bytes-to-human', numHandler('number.bytes-to-human')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.human-to-bytes', numHandler('number.human-to-bytes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-words-en', numHandler('number.to-words-en')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.ordinal-en', numHandler('number.ordinal-en')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-fraction', numHandler('number.to-fraction')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.celsius-to-fahrenheit', numHandler('unit.celsius-to-fahrenheit')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.fahrenheit-to-celsius', numHandler('unit.fahrenheit-to-celsius')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.km-to-mile', numHandler('unit.km-to-mile')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.mile-to-km', numHandler('unit.mile-to-km')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.cm-to-inch', numHandler('unit.cm-to-inch')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.inch-to-cm', numHandler('unit.inch-to-cm')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

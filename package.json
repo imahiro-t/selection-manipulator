@@ -2901,6 +2901,206 @@
         "command": "selection-manipulator.csv.to-html-table.replace",
         "title": "CSV - Convert to HTML Table (Replace)",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.median",
+        "title": "Math - Median",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.mode",
+        "title": "Math - Mode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.stddev",
+        "title": "Math - Standard Deviation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.variance",
+        "title": "Math - Variance",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.count",
+        "title": "Math - Count Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.product",
+        "title": "Math - Product",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.range",
+        "title": "Math - Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.percentile",
+        "title": "Math - Percentile",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.summary",
+        "title": "Math - Statistics Summary",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.cumulative-sum",
+        "title": "Math - Cumulative Sum",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round",
+        "title": "Number - Round",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.floor",
+        "title": "Number - Floor",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.ceil",
+        "title": "Number - Ceil",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.truncate",
+        "title": "Number - Truncate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.abs",
+        "title": "Number - Absolute Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.negate",
+        "title": "Number - Negate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.add-separator",
+        "title": "Number - Add Thousands Separator",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.remove-separator",
+        "title": "Number - Remove Thousands Separator",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.format-locale",
+        "title": "Number - Format by Locale",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-hex",
+        "title": "Number - Decimal to Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-hex",
+        "title": "Number - Hex to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-binary",
+        "title": "Number - Decimal to Binary",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-binary",
+        "title": "Number - Binary to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-octal",
+        "title": "Number - Decimal to Octal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-octal",
+        "title": "Number - Octal to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.convert-base",
+        "title": "Number - Convert Base (2-36)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-scientific",
+        "title": "Number - To Scientific Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-scientific",
+        "title": "Number - From Scientific Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-percent",
+        "title": "Number - To Percent",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.bytes-to-human",
+        "title": "Number - Bytes to Human Readable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.human-to-bytes",
+        "title": "Number - Human Readable to Bytes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-words-en",
+        "title": "Number - To English Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.ordinal-en",
+        "title": "Number - Add English Ordinal Suffix",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-fraction",
+        "title": "Number - Decimal to Fraction",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+        "title": "Unit: Celsius to Fahrenheit",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+        "title": "Unit: Fahrenheit to Celsius",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.km-to-mile",
+        "title": "Unit: km to mile",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.mile-to-km",
+        "title": "Unit: mile to km",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.cm-to-inch",
+        "title": "Unit: cm to inch",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.inch-to-cm",
+        "title": "Unit: inch to cm",
+        "category": "Selection Manipulator"
       }
     ],
     "keybindings": [
@@ -4706,6 +4906,166 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.csv.to-html-table.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.median"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.mode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.stddev"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.variance"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.product"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.percentile"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.summary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.cumulative-sum"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.floor"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.ceil"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.truncate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.abs"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.negate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.add-separator"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.remove-separator"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.format-locale"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-binary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-binary"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-octal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-octal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.convert-base"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-scientific"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-scientific"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-percent"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.bytes-to-human"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.human-to-bytes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-words-en"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.ordinal-en"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-fraction"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.celsius-to-fahrenheit"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.fahrenheit-to-celsius"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.km-to-mile"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.mile-to-km"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.cm-to-inch"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.inch-to-cm"
         }
       ],
       "editor/context": [
@@ -5595,6 +5955,106 @@
         {
           "command": "selection-manipulator.decrement-by-n",
           "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.math.cumulative-sum",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.number.round",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.number.floor",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.number.ceil",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.number.truncate",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.number.abs",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.number.negate",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.number.add-separator",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.number.remove-separator",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.number.format-locale",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.number.to-hex",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.number.from-hex",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.number.to-binary",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.number.from-binary",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.number.to-octal",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.number.from-octal",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.number.convert-base",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.number.to-scientific",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.number.from-scientific",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.number.to-percent",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.number.bytes-to-human",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.number.human-to-bytes",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.number.to-words-en",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.number.ordinal-en",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.number.to-fraction",
+          "group": "selection-manipulator@33"
         }
       ],
       "selection-manipulator.json.replace.submenu": [
@@ -5754,6 +6214,42 @@
         {
           "command": "selection-manipulator.calculation.date",
           "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.math.median",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.math.mode",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.math.stddev",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.math.variance",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.math.count",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.math.product",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.math.range",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.math.percentile",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.math.summary",
+          "group": "selection-manipulator@10"
         }
       ],
       "selection-manipulator.regex.submenu": [
@@ -6251,6 +6747,30 @@
         {
           "command": "selection-manipulator.unit.lb-to-kg",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.unit.celsius-to-fahrenheit",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.unit.fahrenheit-to-celsius",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.unit.km-to-mile",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.unit.mile-to-km",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.unit.cm-to-inch",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.unit.inch-to-cm",
+          "group": "selection-manipulator@9"
         }
       ],
       "selection-manipulator.markdown.submenu": [
