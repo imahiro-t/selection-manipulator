@@ -1040,9 +1040,9 @@ In the examples, `[…]` is a selection, `|` is a cursor (an empty selection), `
 
 > **Limitations of the Multi Cursor commands**
 > *   **Regular expressions**: Keep / Remove Selections Matching Regex and Split Selections by Regex run the pattern in a worker thread and stop it after 2 seconds (for patterns with catastrophic backtracking); the pattern is up to 500 characters and the selections up to 10,000,000 characters in total. If the document is edited while the pattern is running, nothing is changed and a warning is shown.
-> *   **Number of selections**: A command never makes more than 100,000 selections; a run that would make more changes nothing and shows a warning.
+> *   **Number of selections**: A command never makes more than 100,000 selections; a run that would make more changes nothing and shows a warning. VS Code itself keeps at most `editor.multiCursorLimit` selections (10,000 by default), so with the default setting a result of 10,001 to 100,000 selections is cut down to that limit by VS Code (which shows its own message); raise the setting to keep them all.
 > *   **Merged selections**: VS Code merges selections that overlap (for example, when Expand to Word expands two cursors in the same word), so the result can have fewer selections than expected.
-> *   **Expand to Inside Brackets**: Brackets are matched by type without parsing the language, so brackets inside strings and comments are counted too. The brackets are searched at most 1,000,000 characters before and after each selection.
+> *   **Expand to Inside Brackets**: Brackets are matched by type without parsing the language, so brackets inside strings and comments are counted too. Only brackets within 1,000,000 characters before and after each selection are used. The brackets of the document are indexed once per run, so many cursors (for example after Select All Occurrences) do not make it slow.
 > *   **Expand to Inside Quotes / Select All Quoted Strings**: The quotes are paired without parsing the language (an apostrophe in a word such as `it's` starts a string).
 > *   **Select Column N**: Quoted CSV fields are not parsed (a delimiter inside quotes still separates columns).
 > *   **Align Cursors**: Full-width characters count as one column.

@@ -100,9 +100,11 @@ export const runRegexCaptureInWorker: LineRegexCaptureRunner = (pattern, lines, 
  * `runRegexInWorker`.
  */
 export const runRegexSplitInWorker: LineRegexSplitRunner = (pattern, texts, timeoutMs, maxMatches) =>
-  runWorker<{ splits?: [number, number][][] }>({ pattern, lines: texts, mode: 'split', maxMatches }, timeoutMs, (result) => {
-    if ('tooMany' in result) {
-      return {};
-    }
-    return 'splits' in result ? { splits: result.splits } : undefined;
-  }).then((value) => value.splits);
+  // `pick` returning `undefined` means "unexpected result" to `runWorker`, so the two expected
+  // results are passed through as they are (a discriminated union) and only then is `tooMany`
+  // turned into the `undefined` of `LineRegexSplitRunner`.
+  runWorker<{ tooMany: true } | { splits: [number, number][][] }>(
+    { pattern, lines: texts, mode: 'split', maxMatches },
+    timeoutMs,
+    (result) => ('tooMany' in result || 'splits' in result ? result : undefined)
+  ).then((value) => ('splits' in value ? value.splits : undefined));

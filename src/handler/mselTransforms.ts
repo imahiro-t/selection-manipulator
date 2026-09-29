@@ -65,9 +65,12 @@ export type MselResult =
   /** Changes nothing and says nothing (the result would be the same as before). */
   | { kind: 'unchanged' };
 
-/** The most selections a command may create. */
+/**
+ * The most selections a command may create. VS Code keeps at most `editor.multiCursorLimit`
+ * (10,000 by default) of the selections it is given; see the README limitations.
+ */
 export const MSEL_MAX_SELECTIONS = 100_000;
-/** MSEL-013: how far the brackets are searched before and after a selection (characters). */
+/** MSEL-013: how far before and after a selection a bracket may be (characters). */
 export const MSEL_BRACKET_SEARCH_LIMIT = 1_000_000;
 /** MSEL-029: how many selections the notification lists. */
 export const MSEL_INFO_MAX_LISTED = 50;
@@ -336,19 +339,14 @@ export const removeDuplicateText = (text: string, ranges: readonly MselRange[]):
 // B: aligning, expanding and shrinking (MSEL-010..016)
 // ---------------------------------------------------------------------------
 
-/** The display column of `column` in `line` (tabs expanded to the next multiple of `tabSize`). */
-const displayColumn = (line: string, column: number, tabSize: number): number => {
-  let result = 0;
-  for (let i = 0; i < column; i++) {
-    result = line[i] === '\t' ? (Math.floor(result / tabSize) + 1) * tabSize : result + 1;
-  }
-  return result;
-};
-
 /**
  * MSEL-010: inserts spaces before the start of every selection so that all starts are at the
  * same display column (the rightmost one). With several selections on one line, the k-th
  * selections of all lines are aligned together, for k = 1, 2, … in turn. Widths are kept.
+ *
+ * The display columns are counted incrementally: every line remembers how far (in the original
+ * text) it has been counted and the display column there (spaces inserted so far included), so
+ * each line is read once however many selections it has (O(document length + selections)).
  */
 export const alignCursors = (text: string, ranges: readonly MselRange[], tabSize: number): MselResult => {
   const tooFew = needTwo(ranges);
@@ -357,13 +355,14 @@ export const alignCursors = (text: string, ranges: readonly MselRange[], tabSize
   }
   const size = Number.isInteger(tabSize) && tabSize > 0 ? tabSize : 4;
   const lines = new MselLines(text);
-  // For every line: its text (updated as spaces are inserted) and its selections, in order.
-  const byLine = new Map<number, { line: string; indices: number[]; inserted: number }>();
+  // For every line: its selections in order, and the counting position (a column of the
+  // original line) with the display column there after the spaces inserted so far.
+  const byLine = new Map<number, { lineStart: number; indices: number[]; position: number; display: number }>();
   ranges.forEach((range, index) => {
     const line = lines.lineOf(range.start);
     let entry = byLine.get(line);
     if (entry === undefined) {
-      entry = { line: text.slice(lines.start(line), lines.contentEnd(line)), indices: [], inserted: 0 };
+      entry = { lineStart: lines.start(line), indices: [], position: 0, display: 0 };
       byLine.set(line, entry);
     }
     entry.indices.push(index);
@@ -384,19 +383,25 @@ export const alignCursors = (text: string, ranges: readonly MselRange[], tabSize
     const current = roundLines.map((lineNumber) => {
       const entry = byLine.get(lineNumber)!;
       const index = entry.indices[k];
-      const column = ranges[index].start - lines.start(lineNumber) + entry.inserted;
-      return { entry, index, column, display: displayColumn(entry.line, column, size) };
+      const column = ranges[index].start - entry.lineStart;
+      let display = entry.display;
+      for (let i = entry.position; i < column; i++) {
+        display = text[entry.lineStart + i] === '\t' ? (Math.floor(display / size) + 1) * size : display + 1;
+      }
+      entry.position = column;
+      entry.display = display;
+      return { entry, index, display };
     });
     const target = current.reduce((max, { display }) => Math.max(max, display), 0);
-    for (const { entry, index, column, display } of current) {
+    for (const { entry, index, display } of current) {
       const count = target - display;
       if (count > 0) {
         total += count;
         if (total > MAX_OUTPUT_LENGTH) {
           throw new MselInputError(`more than ${formatNumber(MAX_OUTPUT_LENGTH)} spaces would be inserted`);
         }
-        entry.line = entry.line.slice(0, column) + ' '.repeat(count) + entry.line.slice(column);
-        entry.inserted += count;
+        // The spaces go right before `position`, so the character there moves right by `count`.
+        entry.display += count;
         spaces[index] = count;
       }
     }
@@ -485,7 +490,21 @@ export const expandToQuotes = (text: string, ranges: readonly MselRange[]): Msel
       pairs = quotePairs(text.slice(lineStart, lines.contentEnd(line)));
       cache.set(line, pairs);
     }
-    const pair = pairs.find(([open, close]) => lineStart + open + 1 <= range.start && range.end <= lineStart + close);
+    // The pairs are in order and do not overlap, so only the last pair that opens before the
+    // selection can contain it (binary search: O(log pairs) per selection).
+    const relativeStart = range.start - lineStart;
+    let low = 0;
+    let high = pairs.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      if (pairs[middle][0] + 1 <= relativeStart) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+    const candidate = low > 0 ? pairs[low - 1] : undefined;
+    const pair = candidate !== undefined && range.end <= lineStart + candidate[1] ? candidate : undefined;
     return pair === undefined ? range : { start: lineStart + pair[0] + 1, end: lineStart + pair[1], reversed: range.reversed };
   });
   return selectOrUnchanged(ranges, after);
@@ -494,74 +513,172 @@ export const expandToQuotes = (text: string, ranges: readonly MselRange[]): Msel
 const BRACKETS: readonly [string, string][] = [['(', ')'], ['[', ']'], ['{', '}']];
 
 /**
- * The first `count` enclosing pairs of one bracket type around `[start, end)`: the unmatched
- * openers before it and the unmatched closers after it, paired from the inside out (taking the
- * brackets inside the selection into account). Searches at most `limit` characters each way.
+ * The brackets of one type in a document, indexed once so that every selection is answered
+ * without scanning the text around it (MSEL-013).
+ *
+ * The brackets are numbered in document order ("events"). A forward pass with a stack gives,
+ * after every event, the innermost opener that is still open there (unmatched in the text
+ * before it: a closer closes the innermost open opener, a closer with nothing open is ignored),
+ * and for every opener the opener that was open around it. A backward pass gives the same for
+ * the closers of the text after a position. The openers open at an offset are then a chain
+ * (innermost first) found by a binary search and followed through the parents, and the same
+ * for the closers. Building is O(document length); a query is O(log brackets + steps taken).
+ *
+ * This gives the same brackets as scanning from the offset outward with a depth counter.
  */
-const enclosingPairs = (text: string, start: number, end: number, open: string, close: string, count: number, limit: number): [number, number][] => {
-  // Brackets inside the selection: closers without an opener use up openers before it, and
-  // openers without a closer use up closers after it.
-  let unmatchedClosers = 0;
-  let unmatchedOpeners = 0;
-  for (let i = start; i < end; i++) {
-    if (text[i] === open) {
-      unmatchedOpeners++;
-    } else if (text[i] === close) {
-      if (unmatchedOpeners > 0) {
-        unmatchedOpeners--;
+class BracketIndex {
+  private readonly positions: number[];
+  /** Forward: the innermost open opener (event) after event `e`, or -1. */
+  private readonly openAfter: Int32Array;
+  /** Forward: for an opener event, the opener (event) that was open around it, or -1. */
+  private readonly openerParent: Int32Array;
+  /** Backward: the innermost unmatched closer (event) of the text from event `e` on, or -1. */
+  private readonly closeFrom: Int32Array;
+  /** Backward: for a closer event, the closer (event) unmatched around it, or -1. */
+  private readonly closerParent: Int32Array;
+
+  constructor(text: string, positions: number[], open: string) {
+    this.positions = positions;
+    const count = positions.length;
+    const isOpen = new Uint8Array(count);
+    positions.forEach((position, e) => {
+      isOpen[e] = text[position] === open ? 1 : 0;
+    });
+    this.openAfter = new Int32Array(count);
+    this.openerParent = new Int32Array(count).fill(-1);
+    const stack: number[] = [];
+    for (let e = 0; e < count; e++) {
+      if (isOpen[e]) {
+        this.openerParent[e] = stack.length > 0 ? stack[stack.length - 1] : -1;
+        stack.push(e);
+      } else if (stack.length > 0) {
+        stack.pop();
+      }
+      this.openAfter[e] = stack.length > 0 ? stack[stack.length - 1] : -1;
+    }
+    this.closeFrom = new Int32Array(count);
+    this.closerParent = new Int32Array(count).fill(-1);
+    stack.length = 0;
+    for (let e = count - 1; e >= 0; e--) {
+      if (!isOpen[e]) {
+        this.closerParent[e] = stack.length > 0 ? stack[stack.length - 1] : -1;
+        stack.push(e);
+      } else if (stack.length > 0) {
+        stack.pop();
+      }
+      this.closeFrom[e] = stack.length > 0 ? stack[stack.length - 1] : -1;
+    }
+  }
+
+  /** The number of events before `offset`. */
+  private eventsBefore(offset: number): number {
+    let low = 0;
+    let high = this.positions.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      if (this.positions[middle] < offset) {
+        low = middle + 1;
       } else {
-        unmatchedClosers++;
+        high = middle;
       }
     }
+    return low;
   }
-  const openers: number[] = [];
-  let depth = 0;
-  for (let i = start - 1; i >= Math.max(0, start - limit) && openers.length < unmatchedClosers + count; i--) {
-    if (text[i] === close) {
-      depth++;
-    } else if (text[i] === open) {
-      if (depth > 0) {
-        depth--;
-      } else {
-        openers.push(i);
-      }
+
+  /**
+   * The offsets of the openers open at `offset` (unmatched in the text before it), innermost
+   * first: `count` of them after skipping `skip`, and none before `minOffset`.
+   */
+  openers(offset: number, skip: number, count: number, minOffset: number): number[] {
+    const before = this.eventsBefore(offset);
+    let e = before > 0 ? this.openAfter[before - 1] : -1;
+    for (let k = 0; k < skip && e !== -1; k++) {
+      e = this.openerParent[e];
+    }
+    const result: number[] = [];
+    for (; e !== -1 && result.length < count && this.positions[e] >= minOffset; e = this.openerParent[e]) {
+      result.push(this.positions[e]);
+    }
+    return result;
+  }
+
+  /**
+   * The offsets of the closers unmatched in the text from `offset` on, innermost first: `count`
+   * of them after skipping `skip`, and none at or after `maxOffset`.
+   */
+  closers(offset: number, skip: number, count: number, maxOffset: number): number[] {
+    const from = this.eventsBefore(offset);
+    let e = from < this.positions.length ? this.closeFrom[from] : -1;
+    for (let k = 0; k < skip && e !== -1; k++) {
+      e = this.closerParent[e];
+    }
+    const result: number[] = [];
+    for (; e !== -1 && result.length < count && this.positions[e] < maxOffset; e = this.closerParent[e]) {
+      result.push(this.positions[e]);
+    }
+    return result;
+  }
+}
+
+/** The bracket indexes of all types (`BRACKETS` order), from one pass over the text. */
+const bracketIndexes = (text: string): BracketIndex[] => {
+  const positions: number[][] = BRACKETS.map(() => []);
+  for (let i = 0; i < text.length; i++) {
+    switch (text[i]) {
+      case '(':
+      case ')':
+        positions[0].push(i);
+        break;
+      case '[':
+      case ']':
+        positions[1].push(i);
+        break;
+      case '{':
+      case '}':
+        positions[2].push(i);
+        break;
     }
   }
-  const closers: number[] = [];
-  depth = 0;
-  for (let i = end; i < Math.min(text.length, end + limit) && closers.length < unmatchedOpeners + count; i++) {
-    if (text[i] === open) {
-      depth++;
-    } else if (text[i] === close) {
-      if (depth > 0) {
-        depth--;
-      } else {
-        closers.push(i);
-      }
-    }
-  }
-  const pairs: [number, number][] = [];
-  for (let k = 0; k < count; k++) {
-    const opener = openers[unmatchedClosers + k];
-    const closer = closers[unmatchedOpeners + k];
-    if (opener === undefined || closer === undefined) {
-      break;
-    }
-    pairs.push([opener, closer]);
-  }
-  return pairs;
+  return BRACKETS.map(([open], type) => new BracketIndex(text, positions[type], open));
 };
 
 /**
  * MSEL-013: expands every selection to the inside of the innermost `()`, `[]` or `{}` around it
  * that is not the selection itself (so running it again goes one level out). Each bracket type
- * is matched on its own; brackets in strings and comments are not told apart.
+ * is matched on its own; brackets in strings and comments are not told apart. Brackets farther
+ * than `limit` characters before the start or after the end of a selection are not used.
+ *
+ * The text is indexed once (`BracketIndex`), so a run is O(document length + total selected
+ * length + selections × log brackets) however many selections there are.
  */
 export const expandToBrackets = (text: string, ranges: readonly MselRange[], limit: number = MSEL_BRACKET_SEARCH_LIMIT): MselResult => {
+  if (ranges.length === 0) {
+    return { kind: 'unchanged' };
+  }
+  const indexes = bracketIndexes(text);
   const after = ranges.map((range): MselRange => {
     let best: [number, number] | undefined;
-    for (const [open, close] of BRACKETS) {
-      for (const [opener, closer] of enclosingPairs(text, range.start, range.end, open, close, 2, limit)) {
+    BRACKETS.forEach(([open, close], type) => {
+      // Brackets inside the selection: closers without an opener use up openers before it, and
+      // openers without a closer use up closers after it.
+      let unmatchedClosers = 0;
+      let unmatchedOpeners = 0;
+      for (let i = range.start; i < range.end; i++) {
+        if (text[i] === open) {
+          unmatchedOpeners++;
+        } else if (text[i] === close) {
+          if (unmatchedOpeners > 0) {
+            unmatchedOpeners--;
+          } else {
+            unmatchedClosers++;
+          }
+        }
+      }
+      const openers = indexes[type].openers(range.start, unmatchedClosers, 2, range.start - limit);
+      const closers = indexes[type].closers(range.end, unmatchedOpeners, 2, range.end + limit);
+      for (let k = 0; k < Math.min(openers.length, closers.length); k++) {
+        const opener = openers[k];
+        const closer = closers[k];
         if (opener + 1 === range.start && closer === range.end) {
           continue;
         }
@@ -570,7 +687,7 @@ export const expandToBrackets = (text: string, ranges: readonly MselRange[], lim
         }
         break;
       }
-    }
+    });
     return best === undefined ? range : { start: best[0] + 1, end: best[1], reversed: range.reversed };
   });
   return selectOrUnchanged(ranges, after);
@@ -612,21 +729,47 @@ export const shrinkBothSides = (text: string, ranges: readonly MselRange[]): Mse
 };
 
 /**
+ * The first `delimiter` that starts at or after `from` and ends at or before `to`, or -1. Only
+ * `[from, to)` is searched (a line or a part of it), never the rest of the document.
+ */
+const indexOfWithin = (text: string, delimiter: string, from: number, to: number): number => {
+  if (to - from < delimiter.length) {
+    return -1;
+  }
+  const found = text.slice(from, to).indexOf(delimiter);
+  return found === -1 ? -1 : from + found;
+};
+
+/**
  * MSEL-016: extends the end of every selection up to (not including) the next `delimiter` on the
  * same line. Selections without a delimiter after them do not change; their number is told.
  */
 export const extendToDelimiter = (text: string, ranges: readonly MselRange[], delimiter: string): MselResult => {
   assertDelimiter(delimiter);
   const lines = new MselLines(text);
+  // The last search, reused while the selections move forward on one line: with no delimiter
+  // from `searchFrom` to the line end there is none from a later offset either, and a delimiter
+  // at `searchFound` is also the first one from any offset up to it. So many selections on one
+  // long line read it about once (the selections are in document order).
+  let searchFrom = -1;
+  let searchLineEnd = -1;
+  let searchFound = -1;
+  const find = (from: number, lineEnd: number): number => {
+    if (lineEnd !== searchLineEnd || from < searchFrom || (searchFound !== -1 && from > searchFound)) {
+      searchFrom = from;
+      searchLineEnd = lineEnd;
+      searchFound = indexOfWithin(text, delimiter, from, lineEnd);
+    }
+    return searchFound;
+  };
   let notFound = 0;
   const after = ranges.map((range): MselRange => {
-    const lineEnd = lines.contentEnd(lines.lineOf(range.end));
-    const found = text.indexOf(delimiter, range.end);
-    if (found === -1 || found + delimiter.length > lineEnd) {
+    const found = find(range.end, lines.contentEnd(lines.lineOf(range.end)));
+    if (found === -1) {
       notFound++;
       return range;
     }
-    return { start: range.start, end: found };
+    return { start: range.start, end: found, reversed: range.reversed };
   });
   if (notFound === ranges.length) {
     return { kind: 'warn', message: 'The delimiter was not found after any selection on its line.' };
@@ -769,21 +912,31 @@ export const selectColumn = (text: string, ranges: readonly MselRange[], delimit
   }
   const lines = new MselLines(text);
   const collector = new RangeCollector();
+  // The lines already done as a whole line (for a cursor): more cursors on it give the same column.
+  const wholeLinesDone = new Set<number>();
   for (const range of ranges) {
     const [first, last] = coveredLines(lines, range);
     for (let line = first; line <= last; line++) {
+      const isCursor = range.start === range.end;
+      if (isCursor) {
+        if (wholeLinesDone.has(line)) {
+          continue;
+        }
+        wholeLinesDone.add(line);
+      }
       const lineStart = lines.start(line);
       const lineEnd = lines.contentEnd(line);
-      const segmentStart = range.start === range.end ? lineStart : Math.max(lineStart, range.start);
-      const segmentEnd = range.start === range.end ? lineEnd : Math.min(lineEnd, range.end);
+      const segmentStart = isCursor ? lineStart : Math.max(lineStart, range.start);
+      const segmentEnd = isCursor ? lineEnd : Math.min(lineEnd, range.end);
       if (segmentStart > segmentEnd) {
         continue;
       }
+      // Every search stays inside the segment, so a line is read at most once.
       let columnStart = segmentStart;
       let index = 1;
       while (index < column) {
-        const found = text.indexOf(delimiter, columnStart);
-        if (found === -1 || found + delimiter.length > segmentEnd) {
+        const found = indexOfWithin(text, delimiter, columnStart, segmentEnd);
+        if (found === -1) {
           break;
         }
         columnStart = found + delimiter.length;
@@ -792,9 +945,8 @@ export const selectColumn = (text: string, ranges: readonly MselRange[], delimit
       if (index < column) {
         continue;
       }
-      const next = text.indexOf(delimiter, columnStart);
-      const columnEnd = next === -1 || next + delimiter.length > segmentEnd ? segmentEnd : next;
-      collector.push(columnStart, columnEnd);
+      const next = indexOfWithin(text, delimiter, columnStart, segmentEnd);
+      collector.push(columnStart, next === -1 ? segmentEnd : next);
     }
   }
   if (collector.ranges.length === 0) {
@@ -900,11 +1052,19 @@ export const selectStrings = (text: string, ranges: readonly MselRange[]): MselR
 const URL_PATTERN = /https?:\/\/[^\s$.?#].[^\s]*/g;
 const TRAILING_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', "'", '"']);
 const CLOSING_BRACKETS: Record<string, string> = { ')': '(', ']': '[', '}': '{', '>': '<' };
+const BRACKET_OPENERS = new Set(Object.values(CLOSING_BRACKETS));
 
-const countOf = (value: string, char: string): number => value.split(char).length - 1;
-
-/** The length of `url` without trailing punctuation and closing brackets that have no opener in it. */
+/**
+ * The length of `url` without trailing punctuation and closing brackets that have no opener in it.
+ * The brackets are counted once and the counts updated as characters are removed (O(length)).
+ */
 export const trimUrl = (url: string): number => {
+  const counts = new Map<string, number>();
+  for (const char of url) {
+    if (CLOSING_BRACKETS[char] !== undefined || BRACKET_OPENERS.has(char)) {
+      counts.set(char, (counts.get(char) ?? 0) + 1);
+    }
+  }
   let end = url.length;
   while (end > 0) {
     const last = url[end - 1];
@@ -913,7 +1073,9 @@ export const trimUrl = (url: string): number => {
       continue;
     }
     const opener = CLOSING_BRACKETS[last];
-    if (opener !== undefined && countOf(url.slice(0, end), last) > countOf(url.slice(0, end), opener)) {
+    const closers = counts.get(last) ?? 0;
+    if (opener !== undefined && closers > (counts.get(opener) ?? 0)) {
+      counts.set(last, closers - 1);
       end--;
       continue;
     }

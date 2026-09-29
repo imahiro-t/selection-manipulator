@@ -466,4 +466,119 @@ suite('Multi Cursor Transforms (MSEL-001..030) Test Suite', () => {
       assert.strictEqual(validate('MSEL-021', 1, '1000'), undefined);
     });
   });
+
+  suite('selection direction and several selections on one line', () => {
+    test('MSEL-016: the direction of a selection is kept', () => {
+      const result = extendToDelimiter('ab,cd', [{ start: 0, end: 1, reversed: true }, { start: 3, end: 4 }], ',');
+      assert.deepStrictEqual(result, {
+        kind: 'select',
+        ranges: [{ start: 0, end: 2, reversed: true }, { start: 3, end: 4 }],
+        message: 'The delimiter was not found after 1 of 2 selections; they were not changed.',
+      });
+    });
+
+    test('MSEL-016: several cursors on one line each go to their own next delimiter', () => {
+      const result = extendToDelimiter('ab,cd::ef,g', [0, 1, 3, 7, 11].map((offset) => ({ start: offset, end: offset })), ',');
+      assert.strictEqual(result.kind, 'select');
+      assert.deepStrictEqual(result.kind === 'select' ? result.ranges.map(({ start, end }) => [start, end]) : [],
+        [[0, 2], [1, 2], [3, 9], [7, 9], [11, 11]]);
+    });
+
+    test('MSEL-021: several cursors on one line give its column once', () => {
+      const { text, ranges } = on('a|,b|,c|');
+      assert.strictEqual(show(text, selectColumn(text, ranges, ',', 2)), 'a,[b],c');
+    });
+
+    test('MSEL-012: the right pair among many on one line', () => {
+      assert.strictEqual(run(expandToQuotes, '"a|" "" "b|c" x| "d|"'), '"[a]" "" "[bc]" x| "[d]"');
+      assert.strictEqual(run(expandToQuotes, '"ab"|"cd"'), 'unchanged');
+      assert.strictEqual(run(expandToQuotes, '"a[b" "c]d"'), 'unchanged');
+    });
+  });
+
+  suite('large inputs finish quickly (the work grows about linearly)', () => {
+    // Each case took from seconds to minutes when the work grew quadratically or with
+    // (selections x 1,000,000 characters); the bound is far above the linear time and far
+    // below the old one.
+    const BOUND_MS = 2000;
+    const timed = <T>(fn: () => T): T => {
+      const started = Date.now();
+      const value = fn();
+      const elapsed = Date.now() - started;
+      assert.ok(elapsed < BOUND_MS, `took ${elapsed} ms`);
+      return value;
+    };
+    const cursors = (count: number, step: number, offset = 0): MselRange[] =>
+      Array.from({ length: count }, (_value, i) => ({ start: offset + i * step, end: offset + i * step }));
+
+    test('MSEL-024: a URL followed by 1,000,000 closing brackets', function () {
+      this.timeout(20_000);
+      assert.strictEqual(timed(() => trimUrl(`http://a${')'.repeat(1_000_000)}`)), 'http://a'.length);
+      assert.strictEqual(timed(() => trimUrl(`http://a/(${')'.repeat(1_000_000)}`)), 'http://a/()'.length);
+      const text = `x http://a.example/${'x'.repeat(10)}${')'.repeat(200_000)}.`;
+      assert.strictEqual(timed(() => show(text, selectUrls(text, [{ start: 0, end: text.length }]))).startsWith('x [http://a.example/xxxxxxxxxx]'), true);
+    });
+
+    test('MSEL-021: 270,000 lines (about 10 MB) without the delimiter', function () {
+      this.timeout(20_000);
+      const text = `${'x'.repeat(39)}\n`.repeat(270_000);
+      const all = [{ start: 0, end: text.length }];
+      assert.strictEqual(timed(() => selectColumn(text, all, ';', 2)).kind, 'warn');
+      assert.throws(() => timed(() => selectColumn(text, all, ';', 1)), MselTooManySelectionsError);
+      // Many cursors on one 1,000,000-character line.
+      const line = 'x'.repeat(1_000_000);
+      assert.strictEqual(timed(() => selectColumn(line, cursors(20_000, 50), ',', 2)).kind, 'warn');
+    });
+
+    test('MSEL-016: 100,000 cursors on 100,000 lines, and 20,000 cursors on one long line, without the delimiter', function () {
+      this.timeout(20_000);
+      const text = `${'x'.repeat(39)}\n`.repeat(100_000);
+      assert.strictEqual(timed(() => extendToDelimiter(text, cursors(100_000, 40), '\t')).kind, 'warn');
+      const line = 'x'.repeat(1_000_000);
+      assert.strictEqual(timed(() => extendToDelimiter(line, cursors(20_000, 50), ',')).kind, 'warn');
+      // With the delimiter at the end of the long line: every cursor goes there.
+      const withEnd = `${line},`;
+      const result = timed(() => extendToDelimiter(withEnd, cursors(20_000, 50), ','));
+      assert.strictEqual(result.kind, 'select');
+      assert.ok(result.kind === 'select' && result.ranges.every((range) => range.end === 1_000_000));
+    });
+
+    test('MSEL-013: 1 MB without brackets and 1.1 MB of code, 20,000 cursors', function () {
+      this.timeout(20_000);
+      const plain = 'abc,def ghi\n'.repeat(90_000);
+      assert.strictEqual(timed(() => expandToBrackets(plain, cursors(20_000, 50))).kind, 'unchanged');
+      const unit = 'f(123) { a[1]; }\n';
+      const code = unit.repeat(65_000);
+      // A cursor in every "123": the inside of its parentheses.
+      const result = timed(() => expandToBrackets(code, cursors(20_000, unit.length * 3, 3)));
+      assert.strictEqual(result.kind, 'select');
+      assert.ok(result.kind === 'select' && result.ranges.every((range, i) =>
+        range.start === i * unit.length * 3 + 2 && range.end === i * unit.length * 3 + 5));
+      // Deep nesting: cursors in the middle of 200,000 levels. The cursor is already the inside
+      // of the innermost pair, so it goes one level out.
+      const deep = `${'('.repeat(200_000)}${')'.repeat(200_000)}`;
+      const middle = timed(() => expandToBrackets(deep, cursors(10_000, 0, 200_000)));
+      assert.ok(middle.kind === 'select' && middle.ranges.every((range) => range.start === 199_999 && range.end === 200_001));
+    });
+
+    test('MSEL-012: 20,000 cursors on one line with 250,000 quote pairs', function () {
+      this.timeout(20_000);
+      const text = '"a" '.repeat(250_000);
+      const result = timed(() => expandToQuotes(text, cursors(20_000, 40, 1)));
+      assert.ok(result.kind === 'select' && result.ranges.every((range, i) => range.start === i * 40 + 1 && range.end === i * 40 + 2));
+    });
+
+    test('MSEL-010: 10,000 cursors on each of two 200,000-character lines', function () {
+      this.timeout(20_000);
+      const line = 'x'.repeat(200_000);
+      const text = `${line}\n${line}`;
+      // Line 1: every 20 characters from column 0; line 2: every 21 characters from column 1.
+      const ranges = [...cursors(10_000, 20), ...cursors(10_000, 21, 200_001 + 1)];
+      const result = timed(() => alignCursors(text, ranges, 4));
+      // The k-th cursors are at display columns 20k (+ the spaces before it) and 21k + 1, so the
+      // first cursor of line 1 gets one space and every later one of line 1 gets k - (k - 1) = 1
+      // more: one space before each cursor of line 1, none on line 2.
+      assert.ok(result.kind === 'edit' && result.edits.length === 10_000 && result.edits.every((edit, i) => edit.start === i * 20 && edit.text === ' '));
+    });
+  });
 });
