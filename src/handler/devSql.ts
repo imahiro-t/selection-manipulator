@@ -586,14 +586,13 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
       breakLine(0);
       pendingStatement = false;
       pendingLine = false;
-    } else if (pendingLine) {
+    } else if (pendingLine || (endsLine(token) && token.lineStart)) {
+      // A new line starts after a line comment, and before a line comment (or a `raw-line`) that
+      // started a line in the input, so that it stays on its own line instead of moving to the end
+      // of the line before it. Both take the same indentation; when both apply, the line is broken
+      // once only.
       breakLine(level.clause === undefined ? level.indent : level.indent + 2);
       pendingLine = false;
-    } else if (endsLine(token) && token.lineStart) {
-      // A line comment (or a `raw-line`) that started a line in the input stays on its own line
-      // instead of moving to the end of the line before it. The indentation is the one of a line
-      // after a line comment; the line is empty already when a line break came just before.
-      breakLine(level.clause === undefined ? level.indent : level.indent + 2);
     }
     const keyword = token.keyword;
     if (keyword !== undefined && level.query) {
