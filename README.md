@@ -2,7 +2,7 @@
 
 **The Ultimate Text Processing Toolkit for VS Code**
 
-Selection Manipulator offers over **250 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
+Selection Manipulator offers over **650 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
@@ -54,6 +54,7 @@ Selection Manipulator offers over **250 powerful tools** to manipulate, transfor
 
 ### 🎨 Fun & Generators
 *   **Mock Data**: Generate Random UUIDs, Passwords, IPv4, IPv6, Lorem Ipsum.
+*   **Generators**: UUID v7, ULID, NanoID, hex / Base64URL tokens, integers, decimals and dates in a range, lines picked from a selection, MAC addresses, colors, dummy e-mail addresses, names (English and Japanese), phone numbers and Japanese text, booleans, dice rolls, and sequences for multiple cursors (letters, Roman numerals, dates, numbers, hex, kana, circled numbers, IPv4), repeated characters, column rulers and braced GUIDs.
 *   **ASCII Art**: Generate "Cowsay" speech bubbles.
 *   **Math**: Evaluate expressions, calculate Sum/Average/Min/Max, Median, Mode, Standard Deviation, Variance, Percentile and a Statistics Summary.
 
@@ -603,6 +604,62 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 *   **Password**: Generate strong random passwords.
 *   **IP Address**: Random IPv4 / IPv6.
 *   **Lorem Ipsum**: Placeholder text.
+
+#### Generator Commands
+Thirty generator commands are added: the nineteen **Random - …** commands go to the existing **Random** context submenu (after UUID and Lorem Ipsum), and the eleven **Generate - …** commands to a new **Generate** context submenu (last in the Selection Manipulator menu); all of them are also in the Command Palette. Every random value comes from Node.js `crypto` (`randomBytes`, `randomInt` and `randomUUID`; `Math.random` is not used), with no new dependencies and no network access. The existing Random commands (UUID, Password, IPv4, IPv6 and Lorem Ipsum) are unchanged.
+In the examples, `⏎` is a line break, a value in parentheses is the value you enter, and `a / b / c` is what three cursors get (from the first cursor in the document to the last).
+
+*   **Common rules**:
+    *   **Where the text goes**: Each selection and cursor gets its own value, in document order (by where it starts, not the order you made the cursors): a selection is replaced and an empty cursor gets an insertion, all in one edit (one undo step). Sequences count in that order, and random values are made separately for each selection and cursor. Commands that write several lines (Pick N Lines, Number Range, Column Ruler) use the document's line ending (LF / CRLF).
+    *   **Selected text**: Only Pick One Line, Pick N Lines and Dice Roll read the selected text; the other commands ignore it and replace it.
+    *   **Input**: A command that asks for input asks only once for all selections and cursors, starts with a default value, checks what you type while you type it (up to 100 characters), reads the selections again after the input box closes, and does nothing if you cancel it; values you enter are not saved.
+    *   **Errors**: If anything is wrong (an invalid value, too many cursors for a sequence, a selection that cannot be used), nothing is changed and an error says why (`The selection was not changed: …`, with `selection 2 of 3: ` for the commands that read the selections when there are several). More than 100,000 selections and cursors is an error (nothing is changed), and a selection read by Pick One Line, Pick N Lines or Dice Roll can be up to 1,000,000 characters (checked before anything is asked). A run whose results would exceed 10,000,000 characters in total is stopped and refused with a warning (`…Use fewer cursors or a smaller amount.`); nothing is changed.
+    *   **Context menu**: The context menu of Selection Manipulator is shown only when text is selected, as before; with only cursors, run the commands from the Command Palette.
+*   **IDs and tokens**:
+    *   **Random - UUID v7**: A time-ordered UUID (RFC 9562): the current time in milliseconds, version 7, the variant `10` and 74 random bits, in lower case: `0192f0c1-8e3a-7c4d-9b1e-3f2a…`.
+    *   **Random - ULID**: 26 characters of Crockford Base32 (upper case): 10 for the time in milliseconds and 16 for 80 random bits: `01J8Z3K5Q7W9X2Y4Z6A8B0C1D2`.
+        *   With several cursors, the UUIDs and ULIDs of one run are sorted before they are written, so that they are in ascending order in the document even within the same millisecond. Values of different runs are not guaranteed to increase (two runs within the same millisecond can give a smaller value).
+    *   **Random - NanoID**: 21 characters of `A-Za-z0-9_-`: `V1StGXR8_Z5jdHi6B-myT`.
+    *   **Random - Hex String**: Asks for a number of random bytes (1 to 1,024, default 16) and writes them in lower-case hexadecimal (twice as many characters): (`16`) -> `9f86d081884c7d659a2feaa0c55ad015`.
+    *   **Random - Base64 Token**: Asks for a number of random bytes (1 to 1,024, default 24) and writes them in Base64URL (`-` and `_`, no padding): (`24`) -> 32 characters.
+    *   **Generate - GUID (Braced Uppercase)**: A version 4 UUID (`crypto.randomUUID`) in upper case in braces, as in Windows / .NET: `{3F2504E0-4F89-41D3-9A0C-0305E82C3301}`.
+*   **Numbers, dates and choices**:
+    *   **Random - Integer in Range**: Asks for `min..max` (both ends included, decimal integers such as `-5..5`, default `1..100`): (`1..6`) -> `4`. Both ends must be safe integers (from -9007199254740991 to 9007199254740991), `min` must not be greater than `max`, and the range can hold up to 2^48 − 1 integers.
+    *   **Random - Float in Range**: Asks for `min..max` (both ends included, plain decimal numbers such as `-0.5..2.25` with absolute values up to 1,000,000,000; no exponents, `Infinity` or `NaN`; default `0..1`) and then the number of decimal places (0 to 10, default 3): (`0..1`, `3`) -> `0.582`. The value is picked uniformly from the numbers with that many decimal places and written with exactly that many (no decimal point for 0 places, and `0.000` rather than `-0.000`). No floating-point arithmetic is used, so `0.1..0.3` with 3 places gives exactly `0.100` to `0.300`. The ends can have at most that many decimal places as written (`1.000` with 2 places is an error), each end times 10^places must be at most 9007199254740991 (`1000000000..1000000000` with 10 places is an error), and the range can hold up to 2^48 − 1 values.
+    *   **Random - Date in Range**: Asks for `YYYY-MM-DD..YYYY-MM-DD` (both ends included, 0001-01-01 to 9999-12-31; default the current year, `2026-01-01..2026-12-31`) and picks a day uniformly: (`2026-01-01..2026-12-31`) -> `2026-05-17`. A date that does not exist or a first date after the second is an error.
+    *   **Random - Boolean**: `true` or `false`.
+    *   **Random - Dice Roll**: Rolls the dice written in the selection as `NdM` (N dice with M sides; `d` or `D`; spaces around the whole expression are ignored, but none are allowed inside it, so `2 d 6` is an error; N from 1 to 100, M from 2 to 1,000,000) and writes the total with each die: `2d6` -> `7 (3+4)`, `1d20` -> `13 (13)`. For empty cursors (and selections of only spaces, tabs and line breaks), it asks once for the dice (default `1d6`) and uses them for all of them. A selection that is not a dice roll is an error that quotes it (cut to 60 characters).
+    *   **Random - Pick One Line**: Replaces each selection with one of its lines, picked separately for each selection: `a⏎b⏎c` -> `b`. Lines of only spaces and tabs are not picked, and the spaces around the picked line are kept.
+    *   **Random - Pick N Lines**: Asks for N (1 to 10,000, default 2) and replaces each selection with N of its lines without repeats, in random order: `a⏎b⏎c⏎d` (`2`) -> `d⏎a`. Lines of only spaces and tabs are not picked; equal lines at different positions can both be picked; N greater than the number of lines is an error.
+        *   Pick One Line and Pick N Lines leave empty selections and selections of only spaces, tabs and line breaks unchanged, and if nothing else is selected, the warning `Select the lines to pick from.` is shown (nothing is changed).
+*   **Network and colors**:
+    *   **Random - MAC Address**: A unicast, locally administered address (the first byte is `x2`, `x6`, `xa` or `xe`), lower case with colons: `02:5e:a1:3c:77:0b`.
+    *   **Random - Hex Color**: `#3fa2c8` (lower case).
+*   **Dummy data** (from small built-in lists of common words, names and neutral sentences):
+    *   **Random - Dummy Email**: A word, 4 digits and the reserved domain `example.com` (RFC 2606) only: `user4821@example.com`.
+    *   **Random - Dummy Name**: An English first name and last name: `Emily Clark`.
+    *   **Random - Dummy Japanese Name**: A family name and a given name with a half-width space: `佐藤 花子`.
+    *   **Random - Dummy Phone Number (JP)**: A mobile number of the form `090-0xxx-xxxx` (each `x` a random digit): `090-0123-4567`. It is meant as a fictional number for samples and tests, but **it is not guaranteed that the number is not in use**; do not call or text it.
+    *   **Random - Japanese Dummy Text**: Asks for a number of sentences (1 to 1,000, default 3) and writes that many sentences from a built-in list, each picked independently (the same sentence can come twice in a row), without spaces or line breaks between them: (`3`) -> `これはダミーの文章です。新しい機能の説明文がここに入ります。…`.
+*   **Sequences** (each cursor gets the next value in document order):
+    *   **Generate - Alphabet Sequence**: `a / b / c`; after `z` comes `aa`, `ab`, … (lower case only).
+    *   **Generate - Roman Numeral Sequence**: `I / II / III / IV`, up to 3,999 (`MMMCMXCIX`).
+    *   **Generate - Date Sequence**: Asks for the first date (`YYYY-MM-DD`, default today in local time) and gives each next cursor the next day: (`2026-09-28`) -> `2026-09-28 / 2026-09-29 / 2026-09-30`. The last date must not be after 9999-12-31.
+    *   **Generate - Hex Sequence**: Asks for the first hexadecimal number (1 to 13 digits; default `0x00`) and keeps its prefix (`0x`, `0X` or none), its width (zero padding; a longer number simply gets longer) and its case: (`0x0A`) -> `0x0A / 0x0B / 0x0C`, (`ff`) -> `ff / 100 / 101`, (`0x09`) -> `0x09 / 0x0A`. Letters are lower case only when the input has only lower-case letters; with upper-case letters, mixed case or no letters, they are upper case.
+    *   **Generate - Kana Sequence**: Asks which order to use: **Gojūon** (hiragana, 46 kana `あいうえお…わをん`: the plain kana only, with `を` and `ん`, without `ゐ` `ゑ`, small kana and voiced kana): `あ / い / う`, or **Iroha** (katakana, 47 kana `イロハニホヘト…セス`, with `ヰ` and `ヱ`, without `ン`): `イ / ロ / ハ`.
+    *   **Generate - Circled Number Sequence**: `① / ② / ③`, up to ㊿ (50).
+    *   **Generate - IPv4 Sequence**: Asks for the first address (default `192.0.2.1`, a documentation address of RFC 5737) and counts up across the parts: (`192.0.2.1`) -> `192.0.2.1 / 192.0.2.2 / 192.0.2.3`, `192.0.2.255` is followed by `192.0.3.0`. Only plain dotted decimal addresses are read (each part 0 to 255 without leading zeros; no CIDR), and the last address must not be after 255.255.255.255.
+        *   The sequences with a last value do not wrap around: more cursors than values (Roman numerals 3,999, Gojūon 46, Iroha 47, circled numbers 50, dates up to 9999-12-31, IPv4 up to 255.255.255.255) is an error and nothing is changed.
+*   **Generators**:
+    *   **Generate - Number Range**: Asks for `start..end` or `start..end step s` (`step` in any case, integers only, each a safe integer; default `1..10`) and writes the numbers from start toward end, one per line; each cursor gets the whole list: (`1..10 step 3`) -> `1⏎4⏎7⏎10`. Without a step, it counts by 1, or by -1 when start is greater than end (`3..1` -> `3⏎2⏎1`). The list stops at the last number that does not pass end (`1..10 step 4` -> `1⏎5⏎9`). A step of 0, a step that goes away from end, and a list of more than 100,000 numbers are errors.
+    *   **Generate - Repeat Character to Width**: Asks for the character(s) to repeat (1 to 16 characters, default `=`; spaces are kept as typed, so a space or `- ` can be repeated; tabs, line breaks and other control characters are errors) and the width (1 to 10,000 characters, default 80), and repeats them up to exactly that width, cutting the last repeat: (`=`, `20`) -> `====================`, (`-+`, `5`) -> `-+-+-`. Widths are counted in characters (code points), and a character outside the BMP (such as an emoji) is never cut in half.
+    *   **Generate - Column Ruler**: Asks for a number of columns (1 to 1,000, default 80) and writes two lines: the first has the tens digit at every 10th column (`0` at column 100, `1` at column 110, …) and the middle dot `·` (U+00B7, the actual character) elsewhere, the second the ones digit of every column: (`30`) -> `·········1·········2·········3⏎123456789012345678901234567890`.
+
+> **Limitations of the generator commands**
+> *   **Randomness**: Values are random, not unique: two runs (or two cursors) can in theory get the same NanoID, token, name or number, as with any random generator. The dummy names, e-mail addresses, sentences and phone numbers come from small built-in lists and repeat often.
+> *   **Time**: UUID v7 and ULID use the clock of the computer running VS Code; the ascending order is only guaranteed among the values of one run. By default, Date in Range covers the current year (January 1 to December 31) and Date Sequence starts from today, both in local time.
+> *   **Dummy phone numbers**: `090-0xxx-xxxx` follows the form of the fictional numbers used in samples, but whether a number is unassigned is not checked and cannot be guaranteed.
+> *   **Context menu**: With only cursors (no selected text), the context menu of Selection Manipulator is not shown; use the Command Palette.
 
 ### 10. Calculation & Numbers
 
