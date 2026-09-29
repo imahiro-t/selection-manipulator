@@ -62,26 +62,24 @@ export interface DataTransformEntry extends DataCommandBase {
   transform: DataTransform;
   /** Asks for a path (DATA-015) or a field (DATA-023 / 024) first. */
   prompt?: 'path' | 'field';
-  notify?: undefined;
 }
 
 /** DATA-018: merges all selections into one new editor. */
 export interface DataMergeEntry extends DataCommandBase {
   output: 'merge';
-  transform?: undefined;
-  prompt?: undefined;
-  notify?: undefined;
 }
 
 /** DATA-019 / 025: only shows a notification. */
 export interface DataNotifyEntry extends DataCommandBase {
   output: 'notify';
   notify: DataNotification;
-  transform?: undefined;
-  prompt?: undefined;
 }
 
 export type DataCommandEntry = DataTransformEntry | DataMergeEntry | DataNotifyEntry;
+
+/** Whether the command converts every selection (it has a `transform`), as opposed to merge / notify. */
+export const isTransformEntry = (entry: DataCommandEntry): entry is DataTransformEntry =>
+  entry.output === 'new-tab' || entry.output === 'replace';
 
 // ---------------------------------------------------------------------------------------------
 // Reading JSON
@@ -444,8 +442,9 @@ export const jsonLinesToJson = (text: string): string => {
  * Upper limit of (mappings and sequences) x (references to them) of a YAML selection that uses
  * anchors and aliases. When the references are kept, js-yaml finds repeated objects with linear
  * searches: once per reference over all objects seen so far, and once per written object over the
- * shared ones, so writing takes time proportional to this product (well under a second at the limit on a
- * current machine). Without aliases the references are not tracked at all and writing is linear.
+ * shared ones, so writing takes time proportional to this product: at the limit, from about 0.1 s
+ * up to about a second on a current machine, the first call (with warm-up) being the slowest.
+ * Without aliases the references are not tracked at all and writing is linear.
  */
 export const YAML_MAX_ALIAS_WORK = 300_000_000;
 

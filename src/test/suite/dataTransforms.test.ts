@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 import {
   DATA_MAX_DEPTH,
   DataInputError,
@@ -16,10 +17,11 @@ import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
 import { parseIni, parseJsonLike, parseProperties } from '../../handler/dataParsers';
 import {
   DATA_COMMAND_ENTRIES,
-  DataCommandEntry,
+  DataTransformEntry,
   describeCount,
   findJsonError,
   formatYaml,
+  isTransformEntry,
   mergeJsonObjects,
   parseJson,
   YAML_MAX_ALIAS_WORK,
@@ -27,15 +29,15 @@ import {
 import { parseToml } from '../../handler/tomlParser';
 import { toXml } from '../../handler/dataWriters';
 
-const entry = (id: string): DataCommandEntry => {
+const entry = (id: string): DataTransformEntry => {
   const found = DATA_COMMAND_ENTRIES.find((candidate) => candidate.id === id);
-  assert.ok(found?.transform, id);
+  assert.ok(found && isTransformEntry(found), id);
   return found;
 };
 
 /** Runs the transform of a DATA command (the path for DATA-015 / 023 / 024 is given as text). */
 const run = (id: string, text: string, pathText = ''): string =>
-  entry(id).transform!(text, pathText === '' ? [] : parsePath(pathText));
+  entry(id).transform(text, pathText === '' ? [] : parsePath(pathText));
 
 /** Runs `convert` and fails when it took longer than `budget` milliseconds (catches quadratic / exponential time). */
 const withinBudget = <T>(budget: number, convert: () => T): T => {
@@ -60,6 +62,17 @@ const rejects = (convert: () => unknown, pattern?: RegExp): void => {
   });
 };
 
+/**
+ * Checks the counts of a YAML input that is kept as references: exactly `expected`, and
+ * (mappings and sequences) x (references) within YAML_MAX_ALIAS_WORK but more than half of it.
+ */
+const assertJustUnderAliasLimit = (text: string, expected: { shared: boolean; containers: number; references: number }): void => {
+  const graph = inspectGraph(yaml.load(text, { schema: yaml.CORE_SCHEMA }));
+  assert.deepStrictEqual(graph, expected);
+  const work = graph.containers * graph.references;
+  assert.ok(work <= YAML_MAX_ALIAS_WORK && work > YAML_MAX_ALIAS_WORK / 2, String(work));
+};
+
 /** A deterministic pseudo-random generator (mulberry32) so that the robustness tests are repeatable. */
 const random = (seed: number) => () => {
   seed = (seed + 0x6d2b79f5) | 0;
@@ -76,13 +89,13 @@ suite('Data Transforms (DATA) Test Suite', () => {
       DATA_COMMAND_ENTRIES.forEach((item, index) => assert.strictEqual(item.id, `DATA-${String(index + 1).padStart(3, '0')}`));
       assert.deepStrictEqual(DATA_COMMAND_ENTRIES.filter((item) => item.output === 'replace').map((item) => item.id),
         ['DATA-034', 'DATA-035', 'DATA-036', 'DATA-037', 'DATA-038', 'DATA-039', 'DATA-040']);
-      DATA_COMMAND_ENTRIES.filter((item) => item.output === 'replace').forEach((item) => {
+      DATA_COMMAND_ENTRIES.filter(isTransformEntry).filter((item) => item.output === 'replace').forEach((item) => {
         const base = DATA_COMMAND_ENTRIES.find((candidate) => candidate.name === item.name.replace(/\.replace$/, ''));
-        assert.ok(base, item.name);
+        assert.ok(base && isTransformEntry(base), item.name);
         assert.strictEqual(item.transform, base.transform, `${item.id} uses the transform of ${base.id}`);
         assert.strictEqual(item.title, `${base.title} (Replace)`);
       });
-      const withoutTransform = DATA_COMMAND_ENTRIES.filter((item) => item.transform === undefined).map((item) => item.id);
+      const withoutTransform = DATA_COMMAND_ENTRIES.filter((item) => !isTransformEntry(item)).map((item) => item.id);
       assert.deepStrictEqual(withoutTransform, ['DATA-018', 'DATA-019', 'DATA-025']);
     });
   });
@@ -471,13 +484,22 @@ suite('Data Transforms (DATA) Test Suite', () => {
     });
   });
 
-  suite('time and size limits of large or hostile input (regression)', () => {
+  // Time budgets: at least about 10 times the slowest time measured on a development machine (first
+  // call included), so that a slow CI machine does not fail them, yet far below the time of the
+  // quadratic / exponential behaviour each test guards against (seconds to hours on the same machine).
+  // Where the two cannot be told apart by time alone, the tests check counts instead (rejection
+  // messages, the containers x references of an input kept under YAML_MAX_ALIAS_WORK) or use an
+  // input large enough to widen the gap. See the implementation notes of SELEC-00042 for the numbers.
+  suite('time and size limits of large or hostile input (regression)', function () {
+    // Mocha's default of 2 seconds per test would be stricter than the budgets below.
+    this.timeout(60_000);
+
     test('YAML aliases that share subtrees are visited once (no exponential "billion laughs" time)', () => {
       let text = 'a0: &a0 [x, x, x, x, x, x, x, x, x, x]\n';
       for (let i = 1; i <= 12; i++) {
         text += `a${i}: &a${i} [${Array(10).fill(`*a${i - 1}`).join(', ')}]\n`;
       }
-      const result = withinBudget(1_000, () => formatYaml(text, false));
+      const result = withinBudget(2_000, () => formatYaml(text, false));
       // The references are kept (the output does not expand 10^12 values).
       assert.ok(result.length < 2 * text.length, String(result.length));
       assert.ok(result.includes('*ref_'));
@@ -500,7 +522,7 @@ suite('Data Transforms (DATA) Test Suite', () => {
       for (let i = 0; i < 60; i++) {
         shared = [shared, shared];
       }
-      assert.deepStrictEqual(withinBudget(500, () => inspectGraph(shared)), { shared: true, containers: 61, references: 120 });
+      assert.deepStrictEqual(withinBudget(2_000, () => inspectGraph(shared)), { shared: true, containers: 61, references: 120 });
       assert.deepStrictEqual(inspectGraph({ a: [1], b: { c: null } }), { shared: false, containers: 3, references: 2 });
       const nested = (depth: number): unknown => {
         let value: unknown = [];
@@ -522,8 +544,10 @@ suite('Data Transforms (DATA) Test Suite', () => {
     });
 
     test('large YAML without aliases is written in linear time; with aliases the size is limited', () => {
-      withinBudget(2_000, () => formatYaml('- []\n'.repeat(200_000), false));
-      withinBudget(2_000, () => formatYaml('- a: 1\n'.repeat(200_000), false));
+      // Close to the input limit, so that tracking references (time proportional to the square of the
+      // number of mappings and sequences: over 30 s for these) stands far apart from linear time.
+      withinBudget(5_000, () => formatYaml('- []\n'.repeat(800_000), false));
+      withinBudget(8_000, () => formatYaml('- a: 1\n'.repeat(700_000), false));
       const aliased = (count: number) => `a: &x {b: 1}\nc: *x\nl:\n${'  - []\n'.repeat(count)}`;
       assert.ok(formatYaml(aliased(1_000), false).includes('c: *ref_0'));
       rejects(
@@ -533,16 +557,18 @@ suite('Data Transforms (DATA) Test Suite', () => {
     });
 
     // js-yaml's dumper takes time proportional to (mappings and sequences) x (references) when
-    // aliases are kept, so both counts are limited together (the budgets are generous for slow CI
-    // machines but far below the 5 to 20 seconds these inputs took before the limit).
+    // aliases are kept, so both counts are limited together. The rejections are checked by the counts
+    // in their messages (their budgets are far below the 5 to 22 seconds these inputs took before
+    // the limit); the inputs just under the limit are checked by their counts, and their budgets only
+    // make sure the limit keeps writing at a practical time (up to about a second measured).
     test('YAML with aliases: many references to one anchor are limited (no containers x references time)', () => {
       const shape = (containers: number, references: number) =>
         `x:\n${'- []\n'.repeat(containers)}s: &a []\nz: [${Array(references).fill('*a').join(', ')}]\n`;
       // 49,003 mappings and sequences, 849,002 references (took about 22 s).
       rejects(() => withinBudget(5_000, () => formatYaml(shape(49_000, 800_000), false)), /anchors and aliases is too large/);
-      // Just under the limit (5,004 x 55,003): kept as references and written quickly.
-      assert.ok(5_004 * 55_003 <= YAML_MAX_ALIAS_WORK);
-      const result = withinBudget(3_000, () => formatYaml(shape(5_000, 50_000), true));
+      // Just under the limit (5,004 x 55,003): kept as references and written at a practical time.
+      assertJustUnderAliasLimit(shape(5_000, 50_000), { shared: true, containers: 5_004, references: 55_003 });
+      const result = withinBudget(10_000, () => formatYaml(shape(5_000, 50_000), true));
       // Keys sorted: the anchor comes first, the aliases after it.
       assert.ok(result.startsWith('s: &ref_0 []\nx:\n'), result.slice(0, 200));
       assert.ok(result.endsWith('  - *ref_0\n'), result.slice(-100));
@@ -557,15 +583,16 @@ suite('Data Transforms (DATA) Test Suite', () => {
       // 49,000 anchor / alias pairs (took about 5 s).
       const pairs = Array.from({ length: 49_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
       rejects(() => withinBudget(3_000, () => formatYaml(pairs, false)), /anchors and aliases is too large/);
-      // 12,000 pairs (12,001 x 24,000) are within the limit and written quickly.
+      // 12,000 pairs (12,001 x 24,000) are within the limit and written at a practical time.
       const fewer = Array.from({ length: 12_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
-      const result = withinBudget(3_000, () => formatYaml(fewer, true));
+      assertJustUnderAliasLimit(fewer, { shared: true, containers: 12_001, references: 24_000 });
+      const result = withinBudget(10_000, () => formatYaml(fewer, true));
       assert.ok(result.endsWith('- *ref_11999\n'), result.slice(-100));
     });
 
     test('the "no YAML value" check has no quadratic regular expression', () => {
-      assert.strictEqual(withinBudget(500, () => formatYaml(`${' '.repeat(1_000_000)}~`, false)), 'null');
-      rejects(() => withinBudget(500, () => formatYaml(`${' '.repeat(1_000_000)}\n# c\n---\n...`, false)), /contains no YAML value/);
+      assert.strictEqual(withinBudget(2_000, () => formatYaml(`${' '.repeat(1_000_000)}~`, false)), 'null');
+      rejects(() => withinBudget(2_000, () => formatYaml(`${' '.repeat(1_000_000)}\n# c\n---\n...`, false)), /contains no YAML value/);
     });
 
     test('.properties continuation lines are joined in linear time', () => {
@@ -592,7 +619,7 @@ suite('Data Transforms (DATA) Test Suite', () => {
       const deepArray = `${'['.repeat(498)}\n${Array(1_000_000).fill('1').join(',')}${']'.repeat(498)}`;
       assert.throws(() => withinBudget(1_500, () => run('DATA-001', deepArray)), EncOutputTooLargeError);
       const deepLine = `${'['.repeat(400)}1${']'.repeat(400)}`;
-      assert.throws(() => withinBudget(1_500, () => run('DATA-013', `${deepLine}\n`.repeat(4_000))), EncOutputTooLargeError);
+      assert.throws(() => withinBudget(3_000, () => run('DATA-013', `${deepLine}\n`.repeat(4_000))), EncOutputTooLargeError);
       const deepItems = Array(1_000).fill(`${'['.repeat(400)}1,2,3,4,5,6,7,8,9${']'.repeat(400)}`).join(',');
       assert.throws(() => withinBudget(1_500, () => run('DATA-027', `[\n${deepItems}]`)), EncOutputTooLargeError);
     });
@@ -621,6 +648,15 @@ suite('Data Transforms (DATA) Test Suite', () => {
           assert.ok(estimate <= real, `${JSON.stringify(value)}: ${estimate} > ${real}`);
           if (!JSON.stringify(value).includes('\\')) {
             assert.strictEqual(estimate, real, JSON.stringify(value));
+          }
+          // With a limit: the full estimate when it is not passed, otherwise a value above the limit
+          // that is still at most the full estimate (so never above the real length).
+          const limit = Math.floor(next() * (estimate + 2));
+          const limited = jsonLengthAtLeast(value, indent, limit);
+          if (estimate > limit) {
+            assert.ok(limited > limit && limited <= estimate, `${JSON.stringify(value)}: ${limited} (limit ${limit}, estimate ${estimate})`);
+          } else {
+            assert.strictEqual(limited, estimate, JSON.stringify(value));
           }
         }
       }
@@ -664,8 +700,8 @@ suite('Data Transforms (DATA) Test Suite', () => {
         inputs.push(text);
       }
       const convert: [string, (text: string) => unknown][] = [
-        ...DATA_COMMAND_ENTRIES.filter((item) => item.transform).map((item): [string, (text: string) => unknown] =>
-          [item.id, (text) => item.transform!(text, item.prompt ? ['a', 0] : [])]),
+        ...DATA_COMMAND_ENTRIES.filter(isTransformEntry).map((item): [string, (text: string) => unknown] =>
+          [item.id, (text) => item.transform(text, item.prompt ? ['a', 0] : [])]),
         ['describeCount', describeCount],
         ['findJsonError', findJsonError],
         ['merge', (text) => mergeJsonObjects([text, text])],

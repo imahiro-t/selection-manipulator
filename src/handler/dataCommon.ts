@@ -147,41 +147,46 @@ export const assertInputLength = (text: string): void => {
 /** Whether the selection spans several lines (leading / trailing white space ignored). */
 export const isMultiLine = (text: string): boolean => /[\r\n]/.test(text.trim());
 
-/** Thrown inside `jsonLengthAtLeast` to stop counting once the limit is passed. */
-class JsonLengthExceeded extends Error {}
-
 /**
  * A lower bound of the length of `JSON.stringify(value, null, indent)`, computed without building
  * the string (linear time, no recursion). The indentation, which grows with depth × size, is
  * counted exactly and every token at its shortest (a string without escapes), so the bound is the
- * exact length when no string needs escaping. Counting stops as soon as the bound passes `limit`.
+ * exact length when no string needs escaping. Counting stops as soon as the bound passes `limit`:
+ * the count so far (more than `limit`, still a lower bound) is returned.
  */
 export const jsonLengthAtLeast = (value: JsonValue, indent: number, limit = Infinity): number => {
   let total = 0;
-  const add = (length: number): void => {
+  /** Adds `length` and tells whether the bound has passed `limit` (then counting stops). */
+  const addExceeds = (length: number): boolean => {
     total += length;
-    if (total > limit) {
-      throw new JsonLengthExceeded();
-    }
+    return total > limit;
   };
   const stack: [JsonValue, number][] = [[value, 0]];
   while (stack.length > 0) {
     const [item, depth] = stack.pop()!;
     if (typeof item === 'string') {
-      add(item.length + 2);
+      if (addExceeds(item.length + 2)) {
+        return total;
+      }
     } else if (typeof item !== 'object' || item === null) {
-      add(String(item).length);
+      if (addExceeds(String(item).length)) {
+        return total;
+      }
     } else {
       const isArray = Array.isArray(item);
       const keys = isArray ? undefined : Object.keys(item);
       const count = isArray ? item.length : keys!.length;
       // Brackets; with indentation also the line break and indent before the closing one.
-      add(2 + (count > 0 && indent > 0 ? 1 + indent * depth : 0));
+      if (addExceeds(2 + (count > 0 && indent > 0 ? 1 + indent * depth : 0))) {
+        return total;
+      }
       if (count === 0) {
         continue;
       }
       // Commas, and a line break plus the indent before every element.
-      add(count - 1 + (indent > 0 ? count * (1 + indent * (depth + 1)) : 0));
+      if (addExceeds(count - 1 + (indent > 0 ? count * (1 + indent * (depth + 1)) : 0))) {
+        return total;
+      }
       if (isArray) {
         for (const child of item) {
           stack.push([child, depth + 1]);
@@ -189,7 +194,9 @@ export const jsonLengthAtLeast = (value: JsonValue, indent: number, limit = Infi
       } else {
         for (const key of keys!) {
           // "key": (the space after the colon only with indentation)
-          add(key.length + 3 + (indent > 0 ? 1 : 0));
+          if (addExceeds(key.length + 3 + (indent > 0 ? 1 : 0))) {
+            return total;
+          }
           stack.push([(item as JsonObject)[key], depth + 1]);
         }
       }
@@ -204,13 +211,8 @@ export const jsonLengthAtLeast = (value: JsonValue, indent: number, limit = Infi
  * length afterwards).
  */
 export const assertJsonFits = (value: JsonValue, indent: number): void => {
-  try {
-    jsonLengthAtLeast(value, indent, MAX_OUTPUT_LENGTH);
-  } catch (error) {
-    if (error instanceof JsonLengthExceeded) {
-      throw outputTooLarge(MAX_OUTPUT_LENGTH + 1);
-    }
-    throw error;
+  if (jsonLengthAtLeast(value, indent, MAX_OUTPUT_LENGTH) > MAX_OUTPUT_LENGTH) {
+    throw outputTooLarge(MAX_OUTPUT_LENGTH + 1);
   }
 };
 
