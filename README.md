@@ -2,7 +2,7 @@
 
 **The Ultimate Text Processing Toolkit for VS Code**
 
-Selection Manipulator offers over **700 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
+Selection Manipulator offers over **800 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
@@ -609,7 +609,7 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 *   **Lorem Ipsum**: Placeholder text.
 
 #### Generator Commands
-Thirty generator commands are added: the nineteen **Random - …** commands go to the existing **Random** context submenu (after UUID and Lorem Ipsum), and the eleven **Generate - …** commands to a new **Generate** context submenu (last in the Selection Manipulator menu); all of them are also in the Command Palette. Every random value comes from Node.js `crypto` (`randomBytes`, `randomInt` and `randomUUID`; `Math.random` is not used), with no new dependencies and no network access. The existing Random commands (UUID, Password, IPv4, IPv6 and Lorem Ipsum) are unchanged.
+Thirty generator commands are added: the nineteen **Random - …** commands go to the existing **Random** context submenu (after UUID and Lorem Ipsum), and the eleven **Generate - …** commands to a new **Generate** context submenu (after the **Line** submenu in the Selection Manipulator menu); all of them are also in the Command Palette. Every random value comes from Node.js `crypto` (`randomBytes`, `randomInt` and `randomUUID`; `Math.random` is not used), with no new dependencies and no network access. The existing Random commands (UUID, Password, IPv4, IPv6 and Lorem Ipsum) are unchanged.
 In the examples, `⏎` is a line break, a value in parentheses is the value you enter, and `a / b / c` is what three cursors get (from the first cursor in the document to the last).
 
 *   **Common rules**:
@@ -875,7 +875,7 @@ Convert text to dots and dashes, and vice versa.
 *   **Morse to Text (Kana)**: Explicitly decodes as Japanese Kana (Wabun Code) to resolve ambiguities.
 
 ### 15. Unicode
-Thirty **Unicode - …** commands (normalization, invisible characters, code points and bytes, graphemes, emoji, styled letters, confusable and bidi control characters, typography, scripts and Cyrillic transliteration) are added to a new **Unicode** context submenu (after the **Line** submenu in the Selection Manipulator menu) and to the Command Palette. They use only built-in Unicode processing (`String.prototype.normalize`, `Intl.Segmenter`, `\p{…}` regular expressions and `TextEncoder`) and tables that are constants in the extension: no new dependencies and no network access. The existing Unicode escape commands (Escape / Unescape Unicode in the **Encode / Decode** submenus), Unsmart Quotes and the Japanese character type count are unchanged.
+Thirty **Unicode - …** commands (normalization, invisible characters, code points and bytes, graphemes, emoji, styled letters, confusable and bidi control characters, typography, scripts and Cyrillic transliteration) are added to a new **Unicode** context submenu (after the **Generate** submenu in the Selection Manipulator menu) and to the Command Palette. They use only built-in Unicode processing (`String.prototype.normalize`, `Intl.Segmenter`, `\p{…}` regular expressions and `TextEncoder`) and tables that are constants in the extension: no new dependencies and no network access. The existing Unicode escape commands (Escape / Unescape Unicode in the **Encode / Decode** submenus), Unsmart Quotes and the Japanese character type count are unchanged.
 In the examples, `·` is a space, `⏎` is a line break, `{U+200B}` is the one character U+200B (written this way because it is invisible or combines with the character before it), and a value in parentheses is the value you choose.
 
 *   **Common rules**:
@@ -1018,10 +1018,10 @@ In the examples, `[…]` is a selection, `|` is a cursor (an empty selection), `
     *   **Selection - Expand to Inside Brackets**: Selects the inside of the innermost `()`, `[]` or `{}` around each selection (across lines); running it again goes one level out: `f(a,|b)` -> `f([a,b])`.
     *   **Selection - Trim Whitespace from Selections**: Removes spaces, tabs, line breaks and other white space (such as the full-width space) at both ends of every selection: `[··ab·]` -> `··[ab]·`. A selection of only white space becomes a cursor at its start.
     *   **Selection - Shrink Selections by One Character**: Moves both ends of every selection one character inward: `["ab"]` -> `"[ab]"`. Selections shorter than two characters do not change.
-    *   **Selection - Extend to Next Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and extends the end of every selection up to the next delimiter on the same line: `[a]bc,d` (`,`) -> `[abc],d`. Selections without the delimiter after them do not change, and how many there were is shown.
+    *   **Selection - Extend to Next Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and extends the end of every selection up to the next delimiter on the same line: `[a]bc,d` (`,`) -> `[abc],d`. Selections without the delimiter after them do not change, and how many there were is shown. A selection that already ends right before a delimiter does not change either, so running the command again does not move on to the next delimiter.
 *   **Splitting the selections**:
-    *   **Selection - Split Selections by Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and splits every selection at it: `[a,b,c]` (`,`) -> `[a],[b],[c]`. An empty part (`a,,b`) becomes a cursor, so the columns stay in place.
-    *   **Selection - Split Selections by Regex**: Asks for a regular expression (as above, run with the `g` and `u` flags) and splits every selection at its matches: `[a1b2c]` (`\d`) -> `[a]1[b]2[c]`. Empty matches are not used for splitting.
+    *   **Selection - Split Selections by Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and splits every selection at it: `[a,b,c]` (`,`) -> `[a],[b],[c]`. An empty part (`a,,b`) becomes a cursor, so the columns stay in place. A selection without the delimiter stays as it is; if no selection contains it, nothing changes and no message is shown.
+    *   **Selection - Split Selections by Regex**: Asks for a regular expression (as above, run with the `g` and `u` flags) and splits every selection at its matches: `[a1b2c]` (`\d`) -> `[a]1[b]2[c]`. Empty matches are not used for splitting. A selection without a match stays as it is; if no selection has a match, nothing changes and no message is shown.
     *   **Selection - Split into Words**: One selection per word (letters, marks, digits and `_`): `[foo bar]` -> `[foo] [bar]`. Selections without words are dropped.
 *   **Cursors on every line**:
     *   **Selection - Cursors to First Non-whitespace**: Puts a cursor before the first character that is not a space or a tab on every line of the selections: `··a⏎····b` -> `··|a⏎····|b`. Empty lines and lines of only spaces and tabs are skipped. A selection that ends at the start of a line does not include that line.
