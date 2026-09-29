@@ -5,7 +5,9 @@
  * Supported: `*`, numbers, `,`, `a-b`, `*` + `/n`, `a-b/n`, `a/n`, month names JAN..DEC and day
  * names SUN..SAT (any case), day of week 0..7 (0 and 7 are Sunday). When both the day of month and
  * the day of week are restricted (neither starts with `*`), a day matches either (as Vixie cron).
- * Not supported (errors): `L`, `W`, `#`, `?`, macros such as `@daily`, 6 or more fields.
+ * Not supported (errors): `L`, `W`, `#`, `?` (the forms `L`, `W`, `LW`, `5L`, `15W`, `1#2`, `?`),
+ * macros such as `@daily`, 6 or more fields. Any other value that is neither a number nor a name
+ * of its field (such as `JULY`, `WEDS`, or `JUL` in the day of week) is an invalid value.
  *
  * The next runs are searched day by day (at most DATE_CRON_SEARCH_YEARS years ahead) in the local
  * calendar, ignoring daylight saving time; on a matching day only the hours and minutes of the
@@ -71,12 +73,25 @@ export interface CronExpression {
 const cronError = (message: string): DateInputError => new DateInputError(message);
 
 /**
- * Unsupported cron syntax (`L`, `W`, `#`, `?`) in a token that is neither a number nor a name.
- * Names are matched first, so `JUL` and `WED` are not mistaken for `L` and `W`.
+ * Unsupported cron syntax in an item that is not of the form `a`, `a-b`, `*` with an optional `/n`:
+ * `#` (such as `1#2`) and `?`. Any other malformed item is an invalid field.
  */
-const assertSupported = (token: string, expression: string): void => {
-  const unsupported = /[LW#?]/.exec(token);
+const assertNoHashOrQuestion = (item: string, expression: string): void => {
+  const unsupported = /[#?]/.exec(item);
   if (unsupported) {
+    throw cronError(`${quoteText(expression)}: "${unsupported[0]}" is not supported`);
+  }
+};
+
+/**
+ * Unsupported cron syntax in a value that is neither a number nor a name of the field: only the
+ * forms of `L` and `W` (`L`, `W`, `LW`, `5L`, `15W`), reported by the first `L` / `W` in them.
+ * Names are matched first, so `JUL` and `WED` are not mistaken for `L` and `W`; any other value
+ * (such as `JULY`, `WEDS` or `L5`) is an invalid value, not unsupported syntax.
+ */
+const assertNotLastOrWeekday = (text: string, expression: string): void => {
+  if (/^(?:\d{1,2}[LW]|L|W|LW)$/.test(text)) {
+    const unsupported = /[LW]/.exec(text) as RegExpExecArray;
     throw cronError(`${quoteText(expression)}: "${unsupported[0]}" is not supported`);
   }
 };
@@ -87,7 +102,7 @@ const valueOf = (text: string, spec: FieldSpec, expression: string): number => {
   }
   const index = spec.names?.indexOf(text) ?? -1;
   if (index === -1) {
-    assertSupported(text, expression);
+    assertNotLastOrWeekday(text, expression);
     throw cronError(`${quoteText(expression)}: ${quoteText(text)} is not a valid value of the ${spec.name} field`);
   }
   return index + (spec.nameBase ?? 0);
@@ -99,7 +114,7 @@ const parseField = (raw: string, spec: FieldSpec, expression: string): CronField
   for (const item of text.split(',')) {
     const match = /^(\*|[0-9A-Z]+(?:-[0-9A-Z]+)?)(?:\/(\d{1,2}))?$/.exec(item);
     if (!match) {
-      assertSupported(item, expression);
+      assertNoHashOrQuestion(item, expression);
       throw cronError(`${quoteText(expression)}: ${quoteText(item)} is not a valid ${spec.name} field`);
     }
     let from: number;

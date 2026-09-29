@@ -502,7 +502,7 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       throwsInput(() => explainCron('0 0 * * fri#3', now), /"#" is not supported/);
       throwsInput(() => explainCron('0 0 * * ?', now), /"\?" is not supported/);
       throwsInput(() => explainCron('0 0 * * MON-L', now), /"L" is not supported/);
-      throwsInput(() => explainCron('* * * * WEDS', now), /"W" is not supported/);
+      throwsInput(() => explainCron('0 0 5L * *', now), /"L" is not supported/);
       throwsInput(() => explainCron('* * * * FOO', now), /is not a valid value of the 曜日 field/);
       throwsInput(() => explainCron('* * * * JAN', now), /is not a valid value of the 曜日 field/);
       throwsInput(() => explainCron('@daily', now), /macros such as @daily are not supported/);
@@ -513,6 +513,37 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       throwsInput(() => explainCron('*/0 * * * *', now), /is out of range/);
       throwsInput(() => explainCron('* * * FOO *', now), /is not a valid value of the 月 field/);
       throwsInput(() => explainCron(`${'0,'.repeat(100)}0 * * * *`, now), 'the cron expression is longer than 200 characters');
+    });
+
+    test('invalid names are invalid values, not unsupported syntax', () => {
+      const invalid = (expression: string, token: string, field: string): void => {
+        assert.throws(
+          () => explainCron(expression, now),
+          (e: unknown) =>
+            e instanceof DateInputError &&
+            e.message.includes(`"${token}" is not a valid value of the ${field} field`) &&
+            !e.message.includes('is not supported'),
+          expression,
+        );
+      };
+      invalid('* * * JULY *', 'JULY', '月');
+      invalid('* * * july *', 'JULY', '月');
+      invalid('* * * * WEDS', 'WEDS', '曜日');
+      invalid('* * * * LUN', 'LUN', '曜日');
+      invalid('* * * * JUL', 'JUL', '曜日');
+      invalid('* * * * MON-WEDS', 'WEDS', '曜日');
+      invalid('* * 1L5 * *', '1L5', '日');
+      invalid('* * L5 * *', 'L5', '日');
+      invalid('* * WL * *', 'WL', '日');
+    });
+
+    test('the forms of L, W, # and ? stay unsupported', () => {
+      throwsInput(() => explainCron('0 0 L * *', now), /"L" is not supported/);
+      throwsInput(() => explainCron('0 0 * * 5L', now), /"L" is not supported/);
+      throwsInput(() => explainCron('0 0 15W * *', now), /"W" is not supported/);
+      throwsInput(() => explainCron('0 0 * * 1#2', now), /"#" is not supported/);
+      throwsInput(() => explainCron('0 0 * * ?', now), /"\?" is not supported/);
+      throwsInput(() => explainCron('0 0 L-3 * *', now), /"L" is not supported/);
     });
 
     test('at most 1,000 expressions in one run (checked before any search)', () => {
