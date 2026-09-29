@@ -9,7 +9,8 @@
  * identifiers (with the closing character doubled inside), `--` line comments and `/* … *\/`
  * block comments. The forms of other dialects whose content this tokenizer would misread are
  * refused (`checkSupported`): PostgreSQL `$$` / `$tag$` and `E'…'` strings, nested `/* /* *\/ *\/`
- * comments and a `\'` / `\"` backslash escape (MySQL) at the end of a string.
+ * comments and a `\'` / `\"` backslash escape (MySQL: an odd number of `\` before a quote character
+ * anywhere in a `'…'` or `"…"` token).
  *
  * Two forms are a comment in one dialect and code in another: `#` (a MySQL line comment; part of a
  * name such as `#temp` in SQL Server, an operator in PostgreSQL) and `--` not followed by white space
@@ -91,13 +92,28 @@ const endOfQuoted = (text: string, start: number, close: string, what: string): 
 /** A PostgreSQL dollar-quoted string starts with `$$` or `$tag$`. */
 const DOLLAR_QUOTE = /^\$[A-Za-z_]*\$/;
 
-/** The number of `\` right before the closing quote of a string or quoted token. */
-const trailingBackslashes = (token: SqlToken): number => {
-  let count = 0;
-  for (let i = token.text.length - 2; i > 0 && token.text[i] === '\\'; i--) {
-    count++;
+/**
+ * Whether a `'…'` string or `"…"` token has an odd number of `\` right before one of its quote
+ * characters (the closing one or one of a doubled pair inside). MySQL reads such a `\'` / `\"` as
+ * an escaped quote, so it would end the string elsewhere than this tokenizer does. An even number
+ * (`\\'`) is an escaped backslash and ends the string at the same place. One linear pass, no RegExp.
+ */
+const hasEscapedQuote = (token: SqlToken): boolean => {
+  const { text } = token;
+  const quote = text[0];
+  let backslashes = 0;
+  for (let i = 1; i < text.length; i++) {
+    const c = text[i];
+    if (c === '\\') {
+      backslashes++;
+      continue;
+    }
+    if (c === quote && backslashes % 2 === 1) {
+      return true;
+    }
+    backslashes = 0;
   }
-  return count;
+  return false;
 };
 
 /**
@@ -117,8 +133,8 @@ const checkSupported = (tokens: readonly SqlToken[]): void => {
     }
     // MySQL reads `"…"` as a string too (without ANSI_QUOTES), with the same backslash escapes.
     if ((token.type === 'string' || (token.type === 'quoted' && token.text.startsWith('"')))
-      && trailingBackslashes(token) % 2 === 1) {
-      throw new DevInputError('a string ends with \\\' or \\" (a backslash escape, MySQL), which is not supported');
+      && hasEscapedQuote(token)) {
+      throw new DevInputError('a string has an odd number of \\ before a quote (\\\' or \\", a backslash escape, MySQL), which is not supported');
     }
   });
 };

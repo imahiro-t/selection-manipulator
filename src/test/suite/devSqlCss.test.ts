@@ -219,6 +219,12 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
         // MySQL reads "…" as a string with backslash escapes too (security review round 2).
         ['DELETE FROM t WHERE name = "a\\" -- " AND id = 1 AND "\n\\" " IS NOT NULL', /backslash escape/],
         ['SELECT "C:\\" FROM t', /backslash escape/],
+        // An odd number of backslashes before a doubled quote inside the token (security review round 3):
+        // MySQL ends the string there, so the comment after it would swallow the next line when minified.
+        ['DELETE FROM t WHERE c = \'\\\'\' -- it\'s the quote char\nAND id = 1', /backslash escape/],
+        ['UPDATE t SET a = \'x\\\'\' # it\'s\nWHERE id = 1', /backslash escape/],
+        ['DELETE FROM t WHERE c = "a\\"" -- x"\nAND id = 1', /backslash escape/],
+        ['SELECT \'a\\\\\\\'\' -- x\' FROM t', /backslash escape/],
       ];
       for (const [sql, message] of cases) {
         refuses(() => sqlUppercaseKeywords(sql), message);
@@ -228,6 +234,8 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       // Still supported: $1 parameters, names with $, an E column, an even number of backslashes.
       assert.strictEqual(sqlMinify('SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1'), 'SELECT a$b, E, \'\\\\\' FROM t WHERE x = $1');
       assert.strictEqual(sqlMinify('SELECT "a\\\\", `b\\`, [c\\] FROM t'), 'SELECT "a\\\\", `b\\`, [c\\] FROM t');
+      // An even number of backslashes before a doubled quote ends the string where MySQL does too.
+      assert.strictEqual(sqlMinify('SELECT \'a\\\\\'\'b\', "c\\\\""d" FROM t'), 'SELECT \'a\\\\\'\'b\', "c\\\\""d" FROM t');
     });
 
     test('a # or --x line that opens a string, a quoted name or a comment going on to the next line is refused', () => {
