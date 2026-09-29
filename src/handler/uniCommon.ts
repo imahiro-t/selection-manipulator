@@ -10,8 +10,6 @@
 import { quoteForDisplay } from '../textFormat';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
-export { MAX_OUTPUT_LENGTH };
-
 /** The selected text cannot be used; the message is shown to the user as it is. */
 export class UniInputError extends Error {
   constructor(message: string) {
@@ -111,20 +109,85 @@ export const forEachUniLine = (text: string, visit: (line: string, lineBreak: st
 const GRAPHEME_SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
 /**
- * The grapheme clusters (user-perceived characters) of the text, in order, as `Intl.Segmenter`
- * sees them: a surrogate pair, a base with its combining marks, CRLF, a flag or a ZWJ emoji
- * sequence is one grapheme.
+ * Length (UTF-16 code units) of the pieces `graphemes` hands to `Intl.Segmenter`. The segmenter of
+ * older V8 versions (Node 18 / 20, the VS Code releases up to about 1.100 that `engines.vscode`
+ * still admits) takes time quadratic in the length of the string it iterates, so a long text is
+ * segmented piece by piece to keep the whole pass linear.
  */
-export function* graphemes(text: string): Generator<string> {
-  for (const { segment } of GRAPHEME_SEGMENTER.segment(text)) {
-    yield segment;
+export const GRAPHEME_CHUNK_LENGTH = 512;
+
+/** The part of `Intl.Segmenter` that `graphemesInChunks` uses (replaceable in tests). */
+export interface GraphemeSegmenter {
+  segment(text: string): Iterable<{ segment: string }>;
+}
+
+const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdbff;
+
+/**
+ * The grapheme clusters of the text, segmenting at most about `chunkLength` code units at a time.
+ *
+ * Every grapheme of a piece except its last one is final: a boundary depends only on the
+ * characters before it (counted from a boundary, which is where every piece starts) and on the
+ * one character after it, which is inside the piece. The last grapheme may continue in the text
+ * after the piece (a flag, a ZWJ sequence, CRLF or combining marks cut by the end of the piece),
+ * so the next piece starts where it starts. A piece never ends between the two halves of a
+ * surrogate pair, and a piece holding a single grapheme is doubled until the grapheme ends
+ * before the end of the piece (a long run of combining marks); only that grapheme is taken from
+ * the longer piece. The result is the same as segmenting the whole text at once.
+ */
+export function* graphemesInChunks(
+  text: string,
+  chunkLength: number,
+  segmenter: GraphemeSegmenter = GRAPHEME_SEGMENTER,
+): Generator<string> {
+  let start = 0;
+  let size = chunkLength;
+  while (start < text.length) {
+    let end = start + size;
+    if (end >= text.length) {
+      for (const { segment } of segmenter.segment(start === 0 ? text : text.slice(start))) {
+        yield segment;
+      }
+      return;
+    }
+    if (isHighSurrogate(text.charCodeAt(end - 1))) {
+      end++;
+    }
+    const retrying = size > chunkLength;
+    let pending: string | undefined;
+    let consumed = 0;
+    for (const { segment } of segmenter.segment(text.slice(start, end))) {
+      if (pending !== undefined) {
+        yield pending;
+        consumed += pending.length;
+        if (retrying) {
+          // Only the long grapheme was wanted; the rest is segmented in pieces of the usual size.
+          break;
+        }
+      }
+      pending = segment;
+    }
+    if (consumed === 0) {
+      // One grapheme fills the whole piece: try again with a piece twice as long.
+      size *= 2;
+    } else {
+      start += consumed;
+      size = chunkLength;
+    }
   }
 }
+
+/**
+ * The grapheme clusters (user-perceived characters) of the text, in order, as `Intl.Segmenter`
+ * sees them: a surrogate pair, a base with its combining marks, CRLF, a flag or a ZWJ emoji
+ * sequence is one grapheme. Linear in the length of the text (see `graphemesInChunks`).
+ */
+export const graphemes = (text: string): Generator<string> => graphemesInChunks(text, GRAPHEME_CHUNK_LENGTH);
 
 /** The number of grapheme clusters of the text. */
 export const countGraphemes = (text: string): number => {
   let count = 0;
-  for (const _ of GRAPHEME_SEGMENTER.segment(text)) {
+  for (const _ of graphemes(text)) {
     count++;
   }
   return count;
@@ -139,7 +202,7 @@ export const countGraphemes = (text: string): number => {
  * presentation selector U+FE0F, a regional indicator (flags) or the combining enclosing keycap
  * U+20E3. `©` `®` `™` without U+FE0F, a lone digit and `#` are not emoji.
  */
-const EMOJI_MARK = /[\p{Emoji_Presentation}️\p{Regional_Indicator}⃣]/u;
+const EMOJI_MARK = /[\p{Emoji_Presentation}\uFE0F\p{Regional_Indicator}\u20E3]/u;
 
 /** True when the grapheme `grapheme` (one element of `graphemes`) is an emoji. */
 export const isEmojiGrapheme = (grapheme: string): boolean =>
@@ -160,7 +223,7 @@ const isExtendedPictographic = (code: number): boolean =>
  * (`1` = keep), found in one pass over the code points (linear in the input):
  *
  * - a ZWJ between an Extended_Pictographic (optionally followed by emoji modifiers and variation
- *   selectors) and another Extended_Pictographic (`👨‍👩‍👧`, `🧑🏽‍💻`, `❤️‍🔥`);
+ *   selectors) and another Extended_Pictographic (`👨\u200D👩\u200D👧`, `🧑🏽\u200D💻`, `❤\uFE0F\u200D🔥`);
  * - the tag characters U+E0020..E007F right after an Extended_Pictographic (the tag sequence of a
  *   subdivision flag such as England's).
  *
@@ -177,7 +240,7 @@ export const protectedEmojiJoiners = (text: string): Uint8Array => {
     if (isExtendedPictographic(code)) {
       afterPictographic = true;
     } else if (isEmojiModifier(code) || isPresentationSelector(code)) {
-      // Keeps the state: `🧑🏽‍💻`, `❤️‍🔥`.
+      // Keeps the state: `🧑🏽\u200D💻`, `❤\uFE0F\u200D🔥`.
     } else if (isTag(code)) {
       if (afterPictographic) {
         flags[i] = 1;

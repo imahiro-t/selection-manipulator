@@ -21,7 +21,7 @@ const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
 const NOT_SHOWN = 'No result was shown: ';
 const NOT_SELECTED = 'Nothing was selected: ';
-const FAMILY = '\u{1F468}‍\u{1F469}‍\u{1F467}';
+const FAMILY = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}';
 
 const prefixOf = (entry: UniCommandEntry): string =>
   entry.output === 'replace' ? NOT_CHANGED : entry.output === 'select' ? NOT_SELECTED : NOT_SHOWN;
@@ -238,7 +238,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
     });
 
     test('Replace: each selection is converted on its own; only those that change are edited, in one step', async () => {
-      const blocks = ['a​b', 'plain', `x${FAMILY}​y`];
+      const blocks = ['a\u200Bb', 'plain', `x${FAMILY}\u200By`];
       const editor = await createTextEditor(blocks.join(SEPARATOR));
       selectBlocks(editor, blocks);
       await run(entryOf('UNI-005'), recorder().dependencies)(editor);
@@ -302,20 +302,20 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
     });
 
     test('surrogate pairs, combining marks and emoji sequences are kept whole', async () => {
-      const text = `𠮷é${FAMILY}🇯🇵​`;
+      const text = `𠮷e\u0301${FAMILY}🇯🇵\u200B`;
       const editor = await createTextEditor(text);
       selectWholeDocument(editor);
       await run(entryOf('UNI-005'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), `𠮷é${FAMILY}🇯🇵`);
+      assert.strictEqual(editor.document.getText(), `𠮷e\u0301${FAMILY}🇯🇵`);
       await run(entryOf('UNI-014'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), '𠮷é');
+      assert.strictEqual(editor.document.getText(), '𠮷e\u0301');
     });
   });
 
   suite('commands UNI-001..015', () => {
     test('UNI-011: all selections are counted together', async () => {
       const { dependencies, infos } = recorder();
-      const blocks = ['ab', `é${FAMILY}`];
+      const blocks = ['ab', `e\u0301${FAMILY}`];
       const editor = await createTextEditor(blocks.join(SEPARATOR));
       selectBlocks(editor, blocks);
       await run(entryOf('UNI-011'), dependencies)(editor);
@@ -339,14 +339,14 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
     });
 
     test('UNI-006 / 008 / 012: Replace keeps the CRLF line breaks', async () => {
-      const editor = await crlfEditor('a​b\nc\u0007d');
+      const editor = await crlfEditor('a\u200Bb\nc\u0007d');
       selectWholeDocument(editor);
       await run(entryOf('UNI-006'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), 'a<U+200B>b\r\nc<U+0007>d');
       await run(entryOf('UNI-008'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), 'a​b\r\nc\u0007d');
+      assert.strictEqual(editor.document.getText(), 'a\u200Bb\r\nc\u0007d');
       await run(entryOf('UNI-012'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), 'a​b\r\ncd');
+      assert.strictEqual(editor.document.getText(), 'a\u200Bb\r\ncd');
     });
 
     test('UNI-007 / 009: new editor results use the document EOL', async () => {
@@ -414,11 +414,11 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
 
     test('UNI-026: all bidi controls of all selections are selected', async () => {
       const { dependencies, infos } = recorder();
-      const blocks = ['if (a‮) {⁦x⁩}', 'b‮'];
+      const blocks = ['if (a\u202E) {\u2066x\u2069}', 'b\u202E'];
       const editor = await createTextEditor(blocks.join(SEPARATOR));
       selectBlocks(editor, blocks);
       await run(entryOf('UNI-026'), dependencies)(editor);
-      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), ['‮', '⁦', '⁩', '‮']);
+      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), ['\u202E', '\u2066', '\u2069', '\u202E']);
       assert.deepStrictEqual(infos, ['4 bidi control characters found: U+202E (right-to-left override), U+2066 (left-to-right isolate), U+2069 (pop directional isolate)']);
     });
 
@@ -443,7 +443,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       await run(entryOf('UNI-020'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), 'pɔ\r\nqɐ');
       await run(entryOf('UNI-021'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), 'p̶ɔ̶\r\nq̶ɐ̶');
+      assert.strictEqual(editor.document.getText(), 'p\u0336ɔ\u0336\r\nq\u0336ɐ\u0336');
 
       const quotes = await crlfEditor('"a"\n\'b\'');
       selectWholeDocument(quotes);
@@ -457,14 +457,14 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
     });
 
     test('UNI-016 / 020 / 021: surrogate pairs, combining marks and emoji sequences are kept whole', async () => {
-      const editor = await createTextEditor(`a𠮷é${FAMILY}`);
+      const editor = await createTextEditor(`a𠮷e\u0301${FAMILY}`);
       selectWholeDocument(editor);
       await run(entryOf('UNI-016'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), `𝐚𠮷𝐞́${FAMILY}`);
+      assert.strictEqual(editor.document.getText(), `𝐚𠮷𝐞\u0301${FAMILY}`);
       await run(entryOf('UNI-020'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), `${FAMILY}𝐞́𠮷𝐚`);
+      assert.strictEqual(editor.document.getText(), `${FAMILY}𝐞\u0301𠮷𝐚`);
       await run(entryOf('UNI-021'), recorder().dependencies)(editor);
-      assert.strictEqual(editor.document.getText(), `${FAMILY}̶𝐞̶́𠮷̶𝐚̶`);
+      assert.strictEqual(editor.document.getText(), `${FAMILY}\u0336𝐞\u0301\u0336𠮷\u0336𝐚\u0336`);
     });
   });
 
@@ -567,6 +567,34 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       });
       await run(fake('test.pick'), dependencies, FAKE_ENTRIES)(editor);
       assert.strictEqual(editor.document.getText(), 'y\nx\nb');
+    });
+  });
+
+  suite('source files', () => {
+    // Invisible, format, bidi control and combining characters are written as \u escapes so that
+    // the sources can be read and reviewed (and never carry a Trojan Source); tab, LF, CR and the
+    // space are the only white space written as they are.
+    const HIDDEN = /[\p{Cc}\p{Cf}\p{Z}\p{M}]/u;
+    const BIDI_CONTROL = /[\u202A-\u202E\u2066-\u2069]/u;
+    const sourceFiles = (dir: string): string[] =>
+      fs.readdirSync(path.resolve(__dirname, '../../..', dir), { withFileTypes: true }).flatMap((dirent) =>
+        dirent.isDirectory() ? sourceFiles(`${dir}/${dirent.name}`) : dirent.name.endsWith('.ts') ? [`${dir}/${dirent.name}`] : []);
+
+    test('the UNI sources hold no literal invisible, format or combining characters', () => {
+      const files = sourceFiles('src').filter((file) => /\/uni[A-Z][A-Za-z]*(\.test)?\.ts$/.test(file));
+      assert.ok(files.length >= 8, files.join(', '));
+      for (const file of files) {
+        readRepoFile(file).split('\n').forEach((line, index) => {
+          const hidden = [...line].find((ch) => ch !== '\t' && ch !== '\r' && ch !== ' ' && HIDDEN.test(ch));
+          assert.strictEqual(hidden, undefined, `${file}:${index + 1}: U+${hidden?.codePointAt(0)!.toString(16).toUpperCase()}`);
+        });
+      }
+    });
+
+    test('no source holds a bidi control character', () => {
+      for (const file of sourceFiles('src')) {
+        assert.ok(!BIDI_CONTROL.test(readRepoFile(file)), file);
+      }
     });
   });
 

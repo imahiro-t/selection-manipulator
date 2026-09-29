@@ -22,15 +22,15 @@ export interface UniExample {
   foundTwice?: string;
 }
 
-const FAMILY = '\u{1F468}‍\u{1F469}‍\u{1F467}';
+const FAMILY = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}';
 
 export const UNI_ROADMAP_EXAMPLES: Record<string, UniExample> = {
-  'UNI-001': { input: 'é', expected: 'é' },
-  'UNI-002': { input: 'é', expected: 'é' },
+  'UNI-001': { input: 'e\u0301', expected: 'é' },
+  'UNI-002': { input: 'é', expected: 'e\u0301' },
   'UNI-003': { input: 'ｶﾞ①ﬁ', expected: 'ガ1fi' },
   'UNI-004': { input: 'ﬁ', expected: 'fi' },
-  'UNI-005': { input: 'a​b', expected: 'ab' },
-  'UNI-006': { input: 'a​b', expected: 'a<U+200B>b' },
+  'UNI-005': { input: 'a\u200Bb', expected: 'ab' },
+  'UNI-006': { input: 'a\u200Bb', expected: 'a<U+200B>b' },
   'UNI-007': { input: 'あ😀', expected: 'U+3042 U+1F600' },
   'UNI-008': { input: 'U+3042 U+1F600', expected: 'あ😀' },
   'UNI-009': { input: 'aあ', expected: 'a: 61\nあ: E3 81 82' },
@@ -50,8 +50,8 @@ export const UNI_ROADMAP_EXAMPLES: Record<string, UniExample> = {
   'UNI-018': { input: 'abc', expected: '𝚊𝚋𝚌' },
   'UNI-019': { input: 'abc', expected: 'ⓐⓑⓒ' },
   'UNI-020': { input: 'hello', expected: 'ollǝɥ' },
-  'UNI-021': { input: 'abc', expected: 'a̶b̶c̶' },
-  'UNI-022': { input: 'abc', expected: 'a̲b̲c̲' },
+  'UNI-021': { input: 'abc', expected: 'a\u0336b\u0336c\u0336' },
+  'UNI-022': { input: 'abc', expected: 'a\u0332b\u0332c\u0332' },
   'UNI-023': { input: 'x2', choice: 'digits', expected: 'x²' },
   'UNI-024': { input: 'H2O', choice: 'digits', expected: 'H₂O' },
   'UNI-025': {

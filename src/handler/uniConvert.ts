@@ -56,14 +56,14 @@ export const normalizeText = (text: string, form: NormalizationForm): string => 
 // ---------------------------------------------------------------------------------------------
 
 /** UNI-005: ZWSP, ZWNJ, ZWJ, word joiner, BOM (zero-width no-break space) and Mongolian vowel separator. */
-const ZERO_WIDTH = /[​-‍⁠﻿᠎]/g;
+const ZERO_WIDTH = /[\u200B-\u200D\u2060\uFEFF\u180E]/g;
 
 /**
  * UNI-005: the text without zero-width characters (U+200B, U+200C, U+200D, U+2060, U+FEFF,
- * U+180E). A ZWJ that joins two emoji (`👨‍👩‍👧`, `🧑🏽‍💻`, `❤️‍🔥`) is kept.
+ * U+180E). A ZWJ that joins two emoji (`👨\u200D👩\u200D👧`, `🧑🏽\u200D💻`, `❤\uFE0F\u200D🔥`) is kept.
  */
 export const removeZeroWidth = (text: string): string => {
-  const kept = text.includes('‍') ? protectedEmojiJoiners(text) : undefined;
+  const kept = text.includes('\u200D') ? protectedEmojiJoiners(text) : undefined;
   return text.replace(ZERO_WIDTH, (match: string, offset: number) => (kept !== undefined && kept[offset] === 1 ? match : ''));
 };
 
@@ -220,7 +220,7 @@ const plural = (count: number, word: string): string => `${count.toLocaleString(
 
 /**
  * UNI-011: the number of graphemes and the length (UTF-16 code units) of all selections together
- * (`👨‍👩‍👧` → `1 grapheme / length 8`).
+ * (`👨\u200D👩\u200D👧` → `1 grapheme / length 8`).
  */
 export const countGraphemesMessage = (texts: readonly string[]): string => {
   let count = 0;
@@ -337,21 +337,43 @@ const turnGrapheme = (grapheme: string): string => {
 /**
  * UNI-020: the text turned by 180 degrees: every character that has an upside-down form in the
  * table is replaced, the graphemes of every line are reversed and so is the order of the lines
- * (`hello` → `ollǝɥ`). The line breaks stay where they are; other characters are kept.
+ * (`hello` → `ollǝɥ`). The line breaks between the lines stay where they are; the empty lines at
+ * the start and at the end of the text (a selection that starts or ends with a line break, as
+ * selecting whole lines does) stay in place and are not turned, so `hello⏎` → `ollǝɥ⏎` and the
+ * result never joins the next line. Other characters are kept.
  */
 export const toUpsideDown = (text: string): string => {
   const lines: string[] = [];
   const breaks: string[] = [];
   forEachUniLine(text, (line, lineBreak) => {
-    const turned: string[] = [];
-    for (const grapheme of graphemes(line)) {
-      turned.push(turnGrapheme(grapheme));
-    }
-    lines.push(turned.reverse().join(''));
+    lines.push(line);
     breaks.push(lineBreak);
   });
-  lines.reverse();
-  return lines.map((line, i) => line + breaks[i]).join('');
+  let first = 0;
+  while (first < lines.length && lines[first] === '') {
+    first++;
+  }
+  if (first === lines.length) {
+    return text;
+  }
+  let last = lines.length - 1;
+  while (lines[last] === '') {
+    last--;
+  }
+  const parts: string[] = breaks.slice(0, first);
+  for (let i = last; i >= first; i--) {
+    const turned: string[] = [];
+    for (const grapheme of graphemes(lines[i])) {
+      turned.push(turnGrapheme(grapheme));
+    }
+    parts.push(turned.reverse().join(''));
+    // The break after the k-th turned line is the break after the k-th line of the text.
+    if (i > first) {
+      parts.push(breaks[first + last - i]);
+    }
+  }
+  parts.push(...breaks.slice(last));
+  return parts.join('');
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -370,11 +392,11 @@ const withCombiningMark = (text: string, mark: string): string => {
   return parts.join('');
 };
 
-/** UNI-021: U+0336 after every grapheme (`abc` → `a̶b̶c̶`). */
-export const toStrikethrough = (text: string): string => withCombiningMark(text, '̶');
+/** UNI-021: U+0336 after every grapheme (`abc` → `a\u0336b\u0336c\u0336`). */
+export const toStrikethrough = (text: string): string => withCombiningMark(text, '\u0336');
 
-/** UNI-022: U+0332 after every grapheme (`abc` → `a̲b̲c̲`). */
-export const toUnderline = (text: string): string => withCombiningMark(text, '̲');
+/** UNI-022: U+0332 after every grapheme (`abc` → `a\u0332b\u0332c\u0332`). */
+export const toUnderline = (text: string): string => withCombiningMark(text, '\u0332');
 
 // ---------------------------------------------------------------------------------------------
 // UNI-023 / 024 Superscript and subscript
@@ -578,7 +600,7 @@ export const confusablesMessage = (found: readonly string[]): string =>
 // ---------------------------------------------------------------------------------------------
 
 /** The bidirectional embedding, override and isolate controls (Trojan Source). */
-const BIDI_CONTROL = /[‪-‮⁦-⁩]/g;
+const BIDI_CONTROL = /[\u202A-\u202E\u2066-\u2069]/g;
 
 const BIDI_NAMES: ReadonlyMap<number, string> = new Map([
   [0x202a, 'left-to-right embedding'],
@@ -620,16 +642,21 @@ export const bidiControlsMessage = (found: readonly string[]): string =>
 
 /**
  * What an opening quote may follow: nothing (the start of the text), a line break, white space,
- * an opening bracket, an opening quote or a dash.
+ * an opening bracket or a dash. An opening quote of the other kind is handled by `toSmartQuotes`
+ * (`"'` opens twice, `""` is an empty quotation).
  */
-const OPENS_AFTER = /^[\s([{<“‘\-–—]$/u;
+const OPENS_AFTER = /^[\s([{<\-–—]$/u;
+
+/** The opening quote after which a quote of each kind opens a nested quotation. */
+const NESTED_AFTER: Readonly<Record<string, string>> = { '"': '‘', '\'': '“' };
 const ALPHANUMERIC = /^[\p{L}\p{N}]$/u;
 
 /**
  * UNI-027: straight quotes as curly quotes (`"a" it's` → `“a” it’s`). `"` is `“` at the start of
- * the text or a line, after white space, an opening bracket or quote or a dash, and `”` elsewhere.
- * `'` between two letters or digits is the apostrophe `’`; otherwise it is `‘` where `"` would be
- * `“` and `’` elsewhere.
+ * the text or a line, after white space, an opening bracket, a dash or the opening single quote
+ * `‘` (a nested quotation), and `”` elsewhere, so `""` becomes `“”`. `'` between two letters or
+ * digits is the apostrophe `’`; otherwise it is `‘` at the same places as `“` (with `“` as the
+ * opening quote it may follow: `"'hi'"` → `“‘hi’”`, `''` → `‘’`) and `’` elsewhere.
  */
 export const toSmartQuotes = (text: string): string => {
   const chars = Array.from(text);
@@ -638,7 +665,7 @@ export const toSmartQuotes = (text: string): string => {
   chars.forEach((ch, i) => {
     let out = ch;
     if (ch === '"' || ch === '\'') {
-      const opens = previous === '' || OPENS_AFTER.test(previous);
+      const opens = previous === '' || previous === NESTED_AFTER[ch] || OPENS_AFTER.test(previous);
       if (ch === '"') {
         out = opens ? '“' : '”';
       } else if (ALPHANUMERIC.test(previous) && i + 1 < chars.length && ALPHANUMERIC.test(chars[i + 1])) {
@@ -736,6 +763,8 @@ const isLetterAt = (text: string, index: number): boolean => {
   return code !== undefined && LETTER.test(String.fromCodePoint(code));
 };
 
+const MARK = /^\p{M}$/u;
+
 /** The code point before `index` (`''` at the start). */
 const previousChar = (text: string, index: number): string => {
   if (index === 0) {
@@ -743,6 +772,30 @@ const previousChar = (text: string, index: number): string => {
   }
   const low = text.charCodeAt(index - 1);
   return index >= 2 && low >= 0xdc00 && low <= 0xdfff ? text.slice(index - 2, index) : text[index - 1];
+};
+
+/**
+ * The code point before `index`, skipping combining marks (`''` when there is none), so that a
+ * decomposed letter (`Е` + U+0308) counts like the composed one (`Ё`).
+ */
+const previousBaseChar = (text: string, index: number): string => {
+  let ch = previousChar(text, index);
+  while (ch !== '' && MARK.test(ch)) {
+    index -= ch.length;
+    ch = previousChar(text, index);
+  }
+  return ch;
+};
+
+/** The first index at or after `index` that holds no combining mark. */
+const skipMarks = (text: string, index: number): number => {
+  for (;;) {
+    const code = text.codePointAt(index);
+    if (code === undefined || !MARK.test(String.fromCodePoint(code))) {
+      return index;
+    }
+    index += code > 0xffff ? 2 : 1;
+  }
 };
 
 /**
@@ -774,9 +827,11 @@ export const transliterateCyrillic = (text: string): string => {
     } else if (value.length === 1) {
       parts.push(value.toUpperCase());
     } else {
-      const next = i + length;
+      // Combining marks are skipped on both sides, so a decomposed neighbour counts like the
+      // composed one (`Е` + U+0308 `Ж` → `YOZH`, like `ЁЖ`).
+      const next = skipMarks(text, i + length);
       const allUpper = isUpperAt(text, next)
-        || (!isLetterAt(text, next) && isUpperAt(previousChar(text, i), 0));
+        || (!isLetterAt(text, next) && isUpperAt(previousBaseChar(text, i), 0));
       parts.push(allUpper ? value.toUpperCase() : value[0].toUpperCase() + value.slice(1));
     }
     i += length;

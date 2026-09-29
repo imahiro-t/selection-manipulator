@@ -151,5 +151,5 @@ export const CYRILLIC_TO_LATIN: ReadonlyMap<string, string> = new Map(Object.ent
   // Serbian, Macedonian
   'ђ': 'dj', 'ј': 'j', 'љ': 'lj', 'њ': 'nj', 'ћ': 'c', 'џ': 'dz', 'ѓ': 'gj', 'ќ': 'kj', 'ѕ': 'dz',
   // Decomposed forms
-  'й': 'y', 'ё': 'yo', 'ї': 'yi', 'ў': 'w', 'ѓ': 'gj', 'ќ': 'kj',
+  'и\u0306': 'y', 'е\u0308': 'yo', 'і\u0308': 'yi', 'у\u0306': 'w', 'г\u0301': 'gj', 'к\u0301': 'kj',
 }));
