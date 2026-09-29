@@ -44,7 +44,7 @@ import {
   toUtf8Bytes,
   transliterateCyrillic,
 } from '../../handler/uniConvert';
-import { UPSIDE_DOWN } from '../../handler/uniTables';
+import { SCRIPT_NAMES, UPSIDE_DOWN } from '../../handler/uniTables';
 import { UNI_COMMAND_ENTRIES } from '../../handler/uniTransforms';
 
 const ZWJ = '\u200D';
@@ -600,6 +600,64 @@ suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
 
     test('thousands separators', () => {
       assert.strictEqual(detectScriptsMessage(['a'.repeat(1234)]), 'Latin 1,234');
+    });
+
+    /**
+     * One base letter per named script, in `SCRIPT_NAMES` order. Each is a standalone code point
+     * (no combining or vowel marks) that matches exactly one of the 33 `\p{Script=…}` patterns.
+     * Written as escapes because several are right-to-left or render poorly in an editor.
+     */
+    const SCRIPT_SAMPLES: readonly (readonly [string, string])[] = [
+      ['Latin', '\u00E9'], // é (non-ASCII, so the Script=Latin pattern is used rather than the ASCII shortcut)
+      ['Greek', '\u03B1'], // α
+      ['Cyrillic', '\u0434'], // д
+      ['Armenian', '\u0531'], // Ա
+      ['Hebrew', '\u05D0'], // alef
+      ['Arabic', '\u0628'], // beh
+      ['Syriac', '\u0710'], // alaph
+      ['Thaana', '\u0780'], // haa
+      ['Devanagari', '\u0915'], // क
+      ['Bengali', '\u0995'], // ক
+      ['Gurmukhi', '\u0A15'], // ਕ
+      ['Gujarati', '\u0A95'], // ક
+      ['Oriya', '\u0B15'], // କ
+      ['Tamil', '\u0B95'], // க
+      ['Telugu', '\u0C15'], // క
+      ['Kannada', '\u0C95'], // ಕ
+      ['Malayalam', '\u0D15'], // ക
+      ['Sinhala', '\u0D9A'], // ක
+      ['Thai', '\u0E01'], // ก
+      ['Lao', '\u0E81'], // ກ
+      ['Tibetan', '\u0F40'], // ཀ
+      ['Myanmar', '\u1000'], // က
+      ['Georgian', '\u10D0'], // ა
+      ['Hangul', '\uAC00'], // 가
+      ['Ethiopic', '\u1200'], // ሀ
+      ['Cherokee', '\u13A0'], // Ꭰ
+      ['Khmer', '\u1780'], // ក
+      ['Mongolian', '\u1820'], // ᠠ
+      ['Hiragana', '\u3042'], // あ
+      ['Katakana', '\u30A2'], // ア
+      ['Bopomofo', '\u3105'], // ㄅ
+      ['Han', '\u6F22'], // 漢
+      ['Yi', '\uA000'], // ꀀ
+    ];
+
+    test('the samples cover every named script, in SCRIPT_NAMES order', () => {
+      assert.strictEqual(SCRIPT_NAMES.length, 33);
+      assert.deepStrictEqual(SCRIPT_SAMPLES.map(([name]) => name), [...SCRIPT_NAMES]);
+    });
+
+    test('each named script is counted under its own name', () => {
+      for (const [name, ch] of SCRIPT_SAMPLES) {
+        assert.strictEqual(detectScriptsMessage([`1 ${ch}${ch} !`]), `${name} 2`, `script ${name} (U+${ch.codePointAt(0)!.toString(16).toUpperCase()})`);
+      }
+    });
+
+    test('all 33 scripts at once are listed in order of appearance', () => {
+      const input = SCRIPT_SAMPLES.map(([, ch]) => ch).join('');
+      const expected = SCRIPT_SAMPLES.map(([name]) => `${name} 1`).join(', ');
+      assert.strictEqual(detectScriptsMessage([input]), expected);
     });
   });
 
