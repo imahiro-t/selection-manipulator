@@ -3606,6 +3606,76 @@ export const myCommands = [
     "command": "selection-manipulator.unicode.transliterate-cyrillic",
     "title": "Unicode - Transliterate Cyrillic to Latin",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-js-string",
+    "title": "Convert to JS String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-python-string",
+    "title": "Convert to Python String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-java-string",
+    "title": "Convert to Java String Concatenation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-go-raw-string",
+    "title": "Convert to Go Raw String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-template-literal",
+    "title": "Convert to JS Template Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-regex",
+    "title": "Escape Regex Special Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-sql",
+    "title": "Escape SQL String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.quote-posix-shell",
+    "title": "Quote for POSIX Shell",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.quote-powershell",
+    "title": "Quote for PowerShell",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-csv-field",
+    "title": "Escape CSV Field",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-markdown",
+    "title": "Escape Markdown Special Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-js-string.replace",
+    "title": "Convert to JS String Literal (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-regex.replace",
+    "title": "Escape Regex Special Characters (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.escape-sql.replace",
+    "title": "Escape SQL String Literal (Replace)",
+    "canMultiSelection": true
   }
 ];
 

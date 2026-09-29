@@ -88,6 +88,7 @@ import { dateCommandHandler } from './handler/dateCommandHandler';
 import { genCommandHandler } from './handler/genCommandHandler';
 import { jaCommandHandler } from './handler/jaCommandHandler';
 import { uniCommandHandler } from './handler/uniCommandHandler';
+import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -877,6 +878,22 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.typographic-punctuation', uniCommandHandler('unicode.typographic-punctuation')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.detect-scripts', uniCommandHandler('unicode.detect-scripts')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.transliterate-cyrillic', uniCommandHandler('unicode.transliterate-cyrillic')));
+
+  // Developer (DEV-001..035)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-js-string', devCommandHandler('programmatic.to-js-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-python-string', devCommandHandler('programmatic.to-python-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-java-string', devCommandHandler('programmatic.to-java-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-go-raw-string', devCommandHandler('programmatic.to-go-raw-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-template-literal', devCommandHandler('programmatic.to-template-literal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-regex', devCommandHandler('programmatic.escape-regex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-sql', devCommandHandler('programmatic.escape-sql')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.quote-posix-shell', devCommandHandler('programmatic.quote-posix-shell')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.quote-powershell', devCommandHandler('programmatic.quote-powershell')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-csv-field', devCommandHandler('programmatic.escape-csv-field')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-markdown', devCommandHandler('programmatic.escape-markdown')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-js-string.replace', devCommandHandler('programmatic.to-js-string.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-regex.replace', devCommandHandler('programmatic.escape-regex.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.escape-sql.replace', devCommandHandler('programmatic.escape-sql.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

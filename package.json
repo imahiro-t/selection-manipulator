@@ -1308,6 +1308,76 @@
         "category": "Selection Manipulator"
       },
       {
+        "command": "selection-manipulator.programmatic.to-js-string",
+        "title": "Convert to JS String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-python-string",
+        "title": "Convert to Python String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-java-string",
+        "title": "Convert to Java String Concatenation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-go-raw-string",
+        "title": "Convert to Go Raw String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-template-literal",
+        "title": "Convert to JS Template Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-regex",
+        "title": "Escape Regex Special Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-sql",
+        "title": "Escape SQL String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.quote-posix-shell",
+        "title": "Quote for POSIX Shell",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.quote-powershell",
+        "title": "Quote for PowerShell",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-csv-field",
+        "title": "Escape CSV Field",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-markdown",
+        "title": "Escape Markdown Special Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-js-string.replace",
+        "title": "Convert to JS String Literal (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-regex.replace",
+        "title": "Escape Regex Special Characters (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.escape-sql.replace",
+        "title": "Escape SQL String Literal (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
         "command": "selection-manipulator.japanese.full-to-half",
         "title": "Convert Full-width to Half-width",
         "category": "Selection Manipulator"
@@ -6129,6 +6199,62 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.unicode.transliterate-cyrillic"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-js-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-python-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-java-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-go-raw-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-template-literal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-sql"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.quote-posix-shell"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.quote-powershell"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-csv-field"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-markdown"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-js-string.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-regex.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.escape-sql.replace"
         }
       ],
       "editor/context": [
@@ -7493,6 +7619,62 @@
         {
           "command": "selection-manipulator.programmatic.toggle-quotes",
           "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-js-string",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-python-string",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-java-string",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-go-raw-string",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-template-literal",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-regex",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-sql",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.programmatic.quote-posix-shell",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.programmatic.quote-powershell",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-csv-field",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-markdown",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-js-string.replace",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-regex.replace",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.programmatic.escape-sql.replace",
+          "group": "selection-manipulator@22"
         }
       ],
       "selection-manipulator.japanese.submenu": [
