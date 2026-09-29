@@ -846,6 +846,156 @@ export const myCommands = [
     "canMultiSelection": true
   },
   {
+    "command": "selection-manipulator.date.to-utc-string",
+    "title": "Date - Convert to UTC String (RFC 7231)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timezone",
+    "title": "Date - Convert to Time Zone",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timezones",
+    "title": "Date - Show in Multiple Time Zones",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.weekday",
+    "title": "Date - Show Weekday",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.append-weekday",
+    "title": "Date - Append Weekday",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.iso-week",
+    "title": "Date - ISO Week Number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.day-of-year",
+    "title": "Date - Day of Year",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.diff",
+    "title": "Date - Difference Between Two Dates",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-days",
+    "title": "Date - Add Days",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-months",
+    "title": "Date - Add Months",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-relative",
+    "title": "Date - Convert to Relative Time",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.format-pattern",
+    "title": "Date - Format with Pattern",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-compact",
+    "title": "Date - Convert to Compact (YYYYMMDD)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.from-compact",
+    "title": "Date - Convert from Compact (YYYYMMDD)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.month-calendar",
+    "title": "Date - Insert Month Calendar",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.duration-to-human",
+    "title": "Date - ISO 8601 Duration to Human",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.seconds-to-hms",
+    "title": "Date - Seconds to HH:MM:SS",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.hms-to-seconds",
+    "title": "Date - HH:MM:SS to Seconds",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-excel-serial",
+    "title": "Date - Convert to Excel Serial",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.from-excel-serial",
+    "title": "Date - Convert from Excel Serial",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-japanese",
+    "title": "Date - Convert to Japanese Format",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.range",
+    "title": "Date - Generate Date Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.age",
+    "title": "Date - Calculate Age",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.quarter",
+    "title": "Date - Show Quarter and Fiscal Year",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.cron-explain",
+    "title": "Date - Explain Cron Expression",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timezone.replace",
+    "title": "Date - Convert to Time Zone (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-timezone.clipboard",
+    "title": "Date - Convert to Time Zone (Clipboard)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.format-pattern.replace",
+    "title": "Date - Format with Pattern (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-compact.replace",
+    "title": "Date - Convert to Compact (YYYYMMDD) (Replace)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.from-compact.replace",
+    "title": "Date - Convert from Compact (YYYYMMDD) (Replace)",
+    "canMultiSelection": true
+  },
+  {
     "command": "selection-manipulator.morse.to-morse",
     "title": "Morse - Text to Morse Code",
     "canMultiSelection": true

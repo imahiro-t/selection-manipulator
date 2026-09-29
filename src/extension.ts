@@ -84,6 +84,7 @@ import { hashExtendedHandler } from './handler/hashExtendedHandler';
 import { dataHandler } from './handler/dataHandler';
 import { tableHandler } from './handler/tableHandler';
 import { numHandler } from './handler/numHandler';
+import { dateCommandHandler } from './handler/dateCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.show-commands', showCommandsHandler));
@@ -740,6 +741,38 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.mile-to-km', numHandler('unit.mile-to-km')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.cm-to-inch', numHandler('unit.cm-to-inch')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.inch-to-cm', numHandler('unit.inch-to-cm')));
+
+  // Date commands (DATE-001..030)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-utc-string', dateCommandHandler('date.to-utc-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-timezone', dateCommandHandler('date.to-timezone')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-timezones', dateCommandHandler('date.to-timezones')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.weekday', dateCommandHandler('date.weekday')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.append-weekday', dateCommandHandler('date.append-weekday')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.iso-week', dateCommandHandler('date.iso-week')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.day-of-year', dateCommandHandler('date.day-of-year')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.diff', dateCommandHandler('date.diff')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.add-days', dateCommandHandler('date.add-days')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.add-months', dateCommandHandler('date.add-months')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-relative', dateCommandHandler('date.to-relative')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.format-pattern', dateCommandHandler('date.format-pattern')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-compact', dateCommandHandler('date.to-compact')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.from-compact', dateCommandHandler('date.from-compact')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.month-calendar', dateCommandHandler('date.month-calendar')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.duration-to-human', dateCommandHandler('date.duration-to-human')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.seconds-to-hms', dateCommandHandler('date.seconds-to-hms')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.hms-to-seconds', dateCommandHandler('date.hms-to-seconds')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-excel-serial', dateCommandHandler('date.to-excel-serial')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.from-excel-serial', dateCommandHandler('date.from-excel-serial')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-japanese', dateCommandHandler('date.to-japanese')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.range', dateCommandHandler('date.range')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.age', dateCommandHandler('date.age')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.quarter', dateCommandHandler('date.quarter')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.cron-explain', dateCommandHandler('date.cron-explain')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-timezone.replace', dateCommandHandler('date.to-timezone.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-timezone.clipboard', dateCommandHandler('date.to-timezone.clipboard')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.format-pattern.replace', dateCommandHandler('date.format-pattern.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-compact.replace', dateCommandHandler('date.to-compact.replace')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.from-compact.replace', dateCommandHandler('date.from-compact.replace')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

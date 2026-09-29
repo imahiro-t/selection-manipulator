@@ -3101,8 +3101,200 @@
         "command": "selection-manipulator.unit.inch-to-cm",
         "title": "Unit: inch to cm",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-utc-string",
+        "title": "Date - Convert to UTC String (RFC 7231)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timezone",
+        "title": "Date - Convert to Time Zone",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timezones",
+        "title": "Date - Show in Multiple Time Zones",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.weekday",
+        "title": "Date - Show Weekday",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.append-weekday",
+        "title": "Date - Append Weekday",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.iso-week",
+        "title": "Date - ISO Week Number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.day-of-year",
+        "title": "Date - Day of Year",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.diff",
+        "title": "Date - Difference Between Two Dates",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.add-days",
+        "title": "Date - Add Days",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.add-months",
+        "title": "Date - Add Months",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-relative",
+        "title": "Date - Convert to Relative Time",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.format-pattern",
+        "title": "Date - Format with Pattern",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-compact",
+        "title": "Date - Convert to Compact (YYYYMMDD)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.from-compact",
+        "title": "Date - Convert from Compact (YYYYMMDD)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.month-calendar",
+        "title": "Date - Insert Month Calendar",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.duration-to-human",
+        "title": "Date - ISO 8601 Duration to Human",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.seconds-to-hms",
+        "title": "Date - Seconds to HH:MM:SS",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.hms-to-seconds",
+        "title": "Date - HH:MM:SS to Seconds",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-excel-serial",
+        "title": "Date - Convert to Excel Serial",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.from-excel-serial",
+        "title": "Date - Convert from Excel Serial",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-japanese",
+        "title": "Date - Convert to Japanese Format",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.range",
+        "title": "Date - Generate Date Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.age",
+        "title": "Date - Calculate Age",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.quarter",
+        "title": "Date - Show Quarter and Fiscal Year",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.cron-explain",
+        "title": "Date - Explain Cron Expression",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timezone.replace",
+        "title": "Date - Convert to Time Zone (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-timezone.clipboard",
+        "title": "Date - Convert to Time Zone (Clipboard)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.format-pattern.replace",
+        "title": "Date - Format with Pattern (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-compact.replace",
+        "title": "Date - Convert to Compact (YYYYMMDD) (Replace)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.from-compact.replace",
+        "title": "Date - Convert from Compact (YYYYMMDD) (Replace)",
+        "category": "Selection Manipulator"
       }
     ],
+    "configuration": {
+      "title": "Selection Manipulator",
+      "properties": {
+        "selection-manipulator.date.timeZones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "UTC",
+            "Asia/Tokyo",
+            "America/Los_Angeles"
+          ],
+          "minItems": 1,
+          "maxItems": 20,
+          "scope": "window",
+          "description": "IANA time zones listed by \"Date - Show in Multiple Time Zones\" (1 to 20 names such as UTC, Asia/Tokyo or America/Los_Angeles)."
+        },
+        "selection-manipulator.date.weekdayLanguage": {
+          "type": "string",
+          "enum": [
+            "ja",
+            "en"
+          ],
+          "enumDescriptions": [
+            "Japanese: (月)",
+            "English: (Mon)"
+          ],
+          "default": "ja",
+          "scope": "window",
+          "description": "Language of the weekday added by \"Date - Append Weekday\"."
+        },
+        "selection-manipulator.date.fiscalYearStartMonth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "default": 4,
+          "scope": "window",
+          "description": "First month (1-12) of the fiscal year used by \"Date - Show Quarter and Fiscal Year\"."
+        }
+      }
+    },
     "keybindings": [
       {
         "command": "selection-manipulator.remove-cursor-above",
@@ -5066,6 +5258,126 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.unit.inch-to-cm"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-utc-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-timezone"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-timezones"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.weekday"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.append-weekday"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.iso-week"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.day-of-year"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.diff"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.add-days"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.add-months"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-relative"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.format-pattern"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-compact"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.from-compact"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.month-calendar"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.duration-to-human"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.seconds-to-hms"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.hms-to-seconds"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-excel-serial"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.from-excel-serial"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-japanese"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.age"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.quarter"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.cron-explain"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-timezone.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-timezone.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.format-pattern.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-compact.replace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.from-compact.replace"
         }
       ],
       "editor/context": [
@@ -6849,6 +7161,126 @@
         {
           "command": "selection-manipulator.date.era-conversion.replace",
           "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.date.to-utc-string",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.date.to-timezone",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.date.to-timezones",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.date.weekday",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.date.append-weekday",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.date.iso-week",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.date.day-of-year",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.date.diff",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.date.add-days",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.date.add-months",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.date.to-relative",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.date.format-pattern",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.date.to-compact",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.date.from-compact",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.date.month-calendar",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.date.duration-to-human",
+          "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.date.seconds-to-hms",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.date.hms-to-seconds",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.date.to-excel-serial",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.date.from-excel-serial",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.date.to-japanese",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.date.range",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.date.age",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.date.quarter",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.date.cron-explain",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.date.to-timezone.replace",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.date.to-timezone.clipboard",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.date.format-pattern.replace",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.date.to-compact.replace",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.date.from-compact.replace",
+          "group": "selection-manipulator@43"
         }
       ],
       "selection-manipulator.morse.submenu": [
