@@ -46,6 +46,18 @@ suite('Markdown to HTML (MD-019) Test Suite', () => {
       assert.strictEqual(html('- a\n+ b'), '<ul>\n<li>a</li>\n</ul>\n<ul>\n<li>b</li>\n</ul>');
     });
 
+    test('tight / loose: only blank lines between the items or between the blocks directly in an item count', () => {
+      // The blank line is inside the nested item "c": the inner list is loose, the outer one tight.
+      assert.strictEqual(html('3. a\n4. b\n   - c\n\n     d\n5. e'),
+        '<ol start="3">\n<li>a</li>\n<li>b\n<ul>\n<li>\n<p>c</p>\n<p>d</p>\n</li>\n</ul>\n</li>\n<li>e</li>\n</ol>');
+      // A blank line between two nested items makes only the nested list loose.
+      assert.strictEqual(html('- a\n  - b\n\n  - c'), '<ul>\n<li>a\n<ul>\n<li>\n<p>b</p>\n</li>\n<li>\n<p>c</p>\n</li>\n</ul>\n</li>\n</ul>');
+      // A blank line between two blocks directly in an item makes the list loose.
+      assert.strictEqual(html('- a\n\n  b\n- c'), '<ul>\n<li>\n<p>a</p>\n<p>b</p>\n</li>\n<li>\n<p>c</p>\n</li>\n</ul>');
+      // A blank line inside a fenced code block in an item does not.
+      assert.strictEqual(html('- a\n  ```\n  x\n\n  y\n  ```\n- b'), '<ul>\n<li>a\n<pre><code>x\n\ny\n</code></pre>\n</li>\n<li>b</li>\n</ul>');
+    });
+
     test('block quotes (nested, lazy continuation) and thematic breaks', () => {
       assert.strictEqual(html('> a\nb\n> > c\n\n***\n- - -'),
         '<blockquote>\n<p>a\nb</p>\n<blockquote>\n<p>c</p>\n</blockquote>\n</blockquote>\n<hr />\n<hr />');
@@ -117,6 +129,11 @@ suite('Markdown to HTML (MD-019) Test Suite', () => {
         '- a\n'.repeat(N / 4),
         '> a\n'.repeat(N / 4),
         '```\n'.repeat(N / 4),
+        // Emphasis and links in one long paragraph (unmatched delimiters below every link).
+        'a *b* [c](d) '.repeat(40_000),
+        Array.from({ length: 100_000 }, () => 'a *b* [c](d)').join('\n'),
+        '**bold** _it_ [l](http://x) `c` ~~s~~ text *a b '.repeat(20_000),
+        '[a](<)'.repeat(160_000),
       ];
       inputs.forEach((input, i) => fast(`input ${i}`, 2000, () => html(input)));
     });

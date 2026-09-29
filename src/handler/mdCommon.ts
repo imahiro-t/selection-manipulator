@@ -174,6 +174,19 @@ export const fenceRoles = (lines: readonly string[]): FenceRole[] => {
   return roles;
 };
 
+/** The longest language (info string word) of a code fence that the commands write. */
+export const FENCE_LANGUAGE_MAX_LENGTH = 50;
+
+const FENCE_LANGUAGE_CHARACTERS = /^[A-Za-z0-9_+#.-]*$/;
+
+/**
+ * Whether `value` is a safe code fence language: letters, digits and `_ + # . -` only, at most
+ * `FENCE_LANGUAGE_MAX_LENGTH` characters (empty is allowed). Used for the input of MD-014 and for
+ * the `class` that MD-019 writes: nothing else can reach the fence line or the attribute.
+ */
+export const isFenceLanguage = (value: string): boolean =>
+  value.length <= FENCE_LANGUAGE_MAX_LENGTH && FENCE_LANGUAGE_CHARACTERS.test(value);
+
 // ---------------------------------------------------------------------------
 // Headings, thematic breaks, list items
 // ---------------------------------------------------------------------------
@@ -218,6 +231,11 @@ export const parseAtxHeading = (line: string): AtxHeading | undefined => {
   }
   return { level, hashStart, hashEnd, text };
 };
+
+const QUOTE_MARKER = /^ {0,3}>/;
+
+/** Whether `line` starts with a block quote marker (`>` after at most 3 spaces). */
+export const isQuoteLine = (line: string): boolean => QUOTE_MARKER.test(line);
 
 /** A thematic break: 3 or more `-`, `*` or `_` (the same character), optionally with spaces between. */
 export const isThematicBreak = (line: string): boolean => {
@@ -427,69 +445,159 @@ export interface LinkTail {
 const isSpaceOrTab = (c: string | undefined): boolean => c === ' ' || c === '\t';
 
 /**
- * Reads `(destination "title")` starting at the `(` at `open`, using the parenthesis table of
- * `matchParentheses`. `undefined` when it is not a valid link tail.
+ * The first offset at or after `from` where `stop` holds (the text length if none). The last
+ * search is remembered: a search from inside the range it covered returns the same offset without
+ * reading the text again, so searches from increasing offsets are linear in the text overall.
  */
-export const parseLinkTail = (text: string, open: number, parentheses: ReadonlyMap<number, number>): LinkTail | undefined => {
-  const close = parentheses.get(open);
-  if (text[open] !== '(' || close === undefined) {
-    return undefined;
-  }
-  let i = open + 1;
-  while (i < close && isSpaceOrTab(text[i])) {
-    i++;
-  }
-  let destination: string;
-  let destinationSource: string;
-  if (text[i] === '<') {
-    const end = text.indexOf('>', i + 1);
-    if (end === -1 || end > close) {
-      return undefined;
+export class ForwardSearch {
+  private from = -1;
+  private found = -1;
+
+  constructor(private readonly text: string, private readonly stop: (c: string) => boolean) {}
+
+  find(from: number): number {
+    if (from >= this.from && from <= this.found) {
+      return this.found;
     }
-    destination = text.slice(i + 1, end);
-    if (destination.includes('<')) {
-      return undefined;
-    }
-    destinationSource = text.slice(i, end + 1);
-    i = end + 1;
-  } else {
-    const start = i;
-    while (i < close && !isSpaceOrTab(text[i])) {
+    let i = from;
+    while (i < this.text.length && !this.stop(this.text[i])) {
       i++;
     }
-    destination = text.slice(start, i);
-    destinationSource = destination;
+    this.from = from;
+    this.found = i;
+    return i;
   }
-  const afterDestination = i;
-  while (i < close && isSpaceOrTab(text[i])) {
-    i++;
+}
+
+const isLineBreak = (c: string): boolean => c === '\n' || c === '\r';
+
+/**
+ * Reads the `(destination "title")` parts of the inline links of one text. Linear over all the
+ * links of the text: the matching `)` comes from one table (`matchParentheses`), the runs of
+ * spaces and of destination characters are found with `ForwardSearch`, and a `<…>` destination is
+ * searched only up to the next `<` or `>` (so no character is read for two `<…>` destinations).
+ */
+export class LinkTailParser {
+  private readonly parentheses: Map<number, number>;
+  /** The end of a run of spaces / tabs (after `(`). */
+  private readonly leadingSpaces: ForwardSearch;
+  /** The end of a run of spaces / tabs (after the destination). */
+  private readonly spacesAfterDestination: ForwardSearch;
+  /** The end of a destination that is not in `<…>`. */
+  private readonly destinationEnd: ForwardSearch;
+
+  constructor(private readonly text: string) {
+    this.parentheses = matchParentheses(text);
+    const notSpace = (c: string): boolean => !isSpaceOrTab(c);
+    this.leadingSpaces = new ForwardSearch(text, notSpace);
+    this.spacesAfterDestination = new ForwardSearch(text, notSpace);
+    this.destinationEnd = new ForwardSearch(text, (c) => isSpaceOrTab(c) || isLineBreak(c));
   }
-  if (i === close) {
-    return { end: close + 1, destination, destinationSource };
+
+  /** The link tail starting at the `(` at `open`, or `undefined` when it is not a valid one. */
+  parse(open: number): LinkTail | undefined {
+    const text = this.text;
+    const close = this.parentheses.get(open);
+    if (text[open] !== '(' || close === undefined) {
+      return undefined;
+    }
+    let i = Math.min(this.leadingSpaces.find(open + 1), close);
+    let destination: string;
+    let destinationSource: string;
+    if (text[i] === '<') {
+      let end = i + 1;
+      while (end < close && text[end] !== '>' && text[end] !== '<') {
+        end++;
+      }
+      if (end >= close || text[end] !== '>') {
+        return undefined;
+      }
+      destination = text.slice(i + 1, end);
+      destinationSource = text.slice(i, end + 1);
+      i = end + 1;
+    } else {
+      const start = i;
+      i = Math.min(this.destinationEnd.find(start), close);
+      destination = text.slice(start, i);
+      destinationSource = destination;
+    }
+    const afterDestination = i;
+    i = Math.min(this.spacesAfterDestination.find(i), close);
+    if (i === close) {
+      return { end: close + 1, destination, destinationSource };
+    }
+    if (i === afterDestination) {
+      // The title must be separated from the destination by whitespace.
+      return undefined;
+    }
+    const quote = text[i];
+    if (quote !== '"' && quote !== '\'') {
+      return undefined;
+    }
+    let titleEnd = close - 1;
+    while (titleEnd > i && isSpaceOrTab(text[titleEnd])) {
+      titleEnd--;
+    }
+    if (titleEnd === i || text[titleEnd] !== quote || isEscapedAt(text, titleEnd)) {
+      return undefined;
+    }
+    return {
+      end: close + 1,
+      destination,
+      destinationSource,
+      title: text.slice(i + 1, titleEnd),
+      titleSource: text.slice(i, titleEnd + 1),
+    };
   }
-  if (i === afterDestination) {
-    // The title must be separated from the destination by whitespace.
-    return undefined;
+}
+
+/**
+ * What is around offsets of a text on their lines (for the commands that write whole-line blocks
+ * around or after a selection). Linear in the text overall when the offsets are asked in
+ * increasing order, as the selections are.
+ */
+export class LineContext {
+  private sweep = 0;
+  /** The last offset before `sweep` that is not a space or a tab (-1: none). */
+  private lastSignificant = -1;
+  private readonly nextSignificant: ForwardSearch;
+  private readonly nextLineBreak: ForwardSearch;
+
+  constructor(private readonly text: string) {
+    this.nextSignificant = new ForwardSearch(text, (c) => !isSpaceOrTab(c));
+    this.nextLineBreak = new ForwardSearch(text, isLineBreak);
   }
-  const quote = text[i];
-  if (quote !== '"' && quote !== '\'') {
-    return undefined;
+
+  /** Whether there is text other than spaces and tabs before `offset` on its line. */
+  textBefore(offset: number): boolean {
+    const text = this.text;
+    if (offset < this.sweep) {
+      // Not in increasing order: look back without remembering.
+      let i = offset - 1;
+      while (i >= 0 && isSpaceOrTab(text[i])) {
+        i--;
+      }
+      return i >= 0 && !isLineBreak(text[i]);
+    }
+    for (; this.sweep < offset; this.sweep++) {
+      if (!isSpaceOrTab(text[this.sweep])) {
+        this.lastSignificant = this.sweep;
+      }
+    }
+    return this.lastSignificant !== -1 && !isLineBreak(text[this.lastSignificant]);
   }
-  let titleEnd = close - 1;
-  while (titleEnd > i && isSpaceOrTab(text[titleEnd])) {
-    titleEnd--;
+
+  /** Whether there is text other than spaces and tabs from `offset` to the end of its line. */
+  textAfter(offset: number): boolean {
+    const i = this.nextSignificant.find(offset);
+    return i < this.text.length && !isLineBreak(this.text[i]);
   }
-  if (titleEnd === i || text[titleEnd] !== quote || isEscapedAt(text, titleEnd)) {
-    return undefined;
+
+  /** The end of the line of `offset`: the offset of its line break, or the text length. */
+  lineEnd(offset: number): number {
+    return this.nextLineBreak.find(offset);
   }
-  return {
-    end: close + 1,
-    destination,
-    destinationSource,
-    title: text.slice(i + 1, titleEnd),
-    titleSource: text.slice(i, titleEnd + 1),
-  };
-};
+}
 
 /** An inline link `[text](destination "title")` or image `![alt](…)` in a text. */
 export interface InlineLink {
@@ -511,7 +619,7 @@ export interface InlineLink {
  * is kept as one index instead of marking each of them.
  */
 export const findInlineLinks = (text: string, spans: readonly [number, number][] = codeSpans(text)): InlineLink[] => {
-  const parentheses = matchParentheses(text);
+  const tails = new LinkTailParser(text);
   const links: InlineLink[] = [];
   const openers: { start: number; textStart: number; image: boolean }[] = [];
   let inactiveBelow = 0;
@@ -539,7 +647,7 @@ export const findInlineLinks = (text: string, spans: readonly [number, number][]
       }
       const active = opener.image || openers.length >= inactiveBelow;
       inactiveBelow = Math.min(inactiveBelow, openers.length);
-      const tail = active && text[i + 1] === '(' ? parseLinkTail(text, i + 1, parentheses) : undefined;
+      const tail = active && text[i + 1] === '(' ? tails.parse(i + 1) : undefined;
       if (tail === undefined) {
         continue;
       }

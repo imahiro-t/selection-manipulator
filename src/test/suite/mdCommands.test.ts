@@ -156,7 +156,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       // The same anchors as a table of contents of the whole document (inserted at a cursor).
       const whole = await open(text, [[0, 0]]);
       await run(entryOf('MD-003'), recorder().dependencies)(whole);
-      assert.ok(whole.document.getText().startsWith('- [A](#a)\n- [A](#a-1)\n- [A](#a-2)\n  - [B](#b)\n- [B](#b-1)# A\n'), whole.document.getText());
+      assert.ok(whole.document.getText().startsWith('- [A](#a)\n- [A](#a-1)\n- [A](#a-2)\n  - [B](#b)\n- [B](#b-1)\n\n# A\n'), whole.document.getText());
     });
 
     test('MD-003: no headings informs and changes nothing', async () => {
@@ -185,6 +185,20 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.deepStrictEqual(selectionsOf(editor), [[0, 14], [16, 37]]);
     });
 
+    test('partial lines: fences and definitions stand on lines of their own (MD-014, MD-023)', async () => {
+      const fence = await open('say a=1 now', [[4, 7]]);
+      await run(entryOf('MD-014'), recorder(['js']).dependencies)(fence);
+      assert.strictEqual(fence.document.getText(), 'say \n```js\na=1\n```\n now');
+      assert.deepStrictEqual(selectionsOf(fence), [[4, 19]]);
+      const text = 'x [a](u) y [b](v) z\nnext';
+      const links = await open(text, [[2, 8], [11, 17]]);
+      await run(entryOf('MD-023'), recorder().dependencies)(links);
+      assert.strictEqual(links.document.getText(), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\nnext');
+      assert.deepStrictEqual(selectionsOf(links), [[2, 8], [11, 17]]);
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(links.document.getText(), text, 'one undo restores the text');
+    });
+
     test('CRLF documents: the new line breaks are CRLF (MD-019, MD-003, MD-022)', async () => {
       const editor = await createTextEditor('# a\r\n**b**');
       assert.strictEqual(editor.document.eol, vscode.EndOfLine.CRLF);
@@ -194,7 +208,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const toc = await createTextEditor('# A\r\n## B');
       toc.selection = new vscode.Selection(0, 0, 0, 0);
       await run(entryOf('MD-003'), recorder().dependencies)(toc);
-      assert.strictEqual(toc.document.getText(), '- [A](#a)\r\n  - [B](#b)# A\r\n## B');
+      assert.strictEqual(toc.document.getText(), '- [A](#a)\r\n  - [B](#b)\r\n\r\n# A\r\n## B');
       const footnote = await createTextEditor('a b\r\n');
       footnote.selection = new vscode.Selection(0, 2, 0, 3);
       await run(entryOf('MD-022'), recorder().dependencies)(footnote);
@@ -275,7 +289,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const editor = await open('a b', [[0, 1], [2, 3]]);
       await run(entryOf('MD-024'), dependencies)(editor);
       assert.strictEqual(boxes.length, 1);
-      assert.strictEqual(editor.document.getText(), '<details><summary>S</summary>\n\na\n\n</details> <details><summary>S</summary>\n\nb\n\n</details>');
+      assert.strictEqual(editor.document.getText(), '<details><summary>S</summary>\n\na\n\n</details>\n\n \n<details><summary>S</summary>\n\nb\n\n</details>');
     });
   });
 

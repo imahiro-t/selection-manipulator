@@ -16,8 +16,7 @@ import {
   codeSpans,
   escapeHtml,
   isAsciiPunctuation,
-  matchParentheses,
-  parseLinkTail,
+  LinkTailParser,
   unescapeMarkdown,
 } from './mdCommon';
 
@@ -167,7 +166,7 @@ export const parseInline = (text: string): InlineNode => {
   const root = new InlineNode('root');
   const spans = codeSpans(text);
   const spanEnds = new Map<number, number>(spans);
-  const parentheses = matchParentheses(text);
+  const tails = new LinkTailParser(text);
   let top: Delimiter | undefined;
   const brackets: Bracket[] = [];
   let linkBarrier = 0;
@@ -195,7 +194,10 @@ export const parseInline = (text: string): InlineNode => {
   /** Resolves the emphasis between the delimiters above `bottom` and removes them from the stack. */
   const processEmphasis = (bottom: Delimiter | undefined): void => {
     const openersBottom = new Map<string, Delimiter | undefined>();
-    let closer = top;
+    // The first delimiter above `bottom`. Only the delimiters above `bottom` are visited (and
+    // they are all removed below), so the work over all calls is linear in the delimiters; with
+    // none above `bottom`, there is nothing to do (the stack below is not walked).
+    let closer = top === bottom ? undefined : top;
     while (closer !== undefined && closer.prev !== bottom) {
       closer = closer.prev;
     }
@@ -354,7 +356,7 @@ export const parseInline = (text: string): InlineNode => {
       const active = index >= (opener.image ? imageBarrier : linkBarrier);
       linkBarrier = Math.min(linkBarrier, index);
       imageBarrier = Math.min(imageBarrier, index);
-      const tail = active && text[i + 1] === '(' ? parseLinkTail(text, i + 1, parentheses) : undefined;
+      const tail = active && text[i + 1] === '(' ? tails.parse(i + 1) : undefined;
       if (tail === undefined) {
         buffer += c;
         i++;

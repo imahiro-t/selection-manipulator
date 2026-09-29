@@ -20,6 +20,8 @@ import {
   indentWidth,
   isBlank,
   isFenceClosing,
+  isFenceLanguage,
+  isQuoteLine,
   isThematicBreak,
   MdEol,
   parseAtxHeading,
@@ -31,7 +33,7 @@ import { inlineToHtml, parseInline } from './mdInline';
 /** How deeply block quotes and lists may be nested; deeper content is paragraph text. */
 export const MD_HTML_MAX_DEPTH = 32;
 
-type Block =
+type BlockContent =
   | { type: 'heading'; level: number; text: string }
   | { type: 'code'; language: string; lines: string[] }
   | { type: 'hr' }
@@ -39,9 +41,15 @@ type Block =
   | { type: 'quote'; children: Block[] }
   | { type: 'list'; ordered: boolean; start: number; tight: boolean; items: Block[][] };
 
-const LANGUAGE = /^[A-Za-z0-9_+#.-]{1,50}$/;
+/** A block with its first and last non-blank line (indexes into the lines it was parsed from). */
+type Block = BlockContent & { first: number; last: number };
 
-const QUOTE_MARKER = /^ {0,3}>/;
+/**
+ * Whether two blocks that follow each other in the same container are separated by a blank line
+ * (every line between them is blank: a non-blank line would belong to a block).
+ */
+const blankBetween = (blocks: readonly Block[]): boolean =>
+  blocks.some((block, k) => k > 0 && block.first > blocks[k - 1].last + 1);
 
 /** Leading tabs become spaces (to the next multiple of 4), so that indentation can be sliced. */
 const expandLeadingTabs = (line: string): string => {
@@ -72,7 +80,7 @@ const listStart = (line: string) => {
 
 /** Whether `line` starts a block that interrupts a paragraph. */
 const interruptsParagraph = (line: string): boolean => {
-  if (fenceOpening(line) !== undefined || parseAtxHeading(line) !== undefined || QUOTE_MARKER.test(line)) {
+  if (fenceOpening(line) !== undefined || parseAtxHeading(line) !== undefined || isQuoteLine(line)) {
     return true;
   }
   if (isThematicBreak(line)) {
@@ -89,14 +97,17 @@ const sameListType = (a: { ordered: boolean; marker: string; delimiter?: string 
 
 const parseBlocks = (source: readonly string[], depth: number): Block[] => {
   if (depth > MD_HTML_MAX_DEPTH) {
-    const lines = source.filter((line) => !isBlank(line));
-    return lines.length === 0 ? [] : [{ type: 'paragraph', lines }];
+    const nonBlank = source.map((line, index) => ({ line, index })).filter(({ line }) => !isBlank(line));
+    return nonBlank.length === 0
+      ? []
+      : [{ type: 'paragraph', lines: nonBlank.map(({ line }) => line), first: nonBlank[0].index, last: nonBlank[nonBlank.length - 1].index }];
   }
   const lines = source.map(expandLeadingTabs);
   const blocks: Block[] = [];
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
+    const first = i;
     if (isBlank(line)) {
       i++;
       continue;
@@ -110,28 +121,29 @@ const parseBlocks = (source: readonly string[], depth: number): Block[] => {
         code.push(lines[i].slice(Math.min(fence.indent, leadingWidth(lines[i]))));
         i++;
       }
+      const last = Math.min(i, lines.length - 1);
       i++;
       const language = fence.info.split(/[ \t]/)[0];
-      blocks.push({ type: 'code', language: LANGUAGE.test(language) ? language : '', lines: code });
+      blocks.push({ type: 'code', language: isFenceLanguage(language) ? language : '', lines: code, first, last });
       continue;
     }
     const heading = parseAtxHeading(line);
     if (heading !== undefined) {
-      blocks.push({ type: 'heading', level: heading.level, text: heading.text });
+      blocks.push({ type: 'heading', level: heading.level, text: heading.text, first, last: i });
       i++;
       continue;
     }
     if (isThematicBreak(line)) {
-      blocks.push({ type: 'hr' });
+      blocks.push({ type: 'hr', first, last: i });
       i++;
       continue;
     }
-    if (QUOTE_MARKER.test(line)) {
+    if (isQuoteLine(line)) {
       const inner: string[] = [];
       let lazy = false;
       while (i < lines.length) {
         const current = lines[i];
-        if (QUOTE_MARKER.test(current)) {
+        if (isQuoteLine(current)) {
           const content = current.slice(current.indexOf('>') + 1);
           inner.push(content.startsWith(' ') ? content.slice(1) : content);
           lazy = !isBlank(content);
@@ -143,25 +155,28 @@ const parseBlocks = (source: readonly string[], depth: number): Block[] => {
         }
         i++;
       }
-      blocks.push({ type: 'quote', children: parseBlocks(inner, depth + 1) });
+      blocks.push({ type: 'quote', children: parseBlocks(inner, depth + 1), first, last: i - 1 });
       continue;
     }
-    const first = listStart(line);
-    if (first !== undefined) {
+    const firstItem = listStart(line);
+    if (firstItem !== undefined) {
       const list: Block & { type: 'list' } = {
         type: 'list',
-        ordered: first.ordered,
-        start: first.ordered ? Number(first.number) : 1,
+        ordered: firstItem.ordered,
+        start: firstItem.ordered ? Number(firstItem.number) : 1,
         tight: true,
         items: [],
+        first,
+        last: first,
       };
-      let item = first;
+      let item = firstItem;
       while (true) {
         const markerWidth = item.indent.length + item.marker.length;
         const spacing = item.spacing.length;
         const contentIndent = item.rest === '' || spacing > 4 ? markerWidth + 1 : markerWidth + spacing;
         // A task checkbox is not in the subset: it stays text of the item.
         const content: string[] = [(item.checkbox === undefined ? '' : item.checkbox + (item.checkboxSpacing ?? '')) + item.rest];
+        list.last = i;
         i++;
         let blankBefore = false;
         let lazy = !isBlank(content[0]);
@@ -175,17 +190,16 @@ const parseBlocks = (source: readonly string[], depth: number): Block[] => {
             continue;
           }
           if (leadingWidth(current) >= contentIndent) {
-            if (blankBefore) {
-              list.tight = false;
-            }
             content.push(current.slice(contentIndent));
             blankBefore = false;
             lazy = true;
+            list.last = i;
             i++;
             continue;
           }
           if (lazy && !interruptsParagraph(current) && listStart(current) === undefined) {
             content.push(current.trimStart());
+            list.last = i;
             i++;
             continue;
           }
@@ -194,11 +208,18 @@ const parseBlocks = (source: readonly string[], depth: number): Block[] => {
         while (content.length > 0 && isBlank(content[content.length - 1])) {
           content.pop();
         }
-        list.items.push(parseBlocks(content, depth + 1));
+        const children = parseBlocks(content, depth + 1);
+        // Loose: a blank line between two blocks directly in an item (a blank line deeper
+        // inside, e.g. in a nested list or a code block, does not count).
+        if (blankBetween(children)) {
+          list.tight = false;
+        }
+        list.items.push(children);
         const next = i < lines.length ? listStart(lines[i]) : undefined;
-        if (next === undefined || !sameListType(first, next) || isThematicBreak(lines[i])) {
+        if (next === undefined || !sameListType(firstItem, next) || isThematicBreak(lines[i])) {
           break;
         }
+        // Loose: a blank line between two items.
         if (blankBefore) {
           list.tight = false;
         }
@@ -213,7 +234,7 @@ const parseBlocks = (source: readonly string[], depth: number): Block[] => {
       paragraph.push(lines[i]);
       i++;
     }
-    blocks.push({ type: 'paragraph', lines: paragraph });
+    blocks.push({ type: 'paragraph', lines: paragraph, first, last: i - 1 });
   }
   return blocks;
 };

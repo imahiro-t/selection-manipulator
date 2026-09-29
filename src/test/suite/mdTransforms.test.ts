@@ -5,8 +5,14 @@ import {
   codeSpans,
   escapeLinkText,
   findInlineLinks,
+  FENCE_LANGUAGE_MAX_LENGTH,
+  ForwardSearch,
   githubSlug,
+  isFenceLanguage,
+  isQuoteLine,
+  LineContext,
   lineSpans,
+  LinkTailParser,
   MdEol,
   parseAtxHeading,
   parseListItem,
@@ -189,6 +195,31 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 0, end: 1 }, { start: 2, end: 5 }] }), 'x\n- [A](#a)');
     });
 
+    test('skipped levels nest only one step deeper; a shallower heading goes back to its parent', () => {
+      // "#### D" under "# A" is one step (2 spaces) deeper, not 3: 4 or more spaces more than the
+      // parent item would make CommonMark read the line as a continuation of the item above.
+      assert.strictEqual(run('MD-003', '# A\n#### D\n### C\n## B\n###### E\n# F', { ranges: [{ start: 0, end: 0 }] }).split('\n\n')[0],
+        '- [A](#a)\n  - [D](#d)\n  - [C](#c)\n  - [B](#b)\n    - [E](#e)\n- [F](#f)');
+      // A first heading deeper than a later one is not indented.
+      assert.strictEqual(run('MD-003', '### C\n# A'), '- [C](#c)\n- [A](#a)');
+    });
+
+    test('many selections and cursors: headings found in one walk, the output limit checked first', function () {
+      this.timeout(20_000);
+      const count = 100_000;
+      const text = Array.from({ length: count }, (_value, i) => `# h${i}`).join('\n');
+      const ranges: MdRange[] = [];
+      let offset = 0;
+      for (let i = 0; i < count; i++) {
+        ranges.push({ start: offset, end: offset + 1 });
+        offset += `# h${i}`.length + 1;
+      }
+      fast('MD-003 100,000 selections x 100,000 headings', 2000, () => assert.strictEqual(result('MD-003', text, { ranges }).kind, 'edit'));
+      const headings = Array.from({ length: 5000 }, (_value, i) => `# h${i}`).join('\n');
+      const cursors = Array.from({ length: 3000 }, () => ({ start: 0, end: 0 }));
+      fast('MD-003 3,000 cursors x 5,000 headings', 2000, () => assert.ok(failure('MD-003', headings, { ranges: cursors }).includes('longer than')));
+    });
+
     test('CRLF: the table of contents uses CRLF', () => {
       assert.strictEqual(run('MD-003', '# A\r\n## B', { eol: '\r\n' }), '- [A](#a)\r\n  - [B](#b)');
     });
@@ -314,6 +345,15 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-018', '  |😀|b|\n|-|-|'), '  | 😀 | b |\n  | - | - |');
     });
 
+    test('a table whose result would be too long is refused before the cells are padded', () => {
+      const text = `|${'x'.repeat(1_000_000)}|\n|-|\n${'|a|\n'.repeat(1000)}`;
+      fast('MD-018 1,000,000-character cell x 1,000 rows', 1000, () => assert.ok(failure('MD-018', text).includes('longer than')));
+      // Just under the limit is still formatted.
+      const rows = Math.floor(MAX_OUTPUT_LENGTH / 1005) - 3;
+      const fits = `|${'x'.repeat(1000)}|\n|-|\n${'|a|\n'.repeat(rows)}`;
+      assert.strictEqual(result('MD-018', fits).kind, 'edit');
+    });
+
     test('not a table: warns', () => {
       assert.ok(failure('MD-018', 'a\nb').startsWith('the selection is not a Markdown table'));
       assert.ok(failure('MD-018', '|a|\n|b|'));
@@ -431,6 +471,98 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
     });
   });
 
+  suite('partial lines: blocks and definitions stay on lines of their own (MD-003, 014, 023, 024)', () => {
+    /** The selection of `part` (its first occurrence at or after `from`). */
+    const select = (text: string, part: string, from = 0): MdRange => {
+      const start = text.indexOf(part, from);
+      assert.ok(start !== -1, part);
+      return { start, end: start + part.length };
+    };
+    /** The texts selected after the edit. */
+    const selectedAfter = (id: string, text: string, options: RunOptions): string[] => {
+      const outcome = result(id, text, options);
+      assert.ok(outcome.kind === 'edit');
+      const edited = applied(text, outcome);
+      return outcome.ranges.map(({ start, end }) => edited.slice(start, end));
+    };
+
+    test('MD-014: line breaks around the fences when the selection starts or ends inside a line', () => {
+      const text = 'say a=1 now';
+      assert.strictEqual(run('MD-014', text, { inputs: ['js'], ranges: [select(text, 'a=1')] }), 'say \n```js\na=1\n```\n now');
+      assert.strictEqual(run('MD-014', 'x foo', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), 'x \n```\nfoo\n```');
+      assert.strictEqual(run('MD-014', 'foo y', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\n y');
+      // Only indentation before, only spaces after, a selection ending with its line break: no extra line breaks.
+      assert.strictEqual(run('MD-014', '  foo  ', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), '  ```\nfoo\n```  ');
+      assert.strictEqual(run('MD-014', 'x foo\ny', { inputs: [''], ranges: [{ start: 2, end: 6 }] }), 'x \n```\nfoo\n```\ny');
+      // Two selections on one line; CRLF.
+      const two = 'a b c';
+      assert.strictEqual(run('MD-014', two, { inputs: [''], ranges: [select(two, 'a'), select(two, 'c')] }), '```\na\n```\n b \n```\nc\n```');
+      assert.strictEqual(run('MD-014', 'say a=1 now', { inputs: [''], ranges: [{ start: 4, end: 7 }], eol: '\r\n' }), 'say \r\n```\r\na=1\r\n```\r\n now');
+    });
+
+    test('MD-024: a line break before <details>, a blank line after </details> when text follows', () => {
+      const text = 'x foo y';
+      assert.strictEqual(run('MD-024', text, { inputs: ['s'], ranges: [select(text, 'foo')] }),
+        'x \n<details><summary>s</summary>\n\nfoo\n\n</details>\n\n y');
+      // A whole line followed by a text line: a blank line ends the HTML block.
+      assert.strictEqual(run('MD-024', 'foo\ny', { inputs: [''], ranges: [{ start: 0, end: 4 }] }),
+        '<details><summary>Details</summary>\n\nfoo\n\n</details>\n\ny');
+      // Already followed by a blank line, or by nothing: nothing is added.
+      assert.strictEqual(run('MD-024', 'foo\n\ny', { inputs: [''], ranges: [{ start: 0, end: 5 }] }),
+        '<details><summary>Details</summary>\n\nfoo\n\n</details>\n\ny');
+      assert.strictEqual(run('MD-024', 'foo\n', { inputs: [''], ranges: [{ start: 0, end: 3 }] }),
+        '<details><summary>Details</summary>\n\nfoo\n\n</details>\n');
+    });
+
+    test('MD-023: a selection ending inside a line puts its definitions after the end of the line', () => {
+      const text = 'see [a](http://b) here';
+      assert.strictEqual(run('MD-023', text, { ranges: [select(text, '[a](http://b)')] }), 'see [a][1] here\n\n[1]: http://b');
+      assert.deepStrictEqual(selectedAfter('MD-023', text, { ranges: [select(text, '[a](http://b)')] }), ['[a][1]']);
+      // A selection ending at the end of its line (or before trailing spaces) keeps them in the selection.
+      assert.deepStrictEqual(selectedAfter('MD-023', 'see [a](u)', { ranges: [{ start: 4, end: 10 }] }), ['[a][1]\n\n[1]: u']);
+      assert.strictEqual(run('MD-023', 'see [a](u)  \nnext', { ranges: [{ start: 4, end: 10 }] }), 'see [a][1]\n\n[1]: u  \nnext');
+    });
+
+    test('MD-023: selections ending on the same line share one block of definitions after it', () => {
+      const text = 'x [a](u) y [b](v) z\nnext';
+      const ranges = [select(text, '[a](u)'), select(text, '[b](v)')];
+      assert.strictEqual(run('MD-023', text, { ranges }), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\nnext');
+      assert.deepStrictEqual(selectedAfter('MD-023', text, { ranges }), ['[a][1]', '[b][2]']);
+      // A later selection that starts on that line and ends at a line end takes the definitions.
+      const across = 'x [a](u) y [b](v)\n[c](w) z';
+      assert.strictEqual(run('MD-023', across, { ranges: [select(across, '[a](u)'), { start: across.indexOf('[b]'), end: across.indexOf('\n') }] }),
+        'x [a][1] y [b][2]\n\n[1]: u\n[2]: v\n[c](w) z');
+      // A later selection that goes on to the next lines carries them to the end of its own last line.
+      assert.strictEqual(run('MD-023', across, { ranges: [select(across, '[a](u)'), { start: across.indexOf(' y'), end: across.indexOf(' z') }] }),
+        'x [a][1] y [b][2]\n[c][3] z\n\n[1]: u\n[2]: v\n[3]: w');
+      // Selections on different lines: each line gets its own definitions; numbers continue.
+      const lines = 'p [a](u) q\nr [b](v) s';
+      assert.strictEqual(run('MD-023', lines, { ranges: [select(lines, '[a](u)'), select(lines, '[b](v)')] }),
+        'p [a][1] q\n\n[1]: u\nr [b][2] s\n\n[2]: v');
+    });
+
+    test('MD-023: cursors and unchanged selections around pending definitions keep their place', () => {
+      const text = 'x [a](u) y\nz';
+      const lineEnd = text.indexOf('\n');
+      const outcome = result('MD-023', text, { ranges: [select(text, '[a](u)'), { start: lineEnd, end: lineEnd }, { start: text.length - 1, end: text.length }] });
+      assert.ok(outcome.kind === 'edit');
+      const edited = applied(text, outcome);
+      assert.strictEqual(edited, 'x [a][1] y\n\n[1]: u\nz');
+      // The cursor at the end of the line stays before the definitions; "z" is still selected.
+      assert.strictEqual(outcome.ranges[1].start, edited.indexOf('\n'));
+      assert.strictEqual(edited.slice(outcome.ranges[2].start, outcome.ranges[2].end), 'z');
+      assert.strictEqual(run('MD-023', text, { ranges: [select(text, '[a](u)')], eol: '\r\n' }), 'x [a][1] y\r\n\r\n[1]: u\nz');
+    });
+
+    test('MD-003: a cursor or selection inside a line puts the table of contents on lines of its own', () => {
+      const text = '# A\n## B';
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 0, end: 0 }] }), '- [A](#a)\n  - [B](#b)\n\n# A\n## B');
+      assert.strictEqual(run('MD-003', text, { ranges: [{ start: 3, end: 3 }] }), '# A\n- [A](#a)\n  - [B](#b)\n## B');
+      assert.strictEqual(run('MD-003', 'x\n# A', { ranges: [{ start: 1, end: 5 }] }), 'x\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A tail', { ranges: [{ start: 0, end: 3 }] }), '- [A tail](#a-tail)\n\n tail');
+    });
+  });
+
   suite('helpers', () => {
     test('code spans', () => {
       // The escaped backtick cannot open a span; the next two runs of one backtick make "` `".
@@ -456,6 +588,39 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
         { start: 7, end: 7, next: 7 },
       ]);
     });
+
+    test('line context: text before / after an offset on its line, the line end', () => {
+      const text = 'ab  \n  cd\r\n';
+      const lines = new LineContext(text);
+      assert.deepStrictEqual([0, 1, 2, 5, 7, 8].map((offset) => lines.textBefore(offset)), [false, true, true, false, false, true]);
+      // Out of order still answers correctly.
+      assert.strictEqual(lines.textBefore(1), true);
+      assert.deepStrictEqual([0, 2, 5, 7, 9, 11].map((offset) => lines.textAfter(offset)), [true, false, true, true, false, false]);
+      assert.deepStrictEqual([0, 3, 4, 5, 11].map((offset) => lines.lineEnd(offset)), [4, 4, 4, 9, 11]);
+    });
+
+    test('forward search: remembered searches give the same answers', () => {
+      const search = new ForwardSearch('aa bb  c', (c) => c === ' ');
+      assert.deepStrictEqual([0, 1, 2, 3, 4, 1, 5, 7].map((from) => search.find(from)), [2, 2, 2, 5, 5, 2, 5, 8]);
+    });
+
+    test('link tails: <…> destinations stop at the matching ) and at < ; titles', () => {
+      const text = '(<a b>) (<a) (<a<b>) (x "t") (x"t") (<a> \'t\')';
+      const tails = new LinkTailParser(text);
+      const at = (part: string) => tails.parse(text.indexOf(part));
+      assert.deepStrictEqual(at('(<a b>)'), { end: 7, destination: 'a b', destinationSource: '<a b>' });
+      assert.strictEqual(at('(<a)'), undefined);
+      assert.strictEqual(at('(<a<b>)'), undefined);
+      assert.strictEqual(at('(x "t")')?.title, 't');
+      assert.strictEqual(at('(x"t")')?.destination, 'x"t"');
+      assert.strictEqual(at('(<a> \'t\')')?.titleSource, '\'t\'');
+    });
+
+    test('fence languages and quote lines are one shared rule', () => {
+      assert.ok(isFenceLanguage('') && isFenceLanguage('c++') && isFenceLanguage('x'.repeat(FENCE_LANGUAGE_MAX_LENGTH)));
+      assert.ok(!isFenceLanguage('x'.repeat(FENCE_LANGUAGE_MAX_LENGTH + 1)) && !isFenceLanguage('a"b') && !isFenceLanguage('a b'));
+      assert.deepStrictEqual(['>a', '   > a', '    > a', 'a > b'].map(isQuoteLine), [true, true, false, false]);
+    });
   });
 
   suite('performance (large selections)', () => {
@@ -473,6 +638,61 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       spaces: `a${' '.repeat(N * 5)}b`,
       pipes: `|a|\n|-|\n${'|`|`\\|'.repeat(N / 4)}`,
     };
+    // Inputs that took quadratic time before (seconds to minutes at these sizes).
+    const linear: Record<string, string> = {
+      // Unmatched delimiters left on the stack below every link (processEmphasis walked the whole stack).
+      emphasisAndLinks: 'a *b* [c](d) '.repeat(40_000),
+      emphasisAndLinksLines: Array.from({ length: 100_000 }, () => 'a *b* [c](d)').join('\n'),
+      ordinary: '**bold** _it_ [l](http://x) `c` ~~s~~ text *a b '.repeat(20_000),
+      // Images and links (MD-023 compared every link with every image).
+      imagesAndLinks: '![a](b)[c](d) '.repeat(80_000),
+      // <…> destinations without ">" (each searched to the end of the text).
+      angleDestinations: '[a](<)'.repeat(160_000),
+      // Nested parentheses sharing one run of spaces / destination characters.
+      nestedTails: `${'[a]('.repeat(N / 2)} x${')'.repeat(N / 2)}`,
+      nestedDestinations: `${'[a](b'.repeat(N / 2)}${' '.repeat(N)}x${')'.repeat(N / 2)}`,
+    };
+    for (const id of ['MD-003', 'MD-017', 'MD-019', 'MD-020', 'MD-021', 'MD-023']) {
+      test(`${id} is linear on inputs that used to be quadratic`, function () {
+        this.timeout(60_000);
+        for (const [name, text] of Object.entries(linear)) {
+          fast(`${id} ${name}`, 2000, () => {
+            try {
+              result(id, text);
+            } catch (error) {
+              assert.ok(error instanceof MdInputError, `${id} ${name}: ${error}`);
+            }
+          });
+        }
+      });
+    }
+
+    test('many selections on one long line (MD-014, 023, 024) are linear', function () {
+      this.timeout(20_000);
+      const text = 'ab'.repeat(500_000);
+      const ranges = Array.from({ length: 500_000 }, (_value, i) => ({ start: 2 * i, end: 2 * i + 1 }));
+      fast('MD-014', 2000, () => result('MD-014', text, { inputs: [''], ranges }));
+      const spaces = ' '.repeat(1_000_000);
+      const inSpaces = Array.from({ length: 200_000 }, (_value, i) => ({ start: 5 * i + 1, end: 5 * i + 2 }));
+      fast('MD-024', 2000, () => {
+        try {
+          result('MD-024', spaces, { inputs: [''], ranges: inSpaces });
+        } catch (error) {
+          assert.ok(error instanceof MdInputError);
+        }
+      });
+      const links = '[a](u) '.repeat(100_000);
+      fast('MD-023', 2000, () => result('MD-023', links, { ranges: Array.from({ length: 100_000 }, (_value, i) => ({ start: 7 * i, end: 7 * i + 6 })) }));
+    });
+
+    test('many large results over the output limit are refused', function () {
+      this.timeout(20_000);
+      const line = 'a'.repeat(1_000_000);
+      const text = Array.from({ length: 12 }, () => line).join('\n');
+      const ranges = Array.from({ length: 12 }, (_value, i) => ({ start: i * (line.length + 1), end: i * (line.length + 1) + line.length }));
+      fast('MD-015 12 x 1,000,000 characters', 2000, () => assert.ok(failure('MD-015', text, { ranges }).includes('longer than')));
+    });
+
     for (const id of ['MD-017', 'MD-018', 'MD-019', 'MD-020', 'MD-021', 'MD-023', 'MD-010', 'MD-003']) {
       test(`${id} finishes quickly on hostile input`, function () {
         this.timeout(60_000);

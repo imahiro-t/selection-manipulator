@@ -10,6 +10,11 @@ async function main() {
   // `.vscode-test/user-data` breaks that when the repo lives in a deep path
   // (e.g. a git worktree), so use a short directory under the OS temp dir.
   const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sm-test-'));
+  // Recent VS Code builds start the chat / agent views, which can take the focus from the test
+  // editor: `undo` (run by many integration tests) then does not reach the editor. The tests do
+  // not use AI features, so they are turned off in the test profile.
+  fs.mkdirSync(path.join(userDataDir, 'User'), { recursive: true });
+  fs.writeFileSync(path.join(userDataDir, 'User', 'settings.json'), JSON.stringify({ 'chat.disableAIFeatures': true }));
 
   try {
     // The folder containing the Extension Manifest package.json

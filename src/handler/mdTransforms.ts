@@ -19,6 +19,9 @@
  * - Lines are split at LF, CRLF or CR and joined with the document's line break; every line
  *   break a command writes is the document's. The line commands do not count one line break at
  *   the end of a selection as a line and keep it as it is.
+ * - What a command writes as a block never shares a line with other text, even when a selection
+ *   starts or ends inside a line: line breaks are added around MD-003's list, MD-014's fences and
+ *   MD-024's tags, and MD-023 writes its definitions after the end of the line (see each).
  * - The heading and list commands (MD-001..003, 009, 013, 020, 021) leave the lines of fenced
  *   code blocks alone.
  * - The results of all selections together may be at most `MAX_OUTPUT_LENGTH` characters.
@@ -45,13 +48,18 @@ import {
   codeSpans,
   escapeHtml,
   escapeLinkText,
+  FENCE_LANGUAGE_MAX_LENGTH,
   fenceRoles,
   findInlineLinks,
   githubSlug,
   indentWidth,
+  InlineLink,
   isBlank,
+  isFenceLanguage,
+  isQuoteLine,
   isThematicBreak,
   joinLines,
+  LineContext,
   lineSpans,
   ListItemLine,
   MdEol,
@@ -66,6 +74,7 @@ import {
 import { inlineToPlain, parseInline } from './mdInline';
 import { mdToHtml } from './mdToHtml';
 import { trimUrl } from './mselTransforms';
+import { codePointWidth } from './whitespaceTransforms';
 
 // ---------------------------------------------------------------------------
 // Types, limits and errors
@@ -102,8 +111,8 @@ export class MdInputError extends Error {
   }
 }
 
-/** MD-014: the language of a code fence. */
-export const MD_LANGUAGE_MAX_LENGTH = 50;
+/** MD-014: the language of a code fence (the same rule as the `class` MD-019 writes). */
+export const MD_LANGUAGE_MAX_LENGTH = FENCE_LANGUAGE_MAX_LENGTH;
 /** MD-016 / 024: the alt text and the summary. */
 export const MD_LABEL_MAX_LENGTH = 1000;
 
@@ -145,12 +154,43 @@ export const replaceSelections = (text: string, ranges: readonly MdRange[], repl
   return { kind: 'edit', edits, ranges: after };
 };
 
-/** A command that transforms the text of every non-empty selection on its own. */
-type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[]) => string;
+/** What shares the lines of a selection's ends (for the commands that write whole-line blocks). */
+export interface LineEdges {
+  /** There is text other than spaces and tabs before the selection on the line where it starts. */
+  textBefore: boolean;
+  /** There is text other than spaces and tabs after the selection on the line where it ends. */
+  textAfter: boolean;
+}
 
-const perSelection = (transform: SelectionTransform) => ({ text, ranges, eol, inputs }: MdContext): MdResult =>
-  replaceSelections(text, ranges, ranges.map((range) =>
-    (range.start === range.end ? undefined : transform(text.slice(range.start, range.end), eol, inputs))));
+const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false };
+
+/** A command that transforms the text of every non-empty selection on its own. */
+type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[], edges: LineEdges) => string;
+
+/**
+ * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
+ * lines of the selection's ends; otherwise `NO_LINE_EDGES`). The changed results are counted as
+ * they are made, so that the output limit stops a run before all of them are built.
+ */
+const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
+  const lines = lineEdges ? new LineContext(text) : undefined;
+  let total = 0;
+  return replaceSelections(text, ranges, ranges.map((range) => {
+    if (range.start === range.end) {
+      return undefined;
+    }
+    const value = text.slice(range.start, range.end);
+    const edges = lines === undefined
+      ? NO_LINE_EDGES
+      : { textBefore: lines.textBefore(range.start), textAfter: lines.textAfter(range.end) };
+    const replacement = transform(value, eol, inputs, edges);
+    if (replacement !== value) {
+      total += replacement.length;
+      assertOutputLength(total);
+    }
+    return replacement;
+  }));
+};
 
 /** Applies `transform` to the lines of `value` (one trailing line break kept as it is). */
 const mapLines = (value: string, eol: MdEol, transform: (lines: string[]) => string[]): string => {
@@ -193,8 +233,6 @@ export const decreaseHeadingLevel: SelectionTransform = (value, eol) => mapTextL
   return heading.level === 1 ? line.slice(0, heading.hashStart) + heading.text : line.slice(0, heading.hashStart) + line.slice(heading.hashStart + 1);
 });
 
-const QUOTE_LINE = /^ {0,3}>/;
-
 /**
  * MD-013: a paragraph underlined with `===` becomes `# …`, with `---` `## …` (the lines of a
  * multi-line paragraph are joined with a space). A `---` without a paragraph above it is a
@@ -222,7 +260,7 @@ export const setextToAtx: SelectionTransform = (value, eol) => mapLines(value, e
       paragraph = [];
       return;
     }
-    if (parseAtxHeading(line) !== undefined || isThematicBreak(line) || QUOTE_LINE.test(line) || parseListItem(line) !== undefined) {
+    if (parseAtxHeading(line) !== undefined || isThematicBreak(line) || isQuoteLine(line) || parseListItem(line) !== undefined) {
       flush();
       out.push(line);
       return;
@@ -257,6 +295,8 @@ interface DocumentHeading {
   text: string;
   /** The anchor, unique in the document. */
   slug: string;
+  /** Its entry in a table of contents (without the indentation): `- [text](#slug)`. */
+  entry: string;
 }
 
 /** The ATX headings of the document (outside fenced code) with their unique anchors, in order. */
@@ -273,29 +313,73 @@ export const documentHeadings = (text: string): DocumentHeading[] => {
     if (heading === undefined || heading.text === '') {
       return;
     }
-    headings.push({ start, end, level: heading.level, text: heading.text, slug: slugs.unique(githubSlug(plainText(heading.text))) });
+    const slug = slugs.unique(githubSlug(plainText(heading.text)));
+    headings.push({ start, end, level: heading.level, text: heading.text, slug, entry: `- ${anchorLink(heading.text, slug)}` });
   });
   return headings;
 };
 
-/** The table of contents of some headings: indented 2 spaces per level below the shallowest. */
-const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol): string => {
-  const top = headings.reduce((min, heading) => Math.min(min, heading.level), 6);
-  return headings.map((heading) => `${'  '.repeat(heading.level - top)}- ${anchorLink(heading.text, heading.slug)}`).join(eol);
+/**
+ * The table of contents of some headings (in document order). An entry is nested under the
+ * nearest earlier entry of a lower level, and only one step (2 spaces) deeper than it, however
+ * many levels are skipped: deeper indentation would make CommonMark read the line as a
+ * continuation of the item above. `used` characters of output are already made: the output
+ * limit is checked before the text is built.
+ */
+const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol, used: number): string => {
+  const open: number[] = [];
+  const depths = headings.map((heading) => {
+    while (open.length > 0 && open[open.length - 1] >= heading.level) {
+      open.pop();
+    }
+    open.push(heading.level);
+    return open.length - 1;
+  });
+  const length = headings.reduce((sum, heading, i) => sum + 2 * depths[i] + heading.entry.length, 0) + (headings.length - 1) * eol.length;
+  assertOutputLength(used + length);
+  return headings.map((heading, i) => `${'  '.repeat(depths[i])}${heading.entry}`).join(eol);
 };
 
 /**
  * MD-003: a selection is replaced with the table of contents of the headings in it (a selection
  * without headings is left); a cursor inserts the table of contents of the whole document. The
- * anchors of repeated headings are numbered over the whole document.
+ * anchors of repeated headings are numbered over the whole document. The list is always on
+ * lines of its own: a line break is added before it when it starts after other text on the
+ * line, and a blank line after it when other text follows on the line (which would otherwise
+ * continue its last item). The headings of a selection are found by walking the headings and
+ * the selections (both in document order) together, and the whole table of contents is made
+ * once for all cursors.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
+  const lines = new LineContext(text);
+  let whole: string | undefined;
+  let total = 0;
+  let next = 0;
   const replacements = ranges.map((range) => {
-    const inside = range.start === range.end
-      ? headings
-      : headings.filter((heading) => heading.start < range.end && heading.end > range.start);
-    return inside.length === 0 ? undefined : tableOfContents(inside, eol);
+    let toc: string | undefined;
+    if (range.start === range.end) {
+      whole ??= headings.length === 0 ? undefined : tableOfContents(headings, eol, 0);
+      toc = whole;
+    } else {
+      // The first heading that ends after this selection starts (the selections are in order).
+      while (next < headings.length && headings[next].end <= range.start) {
+        next++;
+      }
+      let last = next;
+      while (last < headings.length && headings[last].start < range.end) {
+        last++;
+      }
+      toc = last === next ? undefined : tableOfContents(headings.slice(next, last), eol, total);
+    }
+    if (toc === undefined) {
+      return undefined;
+    }
+    const before = lines.textBefore(range.start) ? eol : '';
+    const after = lines.textAfter(range.end) ? eol + eol : '';
+    total += before.length + toc.length + after.length;
+    assertOutputLength(total);
+    return before === '' && after === '' ? toc : before + toc + after;
   });
   if (replacements.every((replacement) => replacement === undefined)) {
     return { kind: 'info', message: MD_NO_HEADINGS };
@@ -426,14 +510,12 @@ export const wrapInline = (marker: string): SelectionTransform => (value) => {
 
 const hasLineBreak = (value: string): boolean => value.includes('\n') || value.includes('\r');
 
-const LANGUAGE = /^[A-Za-z0-9_+#.-]*$/;
-
 /** MD-014: the language may be empty, or up to 50 letters, digits and `_ + # . -`. */
 export const validateLanguageInput = (value: string): string | undefined => {
   if (value.length > MD_LANGUAGE_MAX_LENGTH) {
     return `Enter at most ${MD_LANGUAGE_MAX_LENGTH} characters`;
   }
-  if (!LANGUAGE.test(value)) {
+  if (!isFenceLanguage(value)) {
     return 'Use only letters, digits and _ + # . - (or leave it empty)';
   }
   return undefined;
@@ -458,8 +540,13 @@ const assertValid = (validate: (value: string) => string | undefined, value: str
   }
 };
 
-/** MD-014: a code fence longer than any backtick run in the selection (at least 3), with the language. */
-export const wrapInCodeFence = (value: string, eol: MdEol, language: string): string => {
+/**
+ * MD-014: a code fence longer than any backtick run in the selection (at least 3), with the
+ * language. The fences are always on lines of their own: a line break is added before the
+ * opening fence when the selection starts after other text on its line, and after the closing
+ * fence when other text follows the selection on its line.
+ */
+export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLanguageInput, language);
   let longest = 0;
   let run = 0;
@@ -469,7 +556,9 @@ export const wrapInCodeFence = (value: string, eol: MdEol, language: string): st
   }
   const fence = '`'.repeat(Math.max(3, longest + 1));
   const [body, trailing] = splitTrailingBreaks(value);
-  return `${fence}${language}${eol}${body}${eol}${fence}${trailing}`;
+  const before = edges.textBefore ? eol : '';
+  const after = trailing === '' && edges.textAfter ? eol : '';
+  return `${before}${fence}${language}${eol}${body}${eol}${fence}${trailing}${after}`;
 };
 
 /** Whether the parentheses of a URL are balanced (so that it can stay a bare link destination). */
@@ -505,12 +594,26 @@ export const toImage = (value: string, alt: string): string => {
   return `${before}![${escapedAlt}](${destination})${after}`;
 };
 
-/** MD-024: `<details><summary>…</summary>`, a blank line, the selection, a blank line, `</details>`. */
-export const toDetails = (value: string, eol: MdEol, summary: string): string => {
+/** The number of line breaks in a text of line breaks only. */
+const lineBreakCount = (breaks: string): number => (breaks.length === 0 ? 0 : lineSpans(breaks).length - 1);
+
+/**
+ * MD-024: `<details><summary>…</summary>`, a blank line, the selection, a blank line,
+ * `</details>`. The tags are always on lines of their own: a line break is added before
+ * `<details>` when the selection starts after other text on its line; when text follows the
+ * selection, a blank line is made after `</details>` (an HTML block runs to the next blank line,
+ * so the text would otherwise be part of it).
+ */
+export const toDetails = (value: string, eol: MdEol, summary: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLabelInput, summary);
   const label = summary.trim() === '' ? 'Details' : escapeHtml(summary);
   const [body, trailing] = splitTrailingBreaks(value);
-  return `<details><summary>${label}</summary>${eol}${eol}${body}${eol}${eol}</details>${trailing}`;
+  const before = edges.textBefore ? eol : '';
+  let after = '';
+  if (edges.textAfter) {
+    after = trailing === '' ? eol + eol : lineBreakCount(trailing) === 1 ? eol : '';
+  }
+  return `${before}<details><summary>${label}</summary>${eol}${eol}${body}${eol}${eol}</details>${trailing}${after}`;
 };
 
 // ---------------------------------------------------------------------------
@@ -639,14 +742,6 @@ const tableCells = (line: string): string[] => {
   return cells.map((cell) => cell.trim());
 };
 
-const widthOf = (text: string): number => {
-  let width = 0;
-  for (const _char of text) {
-    width++;
-  }
-  return width;
-};
-
 const alignmentOf = (cell: string): Alignment => {
   const left = cell.startsWith(':');
   const right = cell.endsWith(':');
@@ -672,15 +767,25 @@ export const formatTable: SelectionTransform = (value, eol) => mapLines(value, e
   const columns = rows.reduce((max, row) => Math.max(max, row.length), 0);
   const alignments: Alignment[] = Array.from({ length: columns }, (_value, i) => (i < delimiter.length ? alignmentOf(delimiter[i]) : 'none'));
   const widths: number[] = alignments.map((alignment) => (alignment === 'none' ? 1 : 3));
+  // The UTF-16 units that surrogate pairs add to the cells (widths count code points).
+  let surrogates = 0;
   rows.forEach((row, r) => {
     if (r !== 1) {
       row.forEach((cell, c) => {
-        widths[c] = Math.max(widths[c], widthOf(cell));
+        const width = codePointWidth(cell);
+        widths[c] = Math.max(widths[c], width);
+        surrogates += cell.length - width;
       });
     }
   });
+  const indent = leadingWhitespace(lines[0]);
+  // The length of the result is known before it is built: refuse it here rather than pad the
+  // cells of a huge column first. Every row is `indent| cell | … | cell |`, every cell as wide
+  // as its column (plus the UTF-16 units of its surrogate pairs).
+  const rowLength = indent.length + 4 + 3 * (columns - 1) + widths.reduce((sum, width) => sum + width, 0);
+  assertOutputLength(rows.length * rowLength + surrogates + (rows.length - 1) * eol.length);
   const pad = (cell: string, c: number): string => {
-    const space = widths[c] - widthOf(cell);
+    const space = widths[c] - codePointWidth(cell);
     switch (alignments[c]) {
       case 'right':
         return ' '.repeat(space) + cell;
@@ -705,7 +810,6 @@ export const formatTable: SelectionTransform = (value, eol) => mapLines(value, e
         return '-'.repeat(width);
     }
   };
-  const indent = leadingWhitespace(lines[0]);
   return rows.map((row, r) => {
     const cells = Array.from({ length: columns }, (_value, c) => (r === 1 ? rule(c) : pad(row[c] ?? '', c)));
     return `${indent}| ${cells.join(' | ')} |`;
@@ -719,7 +823,7 @@ export const formatTable: SelectionTransform = (value, eol) => mapLines(value, e
 /** One line without its block markup: `>` markers, heading `#`s, list markers and checkboxes. */
 const stripBlockMarkup = (line: string): string => {
   let rest = line;
-  while (QUOTE_LINE.test(rest)) {
+  while (isQuoteLine(rest)) {
     const content = rest.slice(rest.indexOf('>') + 1);
     rest = content.startsWith(' ') ? content.slice(1) : content;
   }
@@ -787,7 +891,7 @@ const FOOTNOTE_LABEL = /\[\^(\d{1,9})\]/g;
 /** What to append at the end of the document so that `block` starts after a blank line. */
 const appendBlock = (text: string, block: string, eol: MdEol): string => {
   const [, breaks] = splitTrailingBreaks(text);
-  const count = breaks.length === 0 ? 0 : lineSpans(breaks).length - 1;
+  const count = lineBreakCount(breaks);
   if (count === 0) {
     return `${eol}${eol}${block}`;
   }
@@ -838,47 +942,113 @@ export const toFootnotes = (text: string, ranges: readonly MdRange[], eol: MdEol
 const REFERENCE_LABEL = /^ {0,3}\[(\d{1,9})\]:/gm;
 
 /**
- * MD-023: the inline links `[t](url "title")` of every selection become `[t][n]`, and
- * `[n]: url "title"` are added at the end of the selection after a blank line. The same URL and
- * title get the same number; `n` continues from the largest numeric reference definition in
- * the document, in document order. Images and links in code are left.
+ * The inline links of `value` that MD-023 converts, in order: not images, not in an image (the
+ * image ranges are merged and walked together with the links), not in code, and with a
+ * destination.
+ */
+const convertibleLinks = (value: string): InlineLink[] => {
+  const spans = mergeRanges([...codeSpans(value), ...blockProtectedRanges(value, false)]);
+  const found = findInlineLinks(value, spans);
+  const images = mergeRanges(found.filter((link) => link.image).map((link): [number, number] => [link.start, link.end]));
+  // Links cannot contain links: in order of their start, they are also in order of their end.
+  const links = found.filter((link) => !link.image && link.tail.destination !== '').sort((a, b) => a.start - b.start);
+  let image = 0;
+  return links.filter((link) => {
+    while (image < images.length && images[image][1] < link.end) {
+      image++;
+    }
+    return !(image < images.length && images[image][0] <= link.start);
+  });
+};
+
+/**
+ * MD-023: the inline links `[t](url "title")` of every selection become `[t][n]`, and the
+ * definitions `[n]: url "title"` are added after a blank line: at the end of the selection when
+ * it ends at the end of a line (or with a line break), otherwise after the end of the line where
+ * it ends, so that no text is joined to a definition line. The definitions of selections that
+ * end on the same line are written together after the last of them. The same URL and title get
+ * the same number; `n` continues from the largest numeric reference definition in the document,
+ * in document order. Images and links in code are left.
+ *
+ * After the edit, a changed selection selects its new text, with the definitions when they were
+ * written at its end.
  */
 export const toReferenceLinks = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
+  const lines = new LineContext(text);
   let number = largestNumber(text, REFERENCE_LABEL);
   const numbers = new Map<string, number>();
-  const replacements = ranges.map((range) => {
+  const edits: MdEdit[] = [];
+  const after: MdRange[] = [];
+  let shift = 0;
+  let total = 0;
+  const addEdit = (edit: MdEdit): void => {
+    edits.push(edit);
+    total += edit.text.length;
+    assertOutputLength(total);
+  };
+  // Definitions waiting for the end of the line at `pendingAt` (-1: none), where a selection
+  // ended in the middle of the line.
+  let pending: string[] = [];
+  let pendingAt = -1;
+  const flush = (): void => {
+    if (pending.length > 0) {
+      const insertion = `${eol}${eol}${pending.join(eol)}`;
+      addEdit({ start: pendingAt, end: pendingAt, text: insertion });
+      shift += insertion.length;
+    }
+    pending = [];
+    pendingAt = -1;
+  };
+  for (const range of ranges) {
+    if (pendingAt !== -1 && range.start > pendingAt) {
+      flush();
+    }
     if (range.start === range.end) {
-      return undefined;
+      // A cursor (also one at the end of a line with pending definitions: it stays before them).
+      after.push({ start: range.start + shift, end: range.end + shift, reversed: range.reversed });
+      continue;
     }
+    // Here nothing is pending, or this selection starts on the line of the pending definitions:
+    // they then go after this selection.
     const value = text.slice(range.start, range.end);
-    const spans = mergeRanges([...codeSpans(value), ...blockProtectedRanges(value, false)]);
-    const found = findInlineLinks(value, spans);
-    const images = found.filter((link) => link.image);
-    const links = found
-      .filter((link) => !link.image && link.tail.destination !== '')
-      .filter((link) => !images.some((image) => image.start <= link.start && link.end <= image.end))
-      .sort((a, b) => a.start - b.start);
-    if (links.length === 0) {
-      return undefined;
-    }
-    const definitions: string[] = [];
-    let result = '';
+    let converted = '';
     let position = 0;
-    for (const link of links) {
+    for (const link of convertibleLinks(value)) {
       const key = `${link.tail.destinationSource}\u0000${link.tail.titleSource ?? ''}`;
       let n = numbers.get(key);
       if (n === undefined) {
         n = ++number;
         numbers.set(key, n);
-        definitions.push(`[${n}]: ${link.tail.destinationSource}${link.tail.titleSource === undefined ? '' : ` ${link.tail.titleSource}`}`);
+        pending.push(`[${n}]: ${link.tail.destinationSource}${link.tail.titleSource === undefined ? '' : ` ${link.tail.titleSource}`}`);
       }
-      result += `${value.slice(position, link.textStart - 1)}[${value.slice(link.textStart, link.textEnd)}][${n}]`;
+      converted += `${value.slice(position, link.textStart - 1)}[${value.slice(link.textStart, link.textEnd)}][${n}]`;
       position = link.end;
     }
-    const [body, trailing] = splitTrailingBreaks(result + value.slice(position));
-    return definitions.length === 0 ? body + trailing : `${body}${eol}${eol}${definitions.join(eol)}${trailing}`;
-  });
-  return replaceSelections(text, ranges, replacements);
+    converted += value.slice(position);
+    const [body, trailing] = splitTrailingBreaks(converted);
+    let replacement = converted;
+    if (trailing !== '' || !lines.textAfter(range.end)) {
+      if (pending.length > 0) {
+        replacement = `${body}${eol}${eol}${pending.join(eol)}${trailing}`;
+      }
+      pending = [];
+      pendingAt = -1;
+    } else {
+      pendingAt = lines.lineEnd(range.end);
+    }
+    if (replacement === value) {
+      after.push({ start: range.start + shift, end: range.end + shift, reversed: range.reversed });
+      continue;
+    }
+    addEdit({ start: range.start, end: range.end, text: replacement });
+    const start = range.start + shift;
+    after.push({ start, end: start + replacement.length });
+    shift += replacement.length - (range.end - range.start);
+  }
+  if (pendingAt !== -1) {
+    flush();
+  }
+  return edits.length === 0 ? UNCHANGED : { kind: 'edit', edits, ranges: after };
 };
 
 // ---------------------------------------------------------------------------
@@ -1054,7 +1224,7 @@ export const MD_COMMAND_ENTRIES: readonly MdCommandEntry[] = [
       placeHolder: 'e.g. python',
       validate: validateLanguageInput,
     }],
-    run: perSelection((value, eol, inputs) => wrapInCodeFence(value, eol, inputs[0])),
+    run: perSelection((value, eol, inputs, edges) => wrapInCodeFence(value, eol, inputs[0], edges), true),
   },
   {
     id: 'MD-015', name: 'markdown.blockquote', title: 'Markdown: Blockquote',
@@ -1102,7 +1272,7 @@ export const MD_COMMAND_ENTRIES: readonly MdCommandEntry[] = [
       prompt: `Summary of the details block (optional, one line, up to ${formatNumber(MD_LABEL_MAX_LENGTH)} characters; empty: "Details")`,
       validate: validateLabelInput,
     }],
-    run: perSelection((value, eol, inputs) => toDetails(value, eol, inputs[0])),
+    run: perSelection((value, eol, inputs, edges) => toDetails(value, eol, inputs[0], edges), true),
   },
   {
     id: 'MD-025', name: 'markdown.front-matter-to-json', title: 'Markdown: Front Matter to JSON',
