@@ -12,8 +12,13 @@ import {
   UniNoTargetError,
 } from '../../handler/uniCommon';
 import {
+  bidiControlsMessage,
+  confusablesMessage,
   countGraphemesMessage,
+  detectScriptsMessage,
   extractEmoji,
+  findBidiControls,
+  findConfusables,
   fromCodePoints,
   normalizeText,
   removeControl,
@@ -21,10 +26,23 @@ import {
   removeNonAscii,
   removeZeroWidth,
   revealInvisible,
+  toCircled,
   toCodePoints,
+  toMathBold,
+  toMathItalic,
+  toMathMonospace,
+  toSmartQuotes,
+  toStrikethrough,
+  toSubscript,
+  toSuperscript,
+  toTypographicPunctuation,
+  toUnderline,
+  toUpsideDown,
   toUtf16Units,
   toUtf8Bytes,
+  transliterateCyrillic,
 } from '../../handler/uniConvert';
+import { UPSIDE_DOWN } from '../../handler/uniTables';
 import { UNI_COMMAND_ENTRIES } from '../../handler/uniTransforms';
 
 const ZWJ = '‍';
@@ -46,7 +64,7 @@ const BUDGET = MAX_OUTPUT_LENGTH;
 const throwsInput = (action: () => unknown, message: string) =>
   assert.throws(action, (error: unknown) => error instanceof UniInputError && error.message === message);
 
-suite('Unicode Conversions (UNI-001..015) Test Suite', () => {
+suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
 
   suite('common helpers', () => {
     test('graphemes keep surrogate pairs, combining marks, CRLF and emoji sequences whole', () => {
@@ -275,6 +293,211 @@ suite('Unicode Conversions (UNI-001..015) Test Suite', () => {
       assert.strictEqual(extractEmoji('ok👍 go🚀'), '👍🚀');
       assert.strictEqual(extractEmoji(`a${SEQUENCES.join(' ')}b ©`), SEQUENCES.join(''));
       assert.strictEqual(extractEmoji('no emoji © #1'), '');
+    });
+  });
+
+  suite('UNI-016..019 styled letters', () => {
+    test('UNI-016: bold letters and digits', () => {
+      assert.strictEqual(toMathBold('abc'), '𝐚𝐛𝐜');
+      assert.strictEqual(toMathBold('AZaz09'), '𝐀𝐙𝐚𝐳𝟎𝟗');
+    });
+
+    test('UNI-017: italic letters; h is U+210E; digits stay', () => {
+      assert.strictEqual(toMathItalic('abc'), '𝑎𝑏𝑐');
+      assert.strictEqual(toMathItalic('hHz09'), 'ℎ𝐻𝑧09');
+    });
+
+    test('UNI-018: monospace letters and digits', () => {
+      assert.strictEqual(toMathMonospace('abc'), '𝚊𝚋𝚌');
+      assert.strictEqual(toMathMonospace('AZ09'), '𝙰𝚉𝟶𝟿');
+    });
+
+    test('UNI-019: circled letters and digits', () => {
+      assert.strictEqual(toCircled('abc'), 'ⓐⓑⓒ');
+      assert.strictEqual(toCircled('AZz0 19'), 'ⒶⓏⓩ⓪ ①⑨');
+    });
+
+    test('other characters, combining marks, surrogate pairs and line breaks stay', () => {
+      const other = `é é あ𠮷 ${FAMILY}\r\n-_.`;
+      for (const convert of [toMathBold, toMathItalic, toMathMonospace, toCircled]) {
+        assert.strictEqual(convert(other), other.replace(/e/g, convert('e')));
+      }
+    });
+  });
+
+  suite('UNI-020 upside-down text', () => {
+    test('characters from the table, graphemes and lines in reverse order', () => {
+      assert.strictEqual(toUpsideDown('hello'), 'ollǝɥ');
+      assert.strictEqual(toUpsideDown('ab\ncd'), 'pɔ\nqɐ');
+      assert.strictEqual(toUpsideDown('ab\r\ncd\n'), '\r\npɔ\nqɐ');
+      assert.strictEqual(toUpsideDown('Why? 69!'), '¡69 ¿ʎɥM');
+    });
+
+    test('turning twice gives the text back; the table maps both ways', () => {
+      for (const [from, to] of UPSIDE_DOWN) {
+        assert.strictEqual(UPSIDE_DOWN.get(to), from, from);
+      }
+      const text = 'The quick brown fox, (jumps) over [the] lazy dog!\n0123456789 & "quotes"';
+      assert.strictEqual(toUpsideDown(toUpsideDown(text)), text);
+    });
+
+    test('combining marks, surrogate pairs and emoji sequences stay whole', () => {
+      assert.strictEqual(toUpsideDown(`aé𠮷${FAMILY}${JAPAN}`), `${JAPAN}${FAMILY}𠮷ǝ́ɐ`);
+    });
+  });
+
+  suite('UNI-021 / 022 combining lines', () => {
+    test('a mark after every grapheme except line breaks, tabs and controls', () => {
+      assert.strictEqual(toStrikethrough('abc'), 'a̶b̶c̶');
+      assert.strictEqual(toUnderline('abc'), 'a̲b̲c̲');
+      assert.strictEqual(toStrikethrough('a b\tc\r\nd\u0007'), 'a̶ ̶b̶\tc̶\r\nd̶\u0007');
+    });
+
+    test('combining marks, surrogate pairs and emoji sequences are not split', () => {
+      assert.strictEqual(toUnderline(`é𠮷${FAMILY}`), `é̲𠮷̲${FAMILY}̲`);
+    });
+  });
+
+  suite('UNI-023 / 024 superscript and subscript', () => {
+    test('digits and signs (default)', () => {
+      assert.strictEqual(toSuperscript('x2', 'digits'), 'x²');
+      assert.strictEqual(toSuperscript('(a+b)=0123456789-', 'digits'), '⁽a⁺b⁾⁼⁰¹²³⁴⁵⁶⁷⁸⁹⁻');
+      assert.strictEqual(toSubscript('H2O', 'digits'), 'H₂O');
+      assert.strictEqual(toSubscript('(a+b)=0123456789-', 'digits'), '₍a₊b₎₌₀₁₂₃₄₅₆₇₈₉₋');
+    });
+
+    test('letters too; letters without a form stay', () => {
+      assert.strictEqual(toSuperscript('x2 qCHnm', 'letters'), 'ˣ² qCᴴⁿᵐ');
+      assert.strictEqual(toSubscript('H2O ax b', 'letters'), 'H₂O ₐₓ b');
+    });
+
+    test('other characters, surrogate pairs and line breaks stay', () => {
+      assert.strictEqual(toSuperscript('𠮷2\r\n²', 'letters'), '𠮷²\r\n²');
+    });
+  });
+
+  suite('UNI-025 detect confusable characters', () => {
+    const detect = (text: string): string[] => findConfusables(text, 10_000).map(({ start, end }) => text.slice(start, end));
+
+    test('rule A: a word with Latin letters and homoglyphs (words split at _ - . and spaces)', () => {
+      assert.deepStrictEqual(findConfusables('pаypal', 100), [{ start: 1, end: 2 }]);
+      assert.deepStrictEqual(detect('pаypal123'), ['а']);
+      assert.deepStrictEqual(detect('pаy-pal'), ['а']);
+      assert.deepStrictEqual(detect('user_nаme'), ['а']);
+      assert.deepStrictEqual(detect('Tοkyο'), ['ο', 'ο']);
+      assert.deepStrictEqual(detect('ΑPI'), ['Α']);
+    });
+
+    test('rule B: a word of Cyrillic homoglyphs only on a line with a Latin word', () => {
+      assert.deepStrictEqual(detect('login раура'), ['р', 'а', 'у', 'р', 'а']);
+      assert.deepStrictEqual(detect('раура.com'), ['р', 'а', 'у', 'р', 'а']);
+      assert.deepStrictEqual(detect('раура'), []);
+      assert.deepStrictEqual(detect('login а'), []);
+      assert.deepStrictEqual(detect('раура\nlogin'), []);
+      assert.deepStrictEqual(detect('x\r\nlogin раура\r\nраура'), ['р', 'а', 'у', 'р', 'а']);
+    });
+
+    test('ordinary Russian and Greek text is not detected', () => {
+      for (const text of ['а сок у оса', 'В лесу, а не в поле.', 'Я и ты, а сок', 'ο κόσμος και ο ήλιος', 'Hello Привет, а сок']) {
+        assert.deepStrictEqual(detect(text), [], text);
+      }
+    });
+
+    test('words of Greek homoglyphs only are left to rule A (Greek text mixed with English)', () => {
+      assert.deepStrictEqual(detect('Το API και το SDK'), []);
+      assert.deepStrictEqual(detect('ΑΡΙ key'), []);
+    });
+
+    test('stops once more than the limit was found', () => {
+      assert.strictEqual(findConfusables('pаypаl\n'.repeat(100), 5).length, 6);
+    });
+
+    test('the message lists each kind once, in order', () => {
+      assert.strictEqual(confusablesMessage(['а']), '1 confusable character found: "а" (U+0430) looks like "a"');
+      assert.strictEqual(confusablesMessage(['ο', 'а', 'ο']),
+        '3 confusable characters found: "ο" (U+03BF) looks like "o", "а" (U+0430) looks like "a"');
+      const many = [...'аеорсухіјѕԁԛ'];
+      assert.ok(confusablesMessage(many).endsWith('"ѕ" (U+0455) looks like "s", …'), confusablesMessage(many));
+    });
+  });
+
+  suite('UNI-026 detect bidi control characters', () => {
+    test('U+202A..202E and U+2066..2069 are found; other format characters are not', () => {
+      const text = 'a‪b‮c⁦d⁩e‎f​g؜';
+      assert.deepStrictEqual(findBidiControls(text, 100).map(({ start }) => text[start]), ['‪', '‮', '⁦', '⁩']);
+      assert.deepStrictEqual(findBidiControls('plain', 100), []);
+      assert.strictEqual(findBidiControls('‮'.repeat(20), 5).length, 6);
+    });
+
+    test('the message', () => {
+      assert.strictEqual(bidiControlsMessage(['‮']), '1 bidi control character found: U+202E (right-to-left override)');
+      assert.strictEqual(bidiControlsMessage(['⁧', '⁩', '⁧']),
+        '3 bidi control characters found: U+2067 (right-to-left isolate), U+2069 (pop directional isolate)');
+    });
+  });
+
+  suite('UNI-027 / 028 typography', () => {
+    test('UNI-027: opening and closing quotes, apostrophes', () => {
+      assert.strictEqual(toSmartQuotes('"a" it\'s'), '“a” it’s');
+      assert.strictEqual(toSmartQuotes('He said "\'hi\'" (\'x\') and "[y]".'), 'He said “‘hi’” (‘x’) and “[y]”.');
+      assert.strictEqual(toSmartQuotes('"a"\n"b"\r\n\'c\''), '“a”\n“b”\r\n‘c’');
+      assert.strictEqual(toSmartQuotes('rock \'n\' roll, the \'90s, dogs\' toys'), 'rock ‘n’ roll, the ‘90s, dogs’ toys');
+      assert.strictEqual(toSmartQuotes('a—"b"'), 'a—“b”');
+      assert.strictEqual(toSmartQuotes('𠮷\'s "𠮷"'), '𠮷’s “𠮷”');
+    });
+
+    test('UNI-028: exactly two hyphens and exactly three dots', () => {
+      assert.strictEqual(toTypographicPunctuation('wait... -- ok'), 'wait… — ok');
+      assert.strictEqual(toTypographicPunctuation('a-b -- c --- d .... e . f..'), 'a-b — c --- d .... e . f..');
+      assert.strictEqual(toTypographicPunctuation('---\ntitle: x\n---'), '---\ntitle: x\n---');
+    });
+  });
+
+  suite('UNI-029 detect scripts', () => {
+    test('scripts in order of appearance; digits, symbols, spaces and marks are not counted', () => {
+      assert.strictEqual(detectScriptsMessage(['abcあア漢']), 'Latin 3, Hiragana 1, Katakana 1, Han 1');
+      assert.strictEqual(detectScriptsMessage(['Привет, мир! 123', 'Γειά σου', 'é ー ㌔']), 'Cyrillic 9, Greek 7, Latin 1, Katakana 1');
+      assert.strictEqual(detectScriptsMessage(['한글 עברית ภาษา']), 'Hangul 2, Hebrew 5, Thai 4');
+      assert.strictEqual(detectScriptsMessage(['a\u{10300}']), 'Latin 1, Other 1');
+      assert.strictEqual(detectScriptsMessage([`${FAMILY} 123 ! ${JAPAN}`]), 'No letters of any script were found (only digits, symbols and spaces).');
+    });
+
+    test('thousands separators', () => {
+      assert.strictEqual(detectScriptsMessage(['a'.repeat(1234)]), 'Latin 1,234');
+    });
+  });
+
+  suite('UNI-030 transliterate Cyrillic', () => {
+    test('Russian, one fixed value per letter', () => {
+      assert.strictEqual(transliterateCyrillic('Привет'), 'Privet');
+      assert.strictEqual(transliterateCyrillic('Ельцин'), 'Eltsin');
+      assert.strictEqual(transliterateCyrillic('поезд'), 'poezd');
+      assert.strictEqual(transliterateCyrillic('съезд объём'), 'sezd obyom');
+      assert.strictEqual(transliterateCyrillic('г и'), 'g i');
+    });
+
+    test('Ukrainian, Belarusian, Serbian and Macedonian letters', () => {
+      assert.strictEqual(transliterateCyrillic('Україна'), 'Ukrayina');
+      assert.strictEqual(transliterateCyrillic('ґ ў є'), 'g w ye');
+      assert.strictEqual(transliterateCyrillic('Љубљана'), 'Ljubljana');
+      assert.strictEqual(transliterateCyrillic('ђ ћ џ ѓ ќ ѕ њ ј'), 'dj c dz gj kj dz nj j');
+    });
+
+    test('decomposed letters give the same result as precomposed ones', () => {
+      assert.strictEqual(transliterateCyrillic('й ё Й Ё ї ў'), transliterateCyrillic('й ё Й Ё ї ў'));
+      assert.strictEqual(transliterateCyrillic('й ё Й Ё ї ў'), 'y yo Y Yo yi w');
+    });
+
+    test('capitals: several letters are all upper case next to capitals', () => {
+      assert.strictEqual(transliterateCyrillic('ЖУК'), 'ZHUK');
+      assert.strictEqual(transliterateCyrillic('Жук'), 'Zhuk');
+      assert.strictEqual(transliterateCyrillic('Ж'), 'Zh');
+      assert.strictEqual(transliterateCyrillic('ПЛЮЩ'), 'PLYUSHCH');
+      assert.strictEqual(transliterateCyrillic('ОБЪЁМ'), 'OBYOM');
+    });
+
+    test('other characters stay', () => {
+      assert.strictEqual(transliterateCyrillic(`abc 123 あ𠮷 ${FAMILY}\r\nѢ`), `abc 123 あ𠮷 ${FAMILY}\r\nѢ`);
     });
   });
 

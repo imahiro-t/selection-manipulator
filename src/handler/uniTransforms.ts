@@ -10,8 +10,13 @@
  */
 import { assertUniInputLength, assertWithinBudget, UniTextRange } from './uniCommon';
 import {
+  bidiControlsMessage,
+  confusablesMessage,
   countGraphemesMessage,
+  detectScriptsMessage,
   extractEmoji,
+  findBidiControls,
+  findConfusables,
   fromCodePoints,
   normalizeText,
   removeControl,
@@ -19,9 +24,22 @@ import {
   removeNonAscii,
   removeZeroWidth,
   revealInvisible,
+  ScriptChoice,
+  toCircled,
   toCodePoints,
+  toMathBold,
+  toMathItalic,
+  toMathMonospace,
+  toSmartQuotes,
+  toStrikethrough,
+  toSubscript,
+  toSuperscript,
+  toTypographicPunctuation,
+  toUnderline,
+  toUpsideDown,
   toUtf16Units,
   toUtf8Bytes,
+  transliterateCyrillic,
 } from './uniConvert';
 
 /** Where a command puts its result. */
@@ -108,6 +126,18 @@ const withBudget = (convert: (value: string, context: UniContext, budget: number
 /** A transform of the whole text (line breaks kept). */
 const text = (convert: (value: string) => string): UniTransform => withBudget((value) => convert(value));
 
+/** The quick pick of UNI-023 / 024: which characters to convert. */
+const smallFormsPick = (kind: 'superscript' | 'subscript'): UniQuickPick => ({
+  placeHolder: `Which characters should become ${kind}s?`,
+  items: [
+    { label: 'Digits and Signs', description: '0-9 + - = ( )', value: 'digits' },
+    { label: 'Digits, Signs and Letters', description: `also the letters that have a ${kind} form`, value: 'letters' },
+  ],
+});
+
+/** The quick pick value of UNI-023 / 024 (the default when none was chosen). */
+const scriptChoice = (context: UniContext): ScriptChoice => (context.choice === 'letters' ? 'letters' : 'digits');
+
 /** The commands in the order of the UNI table of docs/ROADMAP.md. */
 export const UNI_COMMAND_ENTRIES: readonly UniCommandEntry[] = [
   {
@@ -170,5 +200,71 @@ export const UNI_COMMAND_ENTRIES: readonly UniCommandEntry[] = [
     id: 'UNI-015', name: 'unicode.extract-emoji', title: 'Unicode - Extract Emoji', output: 'new-tab',
     emptyMessage: 'No emoji was found in the selection.',
     transform: text(extractEmoji),
+  },
+  {
+    id: 'UNI-016', name: 'unicode.style-bold', title: 'Unicode - Mathematical Bold', output: 'replace',
+    transform: text(toMathBold),
+  },
+  {
+    id: 'UNI-017', name: 'unicode.style-italic', title: 'Unicode - Mathematical Italic', output: 'replace',
+    transform: text(toMathItalic),
+  },
+  {
+    id: 'UNI-018', name: 'unicode.style-monospace', title: 'Unicode - Mathematical Monospace', output: 'replace',
+    transform: text(toMathMonospace),
+  },
+  {
+    id: 'UNI-019', name: 'unicode.style-circled', title: 'Unicode - Circled Letters', output: 'replace',
+    transform: text(toCircled),
+  },
+  {
+    id: 'UNI-020', name: 'unicode.upside-down', title: 'Unicode - Upside Down Text', output: 'replace',
+    transform: text(toUpsideDown),
+  },
+  {
+    id: 'UNI-021', name: 'unicode.strikethrough', title: 'Unicode - Combining Strikethrough', output: 'replace',
+    transform: text(toStrikethrough),
+  },
+  {
+    id: 'UNI-022', name: 'unicode.underline', title: 'Unicode - Combining Underline', output: 'replace',
+    transform: text(toUnderline),
+  },
+  {
+    id: 'UNI-023', name: 'unicode.superscript', title: 'Unicode - Superscript', output: 'replace',
+    quickPick: smallFormsPick('superscript'),
+    transform: withBudget((value, context) => toSuperscript(value, scriptChoice(context))),
+  },
+  {
+    id: 'UNI-024', name: 'unicode.subscript', title: 'Unicode - Subscript', output: 'replace',
+    quickPick: smallFormsPick('subscript'),
+    transform: withBudget((value, context) => toSubscript(value, scriptChoice(context))),
+  },
+  {
+    id: 'UNI-025', name: 'unicode.detect-confusables', title: 'Unicode - Detect Confusable Characters', output: 'select',
+    noMatchMessage: 'No confusable characters were found.',
+    select: findConfusables,
+    foundMessage: confusablesMessage,
+  },
+  {
+    id: 'UNI-026', name: 'unicode.detect-bidi', title: 'Unicode - Detect Bidi Control Characters', output: 'select',
+    noMatchMessage: 'No bidi control characters were found.',
+    select: findBidiControls,
+    foundMessage: bidiControlsMessage,
+  },
+  {
+    id: 'UNI-027', name: 'unicode.smart-quotes', title: 'Unicode - Convert to Smart Quotes', output: 'replace',
+    transform: text(toSmartQuotes),
+  },
+  {
+    id: 'UNI-028', name: 'unicode.typographic-punctuation', title: 'Unicode - Typographic Dashes and Ellipsis', output: 'replace',
+    transform: text(toTypographicPunctuation),
+  },
+  {
+    id: 'UNI-029', name: 'unicode.detect-scripts', title: 'Unicode - Detect Scripts', output: 'notify',
+    combine: (texts) => detectScriptsMessage(texts),
+  },
+  {
+    id: 'UNI-030', name: 'unicode.transliterate-cyrillic', title: 'Unicode - Transliterate Cyrillic to Latin', output: 'replace',
+    transform: text(transliterateCyrillic),
   },
 ];

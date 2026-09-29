@@ -362,6 +362,112 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
     });
   });
 
+  suite('commands UNI-016..030', () => {
+    test('UNI-023 / 024: the quick pick offers digits and signs first, and letters too', async () => {
+      for (const [id, choice, input, expected] of [
+        ['UNI-023', 'digits', 'x2 + n', 'x² ⁺ n'],
+        ['UNI-023', 'letters', 'x2 + n', 'ˣ² ⁺ ⁿ'],
+        ['UNI-024', 'digits', 'H2O a', 'H₂O a'],
+        ['UNI-024', 'letters', 'H2O a', 'H₂O ₐ'],
+      ]) {
+        const { dependencies, picks } = recorder(choice);
+        const editor = await createTextEditor(input);
+        selectWholeDocument(editor);
+        await run(entryOf(id), dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), expected, `${id} ${choice}`);
+        assert.strictEqual(picks.length, 1);
+        assert.deepStrictEqual(picks[0].items.map((item) => item.value), ['digits', 'letters']);
+        assert.deepStrictEqual(picks[0].items.map((item) => item.label), ['Digits and Signs', 'Digits, Signs and Letters']);
+      }
+    });
+
+    test('UNI-023: cancelling the quick pick changes nothing', async () => {
+      const { dependencies, infos, warnings, errors } = recorder(undefined);
+      const editor = await createTextEditor('x2');
+      selectWholeDocument(editor);
+      await run(entryOf('UNI-023'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'x2');
+      assert.deepStrictEqual([infos, warnings, errors], [[], [], []]);
+    });
+
+    test('UNI-025: every confusable character is selected and each kind is listed once', async () => {
+      const { dependencies, infos } = recorder();
+      const blocks = ['pаypаl and login раура', 'Привет, а сок'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks, SEPARATOR, true);
+      await run(entryOf('UNI-025'), dependencies)(editor);
+      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), ['а', 'а', 'р', 'а', 'у', 'р', 'а']);
+      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.offsetAt(selection.start)), [1, 4, 17, 18, 19, 20, 21]);
+      assert.deepStrictEqual(infos, ['7 confusable characters found: "а" (U+0430) looks like "a", "р" (U+0440) looks like "p", "у" (U+0443) looks like "y"']);
+    });
+
+    test('UNI-025 / 026: nothing found keeps the selection and says so', async () => {
+      for (const [id, message] of [['UNI-025', 'No confusable characters were found.'], ['UNI-026', 'No bidi control characters were found.']]) {
+        const { dependencies, infos, errors } = recorder();
+        const editor = await createTextEditor('Το API και το SDK');
+        selectWholeDocument(editor);
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual([infos, errors], [[message], []], id);
+        assert.strictEqual(editor.document.getText(editor.selection), 'Το API και το SDK', id);
+      }
+    });
+
+    test('UNI-026: all bidi controls of all selections are selected', async () => {
+      const { dependencies, infos } = recorder();
+      const blocks = ['if (a‮) {⁦x⁩}', 'b‮'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('UNI-026'), dependencies)(editor);
+      assert.deepStrictEqual(editor.selections.map((selection) => editor.document.getText(selection)), ['‮', '⁦', '⁩', '‮']);
+      assert.deepStrictEqual(infos, ['4 bidi control characters found: U+202E (right-to-left override), U+2066 (left-to-right isolate), U+2069 (pop directional isolate)']);
+    });
+
+    test('UNI-029: all selections are counted together; no letters gives a message', async () => {
+      const { dependencies, infos } = recorder();
+      const blocks = ['Hello 123', 'Привет 漢字'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('UNI-029'), dependencies)(editor);
+      assert.deepStrictEqual(infos, ['Latin 5, Cyrillic 6, Han 2']);
+
+      const none = recorder();
+      const digits = await createTextEditor('123 !?');
+      selectWholeDocument(digits);
+      await run(entryOf('UNI-029'), none.dependencies)(digits);
+      assert.deepStrictEqual(none.infos, ['No letters of any script were found (only digits, symbols and spaces).']);
+    });
+
+    test('UNI-020 / 021 / 027 / 030: Replace keeps the CRLF line breaks', async () => {
+      const editor = await crlfEditor('ab\ncd');
+      selectWholeDocument(editor);
+      await run(entryOf('UNI-020'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'pɔ\r\nqɐ');
+      await run(entryOf('UNI-021'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'p̶ɔ̶\r\nq̶ɐ̶');
+
+      const quotes = await crlfEditor('"a"\n\'b\'');
+      selectWholeDocument(quotes);
+      await run(entryOf('UNI-027'), recorder().dependencies)(quotes);
+      assert.strictEqual(quotes.document.getText(), '“a”\r\n‘b’');
+
+      const cyrillic = await crlfEditor('Жук\nПЛЮЩ');
+      selectWholeDocument(cyrillic);
+      await run(entryOf('UNI-030'), recorder().dependencies)(cyrillic);
+      assert.strictEqual(cyrillic.document.getText(), 'Zhuk\r\nPLYUSHCH');
+    });
+
+    test('UNI-016 / 020 / 021: surrogate pairs, combining marks and emoji sequences are kept whole', async () => {
+      const editor = await createTextEditor(`a𠮷é${FAMILY}`);
+      selectWholeDocument(editor);
+      await run(entryOf('UNI-016'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), `𝐚𠮷𝐞́${FAMILY}`);
+      await run(entryOf('UNI-020'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), `${FAMILY}𝐞́𠮷𝐚`);
+      await run(entryOf('UNI-021'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), `${FAMILY}̶𝐞̶́𠮷̶𝐚̶`);
+    });
+  });
+
   suite('outputs for the other commands (fake command table)', () => {
     test('notify: all selections together in one message; a failure shows nothing', async () => {
       const ok = recorder();
@@ -469,9 +575,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       const rows = roadmapRows();
       assert.strictEqual(rows.length, 30);
       const byId = new Map(rows.map((row) => [row[0], row]));
-      // TODO(UNI-016..030): the rest of the table is added by the second implementation step;
-      // then every row must have an entry.
-      const order = rows.map(([id]) => id).slice(0, UNI_COMMAND_ENTRIES.length);
+      const order = rows.map(([id]) => id);
       assert.deepStrictEqual(UNI_COMMAND_ENTRIES.map((entry) => entry.id), order, 'the ROADMAP rows, in their order');
       assert.deepStrictEqual(Object.keys(UNI_ROADMAP_EXAMPLES).sort(), [...order].sort(), 'an example for every command');
       for (const entry of UNI_COMMAND_ENTRIES) {

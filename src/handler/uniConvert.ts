@@ -19,7 +19,28 @@ import {
   UniInputError,
   UniNoTargetError,
   UniOutputBuffer,
+  UniTextRange,
 } from './uniCommon';
+import {
+  CIRCLED_LOWER,
+  CIRCLED_ONE,
+  CIRCLED_UPPER,
+  CIRCLED_ZERO,
+  CYRILLIC_HOMOGLYPHS,
+  CYRILLIC_TO_LATIN,
+  GREEK_HOMOGLYPHS,
+  MATH_BOLD,
+  MATH_HOLES,
+  MATH_ITALIC,
+  MATH_MONOSPACE,
+  MathStyle,
+  SCRIPT_NAMES,
+  SUBSCRIPT_DIGITS,
+  SUBSCRIPT_LETTERS,
+  SUPERSCRIPT_DIGITS,
+  SUPERSCRIPT_LETTERS,
+  UPSIDE_DOWN,
+} from './uniTables';
 
 // ---------------------------------------------------------------------------------------------
 // UNI-001..004 Normalization
@@ -251,6 +272,514 @@ export const extractEmoji = (text: string): string => {
     if (isEmojiGrapheme(grapheme)) {
       parts.push(grapheme);
     }
+  }
+  return parts.join('');
+};
+
+// ---------------------------------------------------------------------------------------------
+// UNI-016..019 Styled letters
+// ---------------------------------------------------------------------------------------------
+
+const ASCII_ALPHANUMERIC = /[A-Za-z0-9]/g;
+
+const codeOf = (ch: string): number => ch.charCodeAt(0);
+
+/** The letters (and digits, when the style has them) of the text in a mathematical style. */
+const toMathStyle = (text: string, style: MathStyle): string =>
+  text.replace(ASCII_ALPHANUMERIC, (ch) => {
+    const code = codeOf(ch);
+    let styled: number;
+    if (code >= 0x61) {
+      styled = style.lower + code - 0x61;
+    } else if (code >= 0x41) {
+      styled = style.upper + code - 0x41;
+    } else if (style.digits !== undefined) {
+      styled = style.digits + code - 0x30;
+    } else {
+      return ch;
+    }
+    return MATH_HOLES.get(styled) ?? String.fromCodePoint(styled);
+  });
+
+/** UNI-016: A-Z, a-z and 0-9 in mathematical bold (`abc` → `𝐚𝐛𝐜`). */
+export const toMathBold = (text: string): string => toMathStyle(text, MATH_BOLD);
+
+/** UNI-017: A-Z and a-z in mathematical italic (`abc` → `𝑎𝑏𝑐`); the digits stay. */
+export const toMathItalic = (text: string): string => toMathStyle(text, MATH_ITALIC);
+
+/** UNI-018: A-Z, a-z and 0-9 in mathematical monospace (`abc` → `𝚊𝚋𝚌`). */
+export const toMathMonospace = (text: string): string => toMathStyle(text, MATH_MONOSPACE);
+
+/** UNI-019: A-Z → Ⓐ..Ⓩ, a-z → ⓐ..ⓩ, 0 → ⓪, 1-9 → ①..⑨ (`abc` → `ⓐⓑⓒ`). */
+export const toCircled = (text: string): string =>
+  text.replace(ASCII_ALPHANUMERIC, (ch) => {
+    const code = codeOf(ch);
+    if (code >= 0x61) {
+      return String.fromCharCode(CIRCLED_LOWER + code - 0x61);
+    }
+    if (code >= 0x41) {
+      return String.fromCharCode(CIRCLED_UPPER + code - 0x41);
+    }
+    return String.fromCharCode(code === 0x30 ? CIRCLED_ZERO : CIRCLED_ONE + code - 0x31);
+  });
+
+// ---------------------------------------------------------------------------------------------
+// UNI-020 Upside-down text
+// ---------------------------------------------------------------------------------------------
+
+/** A grapheme upside down: its first character from the table, its combining marks kept. */
+const turnGrapheme = (grapheme: string): string => {
+  const first = String.fromCodePoint(grapheme.codePointAt(0)!);
+  const turned = UPSIDE_DOWN.get(first);
+  return turned === undefined ? grapheme : turned + grapheme.slice(first.length);
+};
+
+/**
+ * UNI-020: the text turned by 180 degrees: every character that has an upside-down form in the
+ * table is replaced, the graphemes of every line are reversed and so is the order of the lines
+ * (`hello` → `ollǝɥ`). The line breaks stay where they are; other characters are kept.
+ */
+export const toUpsideDown = (text: string): string => {
+  const lines: string[] = [];
+  const breaks: string[] = [];
+  forEachUniLine(text, (line, lineBreak) => {
+    const turned: string[] = [];
+    for (const grapheme of graphemes(line)) {
+      turned.push(turnGrapheme(grapheme));
+    }
+    lines.push(turned.reverse().join(''));
+    breaks.push(lineBreak);
+  });
+  lines.reverse();
+  return lines.map((line, i) => line + breaks[i]).join('');
+};
+
+// ---------------------------------------------------------------------------------------------
+// UNI-021 / 022 Combining strikethrough and underline
+// ---------------------------------------------------------------------------------------------
+
+/** A grapheme that gets no combining line: a line break, a tab or another control character. */
+const NO_COMBINING_LINE = /^\p{Cc}+$/u;
+
+/** Every grapheme except line breaks, tabs and control characters followed by `mark`. */
+const withCombiningMark = (text: string, mark: string): string => {
+  const parts: string[] = [];
+  for (const grapheme of graphemes(text)) {
+    parts.push(NO_COMBINING_LINE.test(grapheme) ? grapheme : grapheme + mark);
+  }
+  return parts.join('');
+};
+
+/** UNI-021: U+0336 after every grapheme (`abc` → `a̶b̶c̶`). */
+export const toStrikethrough = (text: string): string => withCombiningMark(text, '̶');
+
+/** UNI-022: U+0332 after every grapheme (`abc` → `a̲b̲c̲`). */
+export const toUnderline = (text: string): string => withCombiningMark(text, '̲');
+
+// ---------------------------------------------------------------------------------------------
+// UNI-023 / 024 Superscript and subscript
+// ---------------------------------------------------------------------------------------------
+
+/** The quick pick values of UNI-023 / 024. */
+export type ScriptChoice = 'digits' | 'letters';
+
+const DIGITS_AND_SIGNS = /[0-9+\-=()]/g;
+const DIGITS_SIGNS_AND_LETTERS = /[0-9A-Za-z+\-=()]/g;
+
+const withSmallForms = (text: string, digits: ReadonlyMap<string, string>, letters: ReadonlyMap<string, string>, choice: ScriptChoice): string =>
+  choice === 'letters'
+    ? text.replace(DIGITS_SIGNS_AND_LETTERS, (ch) => digits.get(ch) ?? letters.get(ch) ?? ch)
+    : text.replace(DIGITS_AND_SIGNS, (ch) => digits.get(ch)!);
+
+/**
+ * UNI-023: the digits and `+ - = ( )` as superscripts (`x2` → `x²`); with `letters`, the letters
+ * that have a superscript form too. Other characters stay.
+ */
+export const toSuperscript = (text: string, choice: ScriptChoice): string =>
+  withSmallForms(text, SUPERSCRIPT_DIGITS, SUPERSCRIPT_LETTERS, choice);
+
+/** UNI-024: as UNI-023 with subscripts (`H2O` → `H₂O`). */
+export const toSubscript = (text: string, choice: ScriptChoice): string =>
+  withSmallForms(text, SUBSCRIPT_DIGITS, SUBSCRIPT_LETTERS, choice);
+
+// ---------------------------------------------------------------------------------------------
+// UNI-025 Confusable characters
+// ---------------------------------------------------------------------------------------------
+
+/** A word: a run of letters, combining marks and digits. Anything else separates words. */
+const WORD = /[\p{L}\p{M}\p{N}]+/gu;
+const LATIN = /^\p{Script=Latin}$/u;
+const CYRILLIC_OR_GREEK = /^[\p{Script=Cyrillic}\p{Script=Greek}]$/u;
+const LETTER = /^\p{L}$/u;
+
+/** What a code point is to the confusable check. */
+enum Kind {
+  Other,
+  Latin,
+  /** A Cyrillic letter of the homoglyph table. */
+  CyrillicHomoglyph,
+  /** A Greek letter of the homoglyph table. */
+  GreekHomoglyph,
+  /** A Cyrillic or Greek character that is not in the table (`я`, `λ`, `ή`). */
+  OtherCyrillicOrGreek,
+}
+
+/** The kind of every code point met so far (a text uses few distinct characters). */
+const kindCache = new Map<number, Kind>();
+
+const kindOf = (ch: string): Kind => {
+  const code = ch.codePointAt(0)!;
+  let kind = kindCache.get(code);
+  if (kind === undefined) {
+    if (CYRILLIC_HOMOGLYPHS.has(ch)) {
+      kind = Kind.CyrillicHomoglyph;
+    } else if (GREEK_HOMOGLYPHS.has(ch)) {
+      kind = Kind.GreekHomoglyph;
+    } else if (code < 0x80) {
+      kind = /[A-Za-z]/.test(ch) ? Kind.Latin : Kind.Other;
+    } else if (LATIN.test(ch)) {
+      kind = Kind.Latin;
+    } else if (CYRILLIC_OR_GREEK.test(ch)) {
+      kind = Kind.OtherCyrillicOrGreek;
+    } else {
+      kind = Kind.Other;
+    }
+    kindCache.set(code, kind);
+  }
+  return kind;
+};
+
+interface WordInfo {
+  /** The homoglyphs of the word: offsets into the text. */
+  homoglyphs: UniTextRange[];
+  hasLatin: boolean;
+  hasGreekHomoglyph: boolean;
+  hasOtherCyrillicOrGreek: boolean;
+  /** Letters (`\p{L}`) that are not homoglyphs, e.g. a letter of another script. */
+  hasOtherLetter: boolean;
+  letters: number;
+}
+
+const describeWord = (word: string, offset: number): WordInfo => {
+  const info: WordInfo = {
+    homoglyphs: [], hasLatin: false, hasGreekHomoglyph: false, hasOtherCyrillicOrGreek: false, hasOtherLetter: false, letters: 0,
+  };
+  let i = 0;
+  for (const ch of word) {
+    const kind = kindOf(ch);
+    const isLetter = kind !== Kind.Other || LETTER.test(ch);
+    if (isLetter) {
+      info.letters++;
+    }
+    switch (kind) {
+      case Kind.Latin:
+        info.hasLatin = true;
+        break;
+      case Kind.GreekHomoglyph:
+        info.hasGreekHomoglyph = true;
+        info.homoglyphs.push({ start: offset + i, end: offset + i + ch.length });
+        break;
+      case Kind.CyrillicHomoglyph:
+        info.homoglyphs.push({ start: offset + i, end: offset + i + ch.length });
+        break;
+      case Kind.OtherCyrillicOrGreek:
+        info.hasOtherCyrillicOrGreek = true;
+        break;
+      default:
+        if (isLetter) {
+          info.hasOtherLetter = true;
+        }
+    }
+    i += ch.length;
+  }
+  return info;
+};
+
+/** The words of one line (`start`..`end` of the text), described. */
+const wordsOfLine = (text: string, start: number, end: number): WordInfo[] => {
+  const line = text.slice(start, end);
+  const words: WordInfo[] = [];
+  for (const match of line.matchAll(WORD)) {
+    words.push(describeWord(match[0], start + match.index!));
+  }
+  return words;
+};
+
+/**
+ * UNI-025: the homoglyphs (Cyrillic / Greek letters of the table that look like Latin letters) to
+ * select, found by two rules on the words (runs of letters, combining marks and digits) of every
+ * line:
+ *
+ * - A (mixed): a word with a Latin letter and a homoglyph: all its homoglyphs (`pаypal`, `pаy-pal`).
+ * - B (spoofed word): a word of 2 letters or more made only of Cyrillic homoglyphs (digits and
+ *   marks allowed), on a line that has a word with a Latin letter and no Cyrillic / Greek
+ *   character outside the table (`login раура`, `раура.com`). Words made of Greek homoglyphs are
+ *   left to rule A: common Greek words such as `το` and `και` are made of homoglyphs only and
+ *   Greek text often mixes English words (`Το API και το SDK`).
+ *
+ * Stops once more than `limit` ranges were found.
+ */
+export const findConfusables = (text: string, limit: number): UniTextRange[] => {
+  const found: UniTextRange[] = [];
+  let start = 0;
+  while (start <= text.length && found.length <= limit) {
+    let end = start;
+    while (end < text.length && text.charCodeAt(end) !== 0x0a && text.charCodeAt(end) !== 0x0d) {
+      end++;
+    }
+    const words = wordsOfLine(text, start, end);
+    const hasLatinWord = words.some((word) => word.hasLatin);
+    const hasOtherCyrillicOrGreek = words.some((word) => word.hasOtherCyrillicOrGreek);
+    for (const word of words) {
+      if (word.homoglyphs.length === 0) {
+        continue;
+      }
+      const mixed = word.hasLatin;
+      const spoofed = !word.hasLatin && !word.hasGreekHomoglyph && !word.hasOtherCyrillicOrGreek && !word.hasOtherLetter
+        && word.letters >= 2 && hasLatinWord && !hasOtherCyrillicOrGreek;
+      if (mixed || spoofed) {
+        found.push(...word.homoglyphs);
+        if (found.length > limit) {
+          break;
+        }
+      }
+    }
+    if (end === text.length) {
+      break;
+    }
+    // CRLF is one line break.
+    start = text.charCodeAt(end) === 0x0d && text.charCodeAt(end + 1) === 0x0a ? end + 2 : end + 1;
+  }
+  return found;
+};
+
+/** How many kinds of character the found messages of UNI-025 / 026 list at most. */
+const MAX_LISTED_KINDS = 10;
+
+/** The distinct texts in order of their first appearance, at most MAX_LISTED_KINDS, then `…`. */
+const listKinds = (found: readonly string[], describe: (text: string) => string): string => {
+  const kinds = [...new Set(found)];
+  const listed = kinds.slice(0, MAX_LISTED_KINDS).map(describe);
+  return kinds.length > MAX_LISTED_KINDS ? `${listed.join(', ')}, …` : listed.join(', ');
+};
+
+const homoglyphOf = (ch: string): string => CYRILLIC_HOMOGLYPHS.get(ch) ?? GREEK_HOMOGLYPHS.get(ch) ?? '?';
+
+/**
+ * UNI-025: the message after selecting (`1 confusable character found: "а" (U+0430) looks like
+ * "a"`); every kind of character once, in order of appearance.
+ */
+export const confusablesMessage = (found: readonly string[]): string =>
+  `${plural(found.length, 'confusable character')} found: ${listKinds(found,
+    (ch) => `"${ch}" (${formatCodePoint(ch.codePointAt(0)!)}) looks like "${homoglyphOf(ch)}"`)}`;
+
+// ---------------------------------------------------------------------------------------------
+// UNI-026 Bidi control characters
+// ---------------------------------------------------------------------------------------------
+
+/** The bidirectional embedding, override and isolate controls (Trojan Source). */
+const BIDI_CONTROL = /[‪-‮⁦-⁩]/g;
+
+const BIDI_NAMES: ReadonlyMap<number, string> = new Map([
+  [0x202a, 'left-to-right embedding'],
+  [0x202b, 'right-to-left embedding'],
+  [0x202c, 'pop directional formatting'],
+  [0x202d, 'left-to-right override'],
+  [0x202e, 'right-to-left override'],
+  [0x2066, 'left-to-right isolate'],
+  [0x2067, 'right-to-left isolate'],
+  [0x2068, 'first strong isolate'],
+  [0x2069, 'pop directional isolate'],
+]);
+
+/** UNI-026: the bidi control characters U+202A..202E and U+2066..2069 to select. */
+export const findBidiControls = (text: string, limit: number): UniTextRange[] => {
+  const found: UniTextRange[] = [];
+  for (const match of text.matchAll(BIDI_CONTROL)) {
+    found.push({ start: match.index!, end: match.index! + 1 });
+    if (found.length > limit) {
+      break;
+    }
+  }
+  return found;
+};
+
+/**
+ * UNI-026: the message after selecting (`1 bidi control character found: U+202E (right-to-left
+ * override)`); every kind once, in order of appearance.
+ */
+export const bidiControlsMessage = (found: readonly string[]): string =>
+  `${plural(found.length, 'bidi control character')} found: ${listKinds(found, (ch) => {
+    const code = ch.codePointAt(0)!;
+    return `${formatCodePoint(code)} (${BIDI_NAMES.get(code) ?? 'unknown'})`;
+  })}`;
+
+// ---------------------------------------------------------------------------------------------
+// UNI-027 / 028 Typography
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * What an opening quote may follow: nothing (the start of the text), a line break, white space,
+ * an opening bracket, an opening quote or a dash.
+ */
+const OPENS_AFTER = /^[\s([{<“‘\-–—]$/u;
+const ALPHANUMERIC = /^[\p{L}\p{N}]$/u;
+
+/**
+ * UNI-027: straight quotes as curly quotes (`"a" it's` → `“a” it’s`). `"` is `“` at the start of
+ * the text or a line, after white space, an opening bracket or quote or a dash, and `”` elsewhere.
+ * `'` between two letters or digits is the apostrophe `’`; otherwise it is `‘` where `"` would be
+ * `“` and `’` elsewhere.
+ */
+export const toSmartQuotes = (text: string): string => {
+  const chars = Array.from(text);
+  const parts: string[] = [];
+  let previous = '';
+  chars.forEach((ch, i) => {
+    let out = ch;
+    if (ch === '"' || ch === '\'') {
+      const opens = previous === '' || OPENS_AFTER.test(previous);
+      if (ch === '"') {
+        out = opens ? '“' : '”';
+      } else if (ALPHANUMERIC.test(previous) && i + 1 < chars.length && ALPHANUMERIC.test(chars[i + 1])) {
+        out = '’';
+      } else {
+        out = opens ? '‘' : '’';
+      }
+    }
+    parts.push(out);
+    previous = out;
+  });
+  return parts.join('');
+};
+
+const DASHES_AND_DOTS = /-+|\.+/g;
+
+/**
+ * UNI-028: exactly two hyphens as an em dash and exactly three dots as an ellipsis (`wait... -- ok`
+ * → `wait… — ok`); other runs (`---`, `....`) stay.
+ */
+export const toTypographicPunctuation = (text: string): string =>
+  text.replace(DASHES_AND_DOTS, (run) => (run === '--' ? '—' : run === '...' ? '…' : run));
+
+// ---------------------------------------------------------------------------------------------
+// UNI-029 Scripts
+// ---------------------------------------------------------------------------------------------
+
+/** Characters that belong to no particular script: digits, symbols, spaces, combining marks. */
+const NO_SCRIPT = /^[\p{Script=Common}\p{Script=Inherited}\p{Script=Unknown}]$/u;
+
+/** One expression per script of SCRIPT_NAMES, made once. */
+const SCRIPT_TESTS: readonly [string, RegExp][] = SCRIPT_NAMES.map((name) => [name, new RegExp(`^\\p{Script=${name}}$`, 'u')]);
+
+/** The script of every code point met so far (`null`: no script). */
+const scriptCache = new Map<number, string | null>();
+
+const scriptOf = (code: number, ch: string): string | null => {
+  let script = scriptCache.get(code);
+  if (script === undefined) {
+    if (code < 0x80) {
+      script = /[A-Za-z]/.test(ch) ? 'Latin' : null;
+    } else if (NO_SCRIPT.test(ch)) {
+      script = null;
+    } else {
+      script = SCRIPT_TESTS.find(([, test]) => test.test(ch))?.[0] ?? 'Other';
+    }
+    scriptCache.set(code, script);
+  }
+  return script;
+};
+
+/**
+ * UNI-029: the scripts of all selections together with the number of their characters, in order
+ * of appearance (`abcあア漢` → `Latin 3, Hiragana 1, Katakana 1, Han 1`). Digits, symbols,
+ * spaces and combining marks (Common / Inherited) are not counted; a script outside SCRIPT_NAMES
+ * is counted as `Other`.
+ */
+export const detectScriptsMessage = (texts: readonly string[]): string => {
+  const counts = new Map<string, number>();
+  for (const text of texts) {
+    for (const ch of text) {
+      const script = scriptOf(ch.codePointAt(0)!, ch);
+      if (script !== null) {
+        counts.set(script, (counts.get(script) ?? 0) + 1);
+      }
+    }
+  }
+  if (counts.size === 0) {
+    return 'No letters of any script were found (only digits, symbols and spaces).';
+  }
+  return [...counts].map(([script, count]) => `${script} ${count.toLocaleString('en-US')}`).join(', ');
+};
+
+// ---------------------------------------------------------------------------------------------
+// UNI-030 Cyrillic to Latin
+// ---------------------------------------------------------------------------------------------
+
+/** CYRILLIC_TO_LATIN with the upper-case keys added (`upper` = the key was upper case). */
+const TRANSLITERATION: ReadonlyMap<string, { value: string; upper: boolean }> = new Map(
+  [...CYRILLIC_TO_LATIN].flatMap(([key, value]) => [
+    [key, { value, upper: false }],
+    [key.toUpperCase(), { value, upper: true }],
+  ] as [string, { value: string; upper: boolean }][])
+);
+
+const UPPER = /^\p{Lu}$/u;
+
+const isUpperAt = (text: string, index: number): boolean => {
+  const code = text.codePointAt(index);
+  return code !== undefined && UPPER.test(String.fromCodePoint(code));
+};
+
+const isLetterAt = (text: string, index: number): boolean => {
+  const code = text.codePointAt(index);
+  return code !== undefined && LETTER.test(String.fromCodePoint(code));
+};
+
+/** The code point before `index` (`''` at the start). */
+const previousChar = (text: string, index: number): string => {
+  if (index === 0) {
+    return '';
+  }
+  const low = text.charCodeAt(index - 1);
+  return index >= 2 && low >= 0xdc00 && low <= 0xdfff ? text.slice(index - 2, index) : text[index - 1];
+};
+
+/**
+ * UNI-030: Cyrillic letters as Latin letters, one fixed value per letter (`Привет` → `Privet`,
+ * `Ельцин` → `Eltsin`). The value of an upper-case letter is upper case; a value of several
+ * letters is all upper case when the next character is an upper-case letter, or when the next
+ * character is no letter and the previous one is an upper-case letter (`ЖУК` → `ZHUK`, `ПЛЮЩ` →
+ * `PLYUSHCH`), and capitalized otherwise (`Жук` → `Zhuk`, `Ж` → `Zh`). Other characters stay.
+ */
+export const transliterateCyrillic = (text: string): string => {
+  const parts: string[] = [];
+  let i = 0;
+  while (i < text.length) {
+    // A decomposed letter (two code units) first, then a single letter.
+    let length = 2;
+    let entry = TRANSLITERATION.get(text.slice(i, i + 2));
+    if (entry === undefined) {
+      length = 1;
+      entry = TRANSLITERATION.get(text[i]);
+    }
+    if (entry === undefined) {
+      parts.push(text[i]);
+      i++;
+      continue;
+    }
+    const { value, upper } = entry;
+    if (!upper || value === '') {
+      parts.push(value);
+    } else if (value.length === 1) {
+      parts.push(value.toUpperCase());
+    } else {
+      const next = i + length;
+      const allUpper = isUpperAt(text, next)
+        || (!isLetterAt(text, next) && isUpperAt(previousChar(text, i), 0));
+      parts.push(allUpper ? value.toUpperCase() : value[0].toUpperCase() + value.slice(1));
+    }
+    i += length;
   }
   return parts.join('');
 };

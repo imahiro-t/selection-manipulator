@@ -3531,6 +3531,81 @@ export const myCommands = [
     "command": "selection-manipulator.unicode.extract-emoji",
     "title": "Unicode - Extract Emoji",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-bold",
+    "title": "Unicode - Mathematical Bold",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-italic",
+    "title": "Unicode - Mathematical Italic",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-monospace",
+    "title": "Unicode - Mathematical Monospace",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-circled",
+    "title": "Unicode - Circled Letters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.upside-down",
+    "title": "Unicode - Upside Down Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.strikethrough",
+    "title": "Unicode - Combining Strikethrough",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.underline",
+    "title": "Unicode - Combining Underline",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.superscript",
+    "title": "Unicode - Superscript",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.subscript",
+    "title": "Unicode - Subscript",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.detect-confusables",
+    "title": "Unicode - Detect Confusable Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.detect-bidi",
+    "title": "Unicode - Detect Bidi Control Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.smart-quotes",
+    "title": "Unicode - Convert to Smart Quotes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.typographic-punctuation",
+    "title": "Unicode - Typographic Dashes and Ellipsis",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.detect-scripts",
+    "title": "Unicode - Detect Scripts",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.transliterate-cyrillic",
+    "title": "Unicode - Transliterate Cyrillic to Latin",
+    "canMultiSelection": true
   }
 ];
 

@@ -3651,6 +3651,81 @@
         "command": "selection-manipulator.unicode.extract-emoji",
         "title": "Unicode - Extract Emoji",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-bold",
+        "title": "Unicode - Mathematical Bold",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-italic",
+        "title": "Unicode - Mathematical Italic",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-monospace",
+        "title": "Unicode - Mathematical Monospace",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-circled",
+        "title": "Unicode - Circled Letters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.upside-down",
+        "title": "Unicode - Upside Down Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.strikethrough",
+        "title": "Unicode - Combining Strikethrough",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.underline",
+        "title": "Unicode - Combining Underline",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.superscript",
+        "title": "Unicode - Superscript",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.subscript",
+        "title": "Unicode - Subscript",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.detect-confusables",
+        "title": "Unicode - Detect Confusable Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.detect-bidi",
+        "title": "Unicode - Detect Bidi Control Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.smart-quotes",
+        "title": "Unicode - Convert to Smart Quotes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.typographic-punctuation",
+        "title": "Unicode - Typographic Dashes and Ellipsis",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.detect-scripts",
+        "title": "Unicode - Detect Scripts",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.transliterate-cyrillic",
+        "title": "Unicode - Transliterate Cyrillic to Latin",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -5994,6 +6069,66 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.unicode.extract-emoji"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-bold"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-italic"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-monospace"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-circled"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.upside-down"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.strikethrough"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.underline"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.superscript"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.subscript"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.detect-confusables"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.detect-bidi"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.smart-quotes"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.typographic-punctuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.detect-scripts"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.transliterate-cyrillic"
         }
       ],
       "editor/context": [
@@ -9029,6 +9164,66 @@
         {
           "command": "selection-manipulator.unicode.extract-emoji",
           "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-bold",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-italic",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-monospace",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-circled",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.unicode.upside-down",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.unicode.strikethrough",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.unicode.underline",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.unicode.superscript",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.unicode.subscript",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.unicode.detect-confusables",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.unicode.detect-bidi",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.unicode.smart-quotes",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.unicode.typographic-punctuation",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.unicode.detect-scripts",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.unicode.transliterate-cyrillic",
+          "group": "selection-manipulator@29"
         }
       ]
     }
