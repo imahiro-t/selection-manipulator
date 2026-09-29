@@ -441,11 +441,13 @@ export const jsonLinesToJson = (text: string): string => {
 // ---------------------------------------------------------------------------------------------
 
 /**
- * Upper limit of the mappings / sequences of a YAML selection that uses anchors and aliases.
- * js-yaml looks for repeated references with a linear search per object when the references are
- * kept, which takes quadratic time; without aliases the references are not tracked at all.
+ * Upper limit of (mappings and sequences) x (references to them) of a YAML selection that uses
+ * anchors and aliases. When the references are kept, js-yaml finds repeated objects with linear
+ * searches: once per reference over all objects seen so far, and once per written object over the
+ * shared ones, so writing takes time proportional to this product (well under a second at the limit on a
+ * current machine). Without aliases the references are not tracked at all and writing is linear.
  */
-export const YAML_MAX_CONTAINERS_WITH_ALIASES = 50_000;
+export const YAML_MAX_ALIAS_WORK = 300_000_000;
 
 /** A line that holds no YAML value: blank, a comment or a document marker (checked without a regular expression). */
 const isEmptyYamlLine = (line: string): boolean => {
@@ -472,9 +474,11 @@ export const formatYaml = (text: string, sortKeys: boolean): string => {
   }
   // Aliases share objects: visit each once (depth check), and learn whether any is shared.
   const graph = inspectGraph(value);
-  if (graph.shared && graph.containers > YAML_MAX_CONTAINERS_WITH_ALIASES) {
+  if (graph.shared && graph.containers * graph.references > YAML_MAX_ALIAS_WORK) {
+    const count = (n: number) => n.toLocaleString('en-US');
     throw new DataInputError(
-      `YAML with anchors and aliases is limited to ${YAML_MAX_CONTAINERS_WITH_ALIASES.toLocaleString('en-US')} mappings and sequences`
+      `YAML with anchors and aliases is too large: ${count(graph.containers)} mappings and sequences`
+      + ` x ${count(graph.references)} references to them is more than the limit of ${count(YAML_MAX_ALIAS_WORK)}`
     );
   }
   let dumped: string;

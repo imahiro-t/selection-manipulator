@@ -67,6 +67,11 @@ export interface GraphInfo {
   shared: boolean;
   /** Number of distinct objects / arrays. */
   containers: number;
+  /**
+   * Number of references to objects / arrays: every object / array property value or array
+   * element that is one, counting each repeated visit through an alias (the root is not counted).
+   */
+  references: number;
 }
 
 /**
@@ -77,7 +82,7 @@ export interface GraphInfo {
  * is remembered): the time is linear in the number of distinct objects and references.
  */
 export const inspectGraph = (root: unknown): GraphInfo => {
-  const info: GraphInfo = { shared: false, containers: 0 };
+  const info: GraphInfo = { shared: false, containers: 0, references: 0 };
   if (typeof root !== 'object' || root === null) {
     return info;
   }
@@ -101,6 +106,7 @@ export const inspectGraph = (root: unknown): GraphInfo => {
       if (typeof child !== 'object' || child === null) {
         continue;
       }
+      info.references++;
       const known = heights.get(child);
       if (known === undefined) {
         enter(child);

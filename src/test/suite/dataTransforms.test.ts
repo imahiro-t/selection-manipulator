@@ -22,7 +22,7 @@ import {
   formatYaml,
   mergeJsonObjects,
   parseJson,
-  YAML_MAX_CONTAINERS_WITH_ALIASES,
+  YAML_MAX_ALIAS_WORK,
 } from '../../handler/dataTransforms';
 import { parseToml } from '../../handler/tomlParser';
 import { toXml } from '../../handler/dataWriters';
@@ -500,8 +500,8 @@ suite('Data Transforms (DATA) Test Suite', () => {
       for (let i = 0; i < 60; i++) {
         shared = [shared, shared];
       }
-      assert.deepStrictEqual(withinBudget(500, () => inspectGraph(shared)), { shared: true, containers: 61 });
-      assert.deepStrictEqual(inspectGraph({ a: [1], b: { c: null } }), { shared: false, containers: 3 });
+      assert.deepStrictEqual(withinBudget(500, () => inspectGraph(shared)), { shared: true, containers: 61, references: 120 });
+      assert.deepStrictEqual(inspectGraph({ a: [1], b: { c: null } }), { shared: false, containers: 3, references: 2 });
       const nested = (depth: number): unknown => {
         let value: unknown = [];
         for (let i = 1; i < depth; i++) {
@@ -526,7 +526,41 @@ suite('Data Transforms (DATA) Test Suite', () => {
       withinBudget(2_000, () => formatYaml('- a: 1\n'.repeat(200_000), false));
       const aliased = (count: number) => `a: &x {b: 1}\nc: *x\nl:\n${'  - []\n'.repeat(count)}`;
       assert.ok(formatYaml(aliased(1_000), false).includes('c: *ref_0'));
-      rejects(() => formatYaml(aliased(YAML_MAX_CONTAINERS_WITH_ALIASES), false), /limited to 50,000 mappings and sequences/);
+      rejects(
+        () => formatYaml(aliased(20_000), false),
+        /anchors and aliases is too large: 20,003 mappings and sequences x 20,003 references to them is more than the limit of 300,000,000/
+      );
+    });
+
+    // js-yaml's dumper takes time proportional to (mappings and sequences) x (references) when
+    // aliases are kept, so both counts are limited together (the budgets are generous for slow CI
+    // machines but far below the 5 to 20 seconds these inputs took before the limit).
+    test('YAML with aliases: many references to one anchor are limited (no containers x references time)', () => {
+      const shape = (containers: number, references: number) =>
+        `x:\n${'- []\n'.repeat(containers)}s: &a []\nz: [${Array(references).fill('*a').join(', ')}]\n`;
+      // 49,003 mappings and sequences, 849,002 references (took about 22 s).
+      rejects(() => withinBudget(5_000, () => formatYaml(shape(49_000, 800_000), false)), /anchors and aliases is too large/);
+      // Just under the limit (5,004 x 55,003): kept as references and written quickly.
+      assert.ok(5_004 * 55_003 <= YAML_MAX_ALIAS_WORK);
+      const result = withinBudget(3_000, () => formatYaml(shape(5_000, 50_000), true));
+      // Keys sorted: the anchor comes first, the aliases after it.
+      assert.ok(result.startsWith('s: &ref_0 []\nx:\n'), result.slice(0, 200));
+      assert.ok(result.endsWith('  - *ref_0\n'), result.slice(-100));
+    });
+
+    test('YAML with aliases: many anchors each referenced many times are limited', () => {
+      const anchors = (count: number) => Array.from({ length: count }, (_, i) => `- &a${i} []\n`).join('');
+      const refs = (count: number) => `- [${Array.from({ length: count }, (_, i) => `*a${i}`).join(', ')}]\n`;
+      // 24,000 anchors each referenced 20 times, about 4.5 million characters (took about 21 s).
+      const manyRefs = `a:\n${anchors(24_000)}b:\n${refs(24_000).repeat(20)}`;
+      rejects(() => withinBudget(5_000, () => formatYaml(manyRefs, false)), /anchors and aliases is too large/);
+      // 49,000 anchor / alias pairs (took about 5 s).
+      const pairs = Array.from({ length: 49_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
+      rejects(() => withinBudget(3_000, () => formatYaml(pairs, false)), /anchors and aliases is too large/);
+      // 12,000 pairs (12,001 x 24,000) are within the limit and written quickly.
+      const fewer = Array.from({ length: 12_000 }, (_, i) => `- &a${i} []\n- *a${i}\n`).join('');
+      const result = withinBudget(3_000, () => formatYaml(fewer, true));
+      assert.ok(result.endsWith('- *ref_11999\n'), result.slice(-100));
     });
 
     test('the "no YAML value" check has no quadratic regular expression', () => {
