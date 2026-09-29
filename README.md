@@ -2,7 +2,7 @@
 
 **The Ultimate Text Processing Toolkit for VS Code**
 
-Selection Manipulator offers over **700 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
+Selection Manipulator offers over **800 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
 ## ✨ Features
 
@@ -17,6 +17,7 @@ Selection Manipulator offers over **700 powerful tools** to manipulate, transfor
 *   **Date**: Time zones (one or several), weekday, ISO week, day of year, difference between dates, add days / months, relative time, custom patterns, compact `YYYYMMDD`, Japanese format, month calendar, ISO 8601 durations, seconds <-> `HH:MM:SS`, Excel serials, date ranges, age, quarter and fiscal year, and cron expressions explained with their next runs.
 *   **Morse Code**: Convert text to Morse Code (Alphanumeric/Japanese Kana) and vice versa.
 *   **Unicode**: Normalize (NFC / NFD / NFKC / NFKD), remove zero-width, control, non-ASCII characters or emoji (keeping emoji ZWJ sequences whole), reveal invisible characters as `<U+XXXX>`, show code points, UTF-8 bytes and UTF-16 code units and turn code points back into text, count graphemes, extract emoji, mathematical bold / italic / monospace, circled, upside-down, strikethrough, underline, superscript and subscript text, detect confusable (homoglyph) and bidi control (Trojan Source) characters, smart quotes, em dashes and ellipses, detect scripts, and transliterate Cyrillic to Latin.
+*   **Multi Cursor & Selection**: Keep odd / even / every Nth selection, remove the first / last / empty / duplicate selections, keep or remove selections matching a regex, align cursors, expand to the word / inside quotes / inside brackets, trim or shrink selections, extend to a delimiter, split selections by a delimiter / regex / into words, put cursors at the first non-whitespace character, select a column, all numbers / quoted strings / URLs or the indentation, rotate / swap / copy the selected texts, and show selection info.
 *   **Format**: Remove blank rows, zero-pad numbers, and more.
 *   **Cleanup**: Remove empty lines, line numbers, join/split lines, trim lines (Start/End/All), normalize whitespace, strip HTML, unsmart quotes, remove duplicate lines.
 *   **Whitespace**: Convert leading tabs/spaces, re-indent (2 <-> 4), dedent, indent/outdent by N, expand/unexpand tabs, collapse or remove blank lines, unwrap paragraphs, hard wrap, visualize spaces and tabs, center/right align, align by `=` / `:` / `,` / a custom delimiter, add spaces around operators.
@@ -608,7 +609,7 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 *   **Lorem Ipsum**: Placeholder text.
 
 #### Generator Commands
-Thirty generator commands are added: the nineteen **Random - …** commands go to the existing **Random** context submenu (after UUID and Lorem Ipsum), and the eleven **Generate - …** commands to a new **Generate** context submenu (last in the Selection Manipulator menu); all of them are also in the Command Palette. Every random value comes from Node.js `crypto` (`randomBytes`, `randomInt` and `randomUUID`; `Math.random` is not used), with no new dependencies and no network access. The existing Random commands (UUID, Password, IPv4, IPv6 and Lorem Ipsum) are unchanged.
+Thirty generator commands are added: the nineteen **Random - …** commands go to the existing **Random** context submenu (after UUID and Lorem Ipsum), and the eleven **Generate - …** commands to a new **Generate** context submenu (after the **Line** submenu in the Selection Manipulator menu); all of them are also in the Command Palette. Every random value comes from Node.js `crypto` (`randomBytes`, `randomInt` and `randomUUID`; `Math.random` is not used), with no new dependencies and no network access. The existing Random commands (UUID, Password, IPv4, IPv6 and Lorem Ipsum) are unchanged.
 In the examples, `⏎` is a line break, a value in parentheses is the value you enter, and `a / b / c` is what three cursors get (from the first cursor in the document to the last).
 
 *   **Common rules**:
@@ -874,7 +875,7 @@ Convert text to dots and dashes, and vice versa.
 *   **Morse to Text (Kana)**: Explicitly decodes as Japanese Kana (Wabun Code) to resolve ambiguities.
 
 ### 15. Unicode
-Thirty **Unicode - …** commands (normalization, invisible characters, code points and bytes, graphemes, emoji, styled letters, confusable and bidi control characters, typography, scripts and Cyrillic transliteration) are added to a new **Unicode** context submenu (last in the Selection Manipulator menu) and to the Command Palette. They use only built-in Unicode processing (`String.prototype.normalize`, `Intl.Segmenter`, `\p{…}` regular expressions and `TextEncoder`) and tables that are constants in the extension: no new dependencies and no network access. The existing Unicode escape commands (Escape / Unescape Unicode in the **Encode / Decode** submenus), Unsmart Quotes and the Japanese character type count are unchanged.
+Thirty **Unicode - …** commands (normalization, invisible characters, code points and bytes, graphemes, emoji, styled letters, confusable and bidi control characters, typography, scripts and Cyrillic transliteration) are added to a new **Unicode** context submenu (after the **Generate** submenu in the Selection Manipulator menu) and to the Command Palette. They use only built-in Unicode processing (`String.prototype.normalize`, `Intl.Segmenter`, `\p{…}` regular expressions and `TextEncoder`) and tables that are constants in the extension: no new dependencies and no network access. The existing Unicode escape commands (Escape / Unescape Unicode in the **Encode / Decode** submenus), Unsmart Quotes and the Japanese character type count are unchanged.
 In the examples, `·` is a space, `⏎` is a line break, `{U+200B}` is the one character U+200B (written this way because it is invisible or combines with the character before it), and a value in parentheses is the value you choose.
 
 *   **Common rules**:
@@ -992,6 +993,59 @@ In the examples, `·` is a space, `⇥` is a tab, `⏎` is a line break, and a v
 > *   **Convert chmod Numeric / Symbolic**: The file type letter of `ls -l` (`d`, `l` …) and a trailing `.` `+` `@` are dropped in the numeric form.
 
 
+
+### 17. Multi Cursor & Selection
+Thirty **Selection - …** commands work on the selections themselves (multi-cursor editing) and are added to a new **Multi Cursor** context submenu (last in the Selection Manipulator menu) and to the Command Palette. Most of them only change the selections; Align Cursors and the four text exchange commands edit the text. They run entirely in the extension, with no new dependencies and no network access. The existing multi-selection commands (Remove Cursor Above / Below, Separate Multi Selections, Select Matches, Extract URL, Remove Character from Each Side) are unchanged.
+In the examples, `[…]` is a selection, `|` is a cursor (an empty selection), `·` is a space, `⏎` is a line break, and a value in parentheses is the value you enter.
+
+*   **Common rules**:
+    *   **Order**: The selections are always counted in document order (1-based), whatever order they were added in. The new selections are set in document order and the first one is scrolled into view.
+    *   **Nothing left**: VS Code cannot have zero selections, so a command whose result would leave no selection changes nothing and shows a warning. A command whose result is the same as before changes nothing silently.
+    *   **Two or more selections**: Keep Odd / Even / Every Nth, Remove First / Last, Deselect Duplicate Texts, Align Cursors, Rotate Texts Forward / Backward, Swap Two Selections and Copy First Selection to All need at least two selections; with one, they warn before asking anything.
+    *   **Characters**: "One character" is one code point (a surrogate pair is never split), and a CRLF line break is one character.
+    *   **Menus**: In the Command Palette, the commands that need several selections appear only with multiple selections; Keep Selections Matching Regex (MSEL-006), Remove Selections Matching Regex (MSEL-007) and Remove Empty Selections (MSEL-008) also appear only with multiple selections, although they do not need two selections to run. The splitting / selecting commands appear only when text is selected. Expand to Word / Quotes / Brackets, Cursors to First Non-whitespace, Show Selection Info and Select Leading Indentation also work with only a cursor from the Command Palette; like every command of the extension, the context menu is shown only when text is selected.
+*   **Filtering the selections**:
+    *   **Selection - Keep Odd Selections** / **Keep Even Selections**: `[a] [b] [c]` -> `[a] b [c]` / `a [b] c`.
+    *   **Selection - Keep Every Nth Selection**: Asks for N (1 to 1,000,000) and keeps the Nth, 2Nth, 3Nth … selection: `[a] [b] [c] [d]` (2) -> `a [b] c [d]`.
+    *   **Selection - Remove First Selection** / **Remove Last Selection**: `[a] [b] [c]` -> `a [b] [c]` / `[a] [b] c`.
+    *   **Selection - Keep Selections Matching Regex** / **Remove Selections Matching Regex**: Asks for a regular expression (JavaScript syntax with the `u` flag, case-sensitive, up to 500 characters) and keeps / removes the selections whose text contains a match: `[a1] [b] [c2]` (`\d`) -> `[a1] b [c2]` / `a1 [b] c2`. An empty selection is tested as an empty text.
+    *   **Selection - Remove Empty Selections**: Removes the cursors: `[a]·|·[b]` -> `[a]··[b]`.
+    *   **Selection - Deselect Duplicate Texts**: Keeps only the first selection of every text (case-sensitive): `[a] [b] [a]` -> `[a] [b] a`.
+*   **Aligning, expanding and shrinking**:
+    *   **Selection - Align Cursors**: Inserts spaces before every selection so that all of them start at the same display column (the rightmost one; tabs count up to the next multiple of the editor's tab size): `a|=1⏎bbb|=2` -> `a··|=1⏎bbb|=2`. With several selections on one line, the first selections of all lines are aligned, then the second ones, and so on. The widths of the selections are kept, and one undo removes all inserted spaces.
+    *   **Selection - Expand to Word**: A cursor becomes the word it is in, and each end of a selection moves to the start / end of the word it is in (the word definition of the language): `he|llo` -> `[hello]`.
+    *   **Selection - Expand to Inside Quotes**: Selects the inside of the `"…"`, `'…'` or `` `…` `` around each selection on the same line (quotes are paired from left to right; a quote after a backslash is skipped): `"he|llo"` -> `"[hello]"`.
+    *   **Selection - Expand to Inside Brackets**: Selects the inside of the innermost `()`, `[]` or `{}` around each selection (across lines); running it again goes one level out: `f(a,|b)` -> `f([a,b])`.
+    *   **Selection - Trim Whitespace from Selections**: Removes spaces, tabs, line breaks and other white space (such as the full-width space) at both ends of every selection: `[··ab·]` -> `··[ab]·`. A selection of only white space becomes a cursor at its start.
+    *   **Selection - Shrink Selections by One Character**: Moves both ends of every selection one character inward: `["ab"]` -> `"[ab]"`. Selections shorter than two characters do not change.
+    *   **Selection - Extend to Next Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and extends the end of every selection up to the next delimiter on the same line: `[a]bc,d` (`,`) -> `[abc],d`. Selections without the delimiter after them do not change, and how many there were is shown. A selection that already ends right before a delimiter does not change either, so running the command again does not move on to the next delimiter.
+*   **Splitting the selections**:
+    *   **Selection - Split Selections by Delimiter**: Asks for a delimiter (literal text, 1 to 100 characters, no line breaks) and splits every selection at it: `[a,b,c]` (`,`) -> `[a],[b],[c]`. An empty part (`a,,b`) becomes a cursor, so the columns stay in place. A selection without the delimiter stays as it is; if no selection contains it, nothing changes and no message is shown.
+    *   **Selection - Split Selections by Regex**: Asks for a regular expression (as above, run with the `g` and `u` flags) and splits every selection at its matches: `[a1b2c]` (`\d`) -> `[a]1[b]2[c]`. Empty matches are not used for splitting. A selection without a match stays as it is; if no selection has a match, nothing changes and no message is shown.
+    *   **Selection - Split into Words**: One selection per word (letters, marks, digits and `_`): `[foo bar]` -> `[foo] [bar]`. Selections without words are dropped.
+*   **Cursors on every line**:
+    *   **Selection - Cursors to First Non-whitespace**: Puts a cursor before the first character that is not a space or a tab on every line of the selections: `··a⏎····b` -> `··|a⏎····|b`. Empty lines and lines of only spaces and tabs are skipped. A selection that ends at the start of a line does not include that line.
+    *   **Selection - Select Column N**: Asks for a delimiter (literal text, `,` by default) and a column number N (1 to 1,000), and selects column N of every line of the selections (of the selected part of the line; of the whole line for a cursor): `a,b⏎c,d` (`,`, 2) -> `a,[b]⏎c,[d]`. Lines with fewer columns are skipped and an empty column becomes a cursor.
+    *   **Selection - Select Leading Indentation**: Selects the spaces and tabs at the start of every line of the selections: `··a⏎····b` -> `[··]a⏎[····]b`. Lines without indentation are skipped.
+*   **Selecting inside the selections**:
+    *   **Selection - Select All Numbers**: `a1 b22` -> `a[1] b[22]`. Numbers are digits with an optional decimal part (`1.5`); a `-` right before a number is its sign unless it follows a letter, a digit, `_`, `)` or `]` (`a-1` is a subtraction).
+    *   **Selection - Select All Quoted Strings**: Selects the contents of `"…"`, `'…'` and `` `…` `` strings: `f("a", 'b')` -> `f("[a]", '[b]')`. A backslash escapes the next character, `"` and `'` strings end at the end of the line, `` ` `` strings may span lines, unclosed quotes are ignored and an empty string becomes a cursor between its quotes.
+    *   **Selection - Select All URLs**: Selects every `http://` and `https://` URL (the same rule as Extract URL), without trailing `.,;:!?'"` and closing brackets that have no opening bracket in the URL: `see https://a.example and https://b.example` -> `see [https://a.example] and [https://b.example]`.
+*   **Exchanging the texts** (these edit the text, select the new texts and are undone in one step):
+    *   **Selection - Rotate Texts Forward** / **Rotate Texts Backward**: `[a] [b] [c]` -> `[c] [a] [b]` / `[b] [c] [a]`. Empty selections take part as empty texts.
+    *   **Selection - Swap Two Selections**: Exactly two selections: `[foo] = [bar]` -> `[bar] = [foo]`.
+    *   **Selection - Copy First Selection to All**: `[x] [a] [b]` -> `[x] [x] [x]`.
+*   **Information**:
+    *   **Selection - Show Selection Info**: Shows the number of selections and the start line and number of characters of each in a notification: `[ab]⏎⏎[c]` -> `2 selections: L1 (2), L3 (1)`. At most 50 selections are listed (`… (+M more)`).
+
+> **Limitations of the Multi Cursor commands**
+> *   **Regular expressions**: Keep / Remove Selections Matching Regex and Split Selections by Regex run the pattern in a worker thread and stop it after 2 seconds (for patterns with catastrophic backtracking); the pattern is up to 500 characters and the selections up to 10,000,000 characters in total. If the document is edited while the pattern is running, nothing is changed and a warning is shown.
+> *   **Number of selections**: A command never makes more than 100,000 selections; a run that would make more changes nothing and shows a warning. VS Code itself keeps at most `editor.multiCursorLimit` selections (10,000 by default), so with the default setting a result of 10,001 to 100,000 selections is cut down to that limit by VS Code (which shows its own message); raise the setting to keep them all.
+> *   **Merged selections**: VS Code merges selections that overlap (for example, when Expand to Word expands two cursors in the same word), so the result can have fewer selections than expected.
+> *   **Expand to Inside Brackets**: Brackets are matched by type without parsing the language, so brackets inside strings and comments are counted too. Only brackets within 1,000,000 characters before and after each selection are used. The brackets of the document are indexed once per run, so many cursors (for example after Select All Occurrences) do not make it slow.
+> *   **Expand to Inside Quotes / Select All Quoted Strings**: The quotes are paired without parsing the language (an apostrophe in a word such as `it's` starts a string).
+> *   **Select Column N**: Quoted CSV fields are not parsed (a delimiter inside quotes still separates columns).
+> *   **Align Cursors**: Full-width characters count as one column.
 
 ## Roadmap & Security
 

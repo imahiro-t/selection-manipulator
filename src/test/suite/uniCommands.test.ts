@@ -665,7 +665,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
     });
 
-    test('the new Unicode submenu holds the commands in ROADMAP order, last in the root submenu', () => {
+    test('the new Unicode submenu holds the commands in ROADMAP order, at @16 in the root submenu', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.unicode.submenu'),
         [{ id: 'selection-manipulator.unicode.submenu', label: 'Unicode' }]);
@@ -673,7 +673,8 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       assert.deepStrictEqual(items.map((item) => item.command), UNI_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
-      assert.deepStrictEqual(root[root.length - 1], { submenu: 'selection-manipulator.unicode.submenu', group: 'selection-manipulator@16' });
+      assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.unicode.submenu'),
+        [{ submenu: 'selection-manipulator.unicode.submenu', group: 'selection-manipulator@16' }]);
       root.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
     });
 
