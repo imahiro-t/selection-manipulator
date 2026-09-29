@@ -61,22 +61,75 @@ export const isJsonObject = (value: unknown): value is JsonObject =>
 export const isScalar = (value: unknown): value is null | boolean | number | string =>
   value === null || typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string';
 
-/** Throws when an object / array is nested more than DATA_MAX_DEPTH levels (checked without recursion). */
-export const assertDepth = (root: unknown): void => {
-  const stack: [unknown, number][] = [[root, 0]];
-  while (stack.length > 0) {
-    const [value, depth] = stack.pop()!;
-    if (typeof value === 'object' && value !== null) {
-      if (depth >= DATA_MAX_DEPTH) {
+/** What `inspectGraph` found out about a value read by a parser. */
+export interface GraphInfo {
+  /** Some object / array is reached through more than one reference (YAML anchors and aliases). */
+  shared: boolean;
+  /** Number of distinct objects / arrays. */
+  containers: number;
+}
+
+/**
+ * Throws when objects / arrays are nested more than DATA_MAX_DEPTH levels, or when they refer to
+ * themselves; also tells whether some object is shared. Values from JSON are trees, but YAML
+ * aliases make a DAG in which one subtree can be reached through exponentially many paths, so
+ * every object is visited once (iterative depth-first search, the height of each finished object
+ * is remembered): the time is linear in the number of distinct objects and references.
+ */
+export const inspectGraph = (root: unknown): GraphInfo => {
+  const info: GraphInfo = { shared: false, containers: 0 };
+  if (typeof root !== 'object' || root === null) {
+    return info;
+  }
+  // Height of a finished object (1 = no object inside); VISITING while it is on the current path.
+  const VISITING = -1;
+  const heights = new Map<object, number>();
+  const path: { value: object; children: unknown[]; next: number; height: number }[] = [];
+  const enter = (value: object): void => {
+    if (path.length >= DATA_MAX_DEPTH) {
+      throw tooDeepError();
+    }
+    heights.set(value, VISITING);
+    info.containers++;
+    path.push({ value, children: Object.values(value), next: 0, height: 1 });
+  };
+  enter(root);
+  while (path.length > 0) {
+    const frame = path[path.length - 1];
+    if (frame.next < frame.children.length) {
+      const child = frame.children[frame.next++];
+      if (typeof child !== 'object' || child === null) {
+        continue;
+      }
+      const known = heights.get(child);
+      if (known === undefined) {
+        enter(child);
+        continue;
+      }
+      info.shared = true;
+      if (known === VISITING) {
+        // A cycle has no finite depth.
         throw tooDeepError();
       }
-      for (const child of Object.values(value)) {
-        if (typeof child === 'object' && child !== null) {
-          stack.push([child, depth + 1]);
-        }
+      if (path.length + known > DATA_MAX_DEPTH) {
+        throw tooDeepError();
       }
+      frame.height = Math.max(frame.height, known + 1);
+      continue;
+    }
+    path.pop();
+    heights.set(frame.value, frame.height);
+    if (path.length > 0) {
+      const parent = path[path.length - 1];
+      parent.height = Math.max(parent.height, frame.height + 1);
     }
   }
+  return info;
+};
+
+/** Throws when an object / array is nested more than DATA_MAX_DEPTH levels (checked without recursion). */
+export const assertDepth = (root: unknown): void => {
+  inspectGraph(root);
 };
 
 export const assertInputLength = (text: string): void => {
@@ -88,20 +141,122 @@ export const assertInputLength = (text: string): void => {
 /** Whether the selection spans several lines (leading / trailing white space ignored). */
 export const isMultiLine = (text: string): boolean => /[\r\n]/.test(text.trim());
 
+/** Thrown inside `jsonLengthAtLeast` to stop counting once the limit is passed. */
+class JsonLengthExceeded extends Error {}
+
+/**
+ * A lower bound of the length of `JSON.stringify(value, null, indent)`, computed without building
+ * the string (linear time, no recursion). The indentation, which grows with depth × size, is
+ * counted exactly and every token at its shortest (a string without escapes), so the bound is the
+ * exact length when no string needs escaping. Counting stops as soon as the bound passes `limit`.
+ */
+export const jsonLengthAtLeast = (value: JsonValue, indent: number, limit = Infinity): number => {
+  let total = 0;
+  const add = (length: number): void => {
+    total += length;
+    if (total > limit) {
+      throw new JsonLengthExceeded();
+    }
+  };
+  const stack: [JsonValue, number][] = [[value, 0]];
+  while (stack.length > 0) {
+    const [item, depth] = stack.pop()!;
+    if (typeof item === 'string') {
+      add(item.length + 2);
+    } else if (typeof item !== 'object' || item === null) {
+      add(String(item).length);
+    } else {
+      const isArray = Array.isArray(item);
+      const keys = isArray ? undefined : Object.keys(item);
+      const count = isArray ? item.length : keys!.length;
+      // Brackets; with indentation also the line break and indent before the closing one.
+      add(2 + (count > 0 && indent > 0 ? 1 + indent * depth : 0));
+      if (count === 0) {
+        continue;
+      }
+      // Commas, and a line break plus the indent before every element.
+      add(count - 1 + (indent > 0 ? count * (1 + indent * (depth + 1)) : 0));
+      if (isArray) {
+        for (const child of item) {
+          stack.push([child, depth + 1]);
+        }
+      } else {
+        for (const key of keys!) {
+          // "key": (the space after the colon only with indentation)
+          add(key.length + 3 + (indent > 0 ? 1 : 0));
+          stack.push([(item as JsonObject)[key], depth + 1]);
+        }
+      }
+    }
+  }
+  return total;
+};
+
+/**
+ * Throws `EncOutputTooLargeError` when `JSON.stringify(value, null, indent)` would certainly be
+ * longer than MAX_OUTPUT_LENGTH, before the string is built (the handler still checks the real
+ * length afterwards).
+ */
+export const assertJsonFits = (value: JsonValue, indent: number): void => {
+  try {
+    jsonLengthAtLeast(value, indent, MAX_OUTPUT_LENGTH);
+  } catch (error) {
+    if (error instanceof JsonLengthExceeded) {
+      throw outputTooLarge(MAX_OUTPUT_LENGTH + 1);
+    }
+    throw error;
+  }
+};
+
 /**
  * JSON -> JSON commands keep the layout of the input: one line stays one line (no spaces), a
  * multi-line selection becomes JSON indented with 2 spaces.
  */
-export const stringifyLike = (value: unknown, source: string): string =>
-  isMultiLine(source) ? JSON.stringify(value, null, 2) : JSON.stringify(value);
+export const stringifyLike = (value: JsonValue, source: string): string =>
+  isMultiLine(source) ? stringifyPretty(value) : stringifyCompact(value);
+
+/** One line of JSON (the size is checked before the string is built). */
+export const stringifyCompact = (value: JsonValue): string => {
+  assertJsonFits(value, 0);
+  return JSON.stringify(value);
+};
 
 /** Other formats -> JSON: always indented with 2 spaces, like the existing Format / YAML to JSON commands. */
-export const stringifyPretty = (value: unknown): string => JSON.stringify(value, null, 2);
+export const stringifyPretty = (value: JsonValue): string => {
+  assertJsonFits(value, 2);
+  return JSON.stringify(value, null, 2);
+};
+
+export const requireArray = (value: JsonValue, what: string): JsonValue[] => {
+  if (!Array.isArray(value)) {
+    throw new DataInputError(`${what} needs a JSON array at the top level`);
+  }
+  return value;
+};
+
+export const requireObject = (value: JsonValue, what: string): JsonObject => {
+  if (!isJsonObject(value)) {
+    throw new DataInputError(`${what} needs a JSON object at the top level`);
+  }
+  return value;
+};
+
+/** Whether `text[index]` is a high surrogate followed by a low surrogate (one code point in two units). */
+export const isSurrogatePairAt = (text: string, index: number): boolean => {
+  const high = text.charCodeAt(index);
+  const low = text.charCodeAt(index + 1);
+  return high >= 0xd800 && high <= 0xdbff && low >= 0xdc00 && low <= 0xdfff;
+};
 
 /** Collects output pieces and stops as soon as they would exceed MAX_OUTPUT_LENGTH. */
 export class OutputBuffer {
   private readonly parts: string[] = [];
   private length = 0;
+
+  /** Number of pieces pushed so far. */
+  get count(): number {
+    return this.parts.length;
+  }
 
   push(part: string): void {
     this.length += part.length;
@@ -127,7 +282,8 @@ export class OutputBuffer {
 /** One step of a path: an object key or an array index. */
 export type PathSegment = string | number;
 
-const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+/** An ASCII JavaScript identifier: a name in the path notation and an unquoted key of DATA-027. */
+export const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const IDENTIFIER_START = /[A-Za-z_$]/;
 const IDENTIFIER_PART = /[A-Za-z0-9_$]/;
 

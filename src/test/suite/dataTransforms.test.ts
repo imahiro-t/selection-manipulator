@@ -6,6 +6,9 @@ import {
   DataInputError,
   findPathProblem,
   formatPath,
+  inspectGraph,
+  jsonLengthAtLeast,
+  JsonValue,
   parsePath,
   PathSegment,
 } from '../../handler/dataCommon';
@@ -19,6 +22,7 @@ import {
   formatYaml,
   mergeJsonObjects,
   parseJson,
+  YAML_MAX_CONTAINERS_WITH_ALIASES,
 } from '../../handler/dataTransforms';
 import { parseToml } from '../../handler/tomlParser';
 import { toXml } from '../../handler/dataWriters';
@@ -32,6 +36,19 @@ const entry = (id: string): DataCommandEntry => {
 /** Runs the transform of a DATA command (the path for DATA-015 / 023 / 024 is given as text). */
 const run = (id: string, text: string, pathText = ''): string =>
   entry(id).transform!(text, pathText === '' ? [] : parsePath(pathText));
+
+/** Runs `convert` and fails when it took longer than `budget` milliseconds (catches quadratic / exponential time). */
+const withinBudget = <T>(budget: number, convert: () => T): T => {
+  const start = Date.now();
+  let result: T;
+  try {
+    result = convert();
+  } finally {
+    const elapsed = Date.now() - start;
+    assert.ok(elapsed < budget, `took ${elapsed} ms (budget: ${budget} ms)`);
+  }
+  return result;
+};
 
 const rejects = (convert: () => unknown, pattern?: RegExp): void => {
   assert.throws(convert, (error: unknown) => {
@@ -236,6 +253,13 @@ suite('Data Transforms (DATA) Test Suite', () => {
       assert.strictEqual(run('DATA-003', '{"A":"plain","B":"has space","C":"say \\"hi\\"","D":"it\'s","E":"","F":null,"G":1.5,"H":"#x","I":"a=b"}'),
         'A=plain\nB="has space"\nC=\'say "hi"\'\nD="it\'s"\nE=\nF=\nG=1.5\nH="#x"\nI="a=b"');
       rejects(() => run('DATA-003', '{"A":"x\\"y\'z"}'), /contains both " and '/);
+    });
+
+    test('DATA-003 writes values with $, ` or \\ in single quotes (no expansion by shells, Compose or dotenv)', () => {
+      assert.strictEqual(run('DATA-003', '{"A":"$(rm -rf ~)","B":"$HOME/bin","C":"`id`","D":"x\\\\ny","E":"${X}","F":"a\\"$b"}'),
+        "A='$(rm -rf ~)'\nB='$HOME/bin'\nC='`id`'\nD='x\\ny'\nE='${X}'\nF='a\"$b'");
+      rejects(() => run('DATA-003', '{"A":"it\'s $5"}'), /contains ' together with \$, ` or \\ and cannot be quoted safely/);
+      rejects(() => run('DATA-003', '{"A":"a\'\\\\b"}'), /cannot be quoted safely/);
       rejects(() => run('DATA-003', '{"A":"x\\ny"}'), /contains a line break/);
       rejects(() => run('DATA-003', '{"A B":"x"}'), /cannot be used in \.env/);
       rejects(() => run('DATA-003', '{"A":{"b":1}}'), /only flat objects/);
@@ -307,6 +331,12 @@ suite('Data Transforms (DATA) Test Suite', () => {
       assert.deepStrictEqual(JSON.parse(run('DATA-010', properties)),
         { a: { b: '1', 'key with:=': ' lead\\tail\n' }, list: ['x', { y: 'z' }], n: '' });
       rejects(() => run('DATA-009', '{"a.b":1}'), /cannot be used in \.properties/);
+      // Empty containers outside arrays write nothing; inside an array they would shift the indexes.
+      assert.strictEqual(run('DATA-009', '{"a":{},"b":[],"c":[["x"]]}'), 'c[0][0]=x');
+      rejects(() => run('DATA-009', '{"a":[{},"x"]}'), /the element a\[0\] is an empty object or array/);
+      rejects(() => run('DATA-009', '{"1":["é",{},"="]}'), /the element 1\[1\] is an empty object or array/);
+      rejects(() => run('DATA-009', '{"a":["x",[]]}'), /the element a\[1\] is an empty object or array/);
+      rejects(() => run('DATA-009', '{"a":[{"b":{}}]}'), /the element a\[0\] is an empty object or array/);
       rejects(() => run('DATA-009', '[1]'), /needs a JSON object/);
     });
 
@@ -322,12 +352,23 @@ suite('Data Transforms (DATA) Test Suite', () => {
       assert.strictEqual(run('DATA-027', '{\n"a":{"b":[1,2]}}'), "{\n  a: {\n    b: [\n      1,\n      2\n    ]\n  }\n}");
       assert.strictEqual(run('DATA-027', '"\\u2028\\ud800 \\ud83d\\ude00"'), "'\\u2028\\ud800 \u{1F600}'");
     });
+
+    test('DATA-027 writes the key __proto__ as a computed name, and DATA-028 reads it back', () => {
+      const literal = run('DATA-027', '{"__proto__":{"x":1},"a":{"__proto__":4}}');
+      assert.strictEqual(literal, "{ ['__proto__']: { x: 1 }, a: { ['__proto__']: 4 } }");
+      assert.deepStrictEqual(JSON.parse(run('DATA-028', literal)), JSON.parse('{"__proto__":{"x":1},"a":{"__proto__":4}}'));
+      assert.strictEqual(run('DATA-028', literal), '{\n  "__proto__": {\n    "x": 1\n  },\n  "a": {\n    "__proto__": 4\n  }\n}');
+      assert.strictEqual(({} as Record<string, unknown>).x, undefined);
+      rejects(() => run('DATA-028', "{ ['a' + 'b']: 1 }"), /computed property names are not supported/);
+      rejects(() => run('DATA-014', "{ ['a']: 1 }"), /computed property names are not supported/);
+    });
   });
 
   suite('C3: other formats to JSON', () => {
     test('DATA-013 skips blank lines and names the line of an error', () => {
       assert.deepStrictEqual(JSON.parse(run('DATA-013', '1\r\n\r\n  "x"  \r\n{"a":null}')), [1, 'x', { a: null }]);
-      rejects(() => run('DATA-013', '{"a":1}\n{"a":'), /^line 2: invalid JSON: line 1, column 6: unexpected end of input$/);
+      rejects(() => run('DATA-013', '{"a":1}\n{"a":'), /^line 2, column 6: unexpected end of input$/);
+      rejects(() => run('DATA-039', '1\r\n\r\n{b}'), /^line 3, column 2: unexpected character "b"$/);
     });
 
     test('DATA-014 / DATA-028 write 2-space JSON', () => {
@@ -427,6 +468,128 @@ suite('Data Transforms (DATA) Test Suite', () => {
       const key = 'k'.repeat(40);
       const text = `{"${key}":[${Array(250_000).fill('0').join(',')}]}`;
       assert.throws(() => run('DATA-016', text), EncOutputTooLargeError);
+    });
+  });
+
+  suite('time and size limits of large or hostile input (regression)', () => {
+    test('YAML aliases that share subtrees are visited once (no exponential "billion laughs" time)', () => {
+      let text = 'a0: &a0 [x, x, x, x, x, x, x, x, x, x]\n';
+      for (let i = 1; i <= 12; i++) {
+        text += `a${i}: &a${i} [${Array(10).fill(`*a${i - 1}`).join(', ')}]\n`;
+      }
+      const result = withinBudget(1_000, () => formatYaml(text, false));
+      // The references are kept (the output does not expand 10^12 values).
+      assert.ok(result.length < 2 * text.length, String(result.length));
+      assert.ok(result.includes('*ref_'));
+    });
+
+    test('YAML depth is measured through aliases, and a self-reference is an error', () => {
+      const nest = (inner: string) => `${'['.repeat(90)}${inner}${']'.repeat(90)}`;
+      let text = `l0: &l0 ${nest('1')}\n`;
+      for (let i = 1; i <= 5; i++) {
+        text += `l${i}: &l${i} ${nest(`*l${i - 1}`)}\n`;
+      }
+      // 6 x 90 levels: more than DATA_MAX_DEPTH although no single document part is deeper than js-yaml's 100.
+      rejects(() => formatYaml(text, false), /nesting is too deep \(limit: 500\)/);
+      rejects(() => formatYaml('a: &x [*x]', false), /nesting is too deep/);
+    });
+
+    test('inspectGraph: linear on DAGs, reports sharing, limits depth', () => {
+      const leaf = [1];
+      let shared: unknown = leaf;
+      for (let i = 0; i < 60; i++) {
+        shared = [shared, shared];
+      }
+      assert.deepStrictEqual(withinBudget(500, () => inspectGraph(shared)), { shared: true, containers: 61 });
+      assert.deepStrictEqual(inspectGraph({ a: [1], b: { c: null } }), { shared: false, containers: 3 });
+      const nested = (depth: number): unknown => {
+        let value: unknown = [];
+        for (let i = 1; i < depth; i++) {
+          value = [value];
+        }
+        return value;
+      };
+      assert.doesNotThrow(() => inspectGraph(nested(DATA_MAX_DEPTH)));
+      assert.throws(() => inspectGraph(nested(DATA_MAX_DEPTH + 1)), DataInputError);
+      // A shared subtree of height 300 under a path of 250: too deep only through the second reference.
+      const deep = nested(300);
+      let wrapped: unknown = deep;
+      for (let i = 0; i < 250; i++) {
+        wrapped = [wrapped];
+      }
+      assert.doesNotThrow(() => inspectGraph({ a: deep, b: [deep] }));
+      assert.throws(() => inspectGraph({ a: deep, b: wrapped }), DataInputError);
+    });
+
+    test('large YAML without aliases is written in linear time; with aliases the size is limited', () => {
+      withinBudget(2_000, () => formatYaml('- []\n'.repeat(200_000), false));
+      withinBudget(2_000, () => formatYaml('- a: 1\n'.repeat(200_000), false));
+      const aliased = (count: number) => `a: &x {b: 1}\nc: *x\nl:\n${'  - []\n'.repeat(count)}`;
+      assert.ok(formatYaml(aliased(1_000), false).includes('c: *ref_0'));
+      rejects(() => formatYaml(aliased(YAML_MAX_CONTAINERS_WITH_ALIASES), false), /limited to 50,000 mappings and sequences/);
+    });
+
+    test('the "no YAML value" check has no quadratic regular expression', () => {
+      assert.strictEqual(withinBudget(500, () => formatYaml(`${' '.repeat(1_000_000)}~`, false)), 'null');
+      rejects(() => withinBudget(500, () => formatYaml(`${' '.repeat(1_000_000)}\n# c\n---\n...`, false)), /contains no YAML value/);
+    });
+
+    test('.properties continuation lines are joined in linear time', () => {
+      // Every line is three backslashes: an escaped backslash and a continuation.
+      const text = `k=${Array(300_000).fill('\\\\\\').join('\n')}`;
+      const result = JSON.parse(withinBudget(1_500, () => run('DATA-010', text)));
+      assert.strictEqual(result.k, '\\'.repeat(300_000));
+      assert.deepStrictEqual(JSON.parse(run('DATA-010', 'k=a\\\n  b\\\\\\\n c\nx=\\\\')), { k: 'ab\\c', x: '\\' });
+    });
+
+    test('DATA-026 is linear in the input and stops early when the schema text would be too large', () => {
+      const objects = Array.from({ length: 20_000 }, (_, index) => `{"k${index}":1}`).join(',');
+      const wrap = (depth: number) => `${'['.repeat(depth)}[${objects}]${']'.repeat(depth)}`;
+      assert.throws(() => withinBudget(1_500, () => run('DATA-026', wrap(100))), EncOutputTooLargeError);
+      const schema = JSON.parse(withinBudget(1_500, () => run('DATA-026', wrap(2))));
+      assert.strictEqual(schema.items.items.items.anyOf.length, 20_000);
+      // Equal element schemas are merged whatever the key order inside; the order of "required" is kept.
+      assert.deepStrictEqual(JSON.parse(run('DATA-026', '[[{"a":1,"b":"x"}],[{"a":2,"b":"y"}]]')).items,
+        { type: 'array', items: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, required: ['a', 'b'] } });
+      assert.strictEqual(JSON.parse(run('DATA-026', '[{"a":1,"b":2},{"b":2,"a":1}]')).items.anyOf.length, 2);
+    });
+
+    test('indented JSON / JS output is refused before a huge string is built', () => {
+      const deepArray = `${'['.repeat(498)}\n${Array(1_000_000).fill('1').join(',')}${']'.repeat(498)}`;
+      assert.throws(() => withinBudget(1_500, () => run('DATA-001', deepArray)), EncOutputTooLargeError);
+      const deepLine = `${'['.repeat(400)}1${']'.repeat(400)}`;
+      assert.throws(() => withinBudget(1_500, () => run('DATA-013', `${deepLine}\n`.repeat(4_000))), EncOutputTooLargeError);
+      const deepItems = Array(1_000).fill(`${'['.repeat(400)}1,2,3,4,5,6,7,8,9${']'.repeat(400)}`).join(',');
+      assert.throws(() => withinBudget(1_500, () => run('DATA-027', `[\n${deepItems}]`)), EncOutputTooLargeError);
+    });
+
+    test('the JSON length estimate is exact without escapes and never above the real length', () => {
+      const next = random(7);
+      const make = (depth: number): JsonValue => {
+        const pick = next();
+        if (depth > 4 || pick < 0.3) {
+          return [null, true, false, 0, -1.5, 1e21, '', 'text', 'q"\n'][Math.floor(next() * 9)];
+        }
+        if (pick < 0.65) {
+          return Array.from({ length: Math.floor(next() * 4) }, () => make(depth + 1));
+        }
+        const object: Record<string, JsonValue> = {};
+        for (let i = Math.floor(next() * 4); i > 0; i--) {
+          object[['a', 'b-c', '10', ''][Math.floor(next() * 4)]] = make(depth + 1);
+        }
+        return object;
+      };
+      for (let i = 0; i < 5_000; i++) {
+        const value = make(0);
+        for (const indent of [0, 2]) {
+          const real = JSON.stringify(value, null, indent === 0 ? undefined : indent).length;
+          const estimate = jsonLengthAtLeast(value, indent);
+          assert.ok(estimate <= real, `${JSON.stringify(value)}: ${estimate} > ${real}`);
+          if (!JSON.stringify(value).includes('\\')) {
+            assert.strictEqual(estimate, real, JSON.stringify(value));
+          }
+        }
+      }
     });
   });
 

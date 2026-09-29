@@ -15,7 +15,6 @@ import {
   DATA_MAX_DEPTH,
   DataInputError,
   hasOwn,
-  isJsonObject,
   JsonObject,
   JsonValue,
   setOwn,
@@ -133,7 +132,7 @@ class JsonLikeParser {
     if (ch === '-' || isDigit(ch) || (this.relaxed && (ch === '+' || ch === '.'))) {
       return this.parseNumber();
     }
-    if (ch !== undefined && (ID_START.test(ch) || ch === '\\')) {
+    if (ch !== undefined && ID_START.test(ch)) {
       return this.parseKeyword();
     }
     this.unexpected();
@@ -194,24 +193,36 @@ class JsonLikeParser {
       return this.parseTemplate();
     }
     if (isDigit(ch) || ch === '.') {
-      // A numeric key becomes the key JavaScript would use (`0x10` -> "16").
-      const start = this.pos;
-      const value = this.parseNumber();
-      if (this.text[start] === '-' || this.text[start] === '+') {
-        this.fail(describeChar(this.text, start), start);
-      }
-      return String(value);
+      // A numeric key becomes the key JavaScript would use (`0x10` -> "16"); it never has a sign.
+      return String(this.parseNumber());
     }
     if (ch !== undefined && ID_START.test(ch)) {
       return this.readIdentifier();
     }
     if (ch === '[') {
-      this.fail('computed property names are not supported (only literal values)');
-    }
-    if (ch === '.' || ch === '\\') {
-      this.unexpected();
+      return this.parseComputedKey();
     }
     this.unexpected();
+  }
+
+  /**
+   * `['name']` / `["name"]`: a computed name is accepted only when it is one string literal (the
+   * form DATA-027 writes for `__proto__`); anything else would need evaluating code.
+   */
+  private parseComputedKey(): string {
+    const start = this.pos;
+    this.pos++;
+    this.skipWhitespace();
+    const quote = this.text[this.pos];
+    if (this.mode === 'js-object' && (quote === '"' || quote === "'")) {
+      const key = this.parseString(quote);
+      this.skipWhitespace();
+      if (this.text[this.pos] === ']') {
+        this.pos++;
+        return key;
+      }
+    }
+    this.fail('computed property names are not supported (only literal values)', start);
   }
 
   private readIdentifier(): string {
@@ -489,9 +500,6 @@ class JsonLikeParser {
 
   private parseKeyword(): JsonValue {
     const start = this.pos;
-    if (this.text[this.pos] === '\\') {
-      this.unexpected();
-    }
     const name = this.relaxed ? this.readIdentifier() : this.readAsciiWord();
     switch (name) {
       case 'true':
@@ -609,34 +617,43 @@ export const parseIni = (text: string): JsonObject => {
 
 const PROPERTIES_WHITESPACE = ' \t\f';
 
-/** Joins continuation lines (an odd number of trailing backslashes) into logical lines. */
+/** Whether a physical line ends with an odd number of backslashes (only that line is scanned). */
+const endsWithContinuation = (line: string): boolean => {
+  let count = 0;
+  for (let i = line.length - 1; i >= 0 && line[i] === '\\'; i--) {
+    count++;
+  }
+  return count % 2 === 1;
+};
+
+/**
+ * Joins continuation lines into logical lines. Each physical line is examined on its own and the
+ * fragments are joined once, so the time stays linear however many lines continue (a line of
+ * backslashes only is a fragment like any other: its trailing backslash is removed, the rest kept).
+ */
 const logicalPropertyLines = (text: string): { line: number; text: string }[] => {
   const lines = splitLines(text);
   const result: { line: number; text: string }[] = [];
   let index = 0;
   while (index < lines.length) {
     const first = index;
-    let current = lines[index].replace(/^[ \t\f]+/, '');
+    let fragment = lines[index].replace(/^[ \t\f]+/, '');
     index++;
-    if (current === '' || current.startsWith('#') || current.startsWith('!')) {
+    if (fragment === '' || fragment.startsWith('#') || fragment.startsWith('!')) {
       continue;
     }
-    const endsWithContinuation = (value: string): boolean => {
-      let count = 0;
-      for (let i = value.length - 1; i >= 0 && value[i] === '\\'; i--) {
-        count++;
-      }
-      return count % 2 === 1;
-    };
-    while (endsWithContinuation(current)) {
-      current = current.slice(0, -1);
+    const fragments: string[] = [];
+    while (endsWithContinuation(fragment)) {
+      fragments.push(fragment.slice(0, -1));
       if (index >= lines.length) {
+        fragment = '';
         break;
       }
-      current += lines[index].replace(/^[ \t\f]+/, '');
+      fragment = lines[index].replace(/^[ \t\f]+/, '');
       index++;
     }
-    result.push({ line: first + 1, text: current });
+    fragments.push(fragment);
+    result.push({ line: first + 1, text: fragments.join('') });
   }
   return result;
 };
@@ -789,10 +806,8 @@ export const parseProperties = (text: string): JsonObject => {
         }
         return;
       }
-      if (typeof existing === 'string' || existing === null || typeof existing !== 'object') {
-        throw conflict(where, key);
-      }
-      if (nextIsIndex !== Array.isArray(existing) || (!nextIsIndex && !isJsonObject(existing))) {
+      // Values are strings, arrays or objects: the next step needs an array exactly when it is an index.
+      if (typeof existing !== 'object' || existing === null || nextIsIndex !== Array.isArray(existing)) {
         throw conflict(where, key);
       }
       container = existing;

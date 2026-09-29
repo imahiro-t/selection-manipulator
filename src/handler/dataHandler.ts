@@ -13,12 +13,14 @@ import {
   assertInputLength,
   DataInputError,
   findPathProblem,
+  isSurrogatePairAt,
   parsePath,
   PathSegment,
 } from './dataCommon';
 import {
   DATA_COMMAND_ENTRIES,
   DataCommandEntry,
+  DataTransformEntry,
   describeCount,
   findJsonError,
   mergeJsonObjects,
@@ -76,24 +78,46 @@ export const pathPrompt = (kind: 'path' | 'field'): InputBoxOptions => ({
   validateInput: findPathProblem,
 });
 
+/**
+ * Logs an unexpected failure (a bug, or a RangeError from a huge value) so it can be traced: only
+ * the error name and the stack frames, never the message, which may quote the selected text.
+ */
+const logUnexpected = (error: unknown): void => {
+  if (error instanceof DataInputError || error instanceof EncOutputTooLargeError) {
+    return;
+  }
+  const name = error instanceof Error ? error.name : typeof error;
+  const frames = error instanceof Error && typeof error.stack === 'string'
+    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
+    : '';
+  console.error(`Selection Manipulator: a data format command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+};
+
 /** The text of an error: the message of a `DataInputError`, a fixed text for anything unexpected. */
 const reasonOf = (error: unknown): string => {
   if (error instanceof DataInputError) {
     return error.message;
   }
+  logUnexpected(error);
   if (error instanceof RangeError) {
     return 'the text is nested too deeply or is too large to convert';
   }
   return 'the text could not be converted';
 };
 
+/** Which of several selections failed (omitted when the message does not refer to one selection). */
+interface SelectionPosition {
+  index: number;
+  count: number;
+}
+
 /** Shows why nothing was changed. Not awaited: the Thenable only settles when the notification is dismissed. */
-const notifyFailure = (dependencies: DataDependencies, error: unknown, index: number, count: number): void => {
+const notifyFailure = (dependencies: DataDependencies, error: unknown, position?: SelectionPosition): void => {
   if (error instanceof EncOutputTooLargeError) {
     void dependencies.notifier.showWarningMessage(`${NOT_CHANGED}${error.message}. Select less text.`);
     return;
   }
-  const where = count > 1 ? `selection ${index + 1} of ${count}: ` : '';
+  const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
   void dependencies.notifier.showErrorMessage(`${NOT_CHANGED}${where}${reasonOf(error)}`);
 };
 
@@ -106,12 +130,12 @@ const notifyFailure = (dependencies: DataDependencies, error: unknown, index: nu
 const applyTransform = async (
   textEditor: TextEditor,
   dependencies: DataDependencies,
-  entry: DataCommandEntry,
+  entry: DataTransformEntry,
   path: PathSegment[]
 ): Promise<void> => {
   const selections = targetSelections(textEditor);
-  const transform = entry.transform;
-  if (selections.length === 0 || transform === undefined) {
+  const { transform } = entry;
+  if (selections.length === 0) {
     return;
   }
   const eol = documentEol(textEditor);
@@ -131,7 +155,7 @@ const applyTransform = async (
       results.push({ selection, text, result });
     }
   } catch (error) {
-    notifyFailure(dependencies, error, current, selections.length);
+    notifyFailure(dependencies, error, { index: current, count: selections.length });
     return;
   }
   if (entry.output === 'new-tab') {
@@ -156,23 +180,26 @@ const applyMerge = async (textEditor: TextEditor, dependencies: DataDependencies
     void dependencies.notifier.showWarningMessage('Select two or more JSON objects to merge (one per selection).');
     return;
   }
-  let result: string;
-  let current = 0;
-  try {
-    const texts = selections.map((selection, index) => {
-      current = index;
-      const text = textEditor.document.getText(selection);
+  const texts: string[] = [];
+  for (const [index, selection] of selections.entries()) {
+    const text = textEditor.document.getText(selection);
+    try {
       assertInputLength(text);
-      return text;
-    });
-    current = -1;
+    } catch (error) {
+      notifyFailure(dependencies, error, { index, count: selections.length });
+      return;
+    }
+    texts.push(text);
+  }
+  let result: string;
+  try {
     result = withEol(mergeJsonObjects(texts), documentEol(textEditor));
     if (result.length > MAX_OUTPUT_LENGTH) {
       throw new EncOutputTooLargeError(result.length, MAX_OUTPUT_LENGTH);
     }
   } catch (error) {
-    // mergeJsonObjects names the selection itself.
-    notifyFailure(dependencies, error, current, current < 0 ? 1 : selections.length);
+    // mergeJsonObjects names the selection itself, so no position is added here.
+    notifyFailure(dependencies, error);
     return;
   }
   await dependencies.openResult(result);
@@ -197,7 +224,7 @@ const validateJson = (textEditor: TextEditor, dependencies: DataDependencies): v
       assertInputLength(text);
       error = findJsonError(text);
     } catch (failure) {
-      notifyFailure(dependencies, failure, index, selections.length);
+      notifyFailure(dependencies, failure, { index, count: selections.length });
       return;
     }
     if (error === undefined) {
@@ -207,9 +234,7 @@ const validateJson = (textEditor: TextEditor, dependencies: DataDependencies): v
     const start = document.positionAt(base + error.offset);
     let length = 0;
     if (error.offset < text.length) {
-      const code = text.charCodeAt(error.offset);
-      const pair = code >= 0xd800 && code <= 0xdbff && /[\uDC00-\uDFFF]/.test(text[error.offset + 1] ?? '');
-      length = pair ? 2 : 1;
+      length = isSurrogatePairAt(text, error.offset) ? 2 : 1;
     }
     const end = document.positionAt(base + error.offset + length);
     textEditor.selection = new Selection(start, end);
@@ -235,7 +260,7 @@ const countJson = (textEditor: TextEditor, dependencies: DataDependencies): void
     try {
       counts.push(describeCount(textEditor.document.getText(selection)));
     } catch (error) {
-      notifyFailure(dependencies, error, index, selections.length);
+      notifyFailure(dependencies, error, { index, count: selections.length });
       return;
     }
   }
@@ -245,7 +270,7 @@ const countJson = (textEditor: TextEditor, dependencies: DataDependencies): void
 };
 
 /** Asks for the path / field once, then converts (the selections are read again afterwards). */
-const applyWithPrompt = async (textEditor: TextEditor, dependencies: DataDependencies, entry: DataCommandEntry, kind: 'path' | 'field') => {
+const applyWithPrompt = async (textEditor: TextEditor, dependencies: DataDependencies, entry: DataTransformEntry, kind: 'path' | 'field') => {
   if (targetSelections(textEditor).length === 0) {
     return;
   }
@@ -268,11 +293,8 @@ export const dataHandlerInternal = (dependencies: DataDependencies) =>
     const entry = entryOf(name);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
-        if (entry.name === 'json.validate') {
-          return validateJson(textEditor, dependencies);
-        }
-        if (entry.name === 'json.count') {
-          return countJson(textEditor, dependencies);
+        if (entry.output === 'notify') {
+          return entry.notify === 'validate' ? validateJson(textEditor, dependencies) : countJson(textEditor, dependencies);
         }
         if (entry.output === 'merge') {
           return await applyMerge(textEditor, dependencies);

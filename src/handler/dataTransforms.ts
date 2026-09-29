@@ -17,6 +17,7 @@ import {
   DataInputError,
   formatPath,
   hasOwn,
+  inspectGraph,
   isJsonObject,
   isMultiLine,
   isScalar,
@@ -25,12 +26,14 @@ import {
   lookupPath,
   OutputBuffer,
   PathSegment,
+  requireArray,
+  requireObject,
   setOwn,
   stringifyLike,
   stringifyPretty,
   tooDeepError,
 } from './dataCommon';
-import { JsonSyntaxError, parseIni, parseJsonLike, parseProperties } from './dataParsers';
+import { JsonSyntaxError, lineColumnAt, parseIni, parseJsonLike, parseProperties } from './dataParsers';
 import { parseToml } from './tomlParser';
 import { toEnv, toIni, toJsObject, toProperties, toQueryString, toToml, toXml } from './dataWriters';
 
@@ -40,19 +43,45 @@ export type DataOutput = 'new-tab' | 'replace' | 'notify' | 'merge';
 /** A transform of one selection; `path` is the value typed into the input box (DATA-015 / 023 / 024). */
 export type DataTransform = (text: string, path: PathSegment[]) => string;
 
-export interface DataCommandEntry {
+/** What a `notify` command reports: DATA-019 (validation) or DATA-025 (counts). */
+export type DataNotification = 'validate' | 'count';
+
+interface DataCommandBase {
   /** ROADMAP ID, e.g. `DATA-001`. */
   id: string;
   /** Command ID without the `selection-manipulator.` prefix. */
   name: string;
   /** Title in package.json / ROADMAP. */
   title: string;
-  output: DataOutput;
+}
+
+/** A command that converts every selection (into a new editor or in place). */
+export interface DataTransformEntry extends DataCommandBase {
+  output: 'new-tab' | 'replace';
+  /** The conversion (always present, so the table cannot name a command that does nothing). */
+  transform: DataTransform;
   /** Asks for a path (DATA-015) or a field (DATA-023 / 024) first. */
   prompt?: 'path' | 'field';
-  /** The conversion for `new-tab` / `replace` commands. */
-  transform?: DataTransform;
+  notify?: undefined;
 }
+
+/** DATA-018: merges all selections into one new editor. */
+export interface DataMergeEntry extends DataCommandBase {
+  output: 'merge';
+  transform?: undefined;
+  prompt?: undefined;
+  notify?: undefined;
+}
+
+/** DATA-019 / 025: only shows a notification. */
+export interface DataNotifyEntry extends DataCommandBase {
+  output: 'notify';
+  notify: DataNotification;
+  transform?: undefined;
+  prompt?: undefined;
+}
+
+export type DataCommandEntry = DataTransformEntry | DataMergeEntry | DataNotifyEntry;
 
 // ---------------------------------------------------------------------------------------------
 // Reading JSON
@@ -80,20 +109,6 @@ export const parseJson = (text: string): JsonValue => {
     throw new DataInputError('invalid JSON');
   }
   assertDepth(value);
-  return value;
-};
-
-const requireArray = (value: JsonValue, what: string): JsonValue[] => {
-  if (!Array.isArray(value)) {
-    throw new DataInputError(`${what} needs a JSON array at the top level`);
-  }
-  return value;
-};
-
-const requireObject = (value: JsonValue, what: string): JsonObject => {
-  if (!isJsonObject(value)) {
-    throw new DataInputError(`${what} needs a JSON object at the top level`);
-  }
   return value;
 };
 
@@ -272,43 +287,91 @@ export const describeCount = (text: string): string => {
 
 export const JSON_SCHEMA_DRAFT = 'https://json-schema.org/draft/2020-12/schema';
 
-const schemaOf = (value: JsonValue): JsonObject => {
-  const schema = createRecord<JsonValue>();
-  if (value === null) {
-    schema.type = 'null';
-  } else if (typeof value === 'boolean') {
-    schema.type = 'boolean';
-  } else if (typeof value === 'number') {
-    schema.type = Number.isInteger(value) ? 'integer' : 'number';
-  } else if (typeof value === 'string') {
-    schema.type = 'string';
-  } else if (Array.isArray(value)) {
-    schema.type = 'array';
-    const unique = new Map<string, JsonObject>();
-    value.forEach((item) => {
-      const itemSchema = schemaOf(item);
-      unique.set(canonicalJson(itemSchema), itemSchema);
-    });
-    const schemas = [...unique.values()];
-    schema.items = schemas.length === 0 ? createRecord<JsonValue>() : schemas.length === 1 ? schemas[0] : { anyOf: schemas };
-  } else {
-    schema.type = 'object';
-    const properties = createRecord<JsonValue>();
-    Object.entries(value).forEach(([key, item]) => setOwn(properties, key, schemaOf(item)));
-    schema.properties = properties;
-    const keys = Object.keys(value);
-    if (keys.length > 0) {
-      schema.required = keys;
+/**
+ * Builds the schemas bottom-up and interns them: every distinct schema gets a number, and the key
+ * that identifies a schema is made of its children's numbers (never of their whole text), so
+ * comparing the element schemas of an array costs the same at every depth and the whole
+ * generation stays linear in the size of the input.
+ */
+class SchemaBuilder {
+  private readonly ids = new Map<string, number>();
+  private readonly schemas: JsonObject[] = [];
+
+  /** The number of the schema identified by `key`, created by `make` the first time. */
+  private intern(key: string, make: () => JsonObject): number {
+    const known = this.ids.get(key);
+    if (known !== undefined) {
+      return known;
     }
+    const id = this.schemas.length;
+    this.schemas.push(make());
+    this.ids.set(key, id);
+    return id;
   }
-  return schema;
-};
+
+  schema(id: number): JsonObject {
+    return this.schemas[id];
+  }
+
+  /** The schema of one value; two values get the same number exactly when their schemas are equal. */
+  of(value: JsonValue, depth = 1): number {
+    if (depth > DATA_MAX_DEPTH) {
+      throw tooDeepError();
+    }
+    const simple = (type: string) => this.intern(type, () => {
+      const schema = createRecord<JsonValue>();
+      schema.type = type;
+      return schema;
+    });
+    if (value === null) {
+      return simple('null');
+    }
+    if (typeof value === 'boolean') {
+      return simple('boolean');
+    }
+    if (typeof value === 'number') {
+      return simple(Number.isInteger(value) ? 'integer' : 'number');
+    }
+    if (typeof value === 'string') {
+      return simple('string');
+    }
+    if (Array.isArray(value)) {
+      // The distinct element schemas in order of first appearance.
+      const items = [...new Set(value.map((item) => this.of(item, depth + 1)))];
+      return this.intern(`array:${items.join(',')}`, () => {
+        const schema = createRecord<JsonValue>();
+        schema.type = 'array';
+        schema.items = items.length === 0
+          ? createRecord<JsonValue>()
+          : items.length === 1 ? this.schema(items[0]) : { anyOf: items.map((id) => this.schema(id)) };
+        return schema;
+      });
+    }
+    const keys = Object.keys(value);
+    const children = keys.map((key) => this.of(value[key], depth + 1));
+    // `required` lists the keys in their order, so the order is part of the identity.
+    return this.intern(`object:${JSON.stringify(keys)}:${children.join(',')}`, () => {
+      const schema = createRecord<JsonValue>();
+      schema.type = 'object';
+      const properties = createRecord<JsonValue>();
+      keys.forEach((key, index) => setOwn(properties, key, this.schema(children[index])));
+      schema.properties = properties;
+      if (keys.length > 0) {
+        schema.required = keys;
+      }
+      return schema;
+    });
+  }
+}
 
 /** DATA-026: a JSON Schema (draft 2020-12) skeleton of the sample (the `$schema` URL is only written, never fetched). */
 export const toJsonSchema = (text: string): string => {
   const schema = createRecord<JsonValue>();
   schema.$schema = JSON_SCHEMA_DRAFT;
-  Object.entries(schemaOf(parseJson(text))).forEach(([key, value]) => setOwn(schema, key, value));
+  const builder = new SchemaBuilder();
+  Object.entries(builder.schema(builder.of(parseJson(text)))).forEach(([key, value]) => setOwn(schema, key, value));
+  // An equal schema may appear in several places (it is written out each time); the output size
+  // is checked before the text is built.
   return stringifyPretty(schema);
 };
 
@@ -348,7 +411,7 @@ export const parseNested = (text: string): string => {
 // C3: other formats -> JSON
 // ---------------------------------------------------------------------------------------------
 
-/** DATA-013 / 039: every non-blank line is one JSON value. */
+/** DATA-013 / 039: every non-blank line is one JSON value; an error names the line and the column in it. */
 export const jsonLinesToJson = (text: string): string => {
   assertInputLength(text);
   const result: JsonValue[] = [];
@@ -356,14 +419,19 @@ export const jsonLinesToJson = (text: string): string => {
     if (line.trim() === '') {
       return;
     }
+    let value: JsonValue;
     try {
-      result.push(parseJson(line));
-    } catch (error) {
-      if (error instanceof DataInputError) {
-        throw new DataInputError(`line ${index + 1}: ${error.message}`);
+      value = JSON.parse(line) as JsonValue;
+    } catch {
+      const error = findJsonError(line);
+      if (error === undefined) {
+        throw new DataInputError(`line ${index + 1}: invalid JSON`);
       }
-      throw error;
+      // The line has no line break, so only the column is needed.
+      throw new DataInputError(`line ${index + 1}, column ${lineColumnAt(line, error.offset).column}: ${error.reason}`);
     }
+    assertDepth(value);
+    result.push(value);
   });
   return stringifyPretty(result);
 };
@@ -371,6 +439,19 @@ export const jsonLinesToJson = (text: string): string => {
 // ---------------------------------------------------------------------------------------------
 // C4: YAML
 // ---------------------------------------------------------------------------------------------
+
+/**
+ * Upper limit of the mappings / sequences of a YAML selection that uses anchors and aliases.
+ * js-yaml looks for repeated references with a linear search per object when the references are
+ * kept, which takes quadratic time; without aliases the references are not tracked at all.
+ */
+export const YAML_MAX_CONTAINERS_WITH_ALIASES = 50_000;
+
+/** A line that holds no YAML value: blank, a comment or a document marker (checked without a regular expression). */
+const isEmptyYamlLine = (line: string): boolean => {
+  const trimmed = line.trim();
+  return trimmed === '' || trimmed.startsWith('#') || trimmed === '---' || trimmed === '...';
+};
 
 /**
  * DATA-020 / 021 / 040: reads and writes with the YAML 1.2 Core schema (dates and times stay
@@ -386,13 +467,20 @@ export const formatYaml = (text: string, sortKeys: boolean): string => {
     throw yamlError(error);
   }
   // Only comments, blank lines or document markers: there is nothing to format (not "null").
-  if ((value === undefined || value === null) && text.split(/\r\n|\r|\n/).every((line) => /^\s*(?:#.*|---|\.\.\.)?\s*$/.test(line))) {
+  if ((value === undefined || value === null) && text.split(/\r\n|\r|\n/).every(isEmptyYamlLine)) {
     throw new DataInputError('the selection contains no YAML value');
   }
-  assertDepth(value);
+  // Aliases share objects: visit each once (depth check), and learn whether any is shared.
+  const graph = inspectGraph(value);
+  if (graph.shared && graph.containers > YAML_MAX_CONTAINERS_WITH_ALIASES) {
+    throw new DataInputError(
+      `YAML with anchors and aliases is limited to ${YAML_MAX_CONTAINERS_WITH_ALIASES.toLocaleString('en-US')} mappings and sequences`
+    );
+  }
   let dumped: string;
   try {
-    dumped = yaml.dump(value, { schema: yaml.CORE_SCHEMA, indent: 2, lineWidth: -1, sortKeys });
+    // Without shared objects there is nothing to write as an alias, so reference tracking is off.
+    dumped = yaml.dump(value, { schema: yaml.CORE_SCHEMA, indent: 2, lineWidth: -1, sortKeys, noRefs: !graph.shared });
   } catch (error) {
     throw yamlError(error);
   }
@@ -686,13 +774,13 @@ export const DATA_COMMAND_ENTRIES: readonly DataCommandEntry[] = [
   { id: 'DATA-016', name: 'json.list-paths', title: 'List JSON Paths', output: 'new-tab', transform: listPaths },
   { id: 'DATA-017', name: 'json.keys', title: 'Extract JSON Keys', output: 'new-tab', transform: listKeys },
   { id: 'DATA-018', name: 'json.merge-selections', title: 'Merge JSON Objects (Selections)', output: 'merge' },
-  { id: 'DATA-019', name: 'json.validate', title: 'Validate JSON', output: 'notify' },
+  { id: 'DATA-019', name: 'json.validate', title: 'Validate JSON', output: 'notify', notify: 'validate' },
   { id: 'DATA-020', name: 'yaml.format', title: 'Format YAML', output: 'new-tab', transform: yamlFormat },
   { id: 'DATA-021', name: 'yaml.sort-keys', title: 'Sort YAML Keys', output: 'new-tab', transform: (text) => formatYaml(text, true) },
   { id: 'DATA-022', name: 'json.array-unique', title: 'Remove Duplicates in JSON Array', output: 'new-tab', transform: arrayUnique },
   { id: 'DATA-023', name: 'json.pluck', title: 'Pluck Field from JSON Array', output: 'new-tab', prompt: 'field', transform: pluck },
   { id: 'DATA-024', name: 'json.group-by', title: 'Group JSON Array by Field', output: 'new-tab', prompt: 'field', transform: groupBy },
-  { id: 'DATA-025', name: 'json.count', title: 'Count JSON Elements', output: 'notify' },
+  { id: 'DATA-025', name: 'json.count', title: 'Count JSON Elements', output: 'notify', notify: 'count' },
   { id: 'DATA-026', name: 'json.to-schema', title: 'Generate JSON Schema from JSON', output: 'new-tab', transform: toJsonSchema },
   { id: 'DATA-027', name: 'json.to-js-object', title: 'Convert JSON to JS Object Literal', output: 'new-tab', transform: json((value, text) => toJsObject(value, isMultiLine(text))) },
   { id: 'DATA-028', name: 'js-object.to-json', title: 'Convert JS Object Literal to JSON', output: 'new-tab', transform: (text) => stringifyPretty(parseJsonLike(text, 'js-object')) },

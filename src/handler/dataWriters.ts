@@ -7,22 +7,18 @@ import xmlFormat from 'xml-formatter';
 import { findLoneSurrogate } from './encodeTransforms';
 import {
   DataInputError,
+  IDENTIFIER,
   isJsonObject,
   isScalar,
+  isSurrogatePairAt,
   JsonObject,
   JsonValue,
   OutputBuffer,
   quoteText,
+  requireObject,
 } from './dataCommon';
 
 const describePath = (path: readonly string[]): string => (path.length === 0 ? 'the top level' : JSON.stringify(path.join('.')));
-
-const requireObject = (value: JsonValue, what: string): JsonObject => {
-  if (!isJsonObject(value)) {
-    throw new DataInputError(`${what} needs a JSON object at the top level`);
-  }
-  return value;
-};
 
 const scalarText = (value: null | boolean | number | string): string => (value === null ? '' : String(value));
 
@@ -56,6 +52,12 @@ export const toQueryString = (value: JsonValue): string => {
 
 const ENV_KEY = /^[\w.-]+$/;
 const ENV_NEEDS_QUOTES = /[\s#"'=\\`$]/;
+/**
+ * Characters that readers expand inside double quotes: `$VAR` / `${VAR}` / `$(...)` (shells,
+ * Docker Compose, dotenv-expand), backquotes (shells) and backslash escapes such as `\n` (dotenv).
+ * A value that holds one of them is written in single quotes, where they stay literal.
+ */
+const ENV_EXPANDED_IN_DOUBLE_QUOTES = /[\\`$]/;
 
 export const toEnv = (value: JsonValue): string => {
   const object = requireObject(value, 'Convert JSON to Env');
@@ -72,7 +74,12 @@ export const toEnv = (value: JsonValue): string => {
       throw new DataInputError(`the value of ${JSON.stringify(key)} contains a line break`);
     }
     let written = text;
-    if (ENV_NEEDS_QUOTES.test(text)) {
+    if (ENV_EXPANDED_IN_DOUBLE_QUOTES.test(text)) {
+      if (text.includes("'")) {
+        throw new DataInputError(`the value of ${JSON.stringify(key)} contains ' together with $, \` or \\ and cannot be quoted safely`);
+      }
+      written = `'${text}'`;
+    } else if (ENV_NEEDS_QUOTES.test(text)) {
       if (!text.includes('"')) {
         written = `"${text}"`;
       } else if (!text.includes("'")) {
@@ -292,7 +299,7 @@ const iniValue = (key: string, value: JsonValue, path: string[]): string => {
 };
 
 const iniKey = (key: string): string => {
-  if (key === '' || key !== key.trim() || INI_BAD_KEY.test(key) || key.startsWith(';') || key.startsWith('#')) {
+  if (key === '' || key !== key.trim() || INI_BAD_KEY.test(key)) {
     throw new DataInputError(`the key ${quoteText(key)} cannot be used in INI (it must not be empty or contain = [ ] ; # or line breaks)`);
   }
   return key;
@@ -345,7 +352,15 @@ export const toProperties = (value: JsonValue): string => {
   const out = new OutputBuffer();
   const visit = (item: JsonValue, key: string): void => {
     if (Array.isArray(item)) {
-      item.forEach((element, index) => visit(element, `${key}[${index}]`));
+      item.forEach((element, index) => {
+        const before = out.count;
+        visit(element, `${key}[${index}]`);
+        // An element that writes no line (an empty object / array) would shift the indexes of
+        // the elements after it when read back, so it cannot be represented.
+        if (out.count === before) {
+          throw new DataInputError(`the element ${key}[${index}] is an empty object or array, which .properties cannot represent inside an array`);
+        }
+      });
       return;
     }
     if (isJsonObject(item)) {
@@ -368,8 +383,6 @@ export const toProperties = (value: JsonValue): string => {
 // DATA-027 JavaScript object literal
 // ---------------------------------------------------------------------------------------------
 
-const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
-
 const jsString = (text: string): string => {
   let result = "'";
   for (let i = 0; i < text.length; i++) {
@@ -387,7 +400,7 @@ const jsString = (text: string): string => {
       default:
         if (code < 0x20 || code === 0x7f) {
           result += `\\x${code.toString(16).padStart(2, '0')}`;
-        } else if (code >= 0xd800 && code <= 0xdbff && /[\uDC00-\uDFFF]/.test(text[i + 1] ?? '')) {
+        } else if (isSurrogatePairAt(text, i)) {
           // A surrogate pair is kept as it is.
           result += ch + text[i + 1];
           i++;
@@ -402,28 +415,54 @@ const jsString = (text: string): string => {
   return `${result}'`;
 };
 
-const jsKey = (key: string): string => (JS_IDENTIFIER.test(key) ? key : jsString(key));
+/**
+ * `__proto__: value` (quoted or not) in an object literal sets the prototype instead of creating a
+ * property, so that key is written as the computed name `['__proto__']` (DATA-028 reads it back).
+ */
+const jsKey = (key: string): string => {
+  if (key === '__proto__') {
+    return "['__proto__']";
+  }
+  return IDENTIFIER.test(key) ? key : jsString(key);
+};
 
-const jsValue = (value: JsonValue, indent: string | undefined, level: number): string => {
+/**
+ * Writes the literal piece by piece into `out`, so a result longer than MAX_OUTPUT_LENGTH (deep
+ * nesting multiplies the indentation) stops early instead of being built first.
+ */
+const writeJsValue = (value: JsonValue, indent: string | undefined, level: number, out: OutputBuffer): void => {
   if (typeof value === 'string') {
-    return jsString(value);
+    out.push(jsString(value));
+    return;
   }
   if (!Array.isArray(value) && !isJsonObject(value)) {
-    return JSON.stringify(value);
+    out.push(JSON.stringify(value));
+    return;
   }
-  const items = Array.isArray(value)
-    ? value.map((item) => jsValue(item, indent, level + 1))
-    : Object.entries(value).map(([key, item]) => `${jsKey(key)}: ${jsValue(item, indent, level + 1)}`);
-  const [open, close] = Array.isArray(value) ? ['[', ']'] : ['{', '}'];
-  if (items.length === 0) {
-    return `${open}${close}`;
+  const isArray = Array.isArray(value);
+  const entries: [string | undefined, JsonValue][] = isArray
+    ? value.map((item): [undefined, JsonValue] => [undefined, item])
+    : Object.entries(value);
+  const [open, close] = isArray ? ['[', ']'] : ['{', '}'];
+  if (entries.length === 0) {
+    out.push(`${open}${close}`);
+    return;
   }
-  if (indent === undefined) {
-    return Array.isArray(value) ? `[${items.join(', ')}]` : `{ ${items.join(', ')} }`;
-  }
-  const inner = indent.repeat(level + 1);
-  return `${open}\n${items.map((item) => `${inner}${item}`).join(',\n')}\n${indent.repeat(level)}${close}`;
+  const inner = indent === undefined ? '' : indent.repeat(level + 1);
+  out.push(indent !== undefined ? `${open}\n` : isArray ? '[' : '{ ');
+  entries.forEach(([key, item], index) => {
+    if (index > 0) {
+      out.push(indent === undefined ? ', ' : ',\n');
+    }
+    out.push(key === undefined ? inner : `${inner}${jsKey(key)}: `);
+    writeJsValue(item, indent, level + 1, out);
+  });
+  out.push(indent !== undefined ? `\n${indent.repeat(level)}${close}` : isArray ? ']' : ' }');
 };
 
 /** One line in, one line out (`{ a: 1, 'b-c': 2 }`); a multi-line input is indented with 2 spaces. */
-export const toJsObject = (value: JsonValue, multiLine: boolean): string => jsValue(value, multiLine ? '  ' : undefined, 0);
+export const toJsObject = (value: JsonValue, multiLine: boolean): string => {
+  const out = new OutputBuffer();
+  writeJsValue(value, multiLine ? '  ' : undefined, 0, out);
+  return out.join('');
+};
