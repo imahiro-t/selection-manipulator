@@ -1,7 +1,7 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "The ultimate text processing toolkit for VS Code. Over 250 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS), Japanese text conversion, and ASCII art.",
+  "description": "The ultimate text processing toolkit for VS Code. Over 650 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS), Japanese text conversion, and ASCII art.",
   "version": "0.0.42",
   "publisher": "erintheblack",
   "author": {
