@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - ✨ Add 25 Markdown commands (ROADMAP MD-001..025), added to the existing `Markdown` context submenu under `Transform`
-  - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only; the final line break of the document is kept; the tables of contents of several cursors on one line are separated by a blank line), Convert Setext Headings to ATX, Heading to Anchor Link
+  - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only; the final line break of the document is kept; the tables of contents of several cursors on one line are separated by a blank line, also with a selection of only spaces between them), Convert Setext Headings to ATX, Heading to Anchor Link
   - Lists and tasks: Convert Lines to Bullet / Numbered / Task List, Toggle Task Checkbox, Remove List Markers, Renumber Ordered List (per nesting level), Blockquote
   - Inline: Bold, Italic, Strikethrough, Wrap in Code Fence (language: empty or up to 50 letters, digits and `_ + # . -`), Image (alt text up to 1,000 characters, escaped), Linkify URLs, Wrap in Details Block (summary up to 1,000 characters, HTML-escaped)
   - Format Table (column widths in code points, alignments kept) and Strip Formatting

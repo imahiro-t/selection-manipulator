@@ -423,9 +423,13 @@ const finalLineBreak = (text: string): string =>
  * of the previous selection and this one (the same line, or a nearby line of spaces), the two lists
  * are separated by one blank line (none is added when one is already there), and the indentation
  * before this one is dropped whatever its width, so that it is read neither as a continuation of
- * the previous list nor as a list nested in it. The headings of a selection are found by
- * walking the headings and the selections (both in document order) together, and the whole
- * table of contents is made once for all cursors.
+ * the previous list nor as a list nested in it. A selection without headings that holds nothing but
+ * spaces, tabs and line breaks is seen through for this separation and for the dropped indentation
+ * (as if it were not there): its spaces may be taken into the edit of the next table of contents,
+ * and then it is left as a cursor at the start of what replaces them (the line breaks written
+ * before that list, if any, come first). The headings of a selection are found by walking the
+ * headings and the selections (both in document order) together, and the whole table of contents
+ * is made once for all cursors.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
@@ -456,12 +460,20 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
   /** What was written after the table of contents of the previous selection (undefined when it had none). */
   let previousAfter: string | undefined;
   const edited: MdRange[] = [];
+  /** The selections of only spaces, tabs and line breaks without a table of contents since the last one that had one or had other text. */
+  let blanks: number[] = [];
   const replacements = ranges.map((range, i) => {
     edited.push(range);
     const toc = tocOf(range);
     if (toc === undefined) {
-      floor = range.end;
-      previousAfter = undefined;
+      if (/^[ \t\r\n]*$/.test(text.slice(range.start, range.end))) {
+        // Seen through: the previous table of contents (or the start of the text) stays the limit.
+        blanks.push(i);
+      } else {
+        floor = range.end;
+        previousAfter = undefined;
+        blanks = [];
+      }
       return undefined;
     }
     const textBefore = lines.textBefore(range.start);
@@ -481,6 +493,15 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
     const breakBefore = adjacent || before !== '' || (!textBefore && indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4);
     edited[i] = editRange(text, range, breakBefore, textAfter && endsInsideLine(text, range.end), floor, ceiling);
+    // The spaces taken into this edit leave the selections of them: they end where the edit starts.
+    const editStart = edited[i].start;
+    blanks.forEach((j) => {
+      const blank = edited[j];
+      if (blank.end > editStart) {
+        edited[j] = { start: Math.min(blank.start, editStart), end: editStart, reversed: blank.reversed };
+      }
+    });
+    blanks = [];
     if (after === '' && edited[i].end === text.length) {
       after = finalLineBreak(text);
     }

@@ -271,6 +271,20 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(crlf.document.getText(), '# A\r\n\r\n- [A](#a)\r\n\r\n- [A](#a)\r\n');
     });
 
+    test('MD-003: a selection of spaces between cursors keeps the lists separate (SELEC-00068)', async () => {
+      // The selected space is taken into the edit of the second list: the edits do not overlap.
+      const text = '# A\n\n    ';
+      const editor = await open(text, [[5, 5], [6, 7], [9, 9]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(editor.document.getText(), text, 'one undo restores the text');
+      // The selected indentation before a cursor is dropped.
+      const indented = await open('# A\n\n    \n', [[5, 9], [9, 9]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(indented);
+      assert.strictEqual(indented.document.getText(), '# A\n\n- [A](#a)\n');
+    });
+
     test('a failure in one selection changes nothing and warns', async () => {
       const { dependencies, warnings, errors } = recorder();
       const text = '|a|\n|-|\n\nnot a table';

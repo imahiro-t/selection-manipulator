@@ -692,6 +692,39 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       // A blank line already between them: none is added, and the indentation of the second is dropped.
       assert.strictEqual(run('MD-003', '# A\n\n\n\n  ', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)');
     });
+
+    test('MD-003: a selection of only spaces, tabs and line breaks between the tables of contents is seen through (SELEC-00068)', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const rangesOf = (text: string, ranges: MdRange[]) => {
+        const outcome = result('MD-003', text, { ranges });
+        assert.strictEqual(outcome.kind, 'edit');
+        return outcome.ranges.map(({ start, end }) => [start, end]);
+      };
+      // A selected space between two cursors: the lists are still separated by a blank line.
+      assert.strictEqual(run('MD-003', '# A\n\n    ', { ranges: [span(5, 5), span(6, 7), span(9, 9)] }), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      // The selection is left as a cursor at the start of what replaces its spaces: the line breaks before the second list.
+      assert.deepStrictEqual(rangesOf('# A\n\n    ', [span(5, 5), span(6, 7), span(9, 9)]), [[5, 14], [14, 14], [14, 25]]);
+      // A selected indentation right before the cursor: the indentation is still dropped (no indented code block).
+      assert.strictEqual(run('MD-003', '# A\n\n    \n', { ranges: [span(5, 9), span(9, 9)] }), '# A\n\n- [A](#a)\n');
+      assert.deepStrictEqual(rangesOf('# A\n\n    \n', [span(5, 9), span(9, 9)]), [[5, 5], [5, 14]]);
+      // Tabs; several selections of spaces next to each other; CRLF.
+      assert.strictEqual(run('MD-003', '# A\n\n\t\t', { ranges: [span(5, 5), span(5, 6), span(7, 7)] }), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\n\n    ', { ranges: [span(5, 5), span(6, 7), span(7, 8), span(9, 9)] }), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\r\n\r\n    ', { ranges: [span(7, 7), span(8, 9), span(11, 11)], eol: '\r\n' }), '# A\r\n\r\n- [A](#a)\r\n\r\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\r\n\r\n    \r\n', { ranges: [span(7, 11), span(11, 11)], eol: '\r\n' }), '# A\r\n\r\n- [A](#a)\r\n');
+      // A selection across a line break: the same text as without it; only its spaces taken into the edit leave it.
+      const lines = '# A\n\n    \n    ';
+      assert.strictEqual(run('MD-003', lines, { ranges: [span(5, 5), span(8, 11), span(14, 14)] }), run('MD-003', lines, { ranges: [span(5, 5), span(14, 14)] }));
+      assert.deepStrictEqual(rangesOf(lines, [span(5, 5), span(8, 11), span(14, 14)]), [[5, 14], [17, 19], [19, 29]]);
+      // After the last table of contents: nothing changes for it.
+      assert.strictEqual(run('MD-003', '# A\n\n    ', { ranges: [span(5, 5), span(7, 9)] }), '# A\n\n- [A](#a)    ');
+      // A selection with other text is not seen through, as before.
+      assert.strictEqual(run('MD-003', '# A\n\nx   ', { ranges: [span(5, 5), span(5, 6), span(9, 9)] }), '# A\n\n- [A](#a)\n\nx\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\n\nx   \n', { ranges: [span(5, 6), span(9, 9)] }), '# A\n\nx\n\n- [A](#a)\n');
+      // No headings at all: still only the information.
+      assert.strictEqual(run('MD-003', '  \n  ', { ranges: [span(0, 2), span(3, 5)] }), `info: ${MD_NO_HEADINGS}`);
+      assert.strictEqual(run('MD-003', '  \n  ', { ranges: [span(0, 0), span(2, 4)] }), `info: ${MD_NO_HEADINGS}`);
+    });
   });
 
   suite('helpers', () => {
