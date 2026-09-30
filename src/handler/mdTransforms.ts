@@ -419,7 +419,11 @@ const finalLineBreak = (text: string): string =>
  * line and the indentation there is 4 columns or more (a tab counting to the next multiple of 4),
  * the indentation is dropped too, so that the first entry is not read as an indented code block.
  * When the edit reaches the end of a text that ends with a line break, that line break is kept
- * after the list. The headings of a selection are found by
+ * after the list. When nothing but spaces, tabs and line breaks comes between the table of contents
+ * of the previous selection and this one (the same line, or a nearby line of spaces), the two lists
+ * are separated by one blank line (none is added when one is already there), and the indentation
+ * before this one is dropped whatever its width, so that it is read neither as a continuation of
+ * the previous list nor as a list nested in it. The headings of a selection are found by
  * walking the headings and the selections (both in document order) together, and the whole
  * table of contents is made once for all cursors.
  */
@@ -449,20 +453,33 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     return toc;
   };
   let floor = 0;
+  /** What was written after the table of contents of the previous selection (undefined when it had none). */
+  let previousAfter: string | undefined;
   const edited: MdRange[] = [];
   const replacements = ranges.map((range, i) => {
     edited.push(range);
     const toc = tocOf(range);
     if (toc === undefined) {
       floor = range.end;
+      previousAfter = undefined;
       return undefined;
     }
     const textBefore = lines.textBefore(range.start);
     const textAfter = lines.textAfter(range.end);
-    const before = textBefore ? eol + eol : lines.textOnPreviousLine(range.start) ? eol : '';
+    let before = textBefore ? eol + eol : lines.textOnPreviousLine(range.start) ? eol : '';
     let after = textAfter ? eol + eol : lines.textOnNextLine(range.end) ? eol : '';
+    // Only spaces, tabs and line breaks since the previous table of contents: one blank line between
+    // the two lists (counting the line breaks already there), and no indentation before this one.
+    let adjacent = false;
+    if (previousAfter !== undefined) {
+      const gap = text.slice(floor, range.start);
+      if (/^[ \t\r\n]*$/.test(gap)) {
+        adjacent = true;
+        before = eol.repeat(Math.max(0, 2 - lineBreakCount(gap.replace(/[ \t]/g, '')) - lineBreakCount(previousAfter)));
+      }
+    }
     const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-    const breakBefore = before !== '' || (!textBefore && indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4);
+    const breakBefore = adjacent || before !== '' || (!textBefore && indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4);
     edited[i] = editRange(text, range, breakBefore, textAfter && endsInsideLine(text, range.end), floor, ceiling);
     if (after === '' && edited[i].end === text.length) {
       after = finalLineBreak(text);
@@ -470,6 +487,7 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     total += before.length + toc.length + after.length;
     assertOutputLength(total);
     floor = edited[i].end;
+    previousAfter = after;
     return before + toc + after;
   });
   if (replacements.every((replacement) => replacement === undefined)) {

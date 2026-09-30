@@ -254,6 +254,23 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(indented.document.getText(), '# A\n\n- [A](#a)\n  - [B](#b)\n\n## B');
     });
 
+    test('MD-003: several cursors on one line of spaces insert separate lists (SELEC-00065)', async () => {
+      // The second edit starts where the first one inserts its list: the editor keeps them in order.
+      const text = '# A\n\n    ';
+      const editor = await open(text, [[5, 5], [9, 9]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(editor.document.getText(), text, 'one undo restores the text');
+      // Followed by an empty line; CRLF with a final line break.
+      const spaces = await open('# A\n\n  \n\nx', [[5, 5], [7, 7]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(spaces);
+      assert.strictEqual(spaces.document.getText(), '# A\n\n- [A](#a)\n\n- [A](#a)\n\nx');
+      const crlf = await open('# A\r\n\r\n    \r\n', [[7, 7], [11, 11]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(crlf);
+      assert.strictEqual(crlf.document.getText(), '# A\r\n\r\n- [A](#a)\r\n\r\n- [A](#a)\r\n');
+    });
+
     test('a failure in one selection changes nothing and warns', async () => {
       const { dependencies, warnings, errors } = recorder();
       const text = '|a|\n|-|\n\nnot a table';

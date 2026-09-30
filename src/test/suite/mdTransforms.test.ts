@@ -31,7 +31,11 @@ import {
 } from '../../handler/mdTransforms';
 import { expandMd, MD_ROADMAP_EXAMPLES } from './mdExamples';
 
-/** The document after applying a result (or `unchanged` / `info: …`). */
+/**
+ * The document after applying a result (or `unchanged` / `info: …`). The edits are in document
+ * order and may touch (an insertion right where the next edit starts), so they are applied from
+ * the last one back, like the editor does.
+ */
 const applied = (text: string, result: MdResult): string => {
   if (result.kind === 'unchanged') {
     return 'unchanged';
@@ -40,7 +44,7 @@ const applied = (text: string, result: MdResult): string => {
     return `info: ${result.message}`;
   }
   let edited = text;
-  [...result.edits].sort((a, b) => b.start - a.start).forEach(({ start, end, text: value }) => {
+  [...result.edits].reverse().forEach(({ start, end, text: value }) => {
     edited = edited.slice(0, start) + value + edited.slice(end);
   });
   return edited;
@@ -656,8 +660,37 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-003', '   # A', { ranges: [{ start: 3, end: 6 }] }), '   - [A](#a)');
       // Text before the cursor on its line: split as before.
       assert.strictEqual(run('MD-003', 'a  b\n# A', { ranges: [{ start: 2, end: 2 }] }), 'a\n\n- [A](#a)\n\nb\n# A');
-      // Two cursors on one line of spaces: each list starts at the start of a line.
-      assert.strictEqual(run('MD-003', '        \n# A', { ranges: [{ start: 4, end: 4 }, { start: 8, end: 8 }] }), '- [A](#a)\n- [A](#a)\n\n# A');
+      // Two cursors on one line of spaces: each list starts at the start of a line, with a blank line between them.
+      assert.strictEqual(run('MD-003', '        \n# A', { ranges: [{ start: 4, end: 4 }, { start: 8, end: 8 }] }), '- [A](#a)\n\n- [A](#a)\n\n# A');
+    });
+
+    test('MD-003: the tables of contents of several cursors on one line are separate lists (a blank line between them)', () => {
+      const at = (...offsets: number[]) => offsets.map((offset) => ({ start: offset, end: offset }));
+      // A line of spaces at the end of the text, without and with a final line break.
+      assert.strictEqual(run('MD-003', '# A\n\n    ', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\n\n    \n', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)\n');
+      // A line of spaces followed by an empty line.
+      assert.strictEqual(run('MD-003', '# A\n\n    \n\nx', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)\n\nx');
+      assert.strictEqual(run('MD-003', '# A\n\n  \n\nx', { ranges: at(5, 7) }), '# A\n\n- [A](#a)\n\n- [A](#a)\n\nx');
+      // Three cursors; a table of contents of several lines.
+      assert.strictEqual(run('MD-003', '# A\n\n  ', { ranges: at(5, 6, 7) }), '# A\n\n- [A](#a)\n\n- [A](#a)\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\n\n        \n# B', { ranges: at(9, 13) }), '# A\n\n- [A](#a)\n- [B](#b)\n\n- [A](#a)\n- [B](#b)\n\n# B');
+      // CRLF.
+      assert.strictEqual(run('MD-003', '# A\r\n\r\n    ', { ranges: at(7, 11), eol: '\r\n' }), '# A\r\n\r\n- [A](#a)\r\n\r\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\r\n\r\n    \r\n', { ranges: at(7, 11), eol: '\r\n' }), '# A\r\n\r\n- [A](#a)\r\n\r\n- [A](#a)\r\n');
+      // A line with text: one blank line between the lists; at the start and the end of the line.
+      assert.strictEqual(run('MD-003', '# A\n\nfoo bar\n', { ranges: at(8, 9) }), '# A\n\nfoo\n\n- [A](#a)\n\n- [A](#a)\n\nbar\n');
+      assert.strictEqual(run('MD-003', '# A\n\nfoo\n', { ranges: at(5, 8) }), '# A\n\n- [A](#a)\n\nfoo\n\n- [A](#a)\n');
+      // Empty lines next to each other.
+      assert.strictEqual(run('MD-003', '# A\n\n\n', { ranges: at(5, 6) }), '# A\n\n- [A](#a)\n\n- [A](#a)\n');
+      // The end of a line and the indentation of the next line: the second list is not nested.
+      assert.strictEqual(run('MD-003', '# A\nfoo\n  bar', { ranges: at(7, 10) }), '# A\nfoo\n\n- [A](#a)\n\n- [A](#a)\n\nbar');
+      assert.strictEqual(run('MD-003', '# A\n\nfoo\n  bar', { ranges: at(8, 11) }), '# A\n\nfoo\n\n- [A](#a)\n\n- [A](#a)\n\nbar');
+      // Lines of 1 to 3 columns of indentation next to each other: the second list is not nested.
+      assert.strictEqual(run('MD-003', '# A\n\n\n   ', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)');
+      assert.strictEqual(run('MD-003', '# A\n\n  \n  ', { ranges: at(7, 10) }), '# A\n\n  - [A](#a)\n\n- [A](#a)');
+      // A blank line already between them: none is added, and the indentation of the second is dropped.
+      assert.strictEqual(run('MD-003', '# A\n\n\n\n  ', { ranges: at(5, 9) }), '# A\n\n- [A](#a)\n\n- [A](#a)');
     });
   });
 
