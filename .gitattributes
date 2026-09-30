@@ -1,0 +1,3 @@
+# The generated showcase is compared byte-for-byte by "npm run showcase:check";
+# keep it LF on every platform (e.g. Windows with core.autocrlf=true).
+docs/showcase.html text eol=lf

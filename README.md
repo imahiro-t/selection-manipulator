@@ -71,6 +71,8 @@ Selection Manipulator offers over **800 powerful tools** to manipulate, transfor
 
 > **Pro Tip**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
 
+> **Command Showcase**: [`docs/showcase.html`](docs/showcase.html) lists every command by category, with its description and an input → output example, and lets you search and filter them. It is a single HTML file that works offline: open it in a browser. After adding commands, regenerate it with `npm run showcase` (`npm run showcase:check` verifies that it is up to date).
+
 ## Usage Guide
 
 This document provides a comprehensive list of features available in **Selection Manipulator**, along with examples of their usage.
