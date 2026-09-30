@@ -3931,6 +3931,131 @@ export const myCommands = [
     "command": "selection-manipulator.selection.select-indentation",
     "title": "Selection - Select Leading Indentation",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.heading-increase",
+    "title": "Markdown: Increase Heading Level",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.heading-decrease",
+    "title": "Markdown: Decrease Heading Level",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.toc",
+    "title": "Markdown: Generate Table of Contents",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.bullet-list",
+    "title": "Markdown: Convert Lines to Bullet List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.numbered-list",
+    "title": "Markdown: Convert Lines to Numbered List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.task-list",
+    "title": "Markdown: Convert Lines to Task List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.toggle-task",
+    "title": "Markdown: Toggle Task Checkbox",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.remove-list-markers",
+    "title": "Markdown: Remove List Markers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.renumber-list",
+    "title": "Markdown: Renumber Ordered List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.bold",
+    "title": "Markdown: Bold",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.italic",
+    "title": "Markdown: Italic",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.strikethrough",
+    "title": "Markdown: Strikethrough",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.setext-to-atx",
+    "title": "Markdown: Convert Setext Headings to ATX",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.code-block",
+    "title": "Markdown: Wrap in Code Fence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.blockquote",
+    "title": "Markdown: Blockquote",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.image",
+    "title": "Markdown: Image",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.linkify-urls",
+    "title": "Markdown: Linkify URLs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.format-table",
+    "title": "Markdown: Format Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.to-html",
+    "title": "Markdown: Convert to HTML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.strip",
+    "title": "Markdown: Strip Formatting",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.heading-to-anchor",
+    "title": "Markdown: Heading to Anchor Link",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.footnote",
+    "title": "Markdown: Convert to Footnote",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.reference-links",
+    "title": "Markdown: Inline Links to Reference Links",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.details",
+    "title": "Markdown: Wrap in Details Block",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.front-matter-to-json",
+    "title": "Markdown: Front Matter to JSON",
+    "canMultiSelection": true
   }
 ];
 

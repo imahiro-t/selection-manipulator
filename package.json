@@ -4051,6 +4051,131 @@
         "command": "selection-manipulator.selection.select-indentation",
         "title": "Selection - Select Leading Indentation",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.heading-increase",
+        "title": "Markdown: Increase Heading Level",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.heading-decrease",
+        "title": "Markdown: Decrease Heading Level",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.toc",
+        "title": "Markdown: Generate Table of Contents",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.bullet-list",
+        "title": "Markdown: Convert Lines to Bullet List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.numbered-list",
+        "title": "Markdown: Convert Lines to Numbered List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.task-list",
+        "title": "Markdown: Convert Lines to Task List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.toggle-task",
+        "title": "Markdown: Toggle Task Checkbox",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.remove-list-markers",
+        "title": "Markdown: Remove List Markers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.renumber-list",
+        "title": "Markdown: Renumber Ordered List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.bold",
+        "title": "Markdown: Bold",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.italic",
+        "title": "Markdown: Italic",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.strikethrough",
+        "title": "Markdown: Strikethrough",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.setext-to-atx",
+        "title": "Markdown: Convert Setext Headings to ATX",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.code-block",
+        "title": "Markdown: Wrap in Code Fence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.blockquote",
+        "title": "Markdown: Blockquote",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.image",
+        "title": "Markdown: Image",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.linkify-urls",
+        "title": "Markdown: Linkify URLs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.format-table",
+        "title": "Markdown: Format Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.to-html",
+        "title": "Markdown: Convert to HTML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.strip",
+        "title": "Markdown: Strip Formatting",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.heading-to-anchor",
+        "title": "Markdown: Heading to Anchor Link",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.footnote",
+        "title": "Markdown: Convert to Footnote",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.reference-links",
+        "title": "Markdown: Inline Links to Reference Links",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.details",
+        "title": "Markdown: Wrap in Details Block",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.front-matter-to-json",
+        "title": "Markdown: Front Matter to JSON",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -6712,6 +6837,105 @@
         },
         {
           "command": "selection-manipulator.selection.select-indentation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.heading-increase"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.heading-decrease"
+        },
+        {
+          "command": "selection-manipulator.markdown.toc"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.bullet-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.numbered-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.task-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.toggle-task"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.remove-list-markers"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.renumber-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.bold"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.italic"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.strikethrough"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.setext-to-atx"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.code-block"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.blockquote"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.image"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.linkify-urls"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.format-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.to-html"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.strip"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.heading-to-anchor"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.footnote"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.reference-links"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.details"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.front-matter-to-json"
         }
       ],
       "editor/context": [
@@ -8837,6 +9061,130 @@
         {
           "command": "selection-manipulator.markdown.link",
           "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.markdown.heading-increase",
+          "group": "selection-manipulator@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.heading-decrease",
+          "group": "selection-manipulator@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.toc",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.markdown.bullet-list",
+          "group": "selection-manipulator@4",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.numbered-list",
+          "group": "selection-manipulator@5",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.task-list",
+          "group": "selection-manipulator@6",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.toggle-task",
+          "group": "selection-manipulator@7",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.remove-list-markers",
+          "group": "selection-manipulator@8",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.renumber-list",
+          "group": "selection-manipulator@9",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.bold",
+          "group": "selection-manipulator@10",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.italic",
+          "group": "selection-manipulator@11",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.strikethrough",
+          "group": "selection-manipulator@12",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.setext-to-atx",
+          "group": "selection-manipulator@13",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.code-block",
+          "group": "selection-manipulator@14",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.blockquote",
+          "group": "selection-manipulator@15",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.image",
+          "group": "selection-manipulator@16",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.linkify-urls",
+          "group": "selection-manipulator@17",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.format-table",
+          "group": "selection-manipulator@18",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.to-html",
+          "group": "selection-manipulator@19",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.strip",
+          "group": "selection-manipulator@20",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.heading-to-anchor",
+          "group": "selection-manipulator@21",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.footnote",
+          "group": "selection-manipulator@22",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.reference-links",
+          "group": "selection-manipulator@23",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.details",
+          "group": "selection-manipulator@24",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.front-matter-to-json",
+          "group": "selection-manipulator@25",
+          "when": "editorHasSelection"
         }
       ],
       "selection-manipulator.insert.submenu": [

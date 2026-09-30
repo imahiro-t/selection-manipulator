@@ -89,6 +89,7 @@ import { genCommandHandler } from './handler/genCommandHandler';
 import { jaCommandHandler } from './handler/jaCommandHandler';
 import { uniCommandHandler } from './handler/uniCommandHandler';
 import { mselCommandHandler } from './handler/mselCommandHandler';
+import { mdCommandHandler } from './handler/mdCommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -948,6 +949,33 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.copy-first-to-all', mselCommandHandler('selection.copy-first-to-all')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.info', mselCommandHandler('selection.info')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-indentation', mselCommandHandler('selection.select-indentation')));
+
+  // Markdown (MD-001..025)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.heading-increase', mdCommandHandler('markdown.heading-increase')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.heading-decrease', mdCommandHandler('markdown.heading-decrease')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.toc', mdCommandHandler('markdown.toc')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.bullet-list', mdCommandHandler('markdown.bullet-list')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.numbered-list', mdCommandHandler('markdown.numbered-list')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.task-list', mdCommandHandler('markdown.task-list')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.toggle-task', mdCommandHandler('markdown.toggle-task')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.remove-list-markers', mdCommandHandler('markdown.remove-list-markers')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.renumber-list', mdCommandHandler('markdown.renumber-list')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.bold', mdCommandHandler('markdown.bold')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.italic', mdCommandHandler('markdown.italic')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.strikethrough', mdCommandHandler('markdown.strikethrough')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.setext-to-atx', mdCommandHandler('markdown.setext-to-atx')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.code-block', mdCommandHandler('markdown.code-block')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.blockquote', mdCommandHandler('markdown.blockquote')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.image', mdCommandHandler('markdown.image')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.linkify-urls', mdCommandHandler('markdown.linkify-urls')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.format-table', mdCommandHandler('markdown.format-table')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.to-html', mdCommandHandler('markdown.to-html')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.strip', mdCommandHandler('markdown.strip')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.heading-to-anchor', mdCommandHandler('markdown.heading-to-anchor')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.footnote', mdCommandHandler('markdown.footnote')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.reference-links', mdCommandHandler('markdown.reference-links')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.details', mdCommandHandler('markdown.details')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.front-matter-to-json', mdCommandHandler('markdown.front-matter-to-json')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));
