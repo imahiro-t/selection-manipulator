@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-30
+
 - 📚 Add a command showcase, published on GitHub Pages at https://imahiro-t.github.io/selection-manipulator/ and linked from the README: every command registered in `package.json` (831 now) by category, with its ID, title, description and input → output example in English and Japanese, a "Getting started" section (installation, Command Palette, context menu, keybindings, multiple selections, where results go), keyword search in both languages (ID, title, description, example) and category filters with counts, light / dark themes, and a layout that fits a 360px-wide screen; a single file with no external resources
   - English by default; the first language follows the browser (`navigator.language` starting with `ja` shows Japanese), and the English / 日本語 buttons switch it and remember the choice in `localStorage`; without JavaScript the page is shown in English
   - Generated as `docs/showcase.html` by `npm run showcase` (`scripts/generate-showcase.mjs`, Node.js built-ins only) from the bilingual data in `scripts/showcase-data/` (a file per category, with the English and Japanese description and example of every command); command titles come from `package.json`
