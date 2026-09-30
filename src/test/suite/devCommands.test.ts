@@ -9,6 +9,7 @@ import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
 import { createTextEditor } from './testUtils';
 import { DEV_ROADMAP_EXAMPLES } from './devExamples';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
@@ -99,14 +100,8 @@ const codeSpan = (span: string): string => {
   return inner.length >= 2 && inner.startsWith(' ') && inner.endsWith(' ') && inner.trim() !== '' ? inner.slice(1, -1) : inner;
 };
 
-/** The DEV rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| DEV-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], codeSpan(cells[3]), cells[4], cells[6]];
-    });
+/** The DEV commands of the showcase data (scripts/showcase-data/DEV.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('DEV');
 
 /** Expands the notation of the ROADMAP examples: `⏎` (line break), `⇥` (tab) and `·` (space). */
 const expandNotation = (text: string): string => text.replace(/⏎/g, '\n').replace(/⇥/g, '\t').replace(/·/g, ' ');
@@ -534,8 +529,8 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, kinds, titles and examples match the DEV table of docs/ROADMAP.md, in its order', () => {
-      const rows = roadmapRows();
+    test('command IDs, kinds, titles and examples match the DEV commands of the showcase data, in its order', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 35);
       // All 35 commands are implemented: 29 base commands (new editor) and 6 Replace variants.
       assert.deepStrictEqual(DEV_COMMAND_ENTRIES.map((entry) => entry.id), rows.map(([id]) => id));

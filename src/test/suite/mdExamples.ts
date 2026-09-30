@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the MD table of docs/ROADMAP.md, in its notation: `⏎` is a line
+ * The input / output examples of the MD commands of the showcase data (scripts/showcase-data/MD.json), in its notation: `⏎` is a line
  * break, `·` a space and `\|` a `|`. The whole input is the document and is selected as a whole,
  * unless `selection` says which part is selected.
  */

@@ -15,6 +15,7 @@ import {
 } from '../../handler/hashTransforms';
 import { HASH_ROADMAP_EXAMPLES } from './hashExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const SHA256_A = 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb';
@@ -106,16 +107,9 @@ const closeAllEditors = async () => {
   }
 };
 
-/** The HASH rows of docs/ROADMAP.md: [id, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string][] => {
-  const roadmap = fs.readFileSync(path.resolve(__dirname, '../../../docs/ROADMAP.md'), 'utf8');
-  return roadmap.split('\n')
-    .filter((line) => /^\| HASH-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split('|').map((cell) => cell.trim());
-      return [cells[1], cells[4].replace(/`/g, ''), cells[5], cells[7]];
-    });
-};
+/** The HASH commands of the showcase data (scripts/showcase-data/HASH.json): [id, command ID, title, example]. */
+const dataRows = (): [string, string, string, string][] =>
+  candidateRows('HASH').map(([id, , command, title, example]): [string, string, string, string] => [id, command, title, example]);
 
 suite('Hash Commands (HASH-001..020) Test Suite', () => {
 
@@ -405,8 +399,8 @@ suite('Hash Commands (HASH-001..020) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the HASH table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the HASH commands of the showcase data', () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), HASH_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, command]) => command), HASH_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       rows.forEach(([id, , , example]) => {
@@ -449,7 +443,7 @@ suite('Hash Commands (HASH-001..020) Test Suite', () => {
       const cryptoMenu: MenuItem[] = contributes.menus['selection-manipulator.crypto.submenu'];
       const checksumMenu: MenuItem[] = contributes.menus['selection-manipulator.checksum.submenu'];
       const replaceMenu: MenuItem[] = contributes.menus['selection-manipulator.crypto.replace.submenu'];
-      const titles = new Map(roadmapRows().map(([, command, title]) => [command, title]));
+      const titles = new Map(dataRows().map(([, command, title]) => [command, title]));
       HASH_COMMAND_ENTRIES.forEach((entry) => {
         const id = `selection-manipulator.${entry.name}`;
         assert.strictEqual(count(contributes.commands, id), 1, `commands: ${id}`);

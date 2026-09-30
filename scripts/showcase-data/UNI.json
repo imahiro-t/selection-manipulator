@@ -1,0 +1,373 @@
+{
+  "category": "UNI",
+  "commands": [
+    {
+      "id": "selection-manipulator.unicode.normalize-nfc",
+      "candidateId": "UNI-001",
+      "description": {
+        "en": "Applies NFC normalization using String.prototype.normalize.",
+        "ja": "String.prototype.normalize で NFC 正規化する"
+      },
+      "example": {
+        "en": "`e{U+0301}` → `é`",
+        "ja": "`e{U+0301}` → `é`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.normalize-nfd",
+      "candidateId": "UNI-002",
+      "description": {
+        "en": "Applies NFD normalization (decomposition).",
+        "ja": "NFD 正規化（分解）する"
+      },
+      "example": {
+        "en": "`é` → `e{U+0301}`",
+        "ja": "`é` → `e{U+0301}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.normalize-nfkc",
+      "candidateId": "UNI-003",
+      "description": {
+        "en": "Applies NFKC normalization, unifying compatibility characters.",
+        "ja": "NFKC 正規化する（互換文字を統一）"
+      },
+      "example": {
+        "en": "`ｶﾞ①ﬁ` → `ガ1fi`",
+        "ja": "`ｶﾞ①ﬁ` → `ガ1fi`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.normalize-nfkd",
+      "candidateId": "UNI-004",
+      "description": {
+        "en": "Applies NFKD normalization.",
+        "ja": "NFKD 正規化する"
+      },
+      "example": {
+        "en": "`ﬁ` → `fi`",
+        "ja": "`ﬁ` → `fi`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.remove-zero-width",
+      "candidateId": "UNI-005",
+      "description": {
+        "en": "Removes U+200B, U+200C (ZWNJ), U+200D (ZWJ), U+2060, U+FEFF (BOM) and U+180E. A ZWJ joining emoji (preceded by an Extended\\_Pictographic character, optionally followed by skin tone modifiers or U+FE0E / U+FE0F, and followed by an Extended\\_Pictographic character) is kept so ZWJ sequences are not broken (`👍{U+200D}` → `👍`, `a{U+200D}b` → `ab`).",
+        "ja": "U+200B・U+200C（ZWNJ）・U+200D（ZWJ）・U+2060・U+FEFF（BOM）・U+180E を取り除く。ただし絵文字どうしをつなぐ ZWJ（直前が Extended\\_Pictographic（間に肌色修飾子・U+FE0E / U+FE0F があってもよい）で、直後も Extended\\_Pictographic のもの）は残し、ZWJ シーケンスを壊さない（`👍{U+200D}` → `👍`、`a{U+200D}b` → `ab`）"
+      },
+      "example": {
+        "en": "`a{U+200B}b` → `ab`",
+        "ja": "`a{U+200B}b` → `ab`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.reveal-invisible",
+      "candidateId": "UNI-006",
+      "description": {
+        "en": "Makes invisible and control characters visible as &lt;U+XXXX&gt; notation. Targets Cc (except tab and line feed), Cf, U+2028 / U+2029 and Zs (except the normal space and the ideographic space); ZWJ and tag characters belonging to emoji sequences are kept by the same rule as in **Unicode - Remove Zero-width Characters**, and **Unicode - Code Points to Text** restores the text.",
+        "ja": "見えない文字や制御文字を &lt;U+XXXX&gt; 表記にして見えるようにする（対象は Cc（タブ・改行を除く）・Cf・U+2028 / U+2029・Zs（通常の空白と全角空白を除く）。**Unicode - Remove Zero-width Characters** と同じ規則で絵文字シーケンスに属する ZWJ・タグ文字はそのまま。**Unicode - Code Points to Text** で元に戻せる）"
+      },
+      "example": {
+        "en": "`a{U+200B}b` → `a<U+200B>b`",
+        "ja": "`a{U+200B}b` → `a<U+200B>b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.to-codepoints",
+      "candidateId": "UNI-007",
+      "description": {
+        "en": "Converts each character to U+XXXX notation (uppercase hex, at least 4 digits) separated by spaces and opens the result in a new tab, line by line with line breaks kept.",
+        "ja": "各文字を U+XXXX 表記（16 進大文字・最低 4 桁）の空白区切りにし、新しいタブに開く（行ごと。改行は保つ）"
+      },
+      "example": {
+        "en": "`あ😀` → `U+3042 U+1F600`",
+        "ja": "`あ😀` → `U+3042 U+1F600`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.from-codepoints",
+      "candidateId": "UNI-008",
+      "description": {
+        "en": "Converts U+XXXX and &lt;U+XXXX&gt; notation (case-insensitive, 4–6 hex digits) back to characters and removes spaces and tabs between notations. Other characters are left unchanged; surrogates and values above U+10FFFF are errors.",
+        "ja": "U+XXXX と &lt;U+XXXX&gt; の表記（大文字小文字不問、16 進 4〜6 桁）を文字に戻し、表記どうしの間の空白・タブは取り除く（それ以外の文字はそのまま。サロゲートと U+10FFFF 超はエラー）"
+      },
+      "example": {
+        "en": "`U+3042 U+1F600` → `あ😀`",
+        "ja": "`U+3042 U+1F600` → `あ😀`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.to-utf8-bytes",
+      "candidateId": "UNI-009",
+      "description": {
+        "en": "Shows the UTF-8 bytes (uppercase hex) of each grapheme, one per line, in a new tab. Line breaks, spaces and invisible characters are labeled in &lt;U+XXXX&gt; notation.",
+        "ja": "書記素ごとに 1 行、UTF-8 のバイト列（16 進大文字）を新しいタブに表示する（改行・空白・不可視文字の見出しは &lt;U+XXXX&gt; 表記）"
+      },
+      "example": {
+        "en": "`aあ` → `a: 61⏎あ: E3 81 82`",
+        "ja": "`aあ` → `a: 61⏎あ: E3 81 82`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.to-utf16-units",
+      "candidateId": "UNI-010",
+      "description": {
+        "en": "Shows the UTF-16 code units (4-digit uppercase hex) of each grapheme, one per line, in a new tab.",
+        "ja": "書記素ごとに 1 行、UTF-16 のコードユニット（16 進大文字 4 桁）を新しいタブに表示する"
+      },
+      "example": {
+        "en": "`😀` → `😀: D83D DE00`",
+        "ja": "`😀` → `😀: D83D DE00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.count-graphemes",
+      "candidateId": "UNI-011",
+      "description": {
+        "en": "Counts the visible characters (grapheme clusters) with Intl.Segmenter and shows them together with the length as a notification, totaled over all selections.",
+        "ja": "Intl.Segmenter で見た目の文字数（書記素クラスタ数）を数え、length と並べて通知する（全選択の合計）"
+      },
+      "example": {
+        "en": "`👨‍👩‍👧` → `1 grapheme / length 8（notification）`",
+        "ja": "`👨‍👩‍👧` → `1 grapheme / length 8（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.remove-control",
+      "candidateId": "UNI-012",
+      "description": {
+        "en": "Removes control characters (C0 / C1) other than line breaks and tabs.",
+        "ja": "改行・タブ以外の制御文字（C0 / C1）を取り除く"
+      },
+      "example": {
+        "en": "`a{U+0007}b` → `ab`",
+        "ja": "`a{U+0007}b` → `ab`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.remove-non-ascii",
+      "candidateId": "UNI-013",
+      "description": {
+        "en": "Removes non-ASCII characters (U+0080 and above).",
+        "ja": "ASCII 以外（U+0080 以上）の文字を取り除く"
+      },
+      "example": {
+        "en": "`café ☕` → `caf·`",
+        "ja": "`café ☕` → `caf·`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.remove-emoji",
+      "candidateId": "UNI-014",
+      "description": {
+        "en": "Removes emoji: graphemes containing an Emoji\\_Presentation character, U+FE0F, a regional indicator of a flag or the keycap U+20E3, together with modifiers and ZWJ sequences. Text symbols such as © ™ or ❤ without U+FE0F are not removed.",
+        "ja": "絵文字（Emoji\\_Presentation・U+FE0F・国旗の地域指示子・キーキャップ U+20E3 のいずれかを含む書記素。修飾子・ZWJ シーケンスごと）を取り除く。© ™ や U+FE0F のない ❤ などのテキスト記号は対象外"
+      },
+      "example": {
+        "en": "`ok👍` → `ok`",
+        "ja": "`ok👍` → `ok`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.extract-emoji",
+      "candidateId": "UNI-015",
+      "description": {
+        "en": "Extracts only the emoji in order of appearance without separators and opens them in a new tab, using the same detection as **Unicode - Remove Emoji**. A notification is shown when none are found.",
+        "ja": "絵文字だけを出現順に区切りなしで取り出し、新しいタブに開く（**Unicode - Remove Emoji** と同じ判定。見つからなければ通知）"
+      },
+      "example": {
+        "en": "`ok👍 go🚀` → `👍🚀`",
+        "ja": "`ok👍 go🚀` → `👍🚀`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-bold",
+      "candidateId": "UNI-016",
+      "description": {
+        "en": "Converts letters and digits to mathematical bold characters (decoration for social media).",
+        "ja": "英数字を数学用太字の文字にする（SNS 向け装飾）"
+      },
+      "example": {
+        "en": "`abc` → `𝐚𝐛𝐜`",
+        "ja": "`abc` → `𝐚𝐛𝐜`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-italic",
+      "candidateId": "UNI-017",
+      "description": {
+        "en": "Converts letters to mathematical italic characters (h becomes U+210E; digits are left unchanged).",
+        "ja": "英字を数学用斜体の文字にする（h は U+210E。数字はそのまま）"
+      },
+      "example": {
+        "en": "`abc` → `𝑎𝑏𝑐`",
+        "ja": "`abc` → `𝑎𝑏𝑐`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-monospace",
+      "candidateId": "UNI-018",
+      "description": {
+        "en": "Converts letters and digits to mathematical monospace characters.",
+        "ja": "英数字を数学用等幅の文字にする"
+      },
+      "example": {
+        "en": "`abc` → `𝚊𝚋𝚌`",
+        "ja": "`abc` → `𝚊𝚋𝚌`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-circled",
+      "candidateId": "UNI-019",
+      "description": {
+        "en": "Converts letters and digits to circled characters (0 becomes ⓪, 1–9 become ①–⑨).",
+        "ja": "英数字を丸囲み文字にする（0 は ⓪、1〜9 は ①〜⑨）"
+      },
+      "example": {
+        "en": "`abc` → `ⓐⓑⓒ`",
+        "ja": "`abc` → `ⓐⓑⓒ`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.upside-down",
+      "candidateId": "UNI-020",
+      "description": {
+        "en": "Replaces characters with upside-down look-alikes (from a constant table; characters without one are left unchanged) and reverses the character order. With multiple lines the line order is reversed too, and line breaks at the start or end of the selection stay in place.",
+        "ja": "上下を反転した見た目の文字（定数表。対応のない文字はそのまま）に置き換え、文字の順序を逆にする。複数行は行の順序も逆にする（選択の先頭・末尾の改行は元の位置に残す）"
+      },
+      "example": {
+        "en": "`hello` → `ollǝɥ`",
+        "ja": "`hello` → `ollǝɥ`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.strikethrough",
+      "candidateId": "UNI-021",
+      "description": {
+        "en": "Adds a combining strikethrough (U+0336) after each grapheme except line breaks, tabs and control characters.",
+        "ja": "改行・タブ・制御文字以外の各書記素の後ろに結合用の取り消し線（U+0336）を付ける"
+      },
+      "example": {
+        "en": "`abc` → `a̶b̶c̶`",
+        "ja": "`abc` → `a̶b̶c̶`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.underline",
+      "candidateId": "UNI-022",
+      "description": {
+        "en": "Adds a combining underline (U+0332) after each grapheme except line breaks, tabs and control characters.",
+        "ja": "改行・タブ・制御文字以外の各書記素の後ろに結合用の下線（U+0332）を付ける"
+      },
+      "example": {
+        "en": "`abc` → `a̲b̲c̲`",
+        "ja": "`abc` → `a̲b̲c̲`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.superscript",
+      "candidateId": "UNI-023",
+      "description": {
+        "en": "Converts digits and some letters to superscript characters. A quick pick chooses between \"Digits and Signs\" (default, first; only digits and + - = ( )) and \"Digits, Signs and Letters\" (also letters with a superscript form); characters without a form are left unchanged.",
+        "ja": "数字と一部の英字を上付き文字にする。クイックピックで「Digits and Signs」（既定・先頭。数字と + - = ( ) だけ）と「Digits, Signs and Letters」（上付きの字形がある英字も）を選ぶ。字形のない文字はそのまま"
+      },
+      "example": {
+        "en": "`x2` → `x²`",
+        "ja": "`x2` → `x²`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.subscript",
+      "candidateId": "UNI-024",
+      "description": {
+        "en": "Converts digits and some letters to subscript characters. A quick pick chooses between \"Digits and Signs\" (default, first; only digits and + - = ( )) and \"Digits, Signs and Letters\" (also lowercase letters with a subscript form); characters without a form are left unchanged.",
+        "ja": "数字と一部の英字を下付き文字にする。クイックピックで「Digits and Signs」（既定・先頭。数字と + - = ( ) だけ）と「Digits, Signs and Letters」（下付きの字形がある小文字の英字も）を選ぶ。字形のない文字はそのまま"
+      },
+      "example": {
+        "en": "`H2O` → `H₂O`",
+        "ja": "`H2O` → `H₂O`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.detect-confusables",
+      "candidateId": "UNI-025",
+      "description": {
+        "en": "Detects Cyrillic and Greek characters that look like Latin letters (a constant table of the main ones), selects each one and shows a notification per kind. A word is a run of letters, combining marks and digits (spaces, symbols, `_`, `-`, `.` and so on separate words). Detected are (A) table characters (Cyrillic or Greek) in a word containing Latin letters, and (B) words of two or more table Cyrillic characters only, when the same line has another word containing Latin letters and no Cyrillic or Greek characters outside the table. Greek characters are detected only in words mixed with Latin letters (`раура` or `ΑΡΙ key` on a line without Latin letters is not detected).",
+        "ja": "ラテン文字に似たキリル文字・ギリシャ文字（主要なものの定数表）を検出して 1 文字ずつ選択し、種類ごとに通知する。単語は文字・結合記号・数字の連続（空白・記号・`_`・`-`・`.` などは区切り）。検出するのは (A) ラテン文字を含む単語の中の表の文字（キリル・ギリシャとも）と、(B) 表のキリル文字だけでできた 2 文字以上の単語で、同じ行にラテン文字を含む別の単語があり、表にないキリル文字・ギリシャ文字が同じ行にないもの。ギリシャ文字はラテン文字と混在する単語でだけ検出する（ラテン文字のない行の `раура` や `ΑΡΙ key` は検出しない）"
+      },
+      "example": {
+        "en": "`pаypal（а is Cyrillic）` → `\"а\" selected（notification）`",
+        "ja": "`pаypal（а はキリル文字）` → `「а」を選択（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.detect-bidi",
+      "candidateId": "UNI-026",
+      "description": {
+        "en": "Detects and selects the bidirectional control characters used in Trojan Source attacks (U+202A–202E, U+2066–2069) and shows the count, code points and names as a notification.",
+        "ja": "Trojan Source 攻撃に使われる双方向制御文字（U+202A〜202E, U+2066〜2069）を検出して選択し、件数とコードポイント・名前を通知する"
+      },
+      "example": {
+        "en": "`a{U+202E}b` → `position selected（notification）`",
+        "ja": "`a{U+202E}b` → `位置を選択（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.smart-quotes",
+      "candidateId": "UNI-027",
+      "description": {
+        "en": "Converts straight quotes to curly quotes, telling opening from closing (the reverse of **Text: Unsmart Quotes**). \" becomes “ at the start of a line or after a space, an opening bracket, a dash or ‘, and ” otherwise; ' between alphanumerics becomes ’, otherwise it becomes ‘ in the same positions as \" (after “ instead of ‘) and ’ elsewhere (`'90s` → `‘90s`, `\"\"` → `“”`; a \" right after an existing curly “ becomes closing).",
+        "ja": "直線の引用符を開き・閉じを判別して曲がった引用符にする（**Text: Unsmart Quotes** の逆）。\" は行頭・空白・開き括弧・ダッシュ・‘ の後なら “、それ以外は ”。' は英数字に挟まれていれば ’、そうでなければ \" と同じ位置（ただし ‘ の代わりに “ の後）で ‘、それ以外は ’（`'90s` → `‘90s`、`\"\"` → `“”`。すでにある曲がった “ の直後の \" は閉じになる）"
+      },
+      "example": {
+        "en": "`\"a\" it's` → `“a” it’s`",
+        "ja": "`\"a\" it's` → `“a” it’s`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.typographic-punctuation",
+      "candidateId": "UNI-028",
+      "description": {
+        "en": "Replaces exactly two hyphens -- with an em dash — and exactly three periods ... with an ellipsis … (--- and .... are left unchanged).",
+        "ja": "ちょうど 2 個の「--」を「—」、ちょうど 3 個の「...」を「…」に置き換える（「---」や「....」はそのまま）"
+      },
+      "example": {
+        "en": "`wait... -- ok` → `wait… — ok`",
+        "ja": "`wait... -- ok` → `wait… — ok`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.detect-scripts",
+      "candidateId": "UNI-029",
+      "description": {
+        "en": "Shows the scripts contained (Latin, Hiragana, Han, etc.; a constant list of 33 major scripts, others count as Other) and their character counts in order of appearance as a notification, totaled over all selections. Digits, symbols, spaces and combining marks are not counted, and a notification says so when there are no letters.",
+        "ja": "含まれている文字体系（Latin, Hiragana, Han など。主要な 33 種の定数リスト、ほかは Other）と文字数を出現順に通知する（全選択の合計。数字・記号・空白・結合記号は数えず、文字がなければその旨を通知）"
+      },
+      "example": {
+        "en": "`abcあア漢` → `Latin 3, Hiragana 1, Katakana 1, Han 1（notification）`",
+        "ja": "`abcあア漢` → `Latin 3, Hiragana 1, Katakana 1, Han 1（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.transliterate-cyrillic",
+      "candidateId": "UNI-030",
+      "description": {
+        "en": "Transliterates Cyrillic to Latin using a built-in table. Russian uses a fixed one-to-one mapping simplified from BGN/PCGN that does not depend on position (е is always e), and the output is ASCII only; letters of Ukrainian, Belarusian, Serbian and Macedonian not in Russian are added, and letters whose readings conflict (г, и, etc.) use the Russian value.",
+        "ja": "キリル文字をラテン文字に翻字する（対応表を内蔵）。ロシア語は BGN/PCGN を簡略化した位置によらない 1 文字ごとの固定対応（е は常に e）で、出力は ASCII だけ。ロシア語にないウクライナ語・ベラルーシ語・セルビア語・マケドニア語の字を追加し、読みが衝突する字（г・и など）はロシア語の値を採る"
+      },
+      "example": {
+        "en": "`Привет` → `Privet`",
+        "ja": "`Привет` → `Privet`"
+      }
+    }
+  ]
+}

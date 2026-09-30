@@ -16,6 +16,7 @@ import { UniInputError } from '../../handler/uniCommon';
 import { UNI_COMMAND_ENTRIES, UniCommandEntry } from '../../handler/uniTransforms';
 import { createTextEditor } from './testUtils';
 import { UNI_ROADMAP_EXAMPLES } from './uniExamples';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
@@ -105,14 +106,8 @@ const closeAllEditors = async () => {
 
 const readRepoFile = (file: string): string => fs.readFileSync(path.resolve(__dirname, '../../..', file), 'utf8');
 
-/** The UNI rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| UNI-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
+/** The UNI commands of the showcase data (scripts/showcase-data/UNI.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('UNI');
 
 /** Expands the notation of the ROADMAP examples: `{U+XXXX}`, `⏎` (line break) and `·` (space). */
 const expandNotation = (text: string): string =>
@@ -599,8 +594,8 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, kinds, titles and examples match the UNI table of docs/ROADMAP.md, in its order', () => {
-      const rows = roadmapRows();
+    test('command IDs, kinds, titles and examples match the UNI commands of the showcase data, in its order', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 30);
       const byId = new Map(rows.map((row) => [row[0], row]));
       const order = rows.map(([id]) => id);

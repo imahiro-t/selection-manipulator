@@ -1,4 +1,4 @@
-/** The input / output examples of the ENC table in docs/ROADMAP.md, as they are (⏎ = \n). */
+/** The input / output examples of the ENC commands of the showcase data (scripts/showcase-data/ENC.json), as they are (⏎ = \n). */
 export const ENC_ROADMAP_EXAMPLES: Record<string, { input: string; expected: string; shift?: number }> = {
   'ENC-001': { input: '<a href="x">', expected: '&lt;a href=&quot;x&quot;&gt;' },
   'ENC-002': { input: '&lt;b&gt; &#12354;', expected: '<b> あ' },

@@ -136,7 +136,7 @@ const arabicNumber = lines(kanjiToNumber);
 const shinjitai = text(kyujitaiToShinjitai);
 const jaEnSpace = text(spaceBetweenJaEn);
 
-/** The commands in the order of the JA table of docs/ROADMAP.md. */
+/** The commands in the order of the JA commands of the showcase data (scripts/showcase-data/JA.json). */
 export const JA_COMMAND_ENTRIES: readonly JaCommandEntry[] = [
   {
     id: 'JA-001', name: 'japanese.kana-to-romaji', title: 'Japanese - Kana to Romaji (Hepburn)', output: 'new-tab',

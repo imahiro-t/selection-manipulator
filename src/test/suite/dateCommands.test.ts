@@ -9,6 +9,7 @@ import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { DATE_INVALID_INPUT, DATE_ROADMAP_EXAMPLES, DATE_TEST_NOW } from './dateExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
@@ -106,14 +107,8 @@ const closeAllEditors = async () => {
 
 const readRepoFile = (file: string): string => fs.readFileSync(path.resolve(__dirname, '../../..', file), 'utf8');
 
-/** The DATE rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| DATE-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
+/** The DATE commands of the showcase data (scripts/showcase-data/DATE.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('DATE');
 
 /** The expected result of two selections of the ROADMAP example. */
 const twice = (entry: DateCommandEntry, expected: string): string => {
@@ -466,8 +461,8 @@ suite('Date Commands (DATE-001..030) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the DATE table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the DATE commands of the showcase data', () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), DATE_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, , command]) => command), DATE_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       assert.deepStrictEqual(rows.map(([, , , title]) => title), DATE_COMMAND_ENTRIES.map((entry) => entry.title));

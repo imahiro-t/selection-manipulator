@@ -1,0 +1,374 @@
+{
+  "category": "SORT",
+  "commands": [
+    {
+      "id": "selection-manipulator.sort-line.natural.ascending",
+      "candidateId": "SORT-001",
+      "description": {
+        "en": "Sorts lines in ascending natural order, comparing digit runs as numbers.",
+        "ja": "数字部分を数値として比較する自然順で行を昇順に並べる"
+      },
+      "example": {
+        "en": "`file10⏎file2` → `file2⏎file10`",
+        "ja": "`file10⏎file2` → `file2⏎file10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.natural.descending",
+      "candidateId": "SORT-002",
+      "description": {
+        "en": "Sorts lines in descending natural order.",
+        "ja": "自然順で行を降順に並べる"
+      },
+      "example": {
+        "en": "`file2⏎file10` → `file10⏎file2`",
+        "ja": "`file2⏎file10` → `file10⏎file2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.ignore-case.ascending",
+      "candidateId": "SORT-003",
+      "description": {
+        "en": "Sorts lines in ascending order, ignoring case.",
+        "ja": "大文字小文字を区別せずに行を昇順に並べる"
+      },
+      "example": {
+        "en": "`b⏎A⏎a` → `A⏎a⏎b`",
+        "ja": "`b⏎A⏎a` → `A⏎a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.ignore-case.descending",
+      "candidateId": "SORT-004",
+      "description": {
+        "en": "Sorts lines in descending order, ignoring case.",
+        "ja": "大文字小文字を区別せずに行を降順に並べる"
+      },
+      "example": {
+        "en": "`A⏎b⏎a` → `b⏎A⏎a`",
+        "ja": "`A⏎b⏎a` → `b⏎A⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.locale.ascending",
+      "candidateId": "SORT-005",
+      "description": {
+        "en": "Sorts lines in ascending order using Intl.Collator with the locale you type.",
+        "ja": "Intl.Collator（入力したロケール）で行を昇順に並べる"
+      },
+      "example": {
+        "en": "`f⏎é⏎e` → `e⏎é⏎f`",
+        "ja": "`f⏎é⏎e` → `e⏎é⏎f`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.locale.descending",
+      "candidateId": "SORT-006",
+      "description": {
+        "en": "Sorts lines in descending order using Intl.Collator with the locale you type.",
+        "ja": "Intl.Collator（入力したロケール）で行を降順に並べる"
+      },
+      "example": {
+        "en": "`e⏎é⏎f` → `f⏎é⏎e`",
+        "ja": "`e⏎é⏎f` → `f⏎é⏎e`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.japanese.ascending",
+      "candidateId": "SORT-007",
+      "description": {
+        "en": "Sorts lines in Japanese kana (gojūon) order, treating hiragana and katakana as the same.",
+        "ja": "ひらがなとカタカナを同一視した五十音順で行を並べる"
+      },
+      "example": {
+        "en": "`カ⏎あ⏎き` → `あ⏎カ⏎き`",
+        "ja": "`カ⏎あ⏎き` → `あ⏎カ⏎き`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.column.ascending",
+      "candidateId": "SORT-008",
+      "description": {
+        "en": "Sorts lines in ascending order by the value (trimmed) of a column, using the delimiter you type (1–100 literal characters, `\\t` for a tab, default `,`) and the column number (1–1,000, default 1). Numeric values are compared by value and other values in natural order; in ascending order, numeric rows come first and text rows after (kept separate so mixed columns sort consistently). Lines without enough columns go to the end in their original order, and quoted CSV is not parsed.",
+        "ja": "入力した区切り文字（リテラル 1〜100 文字、`\\t` はタブ、既定値 `,`）と列番号（1〜1,000、既定値 1）の値（前後の空白を除く）をキーに行を昇順に並べる。数値の値は数値として値の順に、それ以外は自然順で比べ、昇順では数値の行を先、文字列の行を後に置く（数値と文字列が混在しても順序が一貫するように分ける）。列が足りない行は末尾に元の順で置く。引用符付き CSV は解釈しない"
+      },
+      "example": {
+        "en": "`b,2⏎a,1（column 2）` → `a,1⏎b,2`",
+        "ja": "`b,2⏎a,1（列 2）` → `a,1⏎b,2`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.column.descending",
+      "candidateId": "SORT-009",
+      "description": {
+        "en": "Sorts lines in descending order by the value of the given column (same input and key rules as **Sort Lines Ascending by column**; it exactly reverses that order, so text rows come first and numeric rows after. Lines without enough columns still go to the end in their original order).",
+        "ja": "指定した列の値をキーに行を降順に並べる（入力とキーの規則は **Sort Lines Ascending by column** と同じで、その順序をそのまま逆にするため文字列の行が先、数値の行が後になる。列が足りない行は降順でも末尾に元の順で置く）"
+      },
+      "example": {
+        "en": "`a,1⏎b,2（column 2）` → `b,2⏎a,1`",
+        "ja": "`a,1⏎b,2（列 2）` → `b,2⏎a,1`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.regex-key.ascending",
+      "candidateId": "SORT-010",
+      "description": {
+        "en": "Sorts lines by the first capture group of the regular expression you type (the whole match if there is no group). Keys are compared as in **Sort Lines Ascending by column** (numeric rows first by value, then text rows in natural order). Lines that do not match, or where group 1 does not participate in the match, go to the end in their original order; regex syntax and ReDoS protection (pattern 1–500 characters, up to 10,000,000 characters in total, aborted after 2 seconds in a Worker thread) are the same as in **Line: Keep Lines Matching Regex**.",
+        "ja": "入力した正規表現の最初のキャプチャ（キャプチャグループがなければ一致全体）をキーに行を並べる。比較は **Sort Lines Ascending by column** と同じ（数値の行が先で値の順、文字列の行が後で自然順）。一致しない行とグループ 1 が一致に参加しない行は末尾に元の順で置く。正規表現の構文と ReDoS 対策（パターン 1〜500 文字・合計 10,000,000 文字まで・Worker スレッドで 2 秒で打ち切り）は **Line: Keep Lines Matching Regex** と同じ"
+      },
+      "example": {
+        "en": "`id=10⏎id=9（id=(\\d+)）` → `id=9⏎id=10`",
+        "ja": "`id=10⏎id=9（id=(\\d+)）` → `id=9⏎id=10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.date.ascending",
+      "candidateId": "SORT-011",
+      "description": {
+        "en": "Sorts lines from oldest to newest by the first date they contain (year-first `YYYY-MM-DD` / `YYYY/MM/DD` / `YYYY.MM.DD`, optionally followed by `T` or a space, a time and a time zone `Z` / `±HH:MM` / `±HHMM`). Date-times without a time zone, or with a malformed one (such as `+09:001`), are treated as UTC. Lines without a date, lines whose first date is invalid (such as `2026-02-30`), and lines with a well-formed but out-of-range time zone (such as `+25:00` / `+09:60`) go to the end in their original order.",
+        "ja": "行に含まれる最初の日付（年が先頭の `YYYY-MM-DD` / `YYYY/MM/DD` / `YYYY.MM.DD`。`T` または空白に続く時刻とタイムゾーン `Z` / `±HH:MM` / `±HHMM` も可）をキーに古い順に並べる。タイムゾーンのない日時と、形の不正なタイムゾーン（`+09:001` など）の付いた日時は UTC とみなす。日付のない行と最初の日付が不正な行（`2026-02-30` など）と、形は正しいが範囲外のタイムゾーン（`+25:00` / `+09:60` など）の付いた行は末尾に元の順で置く"
+      },
+      "example": {
+        "en": "`2026-03-01 b⏎2025-12-31 a` → `2025-12-31 a⏎2026-03-01 b`",
+        "ja": "`2026-03-01 b⏎2025-12-31 a` → `2025-12-31 a⏎2026-03-01 b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.date.descending",
+      "candidateId": "SORT-012",
+      "description": {
+        "en": "Sorts lines from newest to oldest by the date they contain (same date rules as **Sort Lines Ascending by date**; lines without a date still go to the end).",
+        "ja": "行に含まれる日付をキーに新しい順に並べる（日付の規則は **Sort Lines Ascending by date** と同じ。日付のない行は降順でも末尾）"
+      },
+      "example": {
+        "en": "`2025-12-31 a⏎2026-03-01 b` → `2026-03-01 b⏎2025-12-31 a`",
+        "ja": "`2025-12-31 a⏎2026-03-01 b` → `2026-03-01 b⏎2025-12-31 a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.semver.ascending",
+      "candidateId": "SORT-013",
+      "description": {
+        "en": "Sorts lines by semantic version (including pre-releases). A line is used as a key only when the whole trimmed line is a version (a leading `v` / `V` is allowed); other lines (such as `pkg 1.2.0`) go to the end in their original order.",
+        "ja": "セマンティックバージョン（プレリリースを含む）の順に並べる。前後の空白を除いた行全体がバージョン（先頭の `v` / `V` は可）の場合のみキーとし、それ以外の行（`pkg 1.2.0` など）は末尾に元の順で置く"
+      },
+      "example": {
+        "en": "`1.10.0⏎1.2.0⏎1.2.0-rc.1` → `1.2.0-rc.1⏎1.2.0⏎1.10.0`",
+        "ja": "`1.10.0⏎1.2.0⏎1.2.0-rc.1` → `1.2.0-rc.1⏎1.2.0⏎1.10.0`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.ip.ascending",
+      "candidateId": "SORT-014",
+      "description": {
+        "en": "Sorts lines by IPv4 / IPv6 address, comparing them as numbers.",
+        "ja": "IPv4 / IPv6 アドレスを数値として比較して並べる"
+      },
+      "example": {
+        "en": "`10.0.0.10⏎10.0.0.9` → `10.0.0.9⏎10.0.0.10`",
+        "ja": "`10.0.0.10⏎10.0.0.9` → `10.0.0.9⏎10.0.0.10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.word-count.ascending",
+      "candidateId": "SORT-015",
+      "description": {
+        "en": "Sorts lines by word count, fewest words first.",
+        "ja": "単語数の少ない順に並べる"
+      },
+      "example": {
+        "en": "`a b c⏎a` → `a⏎a b c`",
+        "ja": "`a b c⏎a` → `a⏎a b c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.last-word.ascending",
+      "candidateId": "SORT-016",
+      "description": {
+        "en": "Sorts lines by their last word (for example, by surname).",
+        "ja": "各行の最後の単語をキーに並べる（姓順など）"
+      },
+      "example": {
+        "en": "`Ann Smith⏎Bob Adams` → `Bob Adams⏎Ann Smith`",
+        "ja": "`Ann Smith⏎Bob Adams` → `Bob Adams⏎Ann Smith`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.suffix.ascending",
+      "candidateId": "SORT-017",
+      "description": {
+        "en": "Sorts lines by their reversed string, grouping lines that share the same ending (such as a file extension).",
+        "ja": "行を後ろから読んだ文字列で並べ、末尾（拡張子など）が同じ行をまとめる"
+      },
+      "example": {
+        "en": "`a.ts⏎b.js⏎c.ts` → `b.js⏎a.ts⏎c.ts`",
+        "ja": "`a.ts⏎b.js⏎c.ts` → `b.js⏎a.ts⏎c.ts`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.unique.ascending",
+      "candidateId": "SORT-018",
+      "description": {
+        "en": "Sorts lines in ascending order and removes duplicate lines (like sort -u). Only exactly identical lines count as duplicates; lines that differ only in case or Unicode normalization (NFC / NFD) are kept.",
+        "ja": "昇順に並べたうえで重複行を取り除く（sort -u 相当）。重複とみなすのは完全に同じ行だけで、大文字小文字や Unicode 正規化（NFC / NFD）だけが違う行は残す"
+      },
+      "example": {
+        "en": "`b⏎a⏎b` → `a⏎b`",
+        "ja": "`b⏎a⏎b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.paragraph.ascending",
+      "candidateId": "SORT-019",
+      "description": {
+        "en": "Sorts paragraphs separated by blank lines as whole blocks. The output has exactly one blank line between paragraphs, normalizing leading, trailing and consecutive blank lines.",
+        "ja": "空行で区切られた段落をブロック単位で並べる。出力では段落の間を空行 1 行にし、先頭・末尾・連続の空行は正規化する"
+      },
+      "example": {
+        "en": "`b⏎b2⏎⏎a⏎a2` → `a⏎a2⏎⏎b⏎b2`",
+        "ja": "`b⏎b2⏎⏎a⏎a2` → `a⏎a2⏎⏎b⏎b2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.indent-block.ascending",
+      "candidateId": "SORT-020",
+      "description": {
+        "en": "Sorts parent lines while moving their indented child lines along with them (the least-indented non-empty lines are parents, and only the top level is sorted). Lines before the first parent line (leading blank lines or more deeply indented lines) stay at the top of the output in their original order.",
+        "ja": "インデントされた子行を親行と一緒に動かしながら親行を並べる（インデントが最も浅い非空行を親とし、並べるのは最上位の階層のみ）。最初の親行より前にある行（先頭の空行や、より深くインデントされた行）は出力の先頭に元の順で残す"
+      },
+      "example": {
+        "en": "`b⏎··b1⏎a⏎··a1` → `a⏎··a1⏎b⏎··b1`",
+        "ja": "`b⏎··b1⏎a⏎··a1` → `a⏎··a1⏎b⏎··b1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.hex.ascending",
+      "candidateId": "SORT-021",
+      "description": {
+        "en": "Sorts lines by value when the first token of each line is entirely a hexadecimal number (a 0x prefix is allowed). Words made only of hex digits, such as `face` or `bad`, are also treated as numbers. Non-hex lines (such as `deadline`, a bare `0x`, or `0xZZ`) go to the end in their original order.",
+        "ja": "各行の最初のトークンが全体として 16 進数（0x 付きも可）の場合にその値で並べる。`face` や `bad` のように 16 進数の文字だけからなる単語も数値として扱う。16 進数でない行（`deadline`・`0x` だけ・`0xZZ` など）は末尾に元の順で置く"
+      },
+      "example": {
+        "en": "`0x1F⏎0xA` → `0xA⏎0x1F`",
+        "ja": "`0x1F⏎0xA` → `0xA⏎0x1F`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.natural.ascending",
+      "candidateId": "SORT-022",
+      "description": {
+        "en": "Sorts the text of multiple selections in natural order and outputs the result to a new editor (as with the other Sort Selections commands; whitespace-only lines are removed).",
+        "ja": "複数選択のテキストを自然順で並べ替える。結果は新しいエディタに出力する（ほかの Sort Selections コマンドと同じ。空白だけの行は除く）"
+      },
+      "example": {
+        "en": "`[v10] [v2]` → `v2⏎v10`",
+        "ja": "`[v10] [v2]` → `v2⏎v10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.ignore-case.ascending",
+      "candidateId": "SORT-023",
+      "description": {
+        "en": "Sorts the text of multiple selections ignoring case and outputs the result to a new editor.",
+        "ja": "複数選択のテキストを大文字小文字を区別せずに並べ替える。結果は新しいエディタに出力する"
+      },
+      "example": {
+        "en": "`[b] [A]` → `A⏎b`",
+        "ja": "`[b] [A]` → `A⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.length.ascending",
+      "candidateId": "SORT-024",
+      "description": {
+        "en": "Sorts the text of multiple selections by length (number of code points), shortest first, and outputs the result to a new editor.",
+        "ja": "複数選択のテキストを文字数（コードポイント数）の少ない順に並べ替える。結果は新しいエディタに出力する"
+      },
+      "example": {
+        "en": "`[ccc] [a]` → `a⏎ccc`",
+        "ja": "`[ccc] [a]` → `a⏎ccc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.length.descending",
+      "candidateId": "SORT-025",
+      "description": {
+        "en": "Sorts the text of multiple selections by length (number of code points), longest first, and outputs the result to a new editor.",
+        "ja": "複数選択のテキストを文字数（コードポイント数）の多い順に並べ替える。結果は新しいエディタに出力する"
+      },
+      "example": {
+        "en": "`[a] [ccc]` → `ccc⏎a`",
+        "ja": "`[a] [ccc]` → `ccc⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.natural.ascending.clipboard",
+      "candidateId": "SORT-026",
+      "derivedFrom": "SORT-001",
+      "description": {
+        "en": "Same conversion as **Sort Lines Ascending by natural order**, but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Sort Lines Ascending by natural order** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`file10⏎file2` → `file2⏎file10`",
+        "ja": "`file10⏎file2` → `file2⏎file10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.ignore-case.ascending.clipboard",
+      "candidateId": "SORT-027",
+      "derivedFrom": "SORT-003",
+      "description": {
+        "en": "Same conversion as **Sort Lines Ascending ignoring case**, but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Sort Lines Ascending ignoring case** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`b⏎A⏎a` → `A⏎a⏎b`",
+        "ja": "`b⏎A⏎a` → `A⏎a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.column.ascending.clipboard",
+      "candidateId": "SORT-028",
+      "derivedFrom": "SORT-008",
+      "description": {
+        "en": "Same conversion as **Sort Lines Ascending by column**, but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Sort Lines Ascending by column** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`b,2⏎a,1（column 2）` → `a,1⏎b,2`",
+        "ja": "`b,2⏎a,1（列 2）` → `a,1⏎b,2`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.semver.ascending.clipboard",
+      "candidateId": "SORT-029",
+      "derivedFrom": "SORT-013",
+      "description": {
+        "en": "Same conversion as **Sort Lines Ascending by semantic version** (including version detection that allows a leading `v` / `V`), but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Sort Lines Ascending by semantic version** と同じ変換（先頭の `v` / `V` を許すバージョン判定を含む）を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`1.10.0⏎1.2.0⏎1.2.0-rc.1` → `1.2.0-rc.1⏎1.2.0⏎1.10.0`",
+        "ja": "`1.10.0⏎1.2.0⏎1.2.0-rc.1` → `1.2.0-rc.1⏎1.2.0⏎1.10.0`"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.natural.ascending.clipboard",
+      "candidateId": "SORT-030",
+      "derivedFrom": "SORT-022",
+      "description": {
+        "en": "Same conversion as **Sort Selections Ascending by natural order**, but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Sort Selections Ascending by natural order** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`[v10] [v2]` → `v2⏎v10`",
+        "ja": "`[v10] [v2]` → `v2⏎v10`"
+      }
+    }
+  ]
+}

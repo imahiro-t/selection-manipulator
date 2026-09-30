@@ -7,6 +7,7 @@ import { MD_COMMAND_ENTRIES, MD_NO_HEADINGS, MD_WHEN_SELECTION, MdCommandEntry }
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandMd, MD_ROADMAP_EXAMPLES } from './mdExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const PREFIX = 'selection-manipulator.';
 
@@ -81,14 +82,8 @@ const codeSpan = (span: string): string => {
   return content.length >= 2 && content.startsWith(' ') && content.endsWith(' ') ? content.slice(1, -1) : content;
 };
 
-/** The MD rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| MD-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], codeSpan(cells[3]), cells[4], cells[6]];
-    });
+/** The MD commands of the showcase data (scripts/showcase-data/MD.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('MD');
 
 suite('Markdown Commands (MD-001..025) Test Suite', () => {
 
@@ -397,8 +392,8 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, kinds, titles and examples match the MD table of docs/ROADMAP.md, in its order', () => {
-      const rows = roadmapRows();
+    test('command IDs, kinds, titles and examples match the MD commands of the showcase data, in its order', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 25);
       const order = rows.map(([id]) => id);
       assert.deepStrictEqual(MD_COMMAND_ENTRIES.map((entry) => entry.id), order);

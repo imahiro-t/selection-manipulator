@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the JA table of docs/ROADMAP.md (`⏎` expanded), with the exact
+ * The input / output examples of the JA commands of the showcase data (scripts/showcase-data/JA.json) (`⏎` expanded), with the exact
  * results of the commands and, for the commands that ask something before running, the value
  * chosen in the tests.
  */

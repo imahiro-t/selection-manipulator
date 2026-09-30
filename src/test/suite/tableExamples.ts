@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the TABLE table of docs/ROADMAP.md (`⏎`, `⇥` and `··` expanded),
+ * The input / output examples of the TABLE commands of the showcase data (scripts/showcase-data/TABLE.json) (`⏎`, `⇥` and `··` expanded),
  * with the exact results of the commands. TABLE-001 / 026 write JSON indented with 2 spaces and
  * TABLE-011 / 030 write one `<tr>` per line, so their exact results differ from the one-line
  * ROADMAP examples only in layout; the ROADMAP test compares those as values / without white space.

@@ -10,6 +10,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { DATA_COMMAND_ENTRIES, DataCommandEntry } from '../../handler/dataTransforms';
 import { CHROME_ON_WINDOWS_UA, DATA_ROADMAP_EXAMPLES, pretty } from './dataExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 
@@ -90,16 +91,8 @@ const closeAllEditors = async () => {
   }
 };
 
-/** The DATA rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] => {
-  const roadmap = fs.readFileSync(path.resolve(__dirname, '../../../docs/ROADMAP.md'), 'utf8');
-  return roadmap.split('\n')
-    .filter((line) => /^\| DATA-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
-};
+/** The DATA commands of the showcase data (scripts/showcase-data/DATA.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('DATA');
 
 /** Inputs that the command cannot convert (the default is broken JSON). */
 const INVALID_INPUTS: Record<string, string> = {
@@ -443,8 +436,8 @@ suite('Data Format Commands (DATA-001..040) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the DATA table of docs/ROADMAP.md', async () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the DATA commands of the showcase data', async () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), DATA_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, , command]) => command), DATA_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       assert.deepStrictEqual(rows.map(([, , , title]) => title), DATA_COMMAND_ENTRIES.map((entry) => entry.title));

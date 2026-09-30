@@ -1,0 +1,307 @@
+{
+  "category": "MD",
+  "commands": [
+    {
+      "id": "selection-manipulator.markdown.heading-increase",
+      "candidateId": "MD-001",
+      "description": {
+        "en": "Increases the heading level by one (non-heading lines become level-1 headings).",
+        "ja": "見出しレベルを 1 つ深くする（見出しでない行は見出し 1 にする）"
+      },
+      "example": {
+        "en": "`# a⏎## b` → `## a⏎### b`",
+        "ja": "`# a⏎## b` → `## a⏎### b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.heading-decrease",
+      "candidateId": "MD-002",
+      "description": {
+        "en": "Decreases the heading level by one (a heading with a single # becomes body text).",
+        "ja": "見出しレベルを 1 つ浅くする（# 1 個の見出しは本文にする）"
+      },
+      "example": {
+        "en": "`## a` → `# a`",
+        "ja": "`## a` → `# a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.toc",
+      "candidateId": "MD-003",
+      "description": {
+        "en": "Generates a table of contents with anchor links from the headings in the selection (or document). A selection is replaced with a TOC of its own headings; at a cursor, a TOC of the whole document is inserted. Only ATX headings are used, and anchors of duplicate headings are numbered across the whole document.",
+        "ja": "選択範囲（または文書）の見出しからアンカーリンク付きの目次を生成する（選択範囲はその中の見出しの目次で置き換え、カーソルには文書全体の目次を挿入する。ATX 見出しのみ対象。重複する見出しのアンカーは文書全体で番号付け）"
+      },
+      "example": {
+        "en": "`# A⏎## B C` → `- [A](#a)⏎··- [B C](#b-c)`",
+        "ja": "`# A⏎## B C` → `- [A](#a)⏎··- [B C](#b-c)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.bullet-list",
+      "candidateId": "MD-004",
+      "description": {
+        "en": "Converts each line to a bullet list item starting with \"- \".",
+        "ja": "各行を「- 」の箇条書きにする"
+      },
+      "example": {
+        "en": "`a⏎b` → `- a⏎- b`",
+        "ja": "`a⏎b` → `- a⏎- b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.numbered-list",
+      "candidateId": "MD-005",
+      "description": {
+        "en": "Converts each line to a numbered list item.",
+        "ja": "各行を番号付きリストにする"
+      },
+      "example": {
+        "en": "`a⏎b` → `1. a⏎2. b`",
+        "ja": "`a⏎b` → `1. a⏎2. b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.task-list",
+      "candidateId": "MD-006",
+      "description": {
+        "en": "Converts each line to an unchecked task list item.",
+        "ja": "各行を未完了のタスクリストにする"
+      },
+      "example": {
+        "en": "`a⏎b` → `- [ ] a⏎- [ ] b`",
+        "ja": "`a⏎b` → `- [ ] a⏎- [ ] b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.toggle-task",
+      "candidateId": "MD-007",
+      "description": {
+        "en": "Toggles a task between done and not done.",
+        "ja": "タスクの完了・未完了を切り替える"
+      },
+      "example": {
+        "en": "`- [ ] a` → `- [x] a`",
+        "ja": "`- [ ] a` → `- [x] a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.remove-list-markers",
+      "candidateId": "MD-008",
+      "description": {
+        "en": "Removes bullet, number and checkbox markers.",
+        "ja": "箇条書き・番号・チェックボックスの記号を取り除く"
+      },
+      "example": {
+        "en": "`- [ ] a⏎2. b` → `a⏎b`",
+        "ja": "`- [ ] a⏎2. b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.renumber-list",
+      "candidateId": "MD-009",
+      "description": {
+        "en": "Renumbers an ordered list starting from 1 (nested lists are numbered per level).",
+        "ja": "番号付きリストの番号を 1 から振り直す（入れ子は階層ごと）"
+      },
+      "example": {
+        "en": "`1. a⏎5. b⏎2. c` → `1. a⏎2. b⏎3. c`",
+        "ja": "`1. a⏎5. b⏎2. c` → `1. a⏎2. b⏎3. c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.bold",
+      "candidateId": "MD-010",
+      "description": {
+        "en": "Wraps the selected text in bold markup.",
+        "ja": "選択テキストを太字記法で囲む"
+      },
+      "example": {
+        "en": "`abc` → `**abc**`",
+        "ja": "`abc` → `**abc**`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.italic",
+      "candidateId": "MD-011",
+      "description": {
+        "en": "Wraps the selected text in italic markup.",
+        "ja": "選択テキストを斜体記法で囲む"
+      },
+      "example": {
+        "en": "`abc` → `_abc_`",
+        "ja": "`abc` → `_abc_`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.strikethrough",
+      "candidateId": "MD-012",
+      "description": {
+        "en": "Wraps the selected text in strikethrough markup.",
+        "ja": "選択テキストを取り消し線記法で囲む"
+      },
+      "example": {
+        "en": "`abc` → `~~abc~~`",
+        "ja": "`abc` → `~~abc~~`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.setext-to-atx",
+      "candidateId": "MD-013",
+      "description": {
+        "en": "Converts underlined (=== / ---) Setext headings to # / ## ATX headings.",
+        "ja": "下線（=== / ---）形式の見出しを # / ## 形式の見出しにする"
+      },
+      "example": {
+        "en": "`Title⏎=====⏎Sub⏎---` → `# Title⏎## Sub`",
+        "ja": "`Title⏎=====⏎Sub⏎---` → `# Title⏎## Sub`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.code-block",
+      "candidateId": "MD-014",
+      "description": {
+        "en": "Wraps the selection in a code fence with the language name you type (empty, or up to 50 alphanumeric characters and `_ + # . -`).",
+        "ja": "選択範囲を、入力した言語名付きのコードフェンスで囲む（言語名は空、または英数字と `_ + # . -` の 50 文字まで）"
+      },
+      "example": {
+        "en": "`a = 1（python）` → ```` ```python⏎a = 1⏎``` ````",
+        "ja": "`a = 1（python）` → ```` ```python⏎a = 1⏎``` ````"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.blockquote",
+      "candidateId": "MD-015",
+      "description": {
+        "en": "Turns each line into a blockquote by adding \"&gt; \" at its start.",
+        "ja": "各行の先頭に「&gt; 」を付けて引用にする"
+      },
+      "example": {
+        "en": "`a⏎b` → `> a⏎> b`",
+        "ja": "`a⏎b` → `> a⏎> b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.image",
+      "candidateId": "MD-016",
+      "description": {
+        "en": "Converts a URL to image markup (the alt text is typed in: one line, up to 1,000 characters, with `\\ [ ]` escaped).",
+        "ja": "URL を画像記法にする（代替テキストは入力。1 行・1,000 文字まで、`\\ [ ]` はエスケープ）"
+      },
+      "example": {
+        "en": "`https://example.com/a.png` → `![alt](https://example.com/a.png)`",
+        "ja": "`https://example.com/a.png` → `![alt](https://example.com/a.png)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.linkify-urls",
+      "candidateId": "MD-017",
+      "description": {
+        "en": "Converts all bare URLs in the text to &lt;URL&gt; autolinks.",
+        "ja": "本文中の裸の URL をすべて &lt;URL&gt; 形式の自動リンクにする"
+      },
+      "example": {
+        "en": "`see https://example.com` → `see <https://example.com>`",
+        "ja": "`see https://example.com` → `see <https://example.com>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.format-table",
+      "candidateId": "MD-018",
+      "description": {
+        "en": "Formats a Markdown table by aligning column widths and the delimiter row (alignment settings are kept).",
+        "ja": "Markdown の表の列幅と区切り行を揃えて整形する（配置指定は保持）"
+      },
+      "example": {
+        "en": "`|a|bb|⏎|-|-|⏎|ccc|d|` → `| a   | bb |⏎| --- | -- |⏎| ccc | d  |`",
+        "ja": "`|a|bb|⏎|-|-|⏎|ccc|d|` → `| a   | bb |⏎| --- | -- |⏎| ccc | d  |`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.to-html",
+      "candidateId": "MD-019",
+      "description": {
+        "en": "Converts Markdown to HTML using a built-in CommonMark subset with no new dependencies (ATX headings, paragraphs, bold / italic / strikethrough, inline code, code fences, bullet / numbered lists (nested), blockquotes, links, images, autolinks, horizontal rules and backslash escapes; Setext headings, tables, reference links, footnotes, indented code blocks and the like are output as paragraph text). HTML special characters and raw HTML in the text are escaped, and `javascript:`, `vbscript:`, `data:` and `file:` URLs become `#`.",
+        "ja": "Markdown を HTML にする。新規依存を追加せず、CommonMark のサブセットを自前実装する（ATX 見出し・段落・太字／斜体／取り消し線・インラインコード・コードフェンス・箇条書き／番号付きリスト（入れ子）・引用・リンク・画像・自動リンク・水平線・バックスラッシュエスケープ。setext 見出し・表・参照リンク・脚注・インデントのコードブロックなどは段落テキストとして出力する）。本文の HTML 特殊文字と生の HTML はエスケープし、`javascript:`・`vbscript:`・`data:`・`file:` の URL は `#` にする"
+      },
+      "example": {
+        "en": "`# a⏎**b**` → `<h1>a</h1>⏎<p><strong>b</strong></p>`",
+        "ja": "`# a⏎**b**` → `<h1>a</h1>⏎<p><strong>b</strong></p>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.strip",
+      "candidateId": "MD-020",
+      "description": {
+        "en": "Strips Markdown markup to produce plain text.",
+        "ja": "Markdown の記号を取り除いてプレーンテキストにする"
+      },
+      "example": {
+        "en": "`# A **b** [c](d)` → `A b c`",
+        "ja": "`# A **b** [c](d)` → `A b c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.heading-to-anchor",
+      "candidateId": "MD-021",
+      "description": {
+        "en": "Creates a GitHub-style anchor link from a heading.",
+        "ja": "見出しから GitHub 形式のアンカーリンクを作る"
+      },
+      "example": {
+        "en": "`## Hello World!` → `[Hello World!](#hello-world)`",
+        "ja": "`## Hello World!` → `[Hello World!](#hello-world)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.footnote",
+      "candidateId": "MD-022",
+      "description": {
+        "en": "Converts the selected text to a footnote: leaves a reference mark in the text and appends the footnote definition at the end.",
+        "ja": "選択テキストを脚注にし、本文に参照記号を残して末尾へ脚注定義を追加する"
+      },
+      "example": {
+        "en": "`本文補足（selects \"補足\"）` → `本文[^1]⏎⏎[^1]: 補足`",
+        "ja": "`本文補足（「補足」を選択）` → `本文[^1]⏎⏎[^1]: 補足`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.reference-links",
+      "candidateId": "MD-023",
+      "description": {
+        "en": "Converts inline links to reference links and collects the definitions, after a blank line, at the end of the selection (or after that line if the selection ends mid-line). Numbering continues from the existing definitions in the document.",
+        "ja": "インラインリンクを参照リンクに変換し、定義を選択範囲の末尾（選択が行の途中で終わる場合はその行の後）に空行を挟んでまとめる。番号は文書内にある定義の続きから"
+      },
+      "example": {
+        "en": "`[a](https://x.example)` → `[a][1]⏎⏎[1]: https://x.example`",
+        "ja": "`[a](https://x.example)` → `[a][1]⏎⏎[1]: https://x.example`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.details",
+      "candidateId": "MD-024",
+      "description": {
+        "en": "Wraps the selection in a collapsible block (details / summary elements). The summary is typed in (one line, up to 1,000 characters, HTML-escaped; Details when empty).",
+        "ja": "選択範囲を折りたたみ（details / summary 要素）で囲む（summary は入力。1 行・1,000 文字まで、HTML エスケープする。空なら Details）"
+      },
+      "example": {
+        "en": "`長い本文（summary: 詳細）` → `<details><summary>詳細</summary>⏎⏎長い本文⏎⏎</details>`",
+        "ja": "`長い本文（要約: 詳細）` → `<details><summary>詳細</summary>⏎⏎長い本文⏎⏎</details>`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.front-matter-to-json",
+      "candidateId": "MD-025",
+      "description": {
+        "en": "Parses the leading YAML front matter with js-yaml (CORE_SCHEMA; no code is executed) and converts it to single-line JSON (unlike the indented output of Convert YAML to JSON).",
+        "ja": "先頭の YAML フロントマターを js-yaml（CORE_SCHEMA。コードは実行しない）で読み込み、1 行の JSON にする（Convert YAML to JSON のインデント付き出力とは異なる）"
+      },
+      "example": {
+        "en": "`---⏎title: a⏎---` → `{\"title\":\"a\"}`",
+        "ja": "`---⏎title: a⏎---` → `{\"title\":\"a\"}`"
+      }
+    }
+  ]
+}

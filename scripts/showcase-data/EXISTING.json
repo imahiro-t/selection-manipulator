@@ -1,0 +1,1972 @@
+{
+  "category": "EXISTING",
+  "commands": [
+    {
+      "id": "selection-manipulator.remove-cursor-above",
+      "description": {
+        "en": "Removes the topmost selection (cursor) when there are several selections, keeping the others.",
+        "ja": "複数の選択範囲（カーソル）があるとき、最も上の選択範囲を解除して残りを保つ"
+      }
+    },
+    {
+      "id": "selection-manipulator.remove-cursor-below",
+      "description": {
+        "en": "Removes the bottommost selection (cursor) when there are several selections, keeping the others.",
+        "ja": "複数の選択範囲（カーソル）があるとき、最も下の選択範囲を解除して残りを保つ"
+      }
+    },
+    {
+      "id": "selection-manipulator.remove-character-from-each-side",
+      "description": {
+        "en": "Deletes the character just before and the character just after each selection and keeps the selected text, for example removing the quotes around a selected word. No character is deleted on a side where the selection touches the start or end of the line.",
+        "ja": "各選択範囲の直前と直後の 1 文字ずつを削除し、選択したテキストは残す（例: 選択した単語を囲む引用符を外す）。選択範囲が行頭または行末に接している側では削除しない"
+      }
+    },
+    {
+      "id": "selection-manipulator.show-commands",
+      "description": {
+        "en": "Shows the Selection Manipulator commands in a Quick Pick list and runs the one you choose. With multiple selections, only the commands that support multiple selections are listed.",
+        "ja": "Selection Manipulator のコマンドをクイックピックで一覧表示し、選んだコマンドを実行する。複数選択時は複数選択に対応したコマンドだけを表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.multi-selection",
+      "description": {
+        "en": "Converts the selection into a multi selection with one selection per line, so that each line of the selected text gets its own cursor.",
+        "ja": "選択範囲を行ごとの複数選択に変換し、選択したテキストの各行にカーソルを置く"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract",
+      "description": {
+        "en": "Collects the texts of all selections, separated by line breaks. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを改行で区切って集める。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.clipboard",
+      "description": {
+        "en": "Collects the texts of all selections, separated by line breaks. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを改行で区切って集める。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract-line",
+      "description": {
+        "en": "Collects the whole line on which each selection starts, one line per selection. Shows the result in a new read-only tab.",
+        "ja": "各選択範囲の開始位置がある行全体を、選択範囲ごとに 1 行ずつ集める。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract-line.clipboard",
+      "description": {
+        "en": "Collects the whole line on which each selection starts, one line per selection. Copies the result to the clipboard.",
+        "ja": "各選択範囲の開始位置がある行全体を、選択範囲ごとに 1 行ずつ集める。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.exclude-blank-rows",
+      "description": {
+        "en": "Collects the texts of all selections, separated by line breaks, and removes the blank lines (including lines with only whitespace). Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを改行で区切って集め、空行（空白だけの行を含む）を除く。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.exclude-blank-rows.clipboard",
+      "description": {
+        "en": "Collects the texts of all selections, separated by line breaks, and removes the blank lines (including lines with only whitespace). Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを改行で区切って集め、空行（空白だけの行を含む）を除く。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.unique",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and keeps only the first occurrence of each duplicate line. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて重複する行を最初の 1 行だけ残す。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.unique.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and keeps only the first occurrence of each duplicate line. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて重複する行を最初の 1 行だけ残す。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.reverse",
+      "description": {
+        "en": "Splits the texts of all selections into lines and reverses the order of the lines. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、行の順序を逆にする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.reverse.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines and reverses the order of the lines. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、行の順序を逆にする。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.shuffle",
+      "description": {
+        "en": "Splits the texts of all selections into lines and shuffles the lines into a random order. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、行をランダムな順序に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.shuffle.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines and shuffles the lines into a random order. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、行をランダムな順序に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.string.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in ascending order by string (character code order). Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて文字列（文字コード順）の昇順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.string.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in ascending order by string (character code order). Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて文字列（文字コード順）の昇順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.string.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in descending order by string (character code order). Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて文字列（文字コード順）の降順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.string.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in descending order by string (character code order). Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて文字列（文字コード順）の降順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.number.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in ascending order by numeric value. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて数値の昇順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.number.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in ascending order by numeric value. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて数値の昇順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.number.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in descending order by numeric value. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて数値の降順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort.number.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, removes blank lines and sorts the lines in descending order by numeric value. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、空行を除いて数値の降順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.string.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by string using a locale-aware comparison. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、ロケールを考慮した文字列比較で昇順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.string.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by string using a locale-aware comparison. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、ロケールを考慮した文字列比較で昇順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.string.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by string using a locale-aware comparison. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、ロケールを考慮した文字列比較で降順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.string.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by string using a locale-aware comparison. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、ロケールを考慮した文字列比較で降順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.number.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by numeric value. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、数値の昇順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.number.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by numeric value. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、数値の昇順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.number.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by numeric value. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、数値の降順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.number.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by numeric value. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、数値の降順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.length.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by length. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、長さの昇順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.length.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in ascending order by length. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、長さの昇順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.length.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by length. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、長さの降順に並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.length.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, keeping blank lines, and sorts them in descending order by length. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを空行も含めて行に分け、長さの降順に並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.occurrence.ascending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, groups identical lines together and orders the groups by how often the line occurs, least frequent first. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、同じ行をまとめて出現回数の少ない順に並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.occurrence.ascending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, groups identical lines together and orders the groups by how often the line occurs, least frequent first. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、同じ行をまとめて出現回数の少ない順に並べる。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.occurrence.descending",
+      "description": {
+        "en": "Splits the texts of all selections into lines, groups identical lines together and orders the groups by how often the line occurs, most frequent first. Shows the result in a new read-only tab.",
+        "ja": "すべての選択範囲のテキストを行に分け、同じ行をまとめて出現回数の多い順に並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.sort-line.occurrence.descending.clipboard",
+      "description": {
+        "en": "Splits the texts of all selections into lines, groups identical lines together and orders the groups by how often the line occurs, most frequent first. Copies the result to the clipboard.",
+        "ja": "すべての選択範囲のテキストを行に分け、同じ行をまとめて出現回数の多い順に並べる。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.format",
+      "description": {
+        "en": "Pretty-prints the selected JSON with 2-space indentation. Shows the result in a new read-only tab.",
+        "ja": "選択した JSON を 2 スペースのインデントで整形する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.minify",
+      "description": {
+        "en": "Minifies the selected JSON by removing all unnecessary whitespace and line breaks. Shows the result in a new read-only tab.",
+        "ja": "選択した JSON から不要な空白と改行を取り除いて 1 行にする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.parse",
+      "description": {
+        "en": "Parses the selected JSON string literal (such as `\"a\\nb\"`) and outputs the unescaped string. Shows the result in a new read-only tab.",
+        "ja": "選択した JSON 文字列リテラル（`\"a\\nb\"` など）を解析し、エスケープを解除した文字列を出力する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.stringify",
+      "description": {
+        "en": "Trims the selected text and converts it into a JSON string literal, enclosed in double quotes with special characters escaped. Shows the result in a new read-only tab.",
+        "ja": "選択したテキストの前後の空白を除き、ダブルクォートで囲んで特殊文字をエスケープした JSON 文字列リテラルに変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.flatten",
+      "description": {
+        "en": "Converts the selected nested JSON into a single-level object with dot-separated keys such as `a.b.0`. Shows the result in a new read-only tab.",
+        "ja": "選択したネストした JSON を、`a.b.0` のようなドット区切りのキーを持つ 1 階層のオブジェクトに変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.unflatten",
+      "description": {
+        "en": "Converts the selected single-level JSON object with dot-separated keys such as `a.b.0` back into nested objects and arrays. Shows the result in a new read-only tab.",
+        "ja": "選択した `a.b.0` のようなドット区切りのキーを持つ 1 階層の JSON オブジェクトを、ネストしたオブジェクトと配列に戻す。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.format.replace",
+      "description": {
+        "en": "Pretty-prints the selected JSON with 2-space indentation. Replaces the selection with the result.",
+        "ja": "選択した JSON を 2 スペースのインデントで整形する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.minify.replace",
+      "description": {
+        "en": "Minifies the selected JSON by removing all unnecessary whitespace and line breaks. Replaces the selection with the result.",
+        "ja": "選択した JSON から不要な空白と改行を取り除いて 1 行にする。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.parse.replace",
+      "description": {
+        "en": "Parses the selected JSON string literal (such as `\"a\\nb\"`) and outputs the unescaped string. Replaces the selection with the result.",
+        "ja": "選択した JSON 文字列リテラル（`\"a\\nb\"` など）を解析し、エスケープを解除した文字列を出力する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.stringify.replace",
+      "description": {
+        "en": "Trims the selected text and converts it into a JSON string literal, enclosed in double quotes with special characters escaped. Replaces the selection with the result.",
+        "ja": "選択したテキストの前後の空白を除き、ダブルクォートで囲んで特殊文字をエスケープした JSON 文字列リテラルに変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.flatten.replace",
+      "description": {
+        "en": "Converts the selected nested JSON into a single-level object with dot-separated keys such as `a.b.0`. Replaces the selection with the result.",
+        "ja": "選択したネストした JSON を、`a.b.0` のようなドット区切りのキーを持つ 1 階層のオブジェクトに変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.unflatten.replace",
+      "description": {
+        "en": "Converts the selected single-level JSON object with dot-separated keys such as `a.b.0` back into nested objects and arrays. Replaces the selection with the result.",
+        "ja": "選択した `a.b.0` のようなドット区切りのキーを持つ 1 階層の JSON オブジェクトを、ネストしたオブジェクトと配列に戻す。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.format",
+      "description": {
+        "en": "Pretty-prints the selected XML with 2-space indentation. Shows the result in a new read-only tab.",
+        "ja": "選択した XML を 2 スペースのインデントで整形する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.minify",
+      "description": {
+        "en": "Minifies the selected XML by removing the indentation and line breaks between tags. Shows the result in a new read-only tab.",
+        "ja": "選択した XML のタグ間のインデントと改行を取り除いて 1 行にする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.format.replace",
+      "description": {
+        "en": "Pretty-prints the selected XML with 2-space indentation. Replaces the selection with the result.",
+        "ja": "選択した XML を 2 スペースのインデントで整形する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.minify.replace",
+      "description": {
+        "en": "Minifies the selected XML by removing the indentation and line breaks between tags. Replaces the selection with the result.",
+        "ja": "選択した XML のタグ間のインデントと改行を取り除いて 1 行にする。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.to-json",
+      "description": {
+        "en": "Converts the selected XML into JSON, with attributes as `@name` keys, text as `#text` and repeated elements as arrays. Shows the result in a new read-only tab.",
+        "ja": "選択した XML を JSON に変換する（属性は `@name` キー、テキストは `#text`、繰り返す要素は配列）。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.to-json.replace",
+      "description": {
+        "en": "Converts the selected XML into JSON, with attributes as `@name` keys, text as `#text` and repeated elements as arrays. Replaces the selection with the result.",
+        "ja": "選択した XML を JSON に変換する（属性は `@name` キー、テキストは `#text`、繰り返す要素は配列）。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.encode",
+      "description": {
+        "en": "Encodes the selected text (UTF-8) to Base64. Shows the result in a new read-only tab.",
+        "ja": "選択したテキスト（UTF-8）を Base64 にエンコードする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.decode",
+      "description": {
+        "en": "Decodes the selected Base64 to UTF-8 text. Shows the result in a new read-only tab.",
+        "ja": "選択した Base64 を UTF-8 のテキストにデコードする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.deflate",
+      "description": {
+        "en": "Compresses the selected text with raw DEFLATE and encodes the result in Base64. Shows the result in a new read-only tab.",
+        "ja": "選択したテキストを raw DEFLATE で圧縮し、Base64 にエンコードする。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.unzip",
+      "description": {
+        "en": "Decodes the selected Base64 and decompresses it with raw DEFLATE (inflate). Shows the result in a new read-only tab.",
+        "ja": "選択した Base64 をデコードし、raw DEFLATE を展開（inflate）する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.encode.replace",
+      "description": {
+        "en": "Encodes the selected text (UTF-8) to Base64. Replaces the selection with the result.",
+        "ja": "選択したテキスト（UTF-8）を Base64 にエンコードする。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.decode.replace",
+      "description": {
+        "en": "Decodes the selected Base64 to UTF-8 text. Replaces the selection with the result.",
+        "ja": "選択した Base64 を UTF-8 のテキストにデコードする。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.deflate.replace",
+      "description": {
+        "en": "Compresses the selected text with raw DEFLATE and encodes the result in Base64. Replaces the selection with the result.",
+        "ja": "選択したテキストを raw DEFLATE で圧縮し、Base64 にエンコードする。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.unzip.replace",
+      "description": {
+        "en": "Decodes the selected Base64 and decompresses it with raw DEFLATE (inflate). Replaces the selection with the result.",
+        "ja": "選択した Base64 をデコードし、raw DEFLATE を展開（inflate）する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.reverse.string",
+      "description": {
+        "en": "Reverses the order of the characters in each selection (`abc` → `cba`).",
+        "ja": "各選択範囲の文字の並びを逆にする（`abc` → `cba`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.reverse.string.clipboard",
+      "description": {
+        "en": "Reverses the order of the characters in each selection (`abc` → `cba`). Copies the result to the clipboard.",
+        "ja": "各選択範囲の文字の並びを逆にする（`abc` → `cba`）。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.multi-selection.interval",
+      "description": {
+        "en": "Asks for a number N and converts the selection into a multi selection of every Nth line (the 1st, (N+1)th, (2N+1)th … line).",
+        "ja": "数値 N を入力させ、選択範囲の N 行ごとの行（1 行目、N+1 行目、2N+1 行目 …）を複数選択に変換する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.split-lines.custom",
+      "description": {
+        "en": "Asks for a delimiter and replaces each selection with its text split at the delimiter, one piece per line.",
+        "ja": "区切り文字を入力させ、各選択範囲のテキストを区切り文字で分割して 1 行ずつに置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.join-lines.custom",
+      "description": {
+        "en": "Asks for a delimiter and replaces each selection with its lines joined by the delimiter.",
+        "ja": "区切り文字を入力させ、各選択範囲の行を区切り文字で連結して置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.select-matches",
+      "description": {
+        "en": "Asks for a string and selects every occurrence of it within the current selections (case-sensitive).",
+        "ja": "文字列を入力させ、現在の選択範囲内にあるその文字列の出現箇所をすべて選択する（大文字と小文字を区別する）"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.parse",
+      "description": {
+        "en": "Parses each selected URL (one per line) into JSON with its components, such as `protocol`, `host`, `pathname`, the query parameters in `search` and `hash`. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各 URL（1 行に 1 つ）を解析し、`protocol`、`host`、`pathname`、`search`（クエリパラメーター）、`hash` などの構成要素を JSON にする。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.parse-params",
+      "description": {
+        "en": "Parses the query parameters of each selected URL or query string (one per line) into a JSON object. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各 URL またはクエリ文字列（1 行に 1 つ）のクエリパラメーターを JSON オブジェクトにする。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.encode-uri",
+      "description": {
+        "en": "Encodes each selected line with `encodeURI`, which keeps URL delimiters such as `/`, `?` and `&`. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各行を `encodeURI` でエンコードする（`/`、`?`、`&` などの URL の区切り文字はそのまま）。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.decode-uri",
+      "description": {
+        "en": "Decodes each selected line with `decodeURI`. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各行を `decodeURI` でデコードする。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.encode-uri-component",
+      "description": {
+        "en": "Encodes each selected line with `encodeURIComponent`, which also escapes URL delimiters such as `/`, `?` and `&`. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各行を `encodeURIComponent` でエンコードする（`/`、`?`、`&` などの URL の区切り文字もエスケープする）。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.decode-uri-component",
+      "description": {
+        "en": "Decodes each selected line with `decodeURIComponent`. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各行を `decodeURIComponent` でデコードする。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.jwt.decode",
+      "description": {
+        "en": "Decodes the header and payload of each selected JWT (one per line) into formatted JSON, without verifying the signature. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各 JWT（1 行に 1 つ）のヘッダーとペイロードをデコードして整形済みの JSON にする（署名は検証しない）。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.saml.decode",
+      "description": {
+        "en": "Decodes each selected SAML request or response (one per line) to XML, inflating it when it is DEFLATE-compressed and otherwise only Base64-decoding it. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各 SAML リクエスト / レスポンス（1 行に 1 つ）を XML にデコードする（DEFLATE 圧縮されていれば展開し、そうでなければ Base64 デコードだけを行う）。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.a",
+      "description": {
+        "en": "Looks up the A records (IPv4 addresses) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の A レコード（IPv4 アドレス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.aaaa",
+      "description": {
+        "en": "Looks up the AAAA records (IPv6 addresses) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の AAAA レコード（IPv6 アドレス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.any",
+      "description": {
+        "en": "Looks up the records of all types (ANY query) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の すべての種類のレコード（ANY クエリ） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.caa",
+      "description": {
+        "en": "Looks up the CAA records (certificate authorities allowed to issue certificates) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の CAA レコード（証明書の発行を許可された認証局） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.cname",
+      "description": {
+        "en": "Looks up the CNAME records (canonical names) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の CNAME レコード（正規名） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.mx",
+      "description": {
+        "en": "Looks up the MX records (mail servers) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の MX レコード（メールサーバー） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.naptr",
+      "description": {
+        "en": "Looks up the NAPTR records of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の NAPTR レコード をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.ns",
+      "description": {
+        "en": "Looks up the NS records (name servers) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の NS レコード（ネームサーバー） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.ptr",
+      "description": {
+        "en": "Looks up the PTR records of each selected reverse lookup name (one per line, such as `1.0.0.127.in-addr.arpa`) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各逆引き名（1 行に 1 つ、`1.0.0.127.in-addr.arpa` など）の PTR レコードをシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.soa",
+      "description": {
+        "en": "Looks up the SOA records (start of authority) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の SOA レコード（権威の開始） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.srv",
+      "description": {
+        "en": "Looks up the SRV records (services, such as `_sip._tcp.example.com`) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の SRV レコード（`_sip._tcp.example.com` などのサービス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.txt",
+      "description": {
+        "en": "Looks up the TXT records of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）の TXT レコード をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.lookup",
+      "description": {
+        "en": "Resolves each selected host name (one per line) to an IP address and its address family with the operating system's name resolution. Shows the results in a new read-only tab, each below its input line.",
+        "ja": "選択した各ホスト名（1 行に 1 つ）を OS の名前解決で IP アドレスとアドレスファミリーに変換する。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.dns.reverse",
+      "description": {
+        "en": "Performs a reverse DNS lookup of each selected IP address (one per line) using `node:dns` and shows the host names as a JSON array under each address in a new read-only tab. An address that cannot be resolved gets `[]`.",
+        "ja": "選択した IP アドレス（1 行に 1 つ）ごとに `node:dns` で逆引き DNS 問い合わせを行い、ホスト名の JSON 配列を各アドレスの下に並べて新しい読み取り専用タブに表示する。解決できないアドレスは `[]` になる"
+      }
+    },
+    {
+      "id": "selection-manipulator.count-occurrences.count",
+      "description": {
+        "en": "Counts how many times each identical line appears in the selections (blank lines are ignored) and lists `count<TAB>line` in ascending order of count. Shows the result in a new read-only tab.",
+        "ja": "選択範囲内で同じ内容の行が何回現れるかを数え（空白だけの行は除く）、`件数<TAB>行` の形で件数の少ない順に並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.count-occurrences.word",
+      "description": {
+        "en": "Counts how many times each identical line appears in the selections (blank lines are ignored) and lists `line<TAB>count` in ascending order of the line text. Shows the result in a new read-only tab.",
+        "ja": "選択範囲内で同じ内容の行が何回現れるかを数え（空白だけの行は除く）、`行<TAB>件数` の形で行の文字列の昇順に並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.count-up-list",
+      "description": {
+        "en": "Generates a list of consecutive integers, one per line: `N` gives 1 to N and `A-B` gives A to B (at most 100,000 numbers). Shows the result in a new read-only tab.",
+        "ja": "連続する整数を 1 行に 1 つずつ並べたリストを作る。`N` なら 1 から N、`A-B` なら A から B まで（最大 100,000 個）。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.har-to-mermaid",
+      "description": {
+        "en": "Converts the selected HAR (HTTP Archive) JSON into a Mermaid sequence diagram of its requests and responses, after asking which hosts, resource types and extras (query string and cookie names) to include. Shows the result in a new read-only tab.",
+        "ja": "選択した HAR（HTTP Archive）の JSON を、リクエストとレスポンスを表す Mermaid のシーケンス図に変換する。含めるホスト・リソースの種類・追加情報（クエリ文字列名と Cookie 名）を選択肢から選ぶ。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.har-to-image",
+      "description": {
+        "en": "Converts the selected HAR (HTTP Archive) JSON into a sequence diagram, after asking which hosts, resource types and extras to include, and renders it as an image in a webview panel beside the editor. The panel loads the Mermaid library from the jsDelivr CDN.",
+        "ja": "選択した HAR（HTTP Archive）の JSON をシーケンス図に変換し、エディタの横の Webview パネルに画像として描画する。含めるホスト・リソースの種類・追加情報は選択肢から選ぶ。パネルは Mermaid ライブラリを jsDelivr CDN から読み込む"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.title-smart",
+      "description": {
+        "en": "Converts the selection to title case, capitalizing every word except minor words such as `a`, `and`, `of`, `the` and `to` (the first word is always capitalized). Other letters become lowercase.",
+        "ja": "選択範囲をタイトルケースに変換する。`a`・`and`・`of`・`the`・`to` などの小さな語を除く各単語の先頭を大文字にし（最初の単語は常に大文字）、それ以外の文字は小文字にする"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.spongebob",
+      "description": {
+        "en": "Randomly switches each character of the selection to uppercase or lowercase (SpongeBob case, e.g. `hElLo WoRlD`).",
+        "ja": "選択範囲の各文字をランダムに大文字または小文字にする（SpongeBob ケース。例: `hElLo WoRlD`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.screaming-snake",
+      "description": {
+        "en": "Converts the selection to SCREAMING_SNAKE_CASE (constant case), e.g. `hello world` → `HELLO_WORLD`.",
+        "ja": "選択範囲を SCREAMING_SNAKE_CASE（コンスタントケース）に変換する（例: `hello world` → `HELLO_WORLD`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.humanize",
+      "description": {
+        "en": "Converts the selection to a human-readable sentence: words separated by spaces with only the first letter capitalized, e.g. `helloWorld` → `Hello world`.",
+        "ja": "選択範囲を読みやすい文の形に変換する。単語を空白で区切り、先頭の文字だけを大文字にする（例: `helloWorld` → `Hello world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.slugify",
+      "description": {
+        "en": "Converts the selection to a URL slug in kebab case, e.g. `Hello World` → `hello-world`.",
+        "ja": "選択範囲をケバブケースの URL スラッグに変換する（例: `Hello World` → `hello-world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-accents",
+      "description": {
+        "en": "Removes accents (diacritical marks) from the letters in the selection, e.g. `café` → `cafe`.",
+        "ja": "選択範囲の文字からアクセント記号（ダイアクリティカルマーク）を取り除く（例: `café` → `cafe`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.camel",
+      "description": {
+        "en": "Converts the selection to camel case, e.g. `hello world` → `helloWorld`.",
+        "ja": "選択範囲をキャメルケースに変換する（例: `hello world` → `helloWorld`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.capital",
+      "description": {
+        "en": "Converts the selection to capital case (each word capitalized, separated by spaces), e.g. `hello_world` → `Hello World`.",
+        "ja": "選択範囲をキャピタルケース（各単語の先頭を大文字にして空白で区切る）に変換する（例: `hello_world` → `Hello World`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.constant",
+      "description": {
+        "en": "Converts the selection to constant case, e.g. `hello world` → `HELLO_WORLD`.",
+        "ja": "選択範囲をコンスタントケースに変換する（例: `hello world` → `HELLO_WORLD`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.dot",
+      "description": {
+        "en": "Converts the selection to dot case, e.g. `hello world` → `hello.world`.",
+        "ja": "選択範囲をドットケースに変換する（例: `hello world` → `hello.world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.kebab",
+      "description": {
+        "en": "Converts the selection to kebab case, e.g. `hello world` → `hello-world`.",
+        "ja": "選択範囲をケバブケースに変換する（例: `hello world` → `hello-world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.no",
+      "description": {
+        "en": "Converts the selection to no case (lowercase words separated by spaces), e.g. `helloWorld` → `hello world`.",
+        "ja": "選択範囲をノーケース（小文字の単語を空白で区切る）に変換する（例: `helloWorld` → `hello world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.pascal",
+      "description": {
+        "en": "Converts the selection to Pascal case, e.g. `hello world` → `HelloWorld`.",
+        "ja": "選択範囲をパスカルケースに変換する（例: `hello world` → `HelloWorld`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.path",
+      "description": {
+        "en": "Converts the selection to path case, e.g. `hello world` → `hello/world`.",
+        "ja": "選択範囲をパスケースに変換する（例: `hello world` → `hello/world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.sentence",
+      "description": {
+        "en": "Converts the selection to sentence case, e.g. `helloWorld` → `Hello world`.",
+        "ja": "選択範囲をセンテンスケースに変換する（例: `helloWorld` → `Hello world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.snake",
+      "description": {
+        "en": "Converts the selection to snake case, e.g. `hello world` → `hello_world`.",
+        "ja": "選択範囲をスネークケースに変換する（例: `hello world` → `hello_world`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.train",
+      "description": {
+        "en": "Converts the selection to train case (header case), e.g. `hello world` → `Hello-World`.",
+        "ja": "選択範囲をトレインケース（ヘッダーケース）に変換する（例: `hello world` → `Hello-World`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.upper",
+      "description": {
+        "en": "Converts all letters in the selection to uppercase.",
+        "ja": "選択範囲の文字をすべて大文字に変換する"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.lower",
+      "description": {
+        "en": "Converts all letters in the selection to lowercase.",
+        "ja": "選択範囲の文字をすべて小文字に変換する"
+      }
+    },
+    {
+      "id": "selection-manipulator.zero-padding",
+      "description": {
+        "en": "Pads each selected number (digits only) with leading zeros to the number of digits typed in the input box (default 8), e.g. `42` → `00000042`. Longer numbers keep only their last digits; other text is left unchanged.",
+        "ja": "数字だけの選択範囲を、入力ボックスで指定した桁数（既定 8）になるよう先頭をゼロで埋める（例: `42` → `00000042`）。桁数より長い数値は下位の桁だけが残る。数字以外を含む選択範囲は変えない"
+      }
+    },
+    {
+      "id": "selection-manipulator.increment-from-1",
+      "description": {
+        "en": "Replaces each selection (or cursor) with sequential numbers starting from 1, in the order the selections were made.",
+        "ja": "各選択範囲（カーソル）を、選択した順に 1 から始まる連番で置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.increment-from-n",
+      "description": {
+        "en": "Replaces each selection (or cursor) with sequential numbers starting from the number typed in the input box, in the order the selections were made.",
+        "ja": "各選択範囲（カーソル）を、選択した順に入力ボックスで指定した数から始まる連番で置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.decrement-to-1",
+      "description": {
+        "en": "Replaces each selection (or cursor) with numbers counting down to 1, in the order the selections were made (the last selection gets 1).",
+        "ja": "各選択範囲（カーソル）を、選択した順に 1 まで減っていく連番で置き換える（最後の選択範囲が 1 になる）"
+      }
+    },
+    {
+      "id": "selection-manipulator.decrement-to-n",
+      "description": {
+        "en": "Replaces each selection (or cursor) with numbers counting down to the number typed in the input box, in the order the selections were made (the last selection gets that number).",
+        "ja": "各選択範囲（カーソル）を、選択した順に入力ボックスで指定した数まで減っていく連番で置き換える（最後の選択範囲がその数になる）"
+      }
+    },
+    {
+      "id": "selection-manipulator.increment-by-1",
+      "description": {
+        "en": "Adds 1 to each selected number. Selections that are not numbers are left unchanged.",
+        "ja": "選択した数値にそれぞれ 1 を足す。数値でない選択範囲は変えない"
+      }
+    },
+    {
+      "id": "selection-manipulator.increment-by-n",
+      "description": {
+        "en": "Adds the number typed in the input box (default 1) to each selected number. Selections that are not numbers are left unchanged.",
+        "ja": "選択した数値にそれぞれ入力ボックスで指定した数（既定 1）を足す。数値でない選択範囲は変えない"
+      }
+    },
+    {
+      "id": "selection-manipulator.decrement-by-1",
+      "description": {
+        "en": "Subtracts 1 from each selected number. Selections that are not numbers are left unchanged.",
+        "ja": "選択した数値からそれぞれ 1 を引く。数値でない選択範囲は変えない"
+      }
+    },
+    {
+      "id": "selection-manipulator.decrement-by-n",
+      "description": {
+        "en": "Subtracts the number typed in the input box (default 1) from each selected number. Selections that are not numbers are left unchanged.",
+        "ja": "選択した数値からそれぞれ入力ボックスで指定した数（既定 1）を引く。数値でない選択範囲は変えない"
+      }
+    },
+    {
+      "id": "selection-manipulator.calculation",
+      "description": {
+        "en": "Evaluates each selected line as a mathematical expression (`+ - * / % ^ **`, parentheses, `pi`, `e` and functions such as `sqrt`, `abs`, `sin`, `round`, `log`); invalid expressions give `NaN`. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各行を数式として計算する（`+ - * / % ^ **`・括弧・`pi`・`e`・`sqrt`・`abs`・`sin`・`round`・`log` などの関数に対応し、不正な式は `NaN`）。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.calculation.date",
+      "description": {
+        "en": "Converts each selected line (a date string, a timestamp in seconds or milliseconds, or `now` with an optional `+`/`-` offset in milliseconds) to a millisecond timestamp, a second timestamp and an ISO 8601 string. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各行（日付文字列、秒またはミリ秒のタイムスタンプ、`+`/`-` でミリ秒のオフセットを付けられる `now`）をミリ秒のタイムスタンプ・秒のタイムスタンプ・ISO 8601 文字列に変換する。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.regex.g",
+      "description": {
+        "en": "Uses the first line of the selection as a regular expression pattern and highlights all of its matches in the remaining lines. Shows the text in a new read-only tab.",
+        "ja": "選択範囲の 1 行目を正規表現のパターンとし、残りの行でパターンに一致する箇所をすべて強調表示する。テキストは新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.regex.gi",
+      "description": {
+        "en": "Uses the first line of the selection as a regular expression pattern and highlights all of its case-insensitive matches in the remaining lines. Shows the text in a new read-only tab.",
+        "ja": "選択範囲の 1 行目を正規表現のパターンとし、残りの行で大文字と小文字を区別せずに一致する箇所をすべて強調表示する。テキストは新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.x509",
+      "description": {
+        "en": "Decodes the selected PEM X.509 certificates (the `BEGIN`/`END CERTIFICATE` lines are added if missing) and shows the subject, subject alternative names, issuer, validity period, fingerprints, key usage and serial number as JSON in a new read-only tab.",
+        "ja": "選択した PEM 形式の X.509 証明書（`BEGIN`/`END CERTIFICATE` 行がなければ補う）をデコードし、サブジェクト・サブジェクト代替名・発行者・有効期間・フィンガープリント・鍵用途・シリアル番号を JSON で新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha256",
+      "description": {
+        "en": "Computes the SHA-256 hash of each selection as a hexadecimal string. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "各選択範囲の SHA-256 ハッシュを 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha512",
+      "description": {
+        "en": "Computes the SHA-512 hash of each selection as a hexadecimal string. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "各選択範囲の SHA-512 ハッシュを 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-md5",
+      "description": {
+        "en": "Computes the MD5 hash of each selection as a hexadecimal string. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "各選択範囲の MD5 ハッシュを 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hmac-sha256",
+      "description": {
+        "en": "Computes the HMAC-SHA-256 of each selection as a hexadecimal string, using the secret key typed in a password input box. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "パスワード入力ボックスで入力した秘密鍵を使い、各選択範囲の HMAC-SHA-256 を 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hmac-sha512",
+      "description": {
+        "en": "Computes the HMAC-SHA-512 of each selection as a hexadecimal string, using the secret key typed in a password input box. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "パスワード入力ボックスで入力した秘密鍵を使い、各選択範囲の HMAC-SHA-512 を 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hmac-md5",
+      "description": {
+        "en": "Computes the HMAC-MD5 of each selection as a hexadecimal string, using the secret key typed in a password input box. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "パスワード入力ボックスで入力した秘密鍵を使い、各選択範囲の HMAC-MD5 を 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.encrypt",
+      "description": {
+        "en": "Encrypts the selected text with AES-256-CBC using a key derived from the secret typed in a password input box, and outputs `IV:ciphertext` in hexadecimal (a random IV each time). Shows the result in a new read-only tab.",
+        "ja": "パスワード入力ボックスで入力した秘密から導出した鍵で選択テキストを AES-256-CBC 暗号化し、`IV:暗号文` を 16 進で出力する（IV は毎回ランダム）。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.decrypt",
+      "description": {
+        "en": "Decrypts AES-256-CBC `IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. Shows the result in a new read-only tab.",
+        "ja": "Encrypt by AES で作った 16 進の `IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.encrypt.replace",
+      "description": {
+        "en": "Encrypts the selected text with AES-256-CBC using a key derived from the secret typed in a password input box, and outputs `IV:ciphertext` in hexadecimal (a random IV each time). Replaces the selection with the result.",
+        "ja": "パスワード入力ボックスで入力した秘密から導出した鍵で選択テキストを AES-256-CBC 暗号化し、`IV:暗号文` を 16 進で出力する（IV は毎回ランダム）。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.decrypt.replace",
+      "description": {
+        "en": "Decrypts AES-256-CBC `IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. Replaces the selection with the result.",
+        "ja": "Encrypt by AES で作った 16 進の `IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.equal",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length equals the number typed in the input box. Shows the result in a new read-only tab.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数と等しい行を抽出する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.equal.clipboard",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length equals the number typed in the input box. Copies the result to the clipboard.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数と等しい行を抽出する。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.less",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is less than or equal to the number typed in the input box. Shows the result in a new read-only tab.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数以下の行を抽出する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.less.clipboard",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is less than or equal to the number typed in the input box. Copies the result to the clipboard.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数以下の行を抽出する。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-iso",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-iso.replace",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Replaces the selection with the result.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-iso.clipboard",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Copies the results to the clipboard, one per line.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-locale",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a locale-formatted date and time string of the local environment; unparsable text is left as it is. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を実行環境のロケール形式の日時文字列に変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-locale.replace",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a locale-formatted date and time string of the local environment; unparsable text is left as it is. Replaces the selection with the result.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を実行環境のロケール形式の日時文字列に変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-locale.clipboard",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a locale-formatted date and time string of the local environment; unparsable text is left as it is. Copies the results to the clipboard, one per line.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を実行環境のロケール形式の日時文字列に変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in seconds; unparsable text is left as it is. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp.replace",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in seconds; unparsable text is left as it is. Replaces the selection with the result.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp.clipboard",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in seconds; unparsable text is left as it is. Copies the results to the clipboard, one per line.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp-ms",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in milliseconds; unparsable text is left as it is. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をミリ秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp-ms.replace",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in milliseconds; unparsable text is left as it is. Replaces the selection with the result.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をミリ秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timestamp-ms.clipboard",
+      "description": {
+        "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to a Unix timestamp in milliseconds; unparsable text is left as it is. Copies the results to the clipboard, one per line.",
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をミリ秒単位の Unix タイムスタンプに変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.greater",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is greater than or equal to the number typed in the input box. Shows the result in a new read-only tab.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数以上の行を抽出する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.greater.clipboard",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is greater than or equal to the number typed in the input box. Copies the result to the clipboard.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した数以上の行を抽出する。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.range",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is within the range typed in the input box (`min,max` or `min-max`, both inclusive). Shows the result in a new read-only tab.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した範囲（`min,max` または `min-max`、両端を含む）に収まる行を抽出する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.line-by-length.range.clipboard",
+      "description": {
+        "en": "Extracts the lines touched by the selections whose length is within the range typed in the input box (`min,max` or `min-max`, both inclusive). Copies the result to the clipboard.",
+        "ja": "選択範囲にかかる行のうち、長さが入力ボックスで指定した範囲（`min,max` または `min-max`、両端を含む）に収まる行を抽出する。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.uuid",
+      "description": {
+        "en": "Inserts a random UUID (v4) at the cursor, or replaces each selection with a different one.",
+        "ja": "ランダムな UUID（v4）をカーソル位置に挿入する。選択範囲があれば、それぞれを別の UUID で置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.escape",
+      "description": {
+        "en": "Escapes the selected text as the contents of a JSON string (like `JSON.stringify` without the surrounding quotes), e.g. a line break → `\\n`, `\"` → `\\\"`. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを JSON 文字列の中身としてエスケープする（前後の引用符を除いた `JSON.stringify` と同じ。例: 改行 → `\\n`、`\"` → `\\\"`）。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.unescape",
+      "description": {
+        "en": "Unescapes JSON string escape sequences in the selected text (like `JSON.parse`), e.g. `\\n` → a line break; invalid text is left as it is. Shows the result in a new read-only tab.",
+        "ja": "選択テキストの JSON 文字列のエスケープシーケンスを元に戻す（`JSON.parse` と同じ。例: `\\n` → 改行）。不正なテキストはそのまま。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-empty-lines",
+      "description": {
+        "en": "Removes empty and whitespace-only lines from the selection.",
+        "ja": "選択範囲から空行と空白だけの行を取り除く"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-line-numbers",
+      "description": {
+        "en": "Removes leading line numbers such as `1. `, `12: `, `[3] ` or `(4) ` from each line of the selection.",
+        "ja": "選択範囲の各行の先頭にある `1. `・`12: `・`[3] `・`(4) ` のような行番号を取り除く"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.trim-lines",
+      "description": {
+        "en": "Removes leading and trailing whitespace from each line of the selection.",
+        "ja": "選択範囲の各行の先頭と末尾の空白を取り除く"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.join-lines.space",
+      "description": {
+        "en": "Trims each line of the selection, drops empty lines and joins the rest into one line separated by spaces.",
+        "ja": "選択範囲の各行の前後の空白を取り除き、空行を除いて残りを空白区切りの 1 行に連結する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.join-lines.comma",
+      "description": {
+        "en": "Trims each line of the selection, drops empty lines and joins the rest into one line separated by commas (`,`).",
+        "ja": "選択範囲の各行の前後の空白を取り除き、空行を除いて残りをカンマ（`,`）区切りの 1 行に連結する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.split-lines.space",
+      "description": {
+        "en": "Splits the selection into lines by replacing every space with a line break.",
+        "ja": "選択範囲の空白をすべて改行に置き換えて行に分割する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.split-lines.comma",
+      "description": {
+        "en": "Splits the selection into lines by replacing every comma (`,`) with a line break.",
+        "ja": "選択範囲のカンマ（`,`）をすべて改行に置き換えて行に分割する"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.sum",
+      "description": {
+        "en": "Calculates the sum of the numbers in the selections (separated by line breaks or commas). Shows the result in a new read-only tab. Shows a warning if no number is found.",
+        "ja": "選択範囲内の数値（改行またはカンマ区切り）の合計を求める。結果を新しい読み取り専用タブに表示する。数値がなければ警告を表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.average",
+      "description": {
+        "en": "Calculates the average of the numbers in the selections (separated by line breaks or commas). Shows the result in a new read-only tab. Shows a warning if no number is found.",
+        "ja": "選択範囲内の数値（改行またはカンマ区切り）の平均を求める。結果を新しい読み取り専用タブに表示する。数値がなければ警告を表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.min",
+      "description": {
+        "en": "Calculates the minimum of the numbers in the selections (separated by line breaks or commas). Shows the result in a new read-only tab. Shows a warning if no number is found.",
+        "ja": "選択範囲内の数値（改行またはカンマ区切り）の最小値を求める。結果を新しい読み取り専用タブに表示する。数値がなければ警告を表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.max",
+      "description": {
+        "en": "Calculates the maximum of the numbers in the selections (separated by line breaks or commas). Shows the result in a new read-only tab. Shows a warning if no number is found.",
+        "ja": "選択範囲内の数値（改行またはカンマ区切り）の最大値を求める。結果を新しい読み取り専用タブに表示する。数値がなければ警告を表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.password",
+      "description": {
+        "en": "Inserts a random 16-character password (letters, digits and symbols) at the cursor, or replaces each selection with a different one.",
+        "ja": "ランダムな 16 文字のパスワード（英字・数字・記号）をカーソル位置に挿入する。選択範囲があれば、それぞれを別のパスワードで置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.ipv4",
+      "description": {
+        "en": "Inserts a random IPv4 address at the cursor, or replaces each selection with a different one.",
+        "ja": "ランダムな IPv4 アドレスをカーソル位置に挿入する。選択範囲があれば、それぞれを別のアドレスで置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.ipv6",
+      "description": {
+        "en": "Inserts a random IPv6 address (eight hexadecimal groups) at the cursor, or replaces each selection with a different one.",
+        "ja": "ランダムな IPv6 アドレス（16 進 8 グループ）をカーソル位置に挿入する。選択範囲があれば、それぞれを別のアドレスで置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-markdown",
+      "description": {
+        "en": "Converts the selected CSV into a Markdown table, using the first row as the header (values are split at every comma; quotes are not handled). Shows the result in a new read-only tab.",
+        "ja": "選択した CSV を 1 行目を見出しとする Markdown の表に変換する（値はすべてのカンマで区切り、引用符は扱わない）。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-markdown.replace",
+      "description": {
+        "en": "Converts the selected CSV into a Markdown table, using the first row as the header (values are split at every comma; quotes are not handled). Replaces the selection with the result.",
+        "ja": "選択した CSV を 1 行目を見出しとする Markdown の表に変換する（値はすべてのカンマで区切り、引用符は扱わない）。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-markdown",
+      "description": {
+        "en": "Converts the selected Markdown table into CSV, dropping the separator row and trimming each cell. Shows the result in a new read-only tab.",
+        "ja": "選択した Markdown の表を CSV に変換する。区切り行を除き、各セルの前後の空白を取り除く。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-markdown.replace",
+      "description": {
+        "en": "Converts the selected Markdown table into CSV, dropping the separator row and trimming each cell. Replaces the selection with the result.",
+        "ja": "選択した Markdown の表を CSV に変換する。区切り行を除き、各セルの前後の空白を取り除く。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.data.env-to-json",
+      "description": {
+        "en": "Converts the selected `.env` lines (`KEY=VALUE`) into a JSON object, ignoring empty lines and `#` comments and removing surrounding quotes from values. Shows the result in a new read-only tab.",
+        "ja": "選択した `.env` の行（`KEY=VALUE`）を JSON オブジェクトに変換する。空行と `#` のコメントは無視し、値を囲む引用符は取り除く。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.data.env-to-json.replace",
+      "description": {
+        "en": "Converts the selected `.env` lines (`KEY=VALUE`) into a JSON object, ignoring empty lines and `#` comments and removing surrounding quotes from values. Replaces the selection with the result.",
+        "ja": "選択した `.env` の行（`KEY=VALUE`）を JSON オブジェクトに変換する。空行と `#` のコメントは無視し、値を囲む引用符は取り除く。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.escape.replace",
+      "description": {
+        "en": "Escapes the selected text as the contents of a JSON string (like `JSON.stringify` without the surrounding quotes), e.g. a line break → `\\n`, `\"` → `\\\"`. Replaces the selection with the result.",
+        "ja": "選択テキストを JSON 文字列の中身としてエスケープする（前後の引用符を除いた `JSON.stringify` と同じ。例: 改行 → `\\n`、`\"` → `\\\"`）。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.unescape.replace",
+      "description": {
+        "en": "Unescapes JSON string escape sequences in the selected text (like `JSON.parse`), e.g. `\\n` → a line break; invalid text is left as it is. Replaces the selection with the result.",
+        "ja": "選択テキストの JSON 文字列のエスケープシーケンスを元に戻す（`JSON.parse` と同じ。例: `\\n` → 改行）。不正なテキストはそのまま。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-yaml",
+      "description": {
+        "en": "Converts the selected JSON to YAML. Shows the result in a new read-only tab, separating multiple selections with `---`.",
+        "ja": "選択した JSON を YAML に変換する。結果を新しい読み取り専用タブに表示し、複数選択は `---` で区切る"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-yaml.replace",
+      "description": {
+        "en": "Converts the selected JSON to YAML. Replaces the selection with the result.",
+        "ja": "選択した JSON を YAML に変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.yaml-to-json",
+      "description": {
+        "en": "Converts the selected YAML to JSON indented with 2 spaces. Shows the result in a new read-only tab.",
+        "ja": "選択した YAML を 2 スペースインデントの JSON に変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.yaml-to-json.replace",
+      "description": {
+        "en": "Converts the selected YAML to JSON indented with 2 spaces. Replaces the selection with the result.",
+        "ja": "選択した YAML を 2 スペースインデントの JSON に変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.hex-to-rgb",
+      "description": {
+        "en": "Converts a 6-digit hex color such as `#ff8800` to `rgb(255, 136, 0)`. Shows the result in a new read-only tab.",
+        "ja": "`#ff8800` のような 6 桁の 16 進カラーを `rgb(255, 136, 0)` に変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.hex-to-rgb.replace",
+      "description": {
+        "en": "Converts a 6-digit hex color such as `#ff8800` to `rgb(255, 136, 0)`. Replaces the selection with the result.",
+        "ja": "`#ff8800` のような 6 桁の 16 進カラーを `rgb(255, 136, 0)` に変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.rgb-to-hex",
+      "description": {
+        "en": "Converts an `rgb(r, g, b)` color to a hex color such as `#ff8800`. Shows the result in a new read-only tab.",
+        "ja": "`rgb(r, g, b)` 形式の色を `#ff8800` のような 16 進カラーに変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.rgb-to-hex.replace",
+      "description": {
+        "en": "Converts an `rgb(r, g, b)` color to a hex color such as `#ff8800`. Replaces the selection with the result.",
+        "ja": "`rgb(r, g, b)` 形式の色を `#ff8800` のような 16 進カラーに変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.toggle-quotes",
+      "description": {
+        "en": "Switches a string in single quotes to double quotes and vice versa, adjusting the escaped quotes inside.",
+        "ja": "単一引用符で囲まれた文字列を二重引用符に、二重引用符で囲まれた文字列を単一引用符に切り替え、内部のエスケープも調整する"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.full-to-half",
+      "description": {
+        "en": "Converts full-width alphanumerics, symbols, spaces and katakana to half-width. Hiragana also becomes half-width katakana. Shows the result in a new read-only tab.",
+        "ja": "全角英数字・記号・スペース・カタカナを半角に変換する。ひらがなも半角カタカナになる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.full-to-half.replace",
+      "description": {
+        "en": "Converts full-width alphanumerics, symbols, spaces and katakana to half-width. Hiragana also becomes half-width katakana. Replaces the selection with the result.",
+        "ja": "全角英数字・記号・スペース・カタカナを半角に変換する。ひらがなも半角カタカナになる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.half-to-full",
+      "description": {
+        "en": "Converts half-width alphanumerics, symbols, spaces and katakana to full-width. Shows the result in a new read-only tab.",
+        "ja": "半角英数字・記号・スペース・カタカナを全角に変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.half-to-full.replace",
+      "description": {
+        "en": "Converts half-width alphanumerics, symbols, spaces and katakana to full-width. Replaces the selection with the result.",
+        "ja": "半角英数字・記号・スペース・カタカナを全角に変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.hiragana-to-katakana",
+      "description": {
+        "en": "Converts hiragana to full-width katakana. Shows the result in a new read-only tab.",
+        "ja": "ひらがなを全角カタカナに変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.hiragana-to-katakana.replace",
+      "description": {
+        "en": "Converts hiragana to full-width katakana. Replaces the selection with the result.",
+        "ja": "ひらがなを全角カタカナに変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.katakana-to-hiragana",
+      "description": {
+        "en": "Converts katakana (full-width and half-width) to hiragana. Shows the result in a new read-only tab.",
+        "ja": "カタカナ（全角・半角）をひらがなに変換する。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.katakana-to-hiragana.replace",
+      "description": {
+        "en": "Converts katakana (full-width and half-width) to hiragana. Replaces the selection with the result.",
+        "ja": "カタカナ（全角・半角）をひらがなに変換する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha1",
+      "description": {
+        "en": "Creates the SHA-1 hash (hex) of each selection. Shows each selection followed by its result in a new read-only tab.",
+        "ja": "選択テキストごとに SHA-1 ハッシュ（16 進）を生成する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha1.replace",
+      "description": {
+        "en": "Creates the SHA-1 hash (hex) of each selection. Replaces the selection with the result.",
+        "ja": "選択テキストごとに SHA-1 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha256.replace",
+      "description": {
+        "en": "Creates the SHA-256 hash (hex) of each selection. Replaces the selection with the result.",
+        "ja": "選択テキストごとに SHA-256 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha512.replace",
+      "description": {
+        "en": "Creates the SHA-512 hash (hex) of each selection. Replaces the selection with the result.",
+        "ja": "選択テキストごとに SHA-512 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-md5.replace",
+      "description": {
+        "en": "Creates the MD5 hash (hex) of each selection. Replaces the selection with the result.",
+        "ja": "選択テキストごとに MD5 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.email",
+      "description": {
+        "en": "Extracts the email addresses in the selection, one per line. Shows the result in a new read-only tab.",
+        "ja": "選択範囲からメールアドレスを抽出し 1 行に 1 つずつ並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.email.replace",
+      "description": {
+        "en": "Extracts the email addresses in the selection, one per line. Replaces the selection with the result.",
+        "ja": "選択範囲からメールアドレスを抽出し 1 行に 1 つずつ並べる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.url",
+      "description": {
+        "en": "Extracts the URLs (`http://` / `https://`) in the selection, one per line. Shows the result in a new read-only tab.",
+        "ja": "選択範囲から `http://` または `https://` で始まる URL を抽出し、1 行に 1 つずつ並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.url.replace",
+      "description": {
+        "en": "Extracts the URLs (`http://` / `https://`) in the selection, one per line. Replaces the selection with the result.",
+        "ja": "選択範囲から `http://` または `https://` で始まる URL を抽出し、1 行に 1 つずつ並べる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.ip",
+      "description": {
+        "en": "Extracts the IPv4 addresses in the selection, one per line. Shows the result in a new read-only tab.",
+        "ja": "選択範囲からIPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.extract.ip.replace",
+      "description": {
+        "en": "Extracts the IPv4 addresses in the selection, one per line. Replaces the selection with the result.",
+        "ja": "選択範囲からIPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.cowsay",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a cow (cowsay). Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、牛（cowsay）のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.cowsay.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a cow (cowsay). Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、牛（cowsay）のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.tux",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a penguin. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、ペンギンのアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.tux.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a penguin. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、ペンギンのアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.ghost",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a ghost. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、おばけのアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.ghost.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a ghost. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、おばけのアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.meow",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a cat. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、猫のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.meow.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a cat. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、猫のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.pig",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a pig. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、豚のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.pig.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a pig. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、豚のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.face",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a face. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、顔のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.face.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a face. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、顔のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.single",
+      "description": {
+        "en": "Encloses each selection in single quotes (`'`).",
+        "ja": "選択テキストを単一引用符（`'`）で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.double",
+      "description": {
+        "en": "Encloses each selection in double quotes (`\"`).",
+        "ja": "選択テキストを二重引用符（`\"`）で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.backtick",
+      "description": {
+        "en": "Encloses each selection in backticks (`` ` ``).",
+        "ja": "選択テキストをバッククォート（`` ` ``）で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.link",
+      "description": {
+        "en": "Turns each selection into a Markdown link `[text](url)` using the clipboard. Selected text gets the URL from the clipboard, and a selected URL gets the clipboard text as its link text.",
+        "ja": "クリップボードを使って選択範囲を Markdown リンク `[text](url)` にする。選択テキストにはクリップボードの URL を、選択した URL にはクリップボードのテキストをリンクテキストとして組み合わせる"
+      }
+    },
+    {
+      "id": "selection-manipulator.insert.date.iso",
+      "description": {
+        "en": "Inserts the current date and time in ISO 8601 format (UTC, e.g. `2025-01-02T03:04:05.678Z`) at the cursor, or replaces the selections with it.",
+        "ja": "現在日時を ISO 8601 形式（UTC、例: `2025-01-02T03:04:05.678Z`）でカーソル位置に挿入する。選択範囲がある場合は置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.insert.date.locale",
+      "description": {
+        "en": "Inserts the current date and time formatted for the locale of the environment at the cursor, or replaces the selections with it.",
+        "ja": "現在日時を実行環境のロケールの形式でカーソル位置に挿入する。選択範囲がある場合は置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.insert.date.timestamp",
+      "description": {
+        "en": "Inserts the current Unix timestamp in seconds at the cursor, or replaces the selections with it.",
+        "ja": "現在の Unix タイムスタンプ（秒）をカーソル位置に挿入する。選択範囲がある場合は置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.lorem-ipsum",
+      "description": {
+        "en": "Inserts a standard Lorem Ipsum paragraph at the cursor, or replaces each selection with it.",
+        "ja": "定型の Lorem Ipsum の段落をカーソル位置に挿入する。選択範囲がある場合はそれぞれ置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.trim-lines-trailing",
+      "description": {
+        "en": "Removes trailing whitespace from each line of the selection.",
+        "ja": "選択範囲の各行の末尾の空白を削除する"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-duplicate-lines",
+      "description": {
+        "en": "Removes duplicate lines from the selection, keeping the first occurrence of each line.",
+        "ja": "選択範囲の重複行を削除し、各行の最初の出現だけを残す"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.px-to-rem",
+      "description": {
+        "en": "Converts a `px` value to `rem` with a base font size of 16px (e.g. `24` → `1.5rem`).",
+        "ja": "基準フォントサイズ 16px で `px` の値を `rem` に変換する（例: `24` → `1.5rem`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.rem-to-px",
+      "description": {
+        "en": "Converts a `rem` value to `px` with a base font size of 16px (e.g. `1.5` → `24px`).",
+        "ja": "基準フォントサイズ 16px で `rem` の値を `px` に変換する（例: `1.5` → `24px`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.kg-to-lb",
+      "description": {
+        "en": "Converts kilograms to pounds, rounded to 2 decimal places (e.g. `10` → `22.05lb`).",
+        "ja": "キログラムをポンドに変換し小数第 2 位に丸める（例: `10` → `22.05lb`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.lb-to-kg",
+      "description": {
+        "en": "Converts pounds to kilograms, rounded to 2 decimal places (e.g. `10` → `4.54kg`).",
+        "ja": "ポンドをキログラムに変換し小数第 2 位に丸める（例: `10` → `4.54kg`）"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.normalize-whitespace",
+      "description": {
+        "en": "Replaces every run of whitespace, including line breaks, with a single space.",
+        "ja": "改行を含む連続した空白を 1 つのスペースに置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.strip-html-tags",
+      "description": {
+        "en": "Removes HTML tags from the selection, keeping the text.",
+        "ja": "選択範囲から HTML タグを取り除き、テキストだけを残す"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.unsmart-quotes",
+      "description": {
+        "en": "Replaces curly quotes (`‘` `’` `“` `”`) with straight quotes (`'` `\"`).",
+        "ja": "曲がった引用符（`‘` `’` `“` `”`）をまっすぐな引用符（`'` `\"`）に置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.mask",
+      "description": {
+        "en": "Replaces each character of the selection with an asterisk (`*`).",
+        "ja": "選択テキストの各文字をアスタリスク（`*`）に置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.paren",
+      "description": {
+        "en": "Encloses each selection in parentheses `()`.",
+        "ja": "選択テキストを丸括弧 `()`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.square",
+      "description": {
+        "en": "Encloses each selection in square brackets `[]`.",
+        "ja": "選択テキストを角括弧 `[]`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.curly",
+      "description": {
+        "en": "Encloses each selection in curly brackets `{}`.",
+        "ja": "選択テキストを波括弧 `{}`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.angle",
+      "description": {
+        "en": "Encloses each selection in angle brackets `<>`.",
+        "ja": "選択テキストを山括弧 `<>`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.quote-single",
+      "description": {
+        "en": "Encloses each selection in Japanese corner brackets `「」`.",
+        "ja": "選択テキストをかぎ括弧 `「」`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.quote-double",
+      "description": {
+        "en": "Encloses each selection in Japanese double corner brackets `『』`.",
+        "ja": "選択テキストを二重かぎ括弧 `『』`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.bracket",
+      "description": {
+        "en": "Encloses each selection in Japanese lenticular brackets `【】`.",
+        "ja": "選択テキストを隅付き括弧 `【】`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.angle",
+      "description": {
+        "en": "Encloses each selection in full-width angle brackets `＜＞`.",
+        "ja": "選択テキストを全角山括弧 `＜＞`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.paren",
+      "description": {
+        "en": "Encloses each selection in full-width parentheses `（）`.",
+        "ja": "選択テキストを全角丸括弧 `（）`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.square",
+      "description": {
+        "en": "Encloses each selection in full-width square brackets `［］`.",
+        "ja": "選択テキストを全角角括弧 `［］`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.curly",
+      "description": {
+        "en": "Encloses each selection in full-width curly brackets `｛｝`.",
+        "ja": "選択テキストを全角波括弧 `｛｝`で囲む"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.daemon",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a daemon. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、デーモンのアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.daemon.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a daemon. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、デーモンのアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.dragon",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a dragon. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、ドラゴンのアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.dragon.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a dragon. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、ドラゴンのアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.stegosaurus",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a stegosaurus. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、ステゴサウルスのアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.stegosaurus.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a stegosaurus. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、ステゴサウルスのアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.turkey",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a turkey. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、七面鳥のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.turkey.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a turkey. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、七面鳥のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.turtle",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a turtle. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、亀のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.turtle.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of a turtle. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、亀のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.elephant",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of an elephant. Shows the result in a new read-only tab.",
+        "ja": "選択テキストを吹き出しに入れ、象のアスキーアートにしゃべらせる。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii.elephant.replace",
+      "description": {
+        "en": "Puts the selected text in a speech bubble spoken by ASCII art of an elephant. Replaces the selection with the result.",
+        "ja": "選択テキストを吹き出しに入れ、象のアスキーアートにしゃべらせる。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.era-conversion",
+      "description": {
+        "en": "Converts a Western calendar year to a Japanese era year and vice versa (e.g. `2025` → `令和7年`, `令和7年` → `2025年`), from Meiji to Reiwa. Shows each selection followed by its result in a new read-only tab.",
+        "ja": "西暦と和暦を相互に変換する（例: `2025` → `令和7年`、`令和7年` → `2025年`、明治から令和に対応）。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.era-conversion.replace",
+      "description": {
+        "en": "Converts a Western calendar year to a Japanese era year and vice versa (e.g. `2025` → `令和7年`, `令和7年` → `2025年`), from Meiji to Reiwa. Replaces the selection with the result.",
+        "ja": "西暦と和暦を相互に変換する（例: `2025` → `令和7年`、`令和7年` → `2025年`、明治から令和に対応）。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.to-morse",
+      "description": {
+        "en": "Converts alphanumerics and katakana to Morse code (Wabun code for katakana), separating the codes with spaces. Shows each selection followed by its result in a new read-only tab.",
+        "ja": "英数字とカタカナをモールス符号（カタカナは和文モールス）に変換し、符号をスペースで区切る。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.to-morse.replace",
+      "description": {
+        "en": "Converts alphanumerics and katakana to Morse code (Wabun code for katakana), separating the codes with spaces. Replaces the selection with the result.",
+        "ja": "英数字とカタカナをモールス符号（カタカナは和文モールス）に変換し、符号をスペースで区切る。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.from-morse",
+      "description": {
+        "en": "Converts space-separated Morse code to text, preferring alphanumerics when a code is also a Wabun code. Shows each selection followed by its result in a new read-only tab.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、和文と重なる符号は英数字を優先する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.from-morse.replace",
+      "description": {
+        "en": "Converts space-separated Morse code to text, preferring alphanumerics when a code is also a Wabun code. Replaces the selection with the result.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、和文と重なる符号は英数字を優先する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.from-morse.kana",
+      "description": {
+        "en": "Converts space-separated Morse code to text, preferring katakana (Wabun code) when a code is also an alphanumeric code. Shows each selection followed by its result in a new read-only tab.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、英数字と重なる符号はカタカナ（和文モールス）を優先する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.morse.from-morse.kana.replace",
+      "description": {
+        "en": "Converts space-separated Morse code to text, preferring katakana (Wabun code) when a code is also an alphanumeric code. Replaces the selection with the result.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、英数字と重なる符号はカタカナ（和文モールス）を優先する。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.shuffle.character",
+      "description": {
+        "en": "Shuffles the characters of each selection randomly. Shows the result in a new read-only tab.",
+        "ja": "選択テキストごとに文字の順序をランダムに並べ替える。結果を新しい読み取り専用タブに表示する"
+      }
+    },
+    {
+      "id": "selection-manipulator.shuffle.character.replace",
+      "description": {
+        "en": "Shuffles the characters of each selection randomly. Replaces the selection with the result.",
+        "ja": "選択テキストごとに文字の順序をランダムに並べ替える。結果で選択範囲を置き換える"
+      }
+    },
+    {
+      "id": "selection-manipulator.shuffle.character.clipboard",
+      "description": {
+        "en": "Shuffles the characters of each selection randomly. Copies the result to the clipboard.",
+        "ja": "選択テキストごとに文字の順序をランダムに並べ替える。結果をクリップボードにコピーする"
+      }
+    },
+    {
+      "id": "selection-manipulator.diff",
+      "description": {
+        "en": "Compares the first two selections word by word and shows the differences as Markdown in a new read-only tab (added text in bold, removed text struck through).",
+        "ja": "最初の 2 つの選択範囲を単語単位で比較し、差分を Markdown で新しい読み取り専用タブに表示する（追加は太字、削除は取り消し線）"
+      }
+    }
+  ]
+}

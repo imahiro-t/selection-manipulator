@@ -1,0 +1,368 @@
+{
+  "category": "CASE",
+  "commands": [
+    {
+      "id": "selection-manipulator.case.swap",
+      "candidateId": "CASE-001",
+      "description": {
+        "en": "Swaps uppercase and lowercase letters.",
+        "ja": "大文字と小文字を入れ替える"
+      },
+      "example": {
+        "en": "`Hello World` → `hELLO wORLD`",
+        "ja": "`Hello World` → `hELLO wORLD`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.sentence-preserve-acronyms",
+      "candidateId": "CASE-002",
+      "description": {
+        "en": "Capitalizes only the first letter of the text and keeps all-uppercase acronyms (API, URL, etc.) intact (unlike **Change Case Sentence**, which lowercases acronyms too).",
+        "ja": "文頭だけを大文字にし、全大文字の略語（API・URL など）は小文字にしない（**Change Case Sentence** は略語も小文字にする）"
+      },
+      "example": {
+        "en": "`the API URL is ready` → `The API URL is ready`",
+        "ja": "`the API URL is ready` → `The API URL is ready`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.title-apa",
+      "candidateId": "CASE-003",
+      "description": {
+        "en": "Converts to APA-style title case (words of four or more letters are capitalized even if they are prepositions).",
+        "ja": "APA スタイルのタイトルケース（4 文字以上の単語は前置詞でも大文字）"
+      },
+      "example": {
+        "en": "`a guide through the woods` → `A Guide Through the Woods`",
+        "ja": "`a guide through the woods` → `A Guide Through the Woods`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.upper-first",
+      "candidateId": "CASE-004",
+      "description": {
+        "en": "Uppercases only the first character and leaves the rest unchanged.",
+        "ja": "先頭の 1 文字だけを大文字にし、残りは変更しない"
+      },
+      "example": {
+        "en": "`hello World` → `Hello World`",
+        "ja": "`hello World` → `Hello World`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.lower-first",
+      "candidateId": "CASE-005",
+      "description": {
+        "en": "Lowercases only the first character and leaves the rest unchanged.",
+        "ja": "先頭の 1 文字だけを小文字にし、残りは変更しない"
+      },
+      "example": {
+        "en": "`HelloWorld` → `helloWorld`",
+        "ja": "`HelloWorld` → `helloWorld`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.cobol",
+      "candidateId": "CASE-006",
+      "description": {
+        "en": "Converts to uppercase words separated by hyphens (COBOL-CASE).",
+        "ja": "大文字のハイフン区切り（COBOL-CASE）に変換する"
+      },
+      "example": {
+        "en": "`userName` → `USER-NAME`",
+        "ja": "`userName` → `USER-NAME`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.ada",
+      "candidateId": "CASE-007",
+      "description": {
+        "en": "Converts to underscore-separated words with each word capitalized (Ada\\_Case).",
+        "ja": "各単語の先頭を大文字にしたアンダースコア区切り（Ada\\_Case）に変換する"
+      },
+      "example": {
+        "en": "`user name` → `User_Name`",
+        "ja": "`user name` → `User_Name`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.flat",
+      "candidateId": "CASE-008",
+      "description": {
+        "en": "Removes separators and joins all words in lowercase (flatcase).",
+        "ja": "区切りを除いてすべて小文字で連結する（flatcase）"
+      },
+      "example": {
+        "en": "`User Name` → `username`",
+        "ja": "`User Name` → `username`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.upper-flat",
+      "candidateId": "CASE-009",
+      "description": {
+        "en": "Removes separators and joins all words in uppercase (UPPERFLATCASE).",
+        "ja": "区切りを除いてすべて大文字で連結する（UPPERFLATCASE）"
+      },
+      "example": {
+        "en": "`user name` → `USERNAME`",
+        "ja": "`user name` → `USERNAME`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.camel-snake",
+      "candidateId": "CASE-010",
+      "description": {
+        "en": "Converts to underscore-separated words with the first word lowercase and the following words capitalized (camel\\_Snake).",
+        "ja": "先頭語は小文字、以降の語は先頭大文字のアンダースコア区切り（camel\\_Snake）"
+      },
+      "example": {
+        "en": "`user name id` → `user_Name_Id`",
+        "ja": "`user name id` → `user_Name_Id`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.pascal-snake",
+      "candidateId": "CASE-011",
+      "description": {
+        "en": "Converts to underscore-separated words with each word capitalized (Pascal\\_Snake).",
+        "ja": "各語の先頭を大文字にしたアンダースコア区切り（Pascal\\_Snake）"
+      },
+      "example": {
+        "en": "`user name id` → `User_Name_Id`",
+        "ja": "`user name id` → `User_Name_Id`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.alternating-words",
+      "candidateId": "CASE-012",
+      "description": {
+        "en": "Alternates between uppercase and lowercase word by word.",
+        "ja": "単語ごとに大文字・小文字を交互に切り替える"
+      },
+      "example": {
+        "en": "`one two three` → `ONE two THREE`",
+        "ja": "`one two three` → `ONE two THREE`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.acronym",
+      "candidateId": "CASE-013",
+      "description": {
+        "en": "Builds an acronym by joining the uppercase initial letter of each word.",
+        "ja": "各単語の頭文字を大文字で連結して略語を作る"
+      },
+      "example": {
+        "en": "`portable network graphics` → `PNG`",
+        "ja": "`portable network graphics` → `PNG`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.detect",
+      "candidateId": "CASE-014",
+      "description": {
+        "en": "Detects the naming convention of the selected text (camel / snake / kebab, etc.) and shows it as a notification.",
+        "ja": "選択テキストの命名規則（camel / snake / kebab など）を判定して通知表示する"
+      },
+      "example": {
+        "en": "`user_name` → `snake_case（notification）`",
+        "ja": "`user_name` → `snake_case（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.cycle",
+      "candidateId": "CASE-015",
+      "description": {
+        "en": "Cycles the naming convention in the order camel → snake → kebab → Pascal → CONSTANT.",
+        "ja": "camel → snake → kebab → Pascal → CONSTANT の順に命名規則を循環させる"
+      },
+      "example": {
+        "en": "`userName` → `user_name`",
+        "ja": "`userName` → `user_name`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.upper-acronyms",
+      "candidateId": "CASE-016",
+      "description": {
+        "en": "Uppercases only known acronyms such as id / url / http / json (the dictionary is built into the extension).",
+        "ja": "id / url / http / json など既知の略語だけを大文字にする（辞書は拡張内に定数で持つ）"
+      },
+      "example": {
+        "en": "`userId apiUrl` → `userID apiURL`",
+        "ja": "`userId apiUrl` → `userID apiURL`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.sentence-each",
+      "candidateId": "CASE-017",
+      "description": {
+        "en": "Capitalizes the first letter of each sentence delimited by \". ! ?\" (unlike **Change Case Sentence**, which treats the whole text as one sentence).",
+        "ja": "「. ! ?」で区切られた文ごとに先頭を大文字にする（**Change Case Sentence** は全体を 1 文として扱う）"
+      },
+      "example": {
+        "en": "`hello. how are you? fine.` → `Hello. How are you? Fine.`",
+        "ja": "`hello. how are you? fine.` → `Hello. How are you? Fine.`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.capitalize-lines",
+      "candidateId": "CASE-018",
+      "description": {
+        "en": "Uppercases only the first character of each line.",
+        "ja": "各行の先頭文字だけを大文字にする"
+      },
+      "example": {
+        "en": "`foo bar⏎baz` → `Foo bar⏎Baz`",
+        "ja": "`foo bar⏎baz` → `Foo bar⏎Baz`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.lower-line-start",
+      "candidateId": "CASE-019",
+      "description": {
+        "en": "Lowercases only the first character of each line.",
+        "ja": "各行の先頭文字だけを小文字にする"
+      },
+      "example": {
+        "en": "`Foo⏎Bar` → `foo⏎bar`",
+        "ja": "`Foo⏎Bar` → `foo⏎bar`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.upper-locale",
+      "candidateId": "CASE-020",
+      "description": {
+        "en": "Uppercases the text with toLocaleUpperCase using the locale you enter (e.g. the Turkish i).",
+        "ja": "入力したロケールで toLocaleUpperCase を行う（トルコ語の i など）"
+      },
+      "example": {
+        "en": "`istanbul（locale: tr）` → `İSTANBUL`",
+        "ja": "`istanbul（ロケール: tr）` → `İSTANBUL`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.lower-locale",
+      "candidateId": "CASE-021",
+      "description": {
+        "en": "Lowercases the text with toLocaleLowerCase using the locale you enter.",
+        "ja": "入力したロケールで toLocaleLowerCase を行う"
+      },
+      "example": {
+        "en": "`İSTANBUL（locale: tr）` → `istanbul`",
+        "ja": "`İSTANBUL（ロケール: tr）` → `istanbul`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.json-keys-camel",
+      "candidateId": "CASE-022",
+      "description": {
+        "en": "Recursively converts only the JSON keys to camelCase (values are left unchanged).",
+        "ja": "JSON のキーだけを再帰的に camelCase にする（値は変更しない）"
+      },
+      "example": {
+        "en": "`{\"user_name\":\"a_b\"}` → `{\"userName\":\"a_b\"}`",
+        "ja": "`{\"user_name\":\"a_b\"}` → `{\"userName\":\"a_b\"}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.json-keys-snake",
+      "candidateId": "CASE-023",
+      "description": {
+        "en": "Recursively converts only the JSON keys to snake\\_case.",
+        "ja": "JSON のキーだけを再帰的に snake\\_case にする"
+      },
+      "example": {
+        "en": "`{\"userName\":1}` → `{\"user_name\":1}`",
+        "ja": "`{\"userName\":1}` → `{\"user_name\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.json-keys-kebab",
+      "candidateId": "CASE-024",
+      "description": {
+        "en": "Recursively converts only the JSON keys to kebab-case.",
+        "ja": "JSON のキーだけを再帰的に kebab-case にする"
+      },
+      "example": {
+        "en": "`{\"userName\":1}` → `{\"user-name\":1}`",
+        "ja": "`{\"userName\":1}` → `{\"user-name\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.json-keys-pascal",
+      "candidateId": "CASE-025",
+      "description": {
+        "en": "Recursively converts only the JSON keys to PascalCase.",
+        "ja": "JSON のキーだけを再帰的に PascalCase にする"
+      },
+      "example": {
+        "en": "`{\"user_name\":1}` → `{\"UserName\":1}`",
+        "ja": "`{\"user_name\":1}` → `{\"UserName\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.css-variable",
+      "candidateId": "CASE-026",
+      "description": {
+        "en": "Converts to a CSS custom property name (--kebab-case).",
+        "ja": "CSS カスタムプロパティ名（--kebab-case）に変換する"
+      },
+      "example": {
+        "en": "`primaryColor` → `--primary-color`",
+        "ja": "`primaryColor` → `--primary-color`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.bem",
+      "candidateId": "CASE-027",
+      "description": {
+        "en": "Converts three words to BEM notation (block\\_\\_element--modifier).",
+        "ja": "3 語を BEM 記法（block\\_\\_element--modifier）に変換する"
+      },
+      "example": {
+        "en": "`card title active` → `card__title--active`",
+        "ja": "`card title active` → `card__title--active`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.pluralize",
+      "candidateId": "CASE-028",
+      "description": {
+        "en": "Pluralizes English words using rules (with a small dictionary for irregular forms).",
+        "ja": "英単語を規則ベース（不規則変化は小さな辞書）で複数形にする"
+      },
+      "example": {
+        "en": "`category⏎child` → `categories⏎children`",
+        "ja": "`category⏎child` → `categories⏎children`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.singularize",
+      "candidateId": "CASE-029",
+      "description": {
+        "en": "Singularizes English words using rules.",
+        "ja": "英単語を規則ベースで単数形にする"
+      },
+      "example": {
+        "en": "`categories⏎children` → `category⏎child`",
+        "ja": "`categories⏎children` → `category⏎child`"
+      }
+    },
+    {
+      "id": "selection-manipulator.case.hashtag",
+      "candidateId": "CASE-030",
+      "description": {
+        "en": "Converts to PascalCase prefixed with # (hashtag style).",
+        "ja": "先頭に # を付けた PascalCase（ハッシュタグ形式）に変換する"
+      },
+      "example": {
+        "en": "`hello world` → `#HelloWorld`",
+        "ja": "`hello world` → `#HelloWorld`"
+      }
+    }
+  ]
+}

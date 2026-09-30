@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the NUM table of docs/ROADMAP.md (`⏎` expanded), with the exact
+ * The input / output examples of the NUM commands of the showcase data (scripts/showcase-data/NUM.json) (`⏎` expanded), with the exact
  * results of the commands and the values typed into the input boxes.
  */
 export interface NumExample {

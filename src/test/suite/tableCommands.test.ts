@@ -9,6 +9,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { TABLE_COMMAND_ENTRIES, TableCommandEntry } from '../../handler/tableTransforms';
 import { TABLE_ROADMAP_EXAMPLES, VALID_INPUTS } from './tableExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 
@@ -96,16 +97,8 @@ const closeAllEditors = async () => {
   }
 };
 
-/** The TABLE rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] => {
-  const roadmap = fs.readFileSync(path.resolve(__dirname, '../../../docs/ROADMAP.md'), 'utf8');
-  return roadmap.split('\n')
-    .filter((line) => /^\| TABLE-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
-};
+/** The TABLE commands of the showcase data (scripts/showcase-data/TABLE.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('TABLE');
 
 /** Expands the `⏎` / `⇥` / `··` notation and the `\|` escapes of the ROADMAP examples. */
 const expand = (text: string): string => text.replace(/⏎/g, '\n').replace(/⇥/g, '\t').replace(/·/g, ' ').replace(/\\\|/g, '|');
@@ -416,8 +409,8 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the TABLE table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the TABLE commands of the showcase data', () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), TABLE_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, , command]) => command), TABLE_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       assert.deepStrictEqual(rows.map(([, , , title]) => title), TABLE_COMMAND_ENTRIES.map((entry) => entry.title));

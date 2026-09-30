@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the DEV table of docs/ROADMAP.md (`⏎` and `·` expanded), with
+ * The input / output examples of the DEV commands of the showcase data (scripts/showcase-data/DEV.json) (`⏎` and `·` expanded), with
  * the exact results of the commands (with `\n` as the document's line break) and, for the commands
  * that ask something before running, the value chosen in the tests.
  */

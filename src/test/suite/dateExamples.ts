@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the DATE table of docs/ROADMAP.md (`⏎` expanded, `·` = space),
+ * The input / output examples of the DATE commands of the showcase data (scripts/showcase-data/DATE.json) (`⏎` expanded, `·` = space),
  * with the exact results of the commands, the values typed into the input boxes and the current
  * time the tests fix.
  */

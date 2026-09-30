@@ -9,6 +9,7 @@ import { NUM_COMMAND_ENTRIES, NumCommandEntry } from '../../handler/numTransform
 import { myCommands } from '../../handler/showCommandsHandler';
 import { NUM_INVALID_INPUT, NUM_ROADMAP_EXAMPLES } from './numExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
@@ -89,14 +90,8 @@ const closeAllEditors = async () => {
 
 const readRepoFile = (file: string): string => fs.readFileSync(path.resolve(__dirname, '../../..', file), 'utf8');
 
-/** The NUM rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| NUM-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
+/** The NUM commands of the showcase data (scripts/showcase-data/NUM.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('NUM');
 
 /** The title of a command in the Show Commands list. */
 const shownTitle = (entry: NumCommandEntry): string => {
@@ -408,8 +403,8 @@ suite('Number Commands (NUM-001..040) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the NUM table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the NUM commands of the showcase data', () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), NUM_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, kind]) => kind), NUM_COMMAND_ENTRIES.map(() => '基本'));
       assert.deepStrictEqual(rows.map(([, , command]) => command), NUM_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
