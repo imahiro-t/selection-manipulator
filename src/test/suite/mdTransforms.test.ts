@@ -548,6 +548,80 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
         '<details><summary>S</summary>\n\na\nb\n\n</details>\n\nc');
     });
 
+    test('MD-014/023/024: the final line break of the text is kept, and none is added (SELEC-00066)', () => {
+      // The whole text selected, up to its final line break (LF, CRLF).
+      assert.strictEqual(run('MD-014', 'foo\n', { inputs: ['js'] }), '```js\nfoo\n```\n');
+      assert.strictEqual(run('MD-014', 'foo\r\n', { inputs: ['js'], eol: '\r\n' }), '```js\r\nfoo\r\n```\r\n');
+      assert.strictEqual(run('MD-024', 'foo\n', { inputs: ['S'] }), '<details><summary>S</summary>\n\nfoo\n\n</details>\n');
+      assert.strictEqual(run('MD-024', 'foo\r\n', { inputs: ['S'], eol: '\r\n' }), '<details><summary>S</summary>\r\n\r\nfoo\r\n\r\n</details>\r\n');
+      assert.strictEqual(run('MD-023', '[a](u)\n'), '[a][1]\n\n[1]: u\n');
+      assert.strictEqual(run('MD-023', '[a](u)\r\n', { eol: '\r\n' }), '[a][1]\r\n\r\n[1]: u\r\n');
+      // The selection ends before the final line break: it stays (not doubled).
+      assert.strictEqual(run('MD-014', 'foo\n', { inputs: ['js'], ranges: [{ start: 0, end: 3 }] }), '```js\nfoo\n```\n');
+      assert.strictEqual(run('MD-024', 'foo\n', { inputs: ['S'], ranges: [{ start: 0, end: 3 }] }), '<details><summary>S</summary>\n\nfoo\n\n</details>\n');
+      assert.strictEqual(run('MD-023', '[a](u)\n', { ranges: [{ start: 0, end: 6 }] }), '[a][1]\n\n[1]: u\n');
+      // No final line break: none is added.
+      assert.strictEqual(run('MD-014', 'foo', { inputs: ['js'] }), '```js\nfoo\n```');
+      assert.strictEqual(run('MD-024', 'foo', { inputs: ['S'] }), '<details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.strictEqual(run('MD-023', '[a](u)'), '[a][1]\n\n[1]: u');
+      // From the middle of the last line to the end of the text, with and without the final line break.
+      assert.strictEqual(run('MD-014', 'x foo\n', { inputs: ['js'], ranges: [{ start: 2, end: 6 }] }), 'x\n```js\nfoo\n```\n');
+      assert.strictEqual(run('MD-014', 'x foo', { inputs: ['js'], ranges: [{ start: 2, end: 5 }] }), 'x\n```js\nfoo\n```');
+      assert.strictEqual(run('MD-024', 'x foo\n', { inputs: ['S'], ranges: [{ start: 2, end: 6 }] }), 'x\n<details><summary>S</summary>\n\nfoo\n\n</details>\n');
+      assert.strictEqual(run('MD-024', 'x foo', { inputs: ['S'], ranges: [{ start: 2, end: 5 }] }), 'x\n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.strictEqual(run('MD-023', 'x [a](u)\n', { ranges: [{ start: 2, end: 9 }] }), 'x [a][1]\n\n[1]: u\n');
+      assert.strictEqual(run('MD-023', 'x [a](u)', { ranges: [{ start: 2, end: 8 }] }), 'x [a][1]\n\n[1]: u');
+      // MD-023: the definitions go after the end of the line, before the final line break.
+      const inside = 'see [a](u) here\n';
+      assert.strictEqual(run('MD-023', inside, { ranges: [select(inside, '[a](u)')] }), 'see [a][1] here\n\n[1]: u\n');
+    });
+
+    test('MD-014/024: indentation of 4 columns or more before the block is dropped (SELEC-00066)', () => {
+      // After a blank line, 4 spaces or a tab would make the fence or the tag an indented code block.
+      assert.strictEqual(run('MD-014', 'para\n\n    foo', { inputs: ['js'], ranges: [{ start: 10, end: 13 }] }), 'para\n\n```js\nfoo\n```');
+      assert.strictEqual(run('MD-014', 'para\n\n\tfoo', { inputs: ['js'], ranges: [{ start: 7, end: 10 }] }), 'para\n\n```js\nfoo\n```');
+      assert.strictEqual(run('MD-014', 'para\n\n    foo\n', { inputs: ['js'], ranges: [{ start: 10, end: 14 }] }), 'para\n\n```js\nfoo\n```\n');
+      assert.strictEqual(run('MD-024', 'para\n\n    foo', { inputs: ['S'], ranges: [{ start: 10, end: 13 }] }),
+        'para\n\n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.strictEqual(run('MD-024', 'para\n\n\tfoo', { inputs: ['S'], ranges: [{ start: 7, end: 10 }] }),
+        'para\n\n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      // Boundaries: 3 spaces stay; 4 spaces, more than 4, and 2 spaces and a tab (4 columns) are dropped.
+      assert.strictEqual(run('MD-014', '   foo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '   ```\nfoo\n```');
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```');
+      assert.strictEqual(run('MD-014', '      foo', { inputs: [''], ranges: [{ start: 6, end: 9 }] }), '```\nfoo\n```');
+      assert.strictEqual(run('MD-014', '  \tfoo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '```\nfoo\n```');
+      assert.strictEqual(run('MD-024', '   foo', { inputs: ['S'], ranges: [{ start: 3, end: 6 }] }), '   <details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.strictEqual(run('MD-024', '  \tfoo', { inputs: ['S'], ranges: [{ start: 3, end: 6 }] }), '<details><summary>S</summary>\n\nfoo\n\n</details>');
+      // The indentation selected with the text stays in the block, as before.
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''] }), '```\n    foo\n```');
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 7 }] }), '  ```\n  foo\n```');
+      // CRLF.
+      assert.strictEqual(run('MD-014', 'p\r\n\r\n    foo\r\n', { inputs: [''], ranges: [{ start: 9, end: 14 }], eol: '\r\n' }), 'p\r\n\r\n```\r\nfoo\r\n```\r\n');
+      assert.strictEqual(run('MD-024', 'p\r\n\r\n\tfoo\r\n', { inputs: ['S'], ranges: [{ start: 6, end: 11 }], eol: '\r\n' }),
+        'p\r\n\r\n<details><summary>S</summary>\r\n\r\nfoo\r\n\r\n</details>\r\n');
+      // Text after the selection on its line: split as before.
+      assert.strictEqual(run('MD-014', '    foo  bar', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```\nbar');
+      // Two selections on one line: the second follows text, so it starts on a new line as before.
+      assert.strictEqual(run('MD-014', '    a b', { inputs: [''], ranges: [{ start: 4, end: 5 }, { start: 6, end: 7 }] }), '```\na\n```\n\n```\nb\n```');
+      // A cursor inside the indentation: the edit does not reach before it, and the 2 columns after it stay.
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }), '    ```\nfoo\n```');
+      assert.strictEqual(run('MD-024', '    foo', { inputs: ['S'], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }),
+        '    <details><summary>S</summary>\n\nfoo\n\n</details>');
+      // The block and the selection after it start at the start of the line.
+      assert.deepStrictEqual(selectedAfter('MD-014', 'para\n\n    foo', { inputs: [''], ranges: [{ start: 10, end: 13 }] }), ['```\nfoo\n```']);
+    });
+
+    test('MD-023: indentation before the link does not reach the definitions (SELEC-00066)', () => {
+      // The definitions always start a line of their own after a blank line, with no indentation.
+      const continuation = 'para\n    [a](u)';
+      assert.strictEqual(run('MD-023', continuation, { ranges: [select(continuation, '[a](u)')] }), 'para\n    [a][1]\n\n[1]: u');
+      const inside = 'para\n    [a](u) x\n';
+      assert.strictEqual(run('MD-023', inside, { ranges: [select(inside, '[a](u)')] }), 'para\n    [a][1] x\n\n[1]: u\n');
+      const blank = 'para\n\n    [a](u)\n';
+      assert.strictEqual(run('MD-023', blank, { ranges: [select(blank, '[a](u)')] }), 'para\n\n    [a][1]\n\n[1]: u\n');
+      assert.strictEqual(run('MD-023', '\t[a](u)', { ranges: [{ start: 1, end: 7 }] }), '\t[a][1]\n\n[1]: u');
+    });
+
     test('MD-023: a selection ending inside a line puts its definitions after the end of the line', () => {
       const text = 'see [a](http://b) here';
       assert.strictEqual(run('MD-023', text, { ranges: [select(text, '[a](http://b)')] }), 'see [a][1] here\n\n[1]: http://b');

@@ -254,6 +254,39 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(indented.document.getText(), '# A\n\n- [A](#a)\n  - [B](#b)\n\n## B');
     });
 
+    test('MD-014/023/024: the final line break is kept and code-block indentation is dropped (SELEC-00066)', async () => {
+      // The whole document selected, up to the end of its final line break (LF and CRLF).
+      const cases: [string, string, string, string][] = [
+        ['MD-014', 'js', 'foo\n', '```js\nfoo\n```\n'],
+        ['MD-024', 'S', 'foo\n', '<details><summary>S</summary>\n\nfoo\n\n</details>\n'],
+        ['MD-023', '', '[a](u)\n', '[a][1]\n\n[1]: u\n'],
+        ['MD-014', 'js', 'foo\r\n', '```js\r\nfoo\r\n```\r\n'],
+        ['MD-024', 'S', 'foo\r\n', '<details><summary>S</summary>\r\n\r\nfoo\r\n\r\n</details>\r\n'],
+        ['MD-023', '', '[a](u)\r\n', '[a][1]\r\n\r\n[1]: u\r\n'],
+      ];
+      for (const [id, input, text, expected] of cases) {
+        const editor = await open(text);
+        await run(entryOf(id), recorder(id === 'MD-023' ? [] : [input]).dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), expected, `${id} ${JSON.stringify(text)}`);
+        await vscode.commands.executeCommand('undo');
+        assert.strictEqual(editor.document.getText(), text, `${id}: one undo restores the text`);
+      }
+      // 4 spaces before the selection on a line after a blank line: the block starts at the line start.
+      const fence = await open('para\n\n    foo\n', [[10, 13]]);
+      await run(entryOf('MD-014'), recorder(['js']).dependencies)(fence);
+      assert.strictEqual(fence.document.getText(), 'para\n\n```js\nfoo\n```\n');
+      assert.deepStrictEqual(selectionsOf(fence), [[6, 19]]);
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(fence.document.getText(), 'para\n\n    foo\n', 'one undo restores the indentation');
+      const details = await open('para\n\n\tfoo', [[7, 10]]);
+      await run(entryOf('MD-024'), recorder(['S']).dependencies)(details);
+      assert.strictEqual(details.document.getText(), 'para\n\n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      // MD-023: the definitions start at the line start after an indented link.
+      const links = await open('para\n\n    [a](u)\n', [[10, 16]]);
+      await run(entryOf('MD-023'), recorder().dependencies)(links);
+      assert.strictEqual(links.document.getText(), 'para\n\n    [a][1]\n\n[1]: u\n');
+    });
+
     test('MD-003: several cursors on one line of spaces insert separate lists (SELEC-00065)', async () => {
       // The second edit starts where the first one inserts its list: the editor keeps them in order.
       const text = '# A\n\n    ';

@@ -208,10 +208,26 @@ const editRange = (text: string, range: MdRange, breakBefore: boolean, breakAfte
 };
 
 /**
+ * Where the spaces and tabs right before `offset` start (not before `floor`): with no text
+ * before `offset` on its line, that is the indentation of the line.
+ */
+const indentStart = (text: string, offset: number, floor: number): number => {
+  let start = offset;
+  while (start > floor && isSpaceOrTab(text[start - 1])) {
+    start--;
+  }
+  return start;
+};
+
+/**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
  * lines of the selection's ends, and the spaces and tabs where it splits a line are taken into
- * the edit; otherwise it gets `NO_LINE_EDGES`). The changed results are counted as they are
- * made, so that the output limit stops a run before all of them are built.
+ * the edit; otherwise it gets `NO_LINE_EDGES`). With `lineEdges`, when nothing precedes the
+ * selection on its line and the indentation there is 4 columns or more (a tab counts to the next
+ * multiple of 4), that indentation is taken into the edit too (not before the previous
+ * selection's edit), so that the block written does not start with it and is not read as an
+ * indented code block; up to 3 columns stay. The changed results are counted as they are made,
+ * so that the output limit stops a run before all of them are built.
  */
 const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
@@ -234,7 +250,8 @@ const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ te
       assertOutputLength(total);
       if (lines !== undefined) {
         const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-        edited[i] = editRange(text, range, edges.textBefore, edges.textAfter && endsInsideLine(text, range.end), floor, ceiling);
+        const breakBefore = edges.textBefore || indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4;
+        edited[i] = editRange(text, range, breakBefore, edges.textAfter && endsInsideLine(text, range.end), floor, ceiling);
       }
     }
     floor = edited[i].end;
@@ -389,18 +406,6 @@ const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol, used:
   const length = headings.reduce((sum, heading, i) => sum + 2 * depths[i] + heading.entry.length, 0) + (headings.length - 1) * eol.length;
   assertOutputLength(used + length);
   return headings.map((heading, i) => `${'  '.repeat(depths[i])}${heading.entry}`).join(eol);
-};
-
-/**
- * Where the spaces and tabs right before `offset` start (not before `floor`): with no text
- * before `offset` on its line, that is the indentation of the line.
- */
-const indentStart = (text: string, offset: number, floor: number): number => {
-  let start = offset;
-  while (start > floor && isSpaceOrTab(text[start - 1])) {
-    start--;
-  }
-  return start;
 };
 
 /** The line break that ends `text` ("\r\n" is one), or '' when it does not end with one. */
@@ -676,8 +681,9 @@ const assertValid = (validate: (value: string) => string | undefined, value: str
  * language. The fences are always on lines of their own: a line break is added before the
  * opening fence when the selection starts after other text on its line, and after the closing
  * fence when other text follows the selection on its line (the spaces and tabs at such a split
- * are dropped by `perSelection`). The closing fence ends the block, so text on the next line
- * needs no blank line.
+ * are dropped by `perSelection`). Indentation of 4 columns or more before the opening fence is
+ * dropped by `perSelection` too (it would make the fence part of an indented code block). The
+ * closing fence ends the block, so text on the next line needs no blank line.
  */
 export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLanguageInput, language);
@@ -736,7 +742,8 @@ const lineBreakCount = (breaks: string): number => (breaks.length === 0 ? 0 : li
  * `<details>` when the selection starts after other text on its line. `</details>` is always
  * followed by a blank line (or by the end of the text) when text comes after it, whether on the
  * rest of its line or on the next line: an HTML block runs to the next blank line, so that text
- * would otherwise be part of it.
+ * would otherwise be part of it. Indentation of 4 columns or more before `<details>` is dropped
+ * by `perSelection` (it would make the tag part of an indented code block).
  */
 export const toDetails = (value: string, eol: MdEol, summary: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLabelInput, summary);
