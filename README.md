@@ -4,7 +4,7 @@
 
 Selection Manipulator offers over **800 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
-📖 **[Browse all commands with examples](https://imahiro-t.github.io/selection-processing-tools/)** (English / 日本語): every command by category, with a description and an input → output example, plus search and category filters.
+📖 **[Browse all commands with examples](https://imahiro-t.github.io/selection-manipulator/)** (English / 日本語): every command by category, with a description and an input → output example, plus search and category filters.
 
 ## ✨ Features
 
@@ -73,7 +73,7 @@ Selection Manipulator offers over **800 powerful tools** to manipulate, transfor
 
 > **Pro Tip**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
 
-> **Command Showcase**: [https://imahiro-t.github.io/selection-processing-tools/](https://imahiro-t.github.io/selection-processing-tools/) lists every command by category, with its description and an input → output example in English and Japanese, and lets you search and filter them. The page is generated from the data in `scripts/showcase-data/` with `npm run showcase` (`npm run showcase:check` verifies that it is up to date) and published to GitHub Pages on every push to `main`.
+> **Command Showcase**: [https://imahiro-t.github.io/selection-manipulator/](https://imahiro-t.github.io/selection-manipulator/) lists every command by category, with its description and an input → output example in English and Japanese, and lets you search and filter them. The page is generated from the data in `scripts/showcase-data/` with `npm run showcase` (`npm run showcase:check` verifies that it is up to date) and published to GitHub Pages on every push to `main`.
 
 ## Usage Guide
 
