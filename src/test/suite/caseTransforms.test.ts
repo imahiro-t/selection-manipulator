@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import * as changeCase from 'change-case';
+import * as changeCase from '../../handler/changeCaseCompat';
 import * as t from '../../handler/caseTransforms';
 
 suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
@@ -29,7 +29,7 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       ['CASE-021', (v) => t.lowerLocale(v, 'tr'), 'İSTANBUL', 'istanbul'],
       ['CASE-022', (v) => t.convertJsonKeys(v, changeCase.camelCase), '{"user_name":"a_b"}', '{"userName":"a_b"}'],
       ['CASE-023', (v) => t.convertJsonKeys(v, changeCase.snakeCase), '{"userName":1}', '{"user_name":1}'],
-      ['CASE-024', (v) => t.convertJsonKeys(v, changeCase.paramCase), '{"userName":1}', '{"user-name":1}'],
+      ['CASE-024', (v) => t.convertJsonKeys(v, changeCase.kebabCase), '{"userName":1}', '{"user-name":1}'],
       ['CASE-025', (v) => t.convertJsonKeys(v, changeCase.pascalCase), '{"user_name":1}', '{"UserName":1}'],
       ['CASE-026', t.cssVariableCase, 'primaryColor', '--primary-color'],
       ['CASE-027', t.bemCase, 'card title active', 'card__title--active'],
@@ -348,7 +348,7 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       const input = '{"__proto__":{"polluted":true},"a_b":1}';
       assert.strictEqual(t.convertJsonKeys(input, changeCase.camelCase), '{"proto":{"polluted":true},"aB":1}');
       assert.strictEqual(t.convertJsonKeys(input, changeCase.snakeCase), '{"proto":{"polluted":true},"a_b":1}');
-      assert.strictEqual(t.convertJsonKeys(input, changeCase.paramCase), '{"proto":{"polluted":true},"a-b":1}');
+      assert.strictEqual(t.convertJsonKeys(input, changeCase.kebabCase), '{"proto":{"polluted":true},"a-b":1}');
       assert.strictEqual(t.convertJsonKeys(input, changeCase.pascalCase), '{"Proto":{"Polluted":true},"AB":1}');
       assert.strictEqual(t.convertJsonKeys('{"constructor":{"prototype":1}}', changeCase.pascalCase), '{"Constructor":{"Prototype":1}}');
       assert.strictEqual(({} as Record<string, unknown>).polluted, undefined);

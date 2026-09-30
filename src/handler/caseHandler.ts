@@ -1,7 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
-import * as changeCase from "change-case";
+import * as changeCase from "./changeCaseCompat";
 import * as caseTransforms from './caseTransforms';
 
 type Command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pascal' | 'path' | 'sentence' | 'snake' | 'train' | 'upper' | 'lower' | 'title-smart' | 'spongebob' | 'screaming-snake' | 'humanize' | 'slugify'
@@ -36,7 +36,7 @@ const change: (command: Command) => (value: string) => string = (command) => (va
       return changeCase.dotCase(value);
     case 'kebab':
     case 'slugify':
-      return changeCase.paramCase(value);
+      return changeCase.kebabCase(value);
     case 'no':
       return changeCase.noCase(value);
     case 'pascal':
@@ -49,7 +49,7 @@ const change: (command: Command) => (value: string) => string = (command) => (va
     case 'snake':
       return changeCase.snakeCase(value);
     case 'train':
-      return changeCase.headerCase(value);
+      return changeCase.trainCase(value);
     case 'upper':
       return value.toUpperCase();
     case 'lower':
