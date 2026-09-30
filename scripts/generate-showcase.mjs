@@ -299,7 +299,7 @@ export function splitExample(tokens) {
 // ROADMAP and package.json
 // ---------------------------------------------------------------------------
 
-function normalizeNewlines(text) {
+export function normalizeNewlines(text) {
     return text.replace(/\r\n?/g, '\n');
 }
 
@@ -480,7 +480,12 @@ export function collectCommands({ packageJson, roadmap, warn = defaultWarn }) {
     if (other.items.length > 0) {
         ordered.push(other);
     }
-    return { categories: ordered, total: commands.length, unlisted: other.items.map((item) => item.id) };
+    return {
+        categories: ordered,
+        total: commands.length,
+        unlisted: other.items.map((item) => item.id),
+        commandIds: commands.map((command) => command.command),
+    };
 }
 
 function defaultWarn(message) {
@@ -499,6 +504,7 @@ const STYLE = `
   --text: #1f2328;
   --muted: #59636e;
   --border: #d8dee4;
+  --control-border: #6e7781;
   --accent: #0b5cad;
   --accent-text: #ffffff;
   --code-bg: #eff1f3;
@@ -515,6 +521,7 @@ const STYLE = `
     --text: #e6e8eb;
     --muted: #a2abb5;
     --border: #3a3f46;
+    --control-border: #7d8590;
     --accent: #7cb4f5;
     --accent-text: #0d1117;
     --code-bg: #2a2e35;
@@ -560,7 +567,7 @@ h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 4px; }
   width: 100%;
   font: inherit;
   padding: 8px 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   background: var(--bg);
   color: var(--text);
@@ -571,13 +578,24 @@ h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 4px; }
   font: inherit;
   font-size: 0.85rem;
   padding: 3px 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 999px;
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
 }
 .chip .n { color: var(--muted); margin-left: 2px; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 .chip[aria-pressed="true"] .n { color: inherit; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -675,8 +693,7 @@ function renderLegend() {
     return `<details class="legend"><summary>入出力例の表記</summary><ul>\n${items.join('\n')}\n</ul></details>`;
 }
 
-function renderExample(example) {
-    const tokens = parseInline(example);
+function renderExample(tokens) {
     const split = splitExample(tokens);
     if (split) {
         return `<dl class="ex"><dt>入力</dt><dd>${renderInline(split.input)}</dd><dt>出力</dt><dd>${renderInline(split.output)}</dd></dl>`;
@@ -701,8 +718,9 @@ function renderItem(item) {
         body.push(`<p class="desc">${renderInline(tokens)}</p>`);
     }
     if (item.example !== undefined) {
-        parts.push(searchText(parseInline(item.example)));
-        body.push(renderExample(item.example));
+        const tokens = parseInline(item.example);
+        parts.push(searchText(tokens));
+        body.push(renderExample(tokens));
     }
     const search = parts.join(' ').normalize('NFKC').toLowerCase();
     return (
@@ -725,9 +743,25 @@ function renderSection(category) {
     ].join('\n');
 }
 
-function renderChip(filter, label, count, title, pressed) {
-    const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-    return `<button type="button" class="chip" data-filter="${escapeHtml(filter)}" aria-pressed="${pressed}"${titleAttr}>${escapeHtml(label)} <span class="n">${count}</span></button>`;
+/**
+ * A category filter button. The visible text is the label and the count; the
+ * accessible name starts with that label and adds the category name (when it
+ * differs from the label) and the unit, e.g. "CASE 大文字小文字変換 30 件".
+ */
+function renderChip({ filter, label, name, count, pressed }) {
+    const hasName = name !== undefined && name !== label;
+    const titleAttr = hasName ? ` title="${escapeHtml(name)}"` : '';
+    const hiddenName = hasName ? ` <span class="sr-only">${escapeHtml(name)}</span>` : '';
+    return (
+        `<button type="button" class="chip" data-filter="${escapeHtml(filter)}" aria-pressed="${pressed}"${titleAttr}>` +
+        `${escapeHtml(label)}${hiddenName} <span class="n">${count}</span><span class="sr-only"> 件</span></button>`
+    );
+}
+
+/** Candidate categories show their short ID; EXISTING / OTHER show their name. */
+function chipLabel(category) {
+    const named = category.id === EXISTING_CATEGORY.id || category.id === OTHER_CATEGORY.id;
+    return named ? category.name : category.id;
 }
 
 /**
@@ -735,10 +769,11 @@ function renderChip(filter, label, count, title, pressed) {
  * bytes (LF newlines, one final newline, no dates or paths).
  */
 export function buildShowcase({ packageJson, roadmap, warn = defaultWarn }) {
-    const { categories, total, unlisted } = collectCommands({ packageJson, roadmap, warn });
-    const chips = [renderChip('', 'すべて', total, '', true)];
+    const { categories, total, unlisted, commandIds } = collectCommands({ packageJson, roadmap, warn });
+    const chips = [renderChip({ filter: '', label: 'すべて', count: total, pressed: true })];
     for (const category of categories) {
-        chips.push(renderChip(category.id, category.id === EXISTING_CATEGORY.id || category.id === OTHER_CATEGORY.id ? category.name : category.id, category.items.length, category.name, false));
+        const label = chipLabel(category);
+        chips.push(renderChip({ filter: category.id, label, name: category.name, count: category.items.length, pressed: false }));
     }
     const html = [
         '<!doctype html>',
@@ -754,8 +789,10 @@ export function buildShowcase({ packageJson, roadmap, warn = defaultWarn }) {
         '<header class="top">',
         '<div class="wrap">',
         '<h1>Selection Manipulator Commands</h1>',
-        `<p class="lead">全 <strong id="total-count">${total}</strong> 件 ・ <span role="status">表示中 <strong id="visible-count">${total}</strong> 件</span></p>`,
-        '<label class="search"><span>キーワード検索（ID・表示名・説明・例。空白区切りで AND）</span><input type="search" id="q" autocomplete="off" spellcheck="false"></label>',
+        `<p class="lead">全 <strong id="total-count">${total}</strong> 件 ・ ` +
+            `<span role="status">表示中 <strong id="visible-count">${total}</strong> 件</span></p>`,
+        '<label class="search"><span>キーワード検索（ID・表示名・説明・例。空白区切りで AND）</span>' +
+            '<input type="search" id="q" autocomplete="off" spellcheck="false"></label>',
         '<fieldset class="filters"><legend>カテゴリで絞り込み</legend>',
         ...chips,
         '</fieldset>',
@@ -772,7 +809,7 @@ export function buildShowcase({ packageJson, roadmap, warn = defaultWarn }) {
         '',
     ].join('\n');
     const counts = Object.fromEntries(categories.map((c) => [c.id, c.items.length]));
-    return { html, stats: { total, counts, unlisted } };
+    return { html, stats: { total, counts, unlisted, commandIds } };
 }
 
 // ---------------------------------------------------------------------------
@@ -859,11 +896,10 @@ function runCheck(root) {
     }
     if (onDisk === undefined) {
         errors.push(`${OUTPUT} does not exist; run "npm run showcase" to generate it`);
-    } else if (onDisk !== first.html) {
+    } else if (normalizeNewlines(onDisk) !== first.html) {
         errors.push(`${OUTPUT} is out of date; run "npm run showcase" and commit the result`);
     }
-    const commands = JSON.parse(inputs.packageJson).contributes.commands;
-    errors.push(...checkShowcase(first.html, commands));
+    errors.push(...checkShowcase(first.html, first.stats.commandIds));
     for (const message of warnings) {
         process.stderr.write(`${message}\n`);
     }

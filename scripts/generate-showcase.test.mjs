@@ -20,6 +20,7 @@ import {
     parseRoadmap,
     ShowcaseError,
     EXTERNAL_RESOURCE_PATTERNS,
+    normalizeNewlines,
 } from './generate-showcase.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./generate-showcase.mjs', import.meta.url));
@@ -238,8 +239,30 @@ describe('real data: the whole page', () => {
     test('there is a filter button with a count for every category', () => {
         assert.ok(real.html.includes(`data-filter="" aria-pressed="true">すべて <span class="n">${COMMANDS.length}</span>`));
         for (const [id, count] of Object.entries(real.stats.counts)) {
-            assert.match(real.html, new RegExp(`data-filter="${id}" aria-pressed="false"[^>]*>[^<]* <span class="n">${count}</span>`), id);
+            assert.match(real.html, new RegExp(`data-filter="${id}" aria-pressed="false"[^>]*>.*? <span class="n">${count}</span>`), id);
         }
+    });
+
+    test('filter buttons have an accessible name that starts with the visible label and includes the category name and unit', () => {
+        const names = new Map();
+        for (const match of real.html.matchAll(/<button type="button" class="chip" data-filter="([^"]*)"[^>]*>(.*?)<\/button>/g)) {
+            names.set(match[1], match[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+        }
+        assert.equal(names.get(''), `すべて ${COMMANDS.length} 件`);
+        const caseName = roadmapData.categories.find((c) => c.id === 'CASE').name;
+        assert.equal(names.get('CASE'), `CASE ${caseName} ${real.stats.counts.CASE} 件`);
+        assert.equal(names.get('EXISTING'), `既存コマンド ${real.stats.counts.EXISTING} 件`);
+        for (const [id, count] of Object.entries(real.stats.counts)) {
+            assert.ok(names.get(id).endsWith(`${count} 件`), id);
+        }
+        assert.match(real.html, /\.sr-only \{[^}]*clip: rect\(0, 0, 0, 0\)/);
+    });
+
+    test('the search box and filter buttons use the high-contrast control border', () => {
+        assert.match(real.html, /\.search input \{[^}]*border: 1px solid var\(--control-border\);/);
+        assert.match(real.html, /\.chip \{[^}]*border: 1px solid var\(--control-border\);/);
+        assert.match(real.html, /--control-border: #6e7781;/);
+        assert.match(real.html, /--control-border: #7d8590;/);
     });
 
     test('no external resource is loaded', () => {
@@ -262,7 +285,8 @@ describe('real data: the whole page', () => {
         assert.ok(real.html.endsWith('</html>\n') && !real.html.endsWith('\n\n'));
         assert.ok(!real.html.includes(ROOT));
         assert.ok(!real.html.includes(os.homedir()));
-        const onDisk = fs.readFileSync(path.join(ROOT, 'docs', 'showcase.html'), 'utf8');
+        // A Windows checkout with core.autocrlf may give CRLF; compare line content only.
+        const onDisk = normalizeNewlines(fs.readFileSync(path.join(ROOT, 'docs', 'showcase.html'), 'utf8'));
         assert.equal(onDisk, real.html, 'docs/showcase.html is out of date: run "npm run showcase"');
     });
 
@@ -814,6 +838,35 @@ describe('CLI', () => {
             const stale = run(dir, '--check');
             assert.notEqual(stale.status, 0);
             assert.match(stale.stderr, /npm run showcase/);
+        } finally {
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+    });
+
+    test('--check accepts an up-to-date page checked out with CRLF newlines', () => {
+        const dir = workspace((d) => {
+            fs.writeFileSync(path.join(d, 'docs', 'showcase.html'), real.html.replace(/\n/g, '\r\n'));
+        });
+        try {
+            const checked = run(dir, '--check');
+            assert.equal(checked.status, 0, checked.stderr);
+            assert.match(checked.stdout, /is up to date/);
+        } finally {
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+    });
+
+    test('--check validates package.json commands through the same reader as generation', () => {
+        const dir = workspace((d) => {
+            fs.writeFileSync(path.join(d, 'docs', 'showcase.html'), real.html);
+            const pkg = JSON.parse(PACKAGE_JSON);
+            pkg.contributes.commands.push({ ...pkg.contributes.commands[0] });
+            fs.writeFileSync(path.join(d, 'package.json'), JSON.stringify(pkg, null, 2));
+        });
+        try {
+            const checked = run(dir, '--check');
+            assert.equal(checked.status, 1);
+            assert.match(checked.stderr, /error: package\.json registers \S+ twice/);
         } finally {
             fs.rmSync(dir, { recursive: true, force: true });
         }
