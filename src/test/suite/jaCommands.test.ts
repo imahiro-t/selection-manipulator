@@ -15,7 +15,7 @@ import { JaInputError } from '../../handler/jaCommon';
 import { JA_COMMAND_ENTRIES, JA_DERIVED_FROM, JaCommandEntry } from '../../handler/jaTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { JA_ROADMAP_EXAMPLES } from './jaExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
@@ -160,7 +160,7 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
           case 'replace':
             assert.strictEqual(editor.document.getText(), [example.expected, example.expected].join(SEPARATOR));
             assert.deepStrictEqual([infos, opened], [[], []]);
-            await vscode.commands.executeCommand('undo');
+            await undoIn(editor);
             assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
             break;
           case 'new-tab':
@@ -254,7 +254,7 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
       selectBlocks(editor, blocks);
       await run(entryOf('JA-034'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['国', '国'].join(SEPARATOR));
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

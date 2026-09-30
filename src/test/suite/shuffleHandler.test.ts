@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { shuffleHandler, shuffleCharacterHandler } from '../../handler/shuffleHandler';
-import { createTextEditor, waitForNewDocument } from './testUtils';
+import { createTextEditor, isResultDocument, waitForNewDocument } from './testUtils';
 
 suite('Shuffle Handler Test Suite', () => {
   test('Shuffle Selections (New Doc)', async () => {
@@ -15,7 +15,9 @@ suite('Shuffle Handler Test Suite', () => {
       new vscode.Selection(4, 0, 4, 1)
     ];
 
-    const waitPromise = waitForNewDocument();
+    // Only the result of this shuffle: a result document with the same lines in some order.
+    const sameLines = (text: string) => text.trim().split('\n').sort().join('\n') === content;
+    const waitPromise = waitForNewDocument(doc => isResultDocument(doc) && sameLines(doc.getText()));
     shuffleHandler(false)(editor);
     const doc = await waitPromise;
 
@@ -30,20 +32,26 @@ suite('Shuffle Handler Test Suite', () => {
 
 
 
-  test('Shuffle Characters (Replace)', async () => {
-    const original = 'abcde';
-    const editor = await createTextEditor(original);
-    editor.selection = new vscode.Selection(0, 0, 0, 5);
+  test('Shuffle Characters (Replace)', async function () {
+    this.timeout(20000);
+    const original: string = 'abcde';
+    const sortedOriginal = original.split('').sort().join('');
+    // One shuffle gives back the original order with probability 1/120, so a single "differs from
+    // the original" check is flaky. Every try must keep the same characters (the same multiset);
+    // across up to 20 tries at least one result must differ from the original (all 20 being the
+    // identity has probability (1/120)^20), which still catches a shuffle that does nothing.
+    const results: string[] = [];
+    for (let i = 0; i < 20 && results.every(result => result === original); i++) {
+      const editor = await createTextEditor(original);
+      editor.selection = new vscode.Selection(0, 0, 0, 5);
 
-    // Call the handler
-    await shuffleCharacterHandler('replace')(editor);
+      assert.strictEqual(await shuffleCharacterHandler('replace')(editor), true, 'the edit is applied');
 
-    const shuffled = editor.document.getText();
-    assert.strictEqual(shuffled.length, original.length);
-    assert.notStrictEqual(shuffled, original); // Flaky if it shuffles to same order (1/120 chance). 
-    // Maybe checking characters are same set?
-    const originalSet = original.split('').sort().join('');
-    const shuffledSet = shuffled.split('').sort().join('');
-    assert.strictEqual(shuffledSet, originalSet);
+      const shuffled = editor.document.getText();
+      assert.strictEqual(shuffled.length, original.length);
+      assert.strictEqual(shuffled.split('').sort().join(''), sortedOriginal, `${JSON.stringify(shuffled)} has the characters of ${JSON.stringify(original)}`);
+      results.push(shuffled);
+    }
+    assert.ok(results.some(result => result !== original), `some shuffle differs from the original: ${JSON.stringify(results)}`);
   });
 });

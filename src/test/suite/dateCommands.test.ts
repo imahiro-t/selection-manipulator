@@ -8,7 +8,7 @@ import { DATE_COMMAND_ENTRIES, DateCommandEntry } from '../../handler/dateTransf
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { DATE_INVALID_INPUT, DATE_ROADMAP_EXAMPLES, DATE_TEST_NOW } from './dateExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
@@ -144,7 +144,7 @@ suite('Date Commands (DATE-001..030) Test Suite', () => {
           case 'replace':
             assert.strictEqual(editor.document.getText(), [example.expected, example.expected].join(SEPARATOR));
             assert.deepStrictEqual([infos, opened, copied], [[], [], []]);
-            await vscode.commands.executeCommand('undo');
+            await undoIn(editor);
             assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
             break;
           case 'new-tab':
@@ -233,7 +233,7 @@ suite('Date Commands (DATE-001..030) Test Suite', () => {
       const next = recorder(['1']);
       await run(entryOf('DATE-009'), next.dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['2026-09-29', '2026-09-30'].join(SEPARATOR));
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

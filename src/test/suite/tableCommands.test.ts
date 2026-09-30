@@ -8,7 +8,7 @@ import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { TABLE_COMMAND_ENTRIES, TableCommandEntry } from '../../handler/tableTransforms';
 import { TABLE_ROADMAP_EXAMPLES, VALID_INPUTS } from './tableExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
@@ -232,7 +232,7 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
       selectBlocks(editor, blocks);
       await run(entryOf('TABLE-028'), dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['a\tb', 'x', 'c\td'].join(SEPARATOR));
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

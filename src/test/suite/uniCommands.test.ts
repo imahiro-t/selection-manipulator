@@ -14,7 +14,7 @@ import {
 } from '../../handler/uniCommandHandler';
 import { UniInputError } from '../../handler/uniCommon';
 import { UNI_COMMAND_ENTRIES, UniCommandEntry } from '../../handler/uniTransforms';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { UNI_ROADMAP_EXAMPLES } from './uniExamples';
 import { candidateRows } from './showcaseData';
 
@@ -186,7 +186,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
           case 'replace':
             assert.strictEqual(editor.document.getText(), [example.expected, example.expected].join(SEPARATOR));
             assert.deepStrictEqual([infos, opened], [[], []]);
-            await vscode.commands.executeCommand('undo');
+            await undoIn(editor);
             assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
             break;
           case 'new-tab':
@@ -238,7 +238,7 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       selectBlocks(editor, blocks);
       await run(entryOf('UNI-005'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['ab', 'plain', `x${FAMILY}y`].join(SEPARATOR));
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

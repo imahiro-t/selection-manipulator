@@ -3,6 +3,9 @@ import * as vscode from 'vscode';
 import { randomHandler } from '../../handler/randomHandler';
 import { createTextEditor, getDocumentText } from './testUtils';
 
+/** The characters of a generated password (`generatePassword` of src/handler/randomHandler.ts), and nothing else. */
+const PASSWORD_CHARS = /^[a-zA-Z0-9!@#$%^&*()_+~`|}{[\]:;?><,./\-=]+$/;
+
 suite('Random Handler Test Suite', () => {
   test('Insert UUID at cursor', async () => {
     const editor = await createTextEditor('');
@@ -33,9 +36,7 @@ suite('Random Handler Test Suite', () => {
     ];
 
     const handler = randomHandler('uuid');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.strictEqual(await handler(editor), true, 'the edit is applied');
 
     const text = editor.document.getText();
     const lines = text.split('\n');
@@ -48,20 +49,32 @@ suite('Random Handler Test Suite', () => {
   test('Insert Password', async () => {
     const editor = await createTextEditor('');
     const handler = randomHandler('password');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Await the edit itself (a fixed sleep could read the text before the edit or after a foreign one).
+    assert.strictEqual(await handler(editor), true, 'the edit is applied');
 
     const text = editor.document.getText();
-    assert.strictEqual(text.length, 16);
+    assert.strictEqual(text.length, 16, JSON.stringify(text));
+    assert.match(text, PASSWORD_CHARS, 'only the password characters');
+  });
+
+  test('Insert Password: always 16 characters from the password character set', async () => {
+    // The generator itself: many passwords, each exactly 16 allowed characters.
+    const editor = await createTextEditor(Array.from({ length: 200 }, (_, i) => `${i}`).join('\n'));
+    editor.selections = Array.from({ length: 200 }, (_, i) => new vscode.Selection(i, 0, i, `${i}`.length));
+    assert.strictEqual(await randomHandler('password')(editor), true, 'the edit is applied');
+
+    const lines = editor.document.getText().split('\n');
+    assert.strictEqual(lines.length, 200);
+    lines.forEach(line => {
+      assert.strictEqual(line.length, 16, JSON.stringify(line));
+      assert.match(line, PASSWORD_CHARS, JSON.stringify(line));
+    });
   });
 
   test('Insert IPv4', async () => {
     const editor = await createTextEditor('');
     const handler = randomHandler('ipv4');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.strictEqual(await handler(editor), true, 'the edit is applied');
 
     const text = editor.document.getText();
     assert.match(text, /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/);

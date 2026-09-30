@@ -2,11 +2,21 @@ import * as path from 'path';
 import Mocha from 'mocha';
 import { glob } from 'glob';
 
+import { closeAllEditors } from './testUtils';
+
 export function run(): Promise<void> {
   // Create the mocha test
   const mocha = new Mocha({
     ui: 'tdd',
-    color: true
+    color: true,
+    rootHooks: {
+      // Every test starts without the editors of the earlier tests: thousands of open untitled
+      // documents slow the editor down, and one of them can hold the focus a later test needs
+      // (`undo`, typing). The editors are reverted before they close, so no save prompt appears.
+      async afterEach() {
+        await closeAllEditors();
+      },
+    },
   });
 
   const testsRoot = path.resolve(__dirname, '..');
