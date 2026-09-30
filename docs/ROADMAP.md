@@ -962,7 +962,7 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 |---|---|---|---|---|---|---|---|---|
 | MD-001 | MD | 基本 | `selection-manipulator.markdown.heading-increase` | Markdown: Increase Heading Level | 見出しレベルを 1 つ深くする（見出しでない行は見出し 1 にする） | `# a⏎## b` → `## a⏎### b` | なし | なし |
 | MD-002 | MD | 基本 | `selection-manipulator.markdown.heading-decrease` | Markdown: Decrease Heading Level | 見出しレベルを 1 つ浅くする（# 1 個の見出しは本文にする） | `## a` → `# a` | なし | なし |
-| MD-003 | MD | 基本 | `selection-manipulator.markdown.toc` | Markdown: Generate Table of Contents | 選択範囲（または文書）の見出しからアンカーリンク付きの目次を生成する | `# A⏎## B C` → `- [A](#a)⏎··- [B C](#b-c)` | なし | なし |
+| MD-003 | MD | 基本 | `selection-manipulator.markdown.toc` | Markdown: Generate Table of Contents | 選択範囲（または文書）の見出しからアンカーリンク付きの目次を生成する（選択範囲はその中の見出しの目次で置き換え、カーソルには文書全体の目次を挿入する。ATX 見出しのみ対象。重複する見出しのアンカーは文書全体で番号付け） | `# A⏎## B C` → `- [A](#a)⏎··- [B C](#b-c)` | なし | なし |
 | MD-004 | MD | 基本 | `selection-manipulator.markdown.bullet-list` | Markdown: Convert Lines to Bullet List | 各行を「- 」の箇条書きにする | `a⏎b` → `- a⏎- b` | なし | なし |
 | MD-005 | MD | 基本 | `selection-manipulator.markdown.numbered-list` | Markdown: Convert Lines to Numbered List | 各行を番号付きリストにする | `a⏎b` → `1. a⏎2. b` | なし | なし |
 | MD-006 | MD | 基本 | `selection-manipulator.markdown.task-list` | Markdown: Convert Lines to Task List | 各行を未完了のタスクリストにする | `a⏎b` → `- [ ] a⏎- [ ] b` | なし | なし |
@@ -973,18 +973,18 @@ Selection Manipulator は「**選択範囲（マルチカーソル含む）の�
 | MD-011 | MD | 基本 | `selection-manipulator.markdown.italic` | Markdown: Italic | 選択テキストを斜体記法で囲む | `abc` → `_abc_` | なし | なし |
 | MD-012 | MD | 基本 | `selection-manipulator.markdown.strikethrough` | Markdown: Strikethrough | 選択テキストを取り消し線記法で囲む | `abc` → `~~abc~~` | なし | なし |
 | MD-013 | MD | 基本 | `selection-manipulator.markdown.setext-to-atx` | Markdown: Convert Setext Headings to ATX | 下線（=== / ---）形式の見出しを # / ## 形式の見出しにする | `Title⏎=====⏎Sub⏎---` → `# Title⏎## Sub` | なし | なし |
-| MD-014 | MD | 基本 | `selection-manipulator.markdown.code-block` | Markdown: Wrap in Code Fence | 選択範囲を、入力した言語名付きのコードフェンスで囲む | `a = 1（python）` → ```` ```python⏎a = 1⏎``` ```` | なし | なし |
+| MD-014 | MD | 基本 | `selection-manipulator.markdown.code-block` | Markdown: Wrap in Code Fence | 選択範囲を、入力した言語名付きのコードフェンスで囲む（言語名は空、または英数字と `_ + # . -` の 50 文字まで） | `a = 1（python）` → ```` ```python⏎a = 1⏎``` ```` | なし | なし |
 | MD-015 | MD | 基本 | `selection-manipulator.markdown.blockquote` | Markdown: Blockquote | 各行の先頭に「&gt; 」を付けて引用にする | `a⏎b` → `> a⏎> b` | なし | なし |
-| MD-016 | MD | 基本 | `selection-manipulator.markdown.image` | Markdown: Image | URL を画像記法にする（代替テキストは入力） | `https://example.com/a.png` → `![alt](https://example.com/a.png)` | なし | なし |
+| MD-016 | MD | 基本 | `selection-manipulator.markdown.image` | Markdown: Image | URL を画像記法にする（代替テキストは入力。1 行・1,000 文字まで、`\ [ ]` はエスケープ） | `https://example.com/a.png` → `![alt](https://example.com/a.png)` | なし | なし |
 | MD-017 | MD | 基本 | `selection-manipulator.markdown.linkify-urls` | Markdown: Linkify URLs | 本文中の裸の URL をすべて &lt;URL&gt; 形式の自動リンクにする | `see https://example.com` → `see <https://example.com>` | なし | なし |
 | MD-018 | MD | 基本 | `selection-manipulator.markdown.format-table` | Markdown: Format Table | Markdown の表の列幅と区切り行を揃えて整形する（配置指定は保持） | `\|a\|bb\|⏎\|-\|-\|⏎\|ccc\|d\|` → `\| a   \| bb \|⏎\| --- \| -- \|⏎\| ccc \| d  \|` | なし | なし |
-| MD-019 | MD | 基本 | `selection-manipulator.markdown.to-html` | Markdown: Convert to HTML | Markdown を HTML にする。完全な CommonMark 準拠は自前実装の負担が大きい | `# a⏎**b**` → `<h1>a</h1>⏎<p><strong>b</strong></p>` | なし | あり（CommonMark 準拠パーサ（例: markdown-it）。代替案: 見出し・強調・リスト・リンクだけのサブセットを自前実装する） |
+| MD-019 | MD | 基本 | `selection-manipulator.markdown.to-html` | Markdown: Convert to HTML | Markdown を HTML にする。新規依存を追加せず、CommonMark のサブセットを自前実装する（ATX 見出し・段落・太字／斜体／取り消し線・インラインコード・コードフェンス・箇条書き／番号付きリスト（入れ子）・引用・リンク・画像・自動リンク・水平線・バックスラッシュエスケープ。setext 見出し・表・参照リンク・脚注・インデントのコードブロックなどは段落テキストとして出力する）。本文の HTML 特殊文字と生の HTML はエスケープし、`javascript:`・`vbscript:`・`data:`・`file:` の URL は `#` にする | `# a⏎**b**` → `<h1>a</h1>⏎<p><strong>b</strong></p>` | なし | なし（SELEC-00018 で自前のサブセット実装に決定。SECURITY.md が新規依存を原則避けるとしており、選択範囲をその場で変換する用途ではサブセットで十分なため。当初案: CommonMark 準拠パーサ（例: markdown-it）） |
 | MD-020 | MD | 基本 | `selection-manipulator.markdown.strip` | Markdown: Strip Formatting | Markdown の記号を取り除いてプレーンテキストにする | `# A **b** [c](d)` → `A b c` | なし | なし |
 | MD-021 | MD | 基本 | `selection-manipulator.markdown.heading-to-anchor` | Markdown: Heading to Anchor Link | 見出しから GitHub 形式のアンカーリンクを作る | `## Hello World!` → `[Hello World!](#hello-world)` | なし | なし |
 | MD-022 | MD | 基本 | `selection-manipulator.markdown.footnote` | Markdown: Convert to Footnote | 選択テキストを脚注にし、本文に参照記号を残して末尾へ脚注定義を追加する | `本文補足（「補足」を選択）` → `本文[^1]⏎⏎[^1]: 補足` | なし | なし |
-| MD-023 | MD | 基本 | `selection-manipulator.markdown.reference-links` | Markdown: Inline Links to Reference Links | インラインリンクを参照リンクに変換し、定義を末尾にまとめる | `[a](https://x.example)` → `[a][1]⏎⏎[1]: https://x.example` | なし | なし |
-| MD-024 | MD | 基本 | `selection-manipulator.markdown.details` | Markdown: Wrap in Details Block | 選択範囲を折りたたみ（details / summary 要素）で囲む | `長い本文（要約: 詳細）` → `<details><summary>詳細</summary>⏎⏎長い本文⏎⏎</details>` | なし | なし |
-| MD-025 | MD | 基本 | `selection-manipulator.markdown.front-matter-to-json` | Markdown: Front Matter to JSON | 先頭の YAML フロントマターを js-yaml で読み込み JSON にする | `---⏎title: a⏎---` → `{"title":"a"}` | なし | なし |
+| MD-023 | MD | 基本 | `selection-manipulator.markdown.reference-links` | Markdown: Inline Links to Reference Links | インラインリンクを参照リンクに変換し、定義を選択範囲の末尾（選択が行の途中で終わる場合はその行の後）に空行を挟んでまとめる。番号は文書内の既存の定義の続きから | `[a](https://x.example)` → `[a][1]⏎⏎[1]: https://x.example` | なし | なし |
+| MD-024 | MD | 基本 | `selection-manipulator.markdown.details` | Markdown: Wrap in Details Block | 選択範囲を折りたたみ（details / summary 要素）で囲む（summary は入力。1 行・1,000 文字まで、HTML エスケープする。空なら Details） | `長い本文（要約: 詳細）` → `<details><summary>詳細</summary>⏎⏎長い本文⏎⏎</details>` | なし | なし |
+| MD-025 | MD | 基本 | `selection-manipulator.markdown.front-matter-to-json` | Markdown: Front Matter to JSON | 先頭の YAML フロントマターを js-yaml（CORE_SCHEMA。コードは実行しない）で読み込み、1 行の JSON にする（Convert YAML to JSON のインデント付き出力とは異なる） | `---⏎title: a⏎---` → `{"title":"a"}` | なし | なし |
 
 ## 子チケット対応表
 
