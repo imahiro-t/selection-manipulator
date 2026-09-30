@@ -10457,7 +10457,10 @@
     "watch": "npm run esbuild-watch",
     "lint": "eslint src --ext ts",
     "test-compile": "tsc -p ./",
-    "test": "npm run test-compile && npm run esbuild && node ./out/test/runTest.js"
+    "test": "npm run test-compile && npm run esbuild && node ./out/test/runTest.js",
+    "showcase": "node scripts/generate-showcase.mjs",
+    "showcase:check": "node scripts/generate-showcase.mjs --check",
+    "test:showcase": "node --test scripts/generate-showcase.test.mjs"
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",

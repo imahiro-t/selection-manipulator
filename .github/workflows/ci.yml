@@ -45,6 +45,12 @@ jobs:
       - name: Test
         run: xvfb-run -a npm test
 
+      - name: Test the command showcase generator
+        run: npm run test:showcase
+
+      - name: Check that docs/showcase.html is up to date
+        run: npm run showcase:check
+
   audit:
     name: npm audit
     runs-on: ubuntu-latest
