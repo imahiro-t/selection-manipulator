@@ -246,7 +246,7 @@ describe('real data: the whole page', () => {
     test('filter buttons have an accessible name that starts with the visible label and includes the category name and unit', () => {
         const names = new Map();
         for (const match of real.html.matchAll(/<button type="button" class="chip" data-filter="([^"]*)"[^>]*>(.*?)<\/button>/g)) {
-            names.set(match[1], match[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+            names.set(match[1], match[2].replace(/<[^>]*>/g, '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim());
         }
         assert.equal(names.get(''), `すべて ${COMMANDS.length} 件`);
         const caseName = roadmapData.categories.find((c) => c.id === 'CASE').name;
