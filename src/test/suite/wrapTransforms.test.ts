@@ -195,6 +195,33 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
       assert.strictEqual(run('quote.list.sql-in', "'x''\nit's"), "('''x''''', 'it''s')");
     });
 
+    test('WRAP-006 keeps an injection attempt inside the literal (single quotes only)', () => {
+      assert.strictEqual(run('quote.list.sql-in', "'; DROP TABLE t; --"), "('''; DROP TABLE t; --')");
+      assert.strictEqual(run('quote.list.sql-in', "O'Neil\r\nit's\r\n", CRLF), "('O''Neil', 'it''s')\r\n");
+    });
+
+    test('WRAP-006 refuses a line with a backslash (MySQL default mode), naming the line', () => {
+      const refused = (text: string, lineNumber: number) =>
+        assert.throws(
+          () => run('quote.list.sql-in', text),
+          (error: unknown) =>
+            error instanceof Error &&
+            error.message === `line ${lineNumber} contains a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)`,
+          text
+        );
+      refused('C:\\Users', 1);
+      refused("O\\'Neil", 1);
+      refused('a\nb\\', 2);
+      // The line number counts the blank lines that are skipped in the list.
+      refused('a\n\n  \n\\x', 4);
+      refused('a\r\n\r\nb\\\r\n', 3);
+    });
+
+    test('WRAP-006 checks every line before building (no partial result, even over the size limit)', () => {
+      // The size check would fail too; the backslash is reported first, so nothing is built at all.
+      assert.throws(() => run('quote.list.sql-in', `${'a\n'.repeat(10)}\\`, { maxAddedLength: 1 }), /line 11 contains a backslash/);
+    });
+
     test('WRAP-007 escapes backslashes and double quotes', () => {
       assert.strictEqual(run('quote.list.array', 'a\\b\nsay "hi"'), '["a\\\\b", "say \\"hi\\""]');
     });

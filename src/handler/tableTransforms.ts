@@ -11,6 +11,7 @@
 import * as yaml from 'js-yaml';
 import { createRecord, DataInputError, isJsonObject, JsonValue, OutputBuffer, setOwn, stringifyCompact, stringifyPretty } from './dataCommon';
 import { parseJson } from './dataTransforms';
+import { SQL_BACKSLASH_REASON } from './sqlSafety';
 import { codePointWidth } from './whitespaceTransforms';
 import {
   assertTableInputLength,
@@ -352,13 +353,6 @@ const SQL_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SQL_FORBIDDEN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 const quoteIdentifier = (name: string): string => `"${name.replace(/"/g, '""')}"`;
-
-/**
- * Why a backslash is refused: the literals and quoted names are standard SQL, where `\` is an
- * ordinary character, but MySQL / MariaDB in their default mode (without NO_BACKSLASH_ESCAPES)
- * read `\'` / `\"` as an escaped quote, so a cell could end the literal and inject SQL there.
- */
-const SQL_BACKSLASH_REASON = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
 
 /** A table name: `name` or `schema.name` of plain identifiers as it is, anything else quoted as one identifier. */
 export const sqlTableName = (name: string): string => {

@@ -148,7 +148,20 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
     test('single quotes are doubled; nothing else changes', () => {
       assert.strictEqual(escapeSql('O\'Reilly'), 'O\'\'Reilly');
       assert.strictEqual(escapeSql('\'; DROP TABLE t; --'), '\'\'; DROP TABLE t; --');
-      assert.strictEqual(escapeSql('a\\\'b"c'), 'a\\\'\'b"c');
+      assert.strictEqual(escapeSql('a\'b"c'), 'a\'\'b"c');
+      assert.strictEqual(escapeSql(''), '');
+    });
+
+    test('text with a backslash is refused (MySQL default mode reads \\\' as an escaped quote)', () => {
+      for (const text of ['a\\\'b"c', 'C:\\Users', '\\', 'O\'Neil\n\\']) {
+        assert.throws(
+          () => escapeSql(text),
+          (error: unknown) =>
+            error instanceof DevInputError &&
+            error.message === 'the text contains a backslash (\\), which is not safe in MySQL\'s default mode (the SQL is written as standard SQL)',
+          text
+        );
+      }
     });
   });
 

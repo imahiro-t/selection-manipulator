@@ -339,6 +339,39 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
     });
   });
 
+  suite('WRAP-006 backslash (MySQL default mode)', () => {
+    const REASON = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+
+    test('a selection with a backslash is left unchanged with one error', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = "a\nO\\'Neil";
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.deepStrictEqual([warnings, errors], [[], [`The selection was not changed: line 2 contains ${REASON}`]]);
+    });
+
+    test('one selection with a backslash among several changes none of them', async () => {
+      const { notifier, errors } = recordingNotifier();
+      const blocks: [string, string] = ["a\nO'Neil", 'C:\\Users'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [`The selection was not changed: line 1 contains ${REASON}`]);
+    });
+
+    test('single quotes alone are still doubled', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const editor = await createTextEditor("'; DROP TABLE t; --");
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), "('''; DROP TABLE t; --')");
+      assert.deepStrictEqual([warnings, errors], [[], []]);
+    });
+  });
+
   suite('output size limit', () => {
     const explosive = `${'k'.repeat(100000)}${'\na'.repeat(2000)}`;
 

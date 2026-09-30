@@ -226,6 +226,28 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 
+    test('DEV-032 (Replace) with a backslash in one selection changes nothing (MySQL default mode)', async () => {
+      const { dependencies, errors } = recorder();
+      const blocks = ['O\'Reilly', 'C:\\Users'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [
+        `${NOT_CHANGED}selection 2 of 2: the text contains a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)`,
+      ]);
+    });
+
+    test('DEV-007 (new editor) with a backslash shows no result', async () => {
+      const { dependencies, errors, opened } = recorder();
+      const editor = await createTextEditor('O\\\'Neil');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-007'), dependencies)(editor);
+      assert.deepStrictEqual(opened, []);
+      assert.strictEqual(errors.length, 1);
+      assert.ok(errors[0].startsWith(`${NOT_SHOWN}the text contains a backslash`), errors[0]);
+    });
+
     test('one invalid selection among several changes nothing; the message names the selection', async () => {
       const { dependencies, errors } = recorder();
       const blocks = ['ok', 'no!'];
