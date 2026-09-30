@@ -107,13 +107,7 @@ const percentileOf = (values: Float64Array, p: number): number => {
 
 const medianOf = (values: Float64Array): number => percentileOf(values, 50);
 
-/**
- * The population and sample variances, computed on the numbers divided by a power of two near
- * their largest magnitude. The division is exact, so the result is the same as without it, but the
- * squares cannot overflow while the result itself is finite (`1e155 -1e155` → σ = 1e155). The
- * variances are returned as `scaled × scale²` so that the standard deviation can take the square
- * root before scaling back (a variance beyond the range of a double is still out of range).
- */
+/** The result of `deviations`. */
 interface Deviations {
   /** Population variance / scale². */
   population: number;
@@ -122,6 +116,18 @@ interface Deviations {
   scale: number;
 }
 
+/**
+ * The population and sample variances, computed on the numbers divided by a power of two near
+ * their largest magnitude. The division is exact, so the result is the same as without it, but the
+ * squares cannot overflow while the result itself is finite (`1e155 -1e155` → σ = 1e155). The
+ * variances are returned as `scaled × scale²` so that the standard deviation can take the square
+ * root before scaling back (a variance beyond the range of a double is still out of range).
+ *
+ * The mean is corrected with a second pass over the residuals (corrected two-pass algorithm): the
+ * rounding error of the first sum is added back as the mean of `x - mean`. For many copies of one
+ * value the corrected mean is the value itself, so the variance is exactly 0 (`1e308` on 800,000
+ * lines → σ = 0) instead of the square of the rounding error.
+ */
 const deviations = (numbers: readonly number[]): Deviations => {
   let largest = 0;
   for (const n of numbers) {
@@ -133,7 +139,12 @@ const deviations = (numbers: readonly number[]): Deviations => {
   for (const n of numbers) {
     sum += n / scale;
   }
-  const mean = sum / numbers.length;
+  let mean = sum / numbers.length;
+  let residuals = 0;
+  for (const n of numbers) {
+    residuals += n / scale - mean;
+  }
+  mean += residuals / numbers.length;
   let squares = 0;
   for (const n of numbers) {
     squares += (n / scale - mean) ** 2;

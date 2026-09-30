@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 🐛 Fix small issues of the number commands (NUM)
+  - Number - Add Thousands Separator: a zero loses its sign, like Absolute Value and Negate (`-000` -> `0`, `-0.00` -> `0.00`); other values keep their sign
+  - Math - Standard Deviation / Variance / Statistics Summary: the mean is corrected for rounding, so many copies of one value give `σ=0` (before: about `σ=2.5e+296` for 300,000 copies of `1e308`)
+
 - 🔧 Add CI (GitHub Actions `CI` workflow) run on every pull request and push to `main`: lint (new `npm run lint` script, `eslint src --ext ts`), type check (`tsc -p ./`), build (esbuild), tests with `@vscode/test-electron` under xvfb, and `npm audit --audit-level=high`
   - Add a CodeQL workflow (`javascript-typescript`, on pull requests, pushes to `main` and weekly) and Dependabot updates for npm and GitHub Actions (weekly); `@types/vscode` gets only patch updates and `@types/node` no major updates, since both are raised by hand together with `engines.vscode` and the Node.js version of the extension host
   - Every workflow has only `contents: read` permission (CodeQL's job adds `security-events: write`), checks out without keeping credentials, and pins each action to a commit SHA with its tag in a comment
