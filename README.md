@@ -4,6 +4,8 @@
 
 Selection Manipulator offers over **800 powerful tools** to manipulate, transform, and analyze text directly in your editor. From everyday tasks like sorting and JSON formatting to advanced cryptography, network analysis, and Japanese text conversion, this extension supercharges your workflow.
 
+📖 **[Browse all commands with examples](https://imahiro-t.github.io/selection-processing-tools/)** (English / 日本語): every command by category, with a description and an input → output example, plus search and category filters.
+
 ## ✨ Features
 
 ### 📝 Text Manipulation
@@ -71,7 +73,7 @@ Selection Manipulator offers over **800 powerful tools** to manipulate, transfor
 
 > **Pro Tip**: Commands that generate output in a new tab (e.g., Base64 Encode) now open a **Read-Only** tab. This prevents the "Save changes?" prompt when closing the tab. These tabs persist until manually closed.
 
-> **Command Showcase**: [`docs/showcase.html`](docs/showcase.html) lists every command by category, with its description and an input → output example, and lets you search and filter them. It is a single HTML file that works offline: open it in a browser. After adding commands, regenerate it with `npm run showcase` (`npm run showcase:check` verifies that it is up to date).
+> **Command Showcase**: [https://imahiro-t.github.io/selection-processing-tools/](https://imahiro-t.github.io/selection-processing-tools/) lists every command by category, with its description and an input → output example in English and Japanese, and lets you search and filter them. The page is generated from the data in `scripts/showcase-data/` with `npm run showcase` (`npm run showcase:check` verifies that it is up to date) and published to GitHub Pages on every push to `main`.
 
 ## Usage Guide
 
@@ -1102,7 +1104,6 @@ In the examples, `·` is a space, `⏎` is a line break, `[…]` is a selection,
 > *   **Inline Links to Reference Links inside list items and block quotes**: When the selection ends in the middle of a line in a list item or a block quote, the definitions are added after that line without the list indentation or `>`, so the list or quote ends there (the links still work). Select up to the end of the item or quote to keep it together.
 > *   **Blank lines**: Wrapping two selections on the same line with Wrap in Code Fence or Wrap in Details Block can leave two blank lines between the blocks; this does not change how the Markdown is rendered.
 
-## Roadmap & Security
+## Security
 
-*   **[Roadmap](docs/ROADMAP.md)**: Planned new commands (550+ candidates across 17 categories) that fit the "transform, generate and extract the selected text in place" concept.
 *   **[Security Policy](SECURITY.md)**: How to report a vulnerability, and the implementation rules every new command must follow (local processing only, no code/shell execution, no network access, no remote resources in Webviews, no new dependencies by default).
