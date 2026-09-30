@@ -334,6 +334,23 @@ suite('Number Commands transforms (NUM-001..040) Test Suite', () => {
       expectAll('NUM-017', [['-0012345', '-12,345'], ['000.5', '0.5'], ['0,012,345', '12,345'], ['0', '0'], ['0001234', '1,234']]);
     });
 
+    test('NUM-017: a zero loses its sign (as with NUM-015 / 016), other values keep it', () => {
+      expectAll('NUM-017', [['-000', '0'], ['-0.00', '0.00'], ['+000', '0'], ['-0,000', '0'], ['-0.0', '0.0'], ['+0', '0'],
+        ['-0', '0'], ['-000.001', '-0.001'], ['+0.5', '+0.5'], ['-0012345', '-12,345'], ['+1234.5', '+1,234.5']]);
+    });
+
+    test('NUM-003 / 004 / 009: many copies of one huge value have no deviation', function () {
+      this.timeout(60_000);
+      ['1e308\n'.repeat(300_000), '1e308\n'.repeat(800_000)].forEach((text) => {
+        assert.strictEqual(transformOf('NUM-003')(text), 'σ=0, s=0');
+        assert.strictEqual(transformOf('NUM-004')(text), '0 / 0');
+      });
+      // The sum of NUM-009 has to stay finite, so a value that is huge but can be added up.
+      const summary = transformOf('NUM-009')('1e300\n'.repeat(300_000));
+      assert.ok(summary.endsWith(', σ=0, s=0'), summary);
+      expectAll('NUM-003', [['-7.3e200 '.repeat(1_000), 'σ=0, s=0'], ['0.1 '.repeat(1_000), 'σ=0, s=0']]);
+    });
+
     test('NUM-002: the result is counted against the budget while it is built', () => {
       const transform = NUM_COMMAND_ENTRIES.find((entry) => entry.id === 'NUM-002')!.transform;
       assert.throws(() => transform('1 1 2 2', [], 3), EncOutputTooLargeError);
@@ -343,7 +360,9 @@ suite('Number Commands transforms (NUM-001..040) Test Suite', () => {
       assert.throws(() => transform(ties, [], 10_000), EncOutputTooLargeError);
     });
 
-    test('NUM-019: one formatter for many lines (finishes quickly)', () => {
+    test('NUM-019: one formatter for many lines (finishes quickly)', function () {
+      // Longer than the 5-second limit below, so that a slow run fails on the limit, not on the timeout.
+      this.timeout(20_000);
       const lines = 200_000;
       const started = Date.now();
       const result = transformOf('NUM-019')('1234.5\n'.repeat(lines), ['de-DE']);
@@ -387,7 +406,9 @@ suite('Number Commands transforms (NUM-001..040) Test Suite', () => {
       }
     });
 
-    test('NUM-034: 30-digit decimals on many lines finish quickly', () => {
+    test('NUM-034: 30-digit decimals on many lines finish quickly', function () {
+      // Longer than the 5-second limit below, so that a slow run fails on the limit, not on the timeout.
+      this.timeout(20_000);
       const started = Date.now();
       const text = '0.3333333333333333333333333337\n'.repeat(50_000);
       transformOf('NUM-034')(text);

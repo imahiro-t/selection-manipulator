@@ -85,11 +85,13 @@ const readGrouping = (value: string): { sign: string; digits: string; fraction: 
 /**
  * NUM-017: `1234567.89` → `1,234,567.89` (already separated input is accepted as it is). The
  * leading zeros of the integer part are removed (`0012345` → `12,345`, `000.5` → `0.5`), since
- * grouping them (`0,012,345`) makes no sense.
+ * grouping them (`0,012,345`) makes no sense. A zero loses its sign (`-000` → `0`, `-0.00` →
+ * `0.00`, `+0` → `0`), as with NUM-015 / 016; any other value keeps it (`+1234.5` → `+1,234.5`).
  */
 export const addSeparator = (value: string): string => {
   const { sign, digits, fraction } = readGrouping(value);
-  return `${sign}${group(trimLeadingZeros(digits))}${fraction}`;
+  const zero = allZeros(digits + fraction);
+  return `${zero ? '' : sign}${group(trimLeadingZeros(digits))}${fraction}`;
 };
 
 /** NUM-018: `1,234,567` → `1234567`; separators in wrong places are an error. */

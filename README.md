@@ -669,7 +669,8 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 
 #### Math & Statistics
 *   **Evaluate**: `1 + 2 * 3` -> `7`.
-*   **Statistics**: Sum, Average, Min, Max of selected numbers; Median, Mode, Standard Deviation, Variance, Count, Product, Range, Percentile and Statistics Summary of each selection on its own; Cumulative Sum (see [Number Commands](#number-commands) below).
+*   **Statistics**: Sum, Average, Min, Max of selected numbers; Median, Mode, Standard Deviation, Variance, Count, Product, Range, Percentile and Statistics Summary of each selection on its own (see [Number Commands](#number-commands) below).
+*   **Running Total**: Cumulative Sum replaces each line of the selection with the sum of the lines up to it (see [Number Commands](#number-commands) below).
 *   **Base Conversion**: Hex <-> Decimal; Decimal <-> Binary / Octal / Hex and any base from 2 to 36 (see [Number Commands](#number-commands) below).
 *   **Number Formatting**: Round, Floor, Ceil, Truncate, Abs, Negate, thousands separators, locale format, scientific notation, percent, bytes, English words, ordinals and fractions (see [Number Commands](#number-commands) below).
 
@@ -707,7 +708,7 @@ In the examples, `·` is a space, `⏎` is a line break, and a value in parenthe
     *   **Number - Round**: Asks for the number of decimal places (0 to 15) and rounds half away from zero on the decimal digits, so `1.005` (`2`) -> `1.01` and `-2.5` (`0`) -> `-3`: `3.14159` (`2`) -> `3.14`. No trailing zeros are added (`1.2` (`2`) -> `1.2`).
     *   **Number - Floor** / **Ceil** / **Truncate**: Down, up and toward zero: `-2.5⏎2.7` -> `-3⏎2` (Floor), `2.1` -> `3` (Ceil), `-2.7` -> `-2` (Truncate). `-0` is written as `0`.
     *   **Number - Absolute Value** / **Negate**: Only remove or add the sign, and keep the digits as they are written (leading zeros, trailing zeros and the exponent): `-5` -> `5`, `+5` -> `5` (Absolute Value); `5⏎-3` -> `-5⏎3`, `1.50` -> `-1.50`, `007` -> `-007` (Negate). A zero only loses its sign and never gets `-`: `-0.00` -> `0.00` (both), `0.00` and `0e5` stay as they are (Negate).
-    *   **Number - Add Thousands Separator**: `1234567.89` -> `1,234,567.89`. Reads a decimal without an exponent, with no separators or correct ones (so running it twice changes nothing). Unlike Absolute Value and Negate, it removes leading zeros of the integer part: `-0012345` -> `-12,345`, `000.5` -> `0.5`.
+    *   **Number - Add Thousands Separator**: `1234567.89` -> `1,234,567.89`. Reads a decimal without an exponent, with no separators or correct ones (so running it twice changes nothing). Unlike Absolute Value and Negate, it removes leading zeros of the integer part: `-0012345` -> `-12,345`, `000.5` -> `0.5`. Like Absolute Value and Negate, a zero loses its sign (`-000` -> `0`, `-0.00` -> `0.00`, `+0` -> `0`), while any other value keeps it (`+1234.5` -> `+1,234.5`).
     *   **Number - Remove Thousands Separator**: `1,234,567` -> `1234567`. Misplaced separators (`12,34`) are an error (`has misplaced thousands separators`).
     *   **Number - Format by Locale**: Asks for a BCP 47 locale (letters, digits and `-`, up to 35 characters, and supported by `Intl`) and formats with `Intl.NumberFormat` (up to 20 decimal places): `1234.5` (`de-DE`) -> `1.234,5`. The characters are exactly what the `Intl` of VS Code gives, so some locales use special spaces (for example, U+202F in `fr-FR`).
     *   **Number - Decimal to Hex** / **Binary** / **Octal**: A decimal integer (up to 1,000 digits, with a sign if you like) to lower-case digits with `0x`, `0b` or `0o`: `255` -> `0xff`, `10` -> `0b1010`, `8` -> `0o10`, `-255` -> `-0xff`. A decimal such as `1.5` is an error.
@@ -729,8 +730,7 @@ In the examples, `·` is a space, `⏎` is a line break, and a value in parenthe
 > **Limitations of the number commands**
 > *   **Size**: A selection can be up to 5,000,000 characters (a longer one is an error). A run whose results would exceed 10,000,000 characters in total (shared by all selections) is stopped while it is converting and refused with a warning (`…the result would be longer than 10,000,000 characters. Select less text.`); nothing is changed or opened. The digit limits above (1,000 for the base conversions, 30 for the byte conversions and Decimal to Fraction, 36 for To English Words, an exponent of 1,000 for From Scientific Notation) are checked before any conversion, so no input can make VS Code wait for long.
 > *   **Commas**: The statistics commands never read `1,234` as one thousand two hundred thirty-four; remove the separators first (Remove Thousands Separator).
-> *   **Add Thousands Separator**: A negative zero keeps its sign (`-000` -> `-0`), unlike Absolute Value and Negate.
-> *   **Floating point**: Commands that use floating-point numbers (see Precision above) cannot give more than 15 to 17 correct significant digits, and the statistics of many very large equal numbers can show a nonzero σ that is small only relative to the numbers instead of `σ=0` (for example, about `σ=2.5e+296` for 300,000 copies of `1e308`).
+> *   **Floating point**: Commands that use floating-point numbers (see Precision above) cannot give more than 15 to 17 correct significant digits. The mean used by Standard Deviation, Variance and Statistics Summary is corrected for rounding, so copies of one value give `σ=0` (also 800,000 copies of `1e308`), but the σ of different values can still be off in the last digits relative to the numbers.
 
 ### 11. Japanese Text Support
 *   **Width Conversion**: Full-width <-> Half-width (Alphanumeric + Katakana).
