@@ -3,7 +3,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
-import * as changeCase from 'change-case';
+import * as changeCase from './changeCaseCompat';
 import { convertJsonKeys, JsonKeyCollisionError } from './caseTransforms';
 
 type JsonKeyStyle = 'camel' | 'snake' | 'kebab' | 'pascal';
@@ -11,7 +11,7 @@ type JsonKeyStyle = 'camel' | 'snake' | 'kebab' | 'pascal';
 const KEY_CONVERTERS: Readonly<Record<JsonKeyStyle, (key: string) => string>> = {
   camel: (key) => changeCase.camelCase(key),
   snake: (key) => changeCase.snakeCase(key),
-  kebab: (key) => changeCase.paramCase(key),
+  kebab: (key) => changeCase.kebabCase(key),
   pascal: (key) => changeCase.pascalCase(key),
 };
 
