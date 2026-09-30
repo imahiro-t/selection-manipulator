@@ -7,7 +7,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { DEV_NOTHING_SELECTED, devCommandHandlerInternal, DevDependencies, DevPickItem } from '../../handler/devCommandHandler';
 import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { DEV_ROADMAP_EXAMPLES } from './devExamples';
 import { candidateRows } from './showcaseData';
 
@@ -150,7 +150,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
         if (entry.output === 'replace') {
           assert.strictEqual(editor.document.getText(), [example.expected, example.expected].join(SEPARATOR));
           assert.deepStrictEqual(opened, []);
-          await vscode.commands.executeCommand('undo');
+          await undoIn(editor);
           assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
         } else {
           assert.deepStrictEqual(opened, [[example.expected, example.expected].join('\n')]);
@@ -222,7 +222,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       selectBlocks(editor, blocks);
       await run(entryOf('DEV-032'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['O\'\'Reilly', 'plain', '\'\'\'\''].join(SEPARATOR));
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

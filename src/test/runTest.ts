@@ -10,11 +10,30 @@ async function main() {
   // `.vscode-test/user-data` breaks that when the repo lives in a deep path
   // (e.g. a git worktree), so use a short directory under the OS temp dir.
   const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sm-test-'));
-  // Recent VS Code builds start the chat / agent views, which can take the focus from the test
-  // editor: `undo` (run by many integration tests) then does not reach the editor. The tests do
-  // not use AI features, so they are turned off in the test profile.
+  // The test profile turns off what can take the focus from the test editor or type into it while
+  // a test runs (text appearing in a test document, or `undo` not reaching the test editor):
   fs.mkdirSync(path.join(userDataDir, 'User'), { recursive: true });
-  fs.writeFileSync(path.join(userDataDir, 'User', 'settings.json'), JSON.stringify({ 'chat.disableAIFeatures': true }));
+  const settings = {
+    // Recent VS Code builds start the chat / agent views; the tests do not use AI features.
+    'chat.disableAIFeatures': true,
+    // No welcome page, update / extension / tips notifications, or telemetry prompts.
+    'workbench.startupEditor': 'none',
+    'workbench.tips.enabled': false,
+    'update.mode': 'none',
+    'extensions.autoCheckUpdates': false,
+    'extensions.autoUpdate': false,
+    'telemetry.telemetryLevel': 'off',
+    // No suggestion, inline completion or on-type edit that could insert text into a test document.
+    'editor.quickSuggestions': { other: 'off', comments: 'off', strings: 'off' },
+    'editor.suggestOnTriggerCharacters': false,
+    'editor.acceptSuggestionOnEnter': 'off',
+    'editor.inlineSuggest.enabled': false,
+    'editor.formatOnType': false,
+    'editor.formatOnPaste': false,
+    // Closed untitled test documents are not kept or restored.
+    'files.hotExit': 'off',
+  };
+  fs.writeFileSync(path.join(userDataDir, 'User', 'settings.json'), JSON.stringify(settings, null, 2));
 
   try {
     // The folder containing the Extension Manifest package.json

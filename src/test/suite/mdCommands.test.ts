@@ -6,7 +6,7 @@ import { MD_TEXT_NOT_CHANGED, mdCommandHandlerInternal, MdDependencies } from '.
 import { MD_COMMAND_ENTRIES, MD_NO_HEADINGS, MD_WHEN_SELECTION, MdCommandEntry } from '../../handler/mdTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandMd, MD_ROADMAP_EXAMPLES } from './mdExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const PREFIX = 'selection-manipulator.';
@@ -107,7 +107,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
         } else {
           assert.deepStrictEqual(selectionsOf(editor), [[0, expected.length]], 'the new text is selected');
         }
-        await vscode.commands.executeCommand('undo');
+        await undoIn(editor);
         assert.strictEqual(editor.document.getText(), text, 'one undo restores the text');
       });
     });
@@ -168,7 +168,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       await run(entryOf('MD-022'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), '[^3] [^4] [^2]\n[^5]\n\n[^3]: b\n[^4]: a\n[^5]: c');
       assert.deepStrictEqual(selectionsOf(editor), [[0, 4], [5, 9], [15, 19]]);
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), text);
     });
 
@@ -190,7 +190,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       await run(entryOf('MD-023'), recorder().dependencies)(links);
       assert.strictEqual(links.document.getText(), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\nnext');
       assert.deepStrictEqual(selectionsOf(links), [[2, 8], [11, 17]]);
-      await vscode.commands.executeCommand('undo');
+      await undoIn(links);
       assert.strictEqual(links.document.getText(), text, 'one undo restores the text');
     });
 
@@ -200,7 +200,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const toc = await open(text, [[8, 8]]);
       await run(entryOf('MD-003'), recorder().dependencies)(toc);
       assert.strictEqual(toc.document.getText(), '# Title\n\n- [Title](#title)\n  - [B](#b)\n\nIntro\n## B');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(toc);
       assert.strictEqual(toc.document.getText(), text, 'one undo restores the text');
       // MD-003: the headings selected up to the end of the last one, then a text line.
       const selected = await open('# A\n## B\ntail', [[0, 8]]);
@@ -210,7 +210,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const details = await open('foo\n**bar**', [[0, 3]]);
       await run(entryOf('MD-024'), recorder(['S']).dependencies)(details);
       assert.strictEqual(details.document.getText(), '<details><summary>S</summary>\n\nfoo\n\n</details>\n\n**bar**');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(details);
       assert.strictEqual(details.document.getText(), 'foo\n**bar**', 'one undo restores the text');
     });
 
@@ -236,7 +236,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const whole = await open(text);
       await run(entryOf('MD-003'), recorder().dependencies)(whole);
       assert.strictEqual(whole.document.getText(), '- [A](#a)\n  - [B](#b)\n');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(whole);
       assert.strictEqual(whole.document.getText(), text, 'one undo restores the text');
       // CRLF: the final line break stays CRLF.
       const crlf = await open('# A\r\n## B\r\n');
@@ -263,7 +263,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
         const editor = await open(text);
         await run(entryOf(id), recorder(id === 'MD-023' ? [] : [input]).dependencies)(editor);
         assert.strictEqual(editor.document.getText(), expected, `${id} ${JSON.stringify(text)}`);
-        await vscode.commands.executeCommand('undo');
+        await undoIn(editor);
         assert.strictEqual(editor.document.getText(), text, `${id}: one undo restores the text`);
       }
       // 4 spaces before the selection on a line after a blank line: the block starts at the line start.
@@ -271,7 +271,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       await run(entryOf('MD-014'), recorder(['js']).dependencies)(fence);
       assert.strictEqual(fence.document.getText(), 'para\n\n```js\nfoo\n```\n');
       assert.deepStrictEqual(selectionsOf(fence), [[6, 19]]);
-      await vscode.commands.executeCommand('undo');
+      await undoIn(fence);
       assert.strictEqual(fence.document.getText(), 'para\n\n    foo\n', 'one undo restores the indentation');
       const details = await open('para\n\n\tfoo', [[7, 10]]);
       await run(entryOf('MD-024'), recorder(['S']).dependencies)(details);
@@ -288,7 +288,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const editor = await open(text, [[5, 5], [9, 9]]);
       await run(entryOf('MD-003'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), '# A\n\n- [A](#a)\n\n- [A](#a)');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), text, 'one undo restores the text');
       // Followed by an empty line; CRLF with a final line break.
       const spaces = await open('# A\n\n  \n\nx', [[5, 5], [7, 7]]);
@@ -305,7 +305,7 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       const editor = await open(text, [[5, 5], [6, 7], [9, 9]]);
       await run(entryOf('MD-003'), recorder().dependencies)(editor);
       assert.strictEqual(editor.document.getText(), '# A\n\n- [A](#a)\n\n- [A](#a)');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), text, 'one undo restores the text');
       // The selected indentation before a cursor is dropped.
       const indented = await open('# A\n\n    \n', [[5, 9], [9, 9]]);

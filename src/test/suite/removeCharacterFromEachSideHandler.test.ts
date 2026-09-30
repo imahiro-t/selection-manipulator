@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { removeCharacterFromEachSideHandler } from '../../handler/removeCharacterFromEachSideHandler';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, waitForChange } from './testUtils';
 
 suite('Remove Character From Each Side Handler Test Suite', () => {
   test('Remove characters surrounding selection', async () => {
@@ -20,8 +20,11 @@ suite('Remove Character From Each Side Handler Test Suite', () => {
     // Effectively removes the characters that were *just outside* the original selection.
 
     editor.selection = new vscode.Selection(0, 1, 0, 6); // hello
+    // The handler starts the edit without returning it: wait for the change of this document
+    // (not a fixed sleep, which can read the text before the edit lands).
+    const changed = waitForChange(editor.document);
     removeCharacterFromEachSideHandler(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await changed;
     assert.strictEqual(editor.document.getText(), 'hello');
   });
 });

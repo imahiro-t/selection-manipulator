@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 🔧 Make the integration tests (`npm test`) stable: runs no longer fail now and then on the same tests
+  - `undo` in the tests runs in the editor of the test (shown and focused first), not in whichever editor has the focus
+  - Tests wait for their own result document (Math, Shuffle, ...) and for their own edit (Random, Remove Surrounding Characters, ...) instead of the first opened document or a fixed sleep
+  - Random results are checked over several tries: Shuffle Characters keeps the same characters and differs from the original in some try, SpongeBob Case mixes the cases in some try; the password check also covers the character set
+  - The test profile turns off what can type into or take the focus from a test editor (suggestions, inline completions, update / welcome pages, hot exit), and every test closes its editors
+
 ## [0.1.0] - 2026-09-30
 
 - 📚 Add a command showcase, published on GitHub Pages at https://imahiro-t.github.io/selection-manipulator/ and linked from the README: every command registered in `package.json` (831 now) by category, with its ID, title, description and input → output example in English and Japanese, a "Getting started" section (installation, Command Palette, context menu, keybindings, multiple selections, where results go), keyword search in both languages (ID, title, description, example) and category filters with counts, light / dark themes, and a layout that fits a 360px-wide screen; a single file with no external resources

@@ -8,7 +8,7 @@ import { NumDependencies, numHandlerInternal, NUM_NOTHING_SELECTED } from '../..
 import { NUM_COMMAND_ENTRIES, NumCommandEntry } from '../../handler/numTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { NUM_INVALID_INPUT, NUM_ROADMAP_EXAMPLES } from './numExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
@@ -255,7 +255,7 @@ suite('Number Commands (NUM-001..040) Test Suite', () => {
       await run(entryOf('NUM-016'), dependencies)(editor);
       assert.strictEqual(editor.document.getText(), ['-5', ' \n ', '-7', '0'].join(SEPARATOR));
       assert.deepStrictEqual(warnings, []);
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
     });
 

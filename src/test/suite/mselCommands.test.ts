@@ -19,7 +19,7 @@ import {
 } from '../../handler/mselTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandNotation, MSEL_ROADMAP_EXAMPLES, parseMarked, renderMarked } from './mselExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const PREFIX = 'selection-manipulator.';
@@ -129,7 +129,7 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
         assert.strictEqual(state(editor), expandNotation(example.expected));
         assert.deepStrictEqual(infos, example.info === undefined ? [] : [example.info]);
         if (entry.edits) {
-          await vscode.commands.executeCommand('undo');
+          await undoIn(editor);
           assert.strictEqual(editor.document.getText(), before, 'one undo restores the text');
         } else {
           assert.strictEqual(editor.document.getText(), before, 'the text is not changed');
@@ -196,8 +196,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
       assert.strictEqual(state(editor), '[😀] [a]\n[bbb]');
       await run(entryOf('MSEL-028'), recorder().dependencies)(editor);
       assert.strictEqual(state(editor), '[😀] [😀]\n[😀]');
-      await vscode.commands.executeCommand('undo');
-      await vscode.commands.executeCommand('undo');
+      await undoIn(editor);
+      await undoIn(editor);
       assert.strictEqual(editor.document.getText(), before);
     });
 
