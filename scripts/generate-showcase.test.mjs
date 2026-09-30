@@ -258,6 +258,18 @@ describe('real data: the whole page', () => {
         assert.match(real.html, /\.sr-only \{[^}]*clip: rect\(0, 0, 0, 0\)/);
     });
 
+    test('filter buttons have no title attribute (avoids announcing the category name twice)', () => {
+        const chips = [...real.html.matchAll(/<button type="button" class="chip"[^>]*>(.*?)<\/button>/g)];
+        assert.ok(chips.length > 0);
+        // The chips include one with a hidden category name (the case that used to get a title).
+        const caseName = roadmapData.categories.find((c) => c.id === 'CASE').name;
+        assert.ok(chips.some(([whole]) => whole.includes(`<span class="sr-only">${caseName}</span>`)));
+        for (const [whole] of chips) {
+            const openTag = whole.slice(0, whole.indexOf('>') + 1);
+            assert.doesNotMatch(openTag, /\stitle=/, openTag);
+        }
+    });
+
     test('the search box and filter buttons use the high-contrast control border', () => {
         assert.match(real.html, /\.search input \{[^}]*border: 1px solid var\(--control-border\);/);
         assert.match(real.html, /\.chip \{[^}]*border: 1px solid var\(--control-border\);/);

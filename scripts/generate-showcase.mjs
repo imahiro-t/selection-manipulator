@@ -747,13 +747,14 @@ function renderSection(category) {
  * A category filter button. The visible text is the label and the count; the
  * accessible name starts with that label and adds the category name (when it
  * differs from the label) and the unit, e.g. "CASE 大文字小文字変換 30 件".
+ * No title attribute: it would repeat the hidden category name, and some
+ * screen readers would then announce the name twice.
  */
 function renderChip({ filter, label, name, count, pressed }) {
     const hasName = name !== undefined && name !== label;
-    const titleAttr = hasName ? ` title="${escapeHtml(name)}"` : '';
     const hiddenName = hasName ? ` <span class="sr-only">${escapeHtml(name)}</span>` : '';
     return (
-        `<button type="button" class="chip" data-filter="${escapeHtml(filter)}" aria-pressed="${pressed}"${titleAttr}>` +
+        `<button type="button" class="chip" data-filter="${escapeHtml(filter)}" aria-pressed="${pressed}">` +
         `${escapeHtml(label)}${hiddenName} <span class="n">${count}</span><span class="sr-only"> 件</span></button>`
     );
 }
