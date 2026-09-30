@@ -7,6 +7,10 @@ suite('sqlSafety', () => {
     assert.strictEqual(sqlUnsafeCharacterReason('\u00A5\' OR 1=1 --'), SQL_YEN_SIGN_REASON);
     assert.strictEqual(sqlUnsafeCharacterReason('\u00A5\\'), SQL_BACKSLASH_REASON);
     assert.strictEqual(
+      SQL_BACKSLASH_REASON,
+      "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)"
+    );
+    assert.strictEqual(
       SQL_YEN_SIGN_REASON,
       "a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)"
     );

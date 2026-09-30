@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -234,7 +235,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       await run(entryOf('DEV-032'), dependencies)(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
       assert.deepStrictEqual(errors, [
-        `${NOT_CHANGED}selection 2 of 2: the text contains a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)`,
+        `${NOT_CHANGED}selection 2 of 2: the text contains ${SQL_BACKSLASH_REASON}`,
       ]);
     });
 
@@ -244,8 +245,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       selectWholeDocument(editor);
       await run(entryOf('DEV-032'), dependencies)(editor);
       assert.strictEqual(editor.document.getText(), '\u00A5\' OR 1=1 --');
-      assert.strictEqual(errors.length, 1);
-      assert.ok(errors[0].startsWith(`${NOT_CHANGED}the text contains a yen sign (\u00A5)`), errors[0]);
+      assert.deepStrictEqual(errors, [`${NOT_CHANGED}the text contains ${SQL_YEN_SIGN_REASON}`]);
     });
 
     test('DEV-007 (new editor) with a backslash shows no result', async () => {

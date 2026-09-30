@@ -312,11 +312,12 @@ const quoteList = (
 };
 
 /**
- * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012: a line with `\` (or `¥`,
- * saved as `\` in Shift_JIS / EUC-JP) is an error (see sqlUnsafeCharacterReason), since MySQL's
- * default mode would read `\'` as an escaped quote.
+ * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012, so a line with a character
+ * that is unsafe there is an error: a backslash `\`, or a yen sign `¥` (saved as `\` in Shift_JIS,
+ * CP932 and EUC-JP). MySQL's default mode would read `\'` as an escaped quote. The reason comes
+ * from sqlUnsafeCharacterReason.
  */
-const rejectSqlBackslash = (line: string, lineNumber: number): void => {
+const rejectSqlUnsafeCharacter = (line: string, lineNumber: number): void => {
   const unsafe = sqlUnsafeCharacterReason(line);
   if (unsafe !== undefined) {
     throw new Error(`line ${lineNumber} contains ${unsafe}`);
@@ -494,7 +495,7 @@ export const wrapTransforms: Record<WrapCommand, WrapTransform> = {
     ')',
     (line) => `'${line.replace(/'/g, "''")}'`,
     (line) => countChar(line, "'"),
-    rejectSqlBackslash
+    rejectSqlUnsafeCharacter
   ),
   'quote.list.array': quoteList(
     '[',

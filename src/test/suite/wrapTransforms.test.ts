@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import {
   MAX_ADDED_LENGTH,
   REMOVABLE_BRACKETS,
@@ -206,7 +207,7 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
           () => run('quote.list.sql-in', text),
           (error: unknown) =>
             error instanceof Error &&
-            error.message === `line ${lineNumber} contains a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)`,
+            error.message === `line ${lineNumber} contains ${SQL_BACKSLASH_REASON}`,
           text
         );
       refused('C:\\Users', 1);
@@ -218,7 +219,7 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
     });
 
     test('WRAP-006 refuses a line with a yen sign (saved as a backslash in Shift_JIS / EUC-JP)', () => {
-      const reason = "a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const reason = SQL_YEN_SIGN_REASON;
       const refused = (text: string, lineNumber: number) =>
         assert.throws(
           () => run('quote.list.sql-in', text),

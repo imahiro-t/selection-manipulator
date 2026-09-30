@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
 import { DEV_MAX_INPUT_LENGTH, DevInputError, splitDevLines } from '../../handler/devCommon';
 import {
@@ -158,7 +159,7 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
           () => escapeSql(text),
           (error: unknown) =>
             error instanceof DevInputError &&
-            error.message === 'the text contains a backslash (\\), which is not safe in MySQL\'s default mode (the SQL is written as standard SQL)',
+            error.message === `the text contains ${SQL_BACKSLASH_REASON}`,
           text
         );
       }
@@ -170,7 +171,7 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
           () => escapeSql(text),
           (error: unknown) =>
             error instanceof DevInputError &&
-            error.message === 'the text contains a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL\'s default mode (the SQL is written as standard SQL)',
+            error.message === `the text contains ${SQL_YEN_SIGN_REASON}`,
           text
         );
       }

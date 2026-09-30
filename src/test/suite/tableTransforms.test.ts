@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -382,7 +383,7 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
     });
 
     test('a backslash in a value, a column name or the table name is an error (MySQL reads it as an escape)', () => {
-      const reason = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const reason = SQL_BACKSLASH_REASON;
       const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
         (error: unknown) => error instanceof TableInputError && error.message === message);
       // The attack of the security review: `\'` would end the first literal early in MySQL.
@@ -396,7 +397,7 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
     });
 
     test('a yen sign (U+00A5, saved as a backslash in Shift_JIS / EUC-JP) in a value or a name is an error', () => {
-      const reason = "a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const reason = SQL_YEN_SIGN_REASON;
       const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
         (error: unknown) => error instanceof TableInputError && error.message === message);
       refused('a,b\n\u00A5,); DROP TABLE users; -- ', 'users', `row 2, column 1 contains ${reason}`);

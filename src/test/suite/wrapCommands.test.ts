@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
@@ -340,7 +341,7 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
   });
 
   suite('WRAP-006 backslash (MySQL default mode)', () => {
-    const REASON = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+    const REASON = SQL_BACKSLASH_REASON;
 
     test('a selection with a backslash is left unchanged with one error', async () => {
       const { notifier, warnings, errors } = recordingNotifier();
@@ -371,7 +372,7 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), text);
       assert.deepStrictEqual(
         [warnings, errors],
-        [[], [`The selection was not changed: line 2 contains a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)`]]
+        [[], [`The selection was not changed: line 2 contains ${SQL_YEN_SIGN_REASON}`]]
       );
     });
 
