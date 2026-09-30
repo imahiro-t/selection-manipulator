@@ -358,7 +358,7 @@
       "candidateId": "WRAP-030",
       "description": {
         "en": "Encloses the text in a backtick run longer than any run of backticks inside it (for Markdown inline code). If the content starts or ends with a backtick, or both starts and ends with a space or line break without being all whitespace, one space is added on each side per CommonMark rules. Unlike **Quote: Backtick (\\`\\`)**, which always uses a single backtick, this produces a valid code span even when the text contains backticks.",
-        "ja": "内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。内容の先頭か末尾がバッククォートの場合、または先頭と末尾がともに空白・改行で全体が空白ではない場合は、CommonMark の規則に合わせて両側に空白を 1 つ足す。常に 1 個のバッククォートで囲む**Quote: Backtick (\\`\\`)** と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる"
+        "ja": "内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。内容の先頭か末尾がバッククォートの場合、または先頭と末尾がともに空白・改行で全体が空白ではない場合は、CommonMark の規則に合わせて両側に空白を 1 つ足す。常に 1 個のバッククォートで囲む **Quote: Backtick (\\`\\`)** と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる"
       },
       "example": {
         "en": "``a`b`` → ``` ``a`b`` ```",

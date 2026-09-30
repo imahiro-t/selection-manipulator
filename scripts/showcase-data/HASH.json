@@ -201,7 +201,7 @@
       "candidateId": "HASH-017",
       "description": {
         "en": "Validates the check digit of a digit string with the Luhn algorithm and shows the result as a notification (the selection is not changed and the number is not shown). Surrounding whitespace is ignored, and a single space or hyphen between digits is ignored as a separator; leading / trailing hyphens, consecutive separators, other characters such as + and fewer than 2 digits are reported as not a number. One selection is reported with a reason, 2 to 10 selections are numbered without reasons, and 11 or more are summarized by count.",
-        "ja": "Luhn アルゴリズムで数字列のチェックディジットを検証し、結果を通知する（ダミー番号で確認。選択範囲は変えず、番号は通知に出さない。前後の空白・改行は無視し、数字と数字の間に 1 個だけ置いた半角スペースまたはハイフンを区切りとして無視する。先頭・末尾のハイフン、連続した区切り、+ などその他の文字は not a number、数字が 2 桁未満も not a number。選択 1 件は理由付き、2〜10 件は番号付きで理由なし、11 件以上は件数の要約で通知する）"
+        "ja": "Luhn アルゴリズムで数字列のチェックディジットを検証し、結果を通知する（選択範囲は変えず、番号は通知に出さない。前後の空白・改行は無視し、数字と数字の間に 1 個だけ置いた半角スペースまたはハイフンを区切りとして無視する。先頭・末尾のハイフン、連続した区切り、+ などその他の文字は not a number、数字が 2 桁未満も not a number。選択 1 件は理由付き、2〜10 件は番号付きで理由なし、11 件以上は件数の要約で通知する）"
       },
       "example": {
         "en": "`79927398713` → `valid（notification）`",

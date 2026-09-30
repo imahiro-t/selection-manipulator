@@ -196,7 +196,7 @@
       "id": "selection-manipulator.random.phone-jp",
       "candidateId": "GEN-016",
       "description": {
-        "en": "Generates dummy phone numbers in the fictional number block (for example 090-0xxx) that the Ministry of Internal Affairs and Communications points to for TV dramas and similar (each x in `090-0xxx-xxxx` is a uniform random digit 0–9). The source of the number block could not be strictly verified, so **it is not guaranteed that the numbers do not exist (are unused)**.",
+        "en": "Generates dummy phone numbers in the fictional number block (for example 090-0xxx) that the Ministry of Internal Affairs and Communications designates for use in TV dramas and the like (each x in `090-0xxx-xxxx` is a uniform random digit 0–9). The source of the number block could not be strictly verified, so **it is not guaranteed that the numbers do not exist (are unused)**.",
         "ja": "総務省がドラマ等向けに案内している架空番号帯（例: 090-0xxx）のダミー電話番号を生成する（`090-0xxx-xxxx` の x を 0〜9 の一様乱数にする。番号帯の出典は厳密に確認できていないため、**実在しない（未使用の）番号であることは保証しない**）"
       },
       "example": {
@@ -235,7 +235,7 @@
       "id": "selection-manipulator.random.dice",
       "candidateId": "GEN-019",
       "description": {
-        "en": "Rolls dice in NdM notation and outputs the total and breakdown (output `total (a+b+…)`, `3 (3)` when N = 1). The case of `d` is ignored. Whitespace around the whole expression is ignored, but none is allowed inside it (`2 d 6` is an error). N is 1 to 100, M is 2 to 1,000,000. If there are empty cursors or whitespace-only selections, the expression is asked once in the input box (default `1d6`) and used for all of them. Selections that are not a valid expression give an error with a quote.",
+        "en": "Rolls dice in NdM notation and outputs the total and breakdown (output `total (a+b+…)`, `3 (3)` when N = 1). The case of `d` is ignored. Whitespace around the whole expression is ignored, but none is allowed inside it (`2 d 6` is an error). N is 1 to 100, M is 2 to 1,000,000. If there are empty cursors or whitespace-only selections, the expression is asked once in the input box (default `1d6`) and used for all of them. Selections that are not a valid expression give an error that quotes the selection.",
         "ja": "NdM 形式でサイコロを振り、合計と内訳を出す（出力は `合計 (a+b+…)`、N = 1 なら `3 (3)`。`d` の大小は無視。式全体の前後の空白は無視するが、式の中には空白を入れられない（`2 d 6` はエラー）。N は 1〜100、M は 2〜1,000,000。空のカーソル・空白だけの選択があれば入力ボックスで式を 1 回だけ尋ね（既定 `1d6`）、それらすべてに使う。式として不正な選択は引用つきのエラー）"
       },
       "example": {

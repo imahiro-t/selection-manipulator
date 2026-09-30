@@ -302,7 +302,7 @@
         "ja": "ラテン文字に似たキリル文字・ギリシャ文字（主要なものの定数表）を検出して 1 文字ずつ選択し、種類ごとに通知する。単語は文字・結合記号・数字の連続（空白・記号・`_`・`-`・`.` などは区切り）。検出するのは (A) ラテン文字を含む単語の中の表の文字（キリル・ギリシャとも）と、(B) 表のキリル文字だけでできた 2 文字以上の単語で、同じ行にラテン文字を含む別の単語があり、表にないキリル文字・ギリシャ文字が同じ行にないもの。ギリシャ文字はラテン文字と混在する単語でだけ検出する（ラテン文字のない行の `раура` や `ΑΡΙ key` は検出しない）"
       },
       "example": {
-        "en": "`pаypal（а is Cyrillic）` → `\"а\" selected（notification）`",
+        "en": "`pаypal（а is Cyrillic）` → `1 confusable character found: \"а\" (U+0430) looks like \"a\"（notification）`",
         "ja": "`pаypal（а はキリル文字）` → `「а」を選択（通知）`",
         "japanese": "note"
       }
@@ -315,7 +315,7 @@
         "ja": "Trojan Source 攻撃に使われる双方向制御文字（U+202A〜202E, U+2066〜2069）を検出して選択し、件数とコードポイント・名前を通知する"
       },
       "example": {
-        "en": "`a{U+202E}b` → `position selected（notification）`",
+        "en": "`a{U+202E}b` → `1 bidi control character found: U+202E (right-to-left override)（notification）`",
         "ja": "`a{U+202E}b` → `位置を選択（通知）`",
         "japanese": "note"
       }

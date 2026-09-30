@@ -473,8 +473,8 @@
     {
       "id": "selection-manipulator.reverse.string",
       "description": {
-        "en": "Reverses the order of the characters in each selection (`abc` → `cba`).",
-        "ja": "各選択範囲の文字の並びを逆にする（`abc` → `cba`）"
+        "en": "Reverses the order of the characters in each selection (`abc` → `cba`). Replaces the selection with the result.",
+        "ja": "各選択範囲の文字の並びを逆にする（`abc` → `cba`）。結果で選択範囲を置き換える"
       }
     },
     {
@@ -572,56 +572,56 @@
       "id": "selection-manipulator.dns.a",
       "description": {
         "en": "Looks up the A records (IPv4 addresses) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の A レコード（IPv4 アドレス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の A レコード（IPv4 アドレス）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.aaaa",
       "description": {
         "en": "Looks up the AAAA records (IPv6 addresses) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の AAAA レコード（IPv6 アドレス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の AAAA レコード（IPv6 アドレス）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.any",
       "description": {
         "en": "Looks up the records of all types (ANY query) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の すべての種類のレコード（ANY クエリ） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）のすべての種類のレコード（ANY クエリ）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.caa",
       "description": {
         "en": "Looks up the CAA records (certificate authorities allowed to issue certificates) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の CAA レコード（証明書の発行を許可された認証局） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の CAA レコード（証明書の発行を許可された認証局）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.cname",
       "description": {
         "en": "Looks up the CNAME records (canonical names) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の CNAME レコード（正規名） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の CNAME レコード（正規名）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.mx",
       "description": {
         "en": "Looks up the MX records (mail servers) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の MX レコード（メールサーバー） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の MX レコード（メールサーバー）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.naptr",
       "description": {
         "en": "Looks up the NAPTR records of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の NAPTR レコード をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の NAPTR レコードをシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.ns",
       "description": {
         "en": "Looks up the NS records (name servers) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の NS レコード（ネームサーバー） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の NS レコード（ネームサーバー）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
@@ -635,21 +635,21 @@
       "id": "selection-manipulator.dns.soa",
       "description": {
         "en": "Looks up the SOA records (start of authority) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の SOA レコード（権威の開始） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の SOA レコード（権威の開始）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.srv",
       "description": {
         "en": "Looks up the SRV records (services, such as `_sip._tcp.example.com`) of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の SRV レコード（`_sip._tcp.example.com` などのサービス） をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の SRV レコード（`_sip._tcp.example.com` などのサービス）をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.dns.txt",
       "description": {
         "en": "Looks up the TXT records of each selected host name (one per line) using the system DNS resolver. Shows the results in a new read-only tab, each below its input line.",
-        "ja": "選択した各ホスト名（1 行に 1 つ）の TXT レコード をシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
+        "ja": "選択した各ホスト名（1 行に 1 つ）の TXT レコードをシステムの DNS リゾルバーで問い合わせる。結果を入力行ごとに見出し付きで新しい読み取り専用タブに表示する"
       }
     },
     {
@@ -1034,21 +1034,21 @@
       "id": "selection-manipulator.date.to-iso",
       "description": {
         "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
-        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を UTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.date.to-iso.replace",
       "description": {
         "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Replaces the selection with the result.",
-        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を UTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果で選択範囲を置き換える"
       }
     },
     {
       "id": "selection-manipulator.date.to-iso.clipboard",
       "description": {
         "en": "Converts each selected date (a date string, a timestamp in seconds or milliseconds, or `now`) to an ISO 8601 string in UTC; unparsable text is left as it is. Copies the results to the clipboard, one per line.",
-        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）をUTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
+        "ja": "選択した各日付（日付文字列、秒またはミリ秒のタイムスタンプ、`now`）を UTC の ISO 8601 文字列に変換する。解釈できないテキストはそのまま。結果を 1 行に 1 つずつクリップボードにコピーする"
       }
     },
     {
@@ -1439,36 +1439,36 @@
     {
       "id": "selection-manipulator.crypto.hash-sha1",
       "description": {
-        "en": "Creates the SHA-1 hash (hex) of each selection. Shows each selection followed by its result in a new read-only tab.",
-        "ja": "選択テキストごとに SHA-1 ハッシュ（16 進）を生成する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+        "en": "Computes the SHA-1 hash of each selection as a hexadecimal string. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "各選択範囲の SHA-1 ハッシュを 16 進文字列で求める。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.crypto.hash-sha1.replace",
       "description": {
-        "en": "Creates the SHA-1 hash (hex) of each selection. Replaces the selection with the result.",
-        "ja": "選択テキストごとに SHA-1 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+        "en": "Computes the SHA-1 hash of each selection as a hexadecimal string. Replaces the selection with the result.",
+        "ja": "各選択範囲の SHA-1 ハッシュを 16 進文字列で求める。結果で選択範囲を置き換える"
       }
     },
     {
       "id": "selection-manipulator.crypto.hash-sha256.replace",
       "description": {
-        "en": "Creates the SHA-256 hash (hex) of each selection. Replaces the selection with the result.",
-        "ja": "選択テキストごとに SHA-256 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+        "en": "Computes the SHA-256 hash of each selection as a hexadecimal string. Replaces the selection with the result.",
+        "ja": "各選択範囲の SHA-256 ハッシュを 16 進文字列で求める。結果で選択範囲を置き換える"
       }
     },
     {
       "id": "selection-manipulator.crypto.hash-sha512.replace",
       "description": {
-        "en": "Creates the SHA-512 hash (hex) of each selection. Replaces the selection with the result.",
-        "ja": "選択テキストごとに SHA-512 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+        "en": "Computes the SHA-512 hash of each selection as a hexadecimal string. Replaces the selection with the result.",
+        "ja": "各選択範囲の SHA-512 ハッシュを 16 進文字列で求める。結果で選択範囲を置き換える"
       }
     },
     {
       "id": "selection-manipulator.crypto.hash-md5.replace",
       "description": {
-        "en": "Creates the MD5 hash (hex) of each selection. Replaces the selection with the result.",
-        "ja": "選択テキストごとに MD5 ハッシュ（16 進）を生成する。結果で選択範囲を置き換える"
+        "en": "Computes the MD5 hash of each selection as a hexadecimal string. Replaces the selection with the result.",
+        "ja": "各選択範囲の MD5 ハッシュを 16 進文字列で求める。結果で選択範囲を置き換える"
       }
     },
     {
@@ -1503,14 +1503,14 @@
       "id": "selection-manipulator.extract.ip",
       "description": {
         "en": "Extracts the IPv4 addresses in the selection, one per line. Shows the result in a new read-only tab.",
-        "ja": "選択範囲からIPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果を新しい読み取り専用タブに表示する"
+        "ja": "選択範囲から IPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果を新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.extract.ip.replace",
       "description": {
         "en": "Extracts the IPv4 addresses in the selection, one per line. Replaces the selection with the result.",
-        "ja": "選択範囲からIPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果で選択範囲を置き換える"
+        "ja": "選択範囲から IPv4 アドレスを抽出し 1 行に 1 つずつ並べる。結果で選択範囲を置き換える"
       }
     },
     {
@@ -1727,77 +1727,77 @@
       "id": "selection-manipulator.enclose.paren",
       "description": {
         "en": "Encloses each selection in parentheses `()`.",
-        "ja": "選択テキストを丸括弧 `()`で囲む"
+        "ja": "選択テキストを丸括弧 `()` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.square",
       "description": {
         "en": "Encloses each selection in square brackets `[]`.",
-        "ja": "選択テキストを角括弧 `[]`で囲む"
+        "ja": "選択テキストを角括弧 `[]` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.curly",
       "description": {
         "en": "Encloses each selection in curly brackets `{}`.",
-        "ja": "選択テキストを波括弧 `{}`で囲む"
+        "ja": "選択テキストを波括弧 `{}` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.angle",
       "description": {
         "en": "Encloses each selection in angle brackets `<>`.",
-        "ja": "選択テキストを山括弧 `<>`で囲む"
+        "ja": "選択テキストを山括弧 `<>` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.quote-single",
       "description": {
         "en": "Encloses each selection in Japanese corner brackets `「」`.",
-        "ja": "選択テキストをかぎ括弧 `「」`で囲む"
+        "ja": "選択テキストをかぎ括弧 `「」` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.quote-double",
       "description": {
         "en": "Encloses each selection in Japanese double corner brackets `『』`.",
-        "ja": "選択テキストを二重かぎ括弧 `『』`で囲む"
+        "ja": "選択テキストを二重かぎ括弧 `『』` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.bracket",
       "description": {
         "en": "Encloses each selection in Japanese lenticular brackets `【】`.",
-        "ja": "選択テキストを隅付き括弧 `【】`で囲む"
+        "ja": "選択テキストを隅付き括弧 `【】` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.angle",
       "description": {
         "en": "Encloses each selection in full-width angle brackets `＜＞`.",
-        "ja": "選択テキストを全角山括弧 `＜＞`で囲む"
+        "ja": "選択テキストを全角山括弧 `＜＞` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.paren",
       "description": {
         "en": "Encloses each selection in full-width parentheses `（）`.",
-        "ja": "選択テキストを全角丸括弧 `（）`で囲む"
+        "ja": "選択テキストを全角丸括弧 `（）` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.square",
       "description": {
         "en": "Encloses each selection in full-width square brackets `［］`.",
-        "ja": "選択テキストを全角角括弧 `［］`で囲む"
+        "ja": "選択テキストを全角角括弧 `［］` で囲む"
       }
     },
     {
       "id": "selection-manipulator.enclose.japanese.curly",
       "description": {
         "en": "Encloses each selection in full-width curly brackets `｛｝`.",
-        "ja": "選択テキストを全角波括弧 `｛｝`で囲む"
+        "ja": "選択テキストを全角波括弧 `｛｝` で囲む"
       }
     },
     {
@@ -1887,8 +1887,8 @@
     {
       "id": "selection-manipulator.date.era-conversion",
       "description": {
-        "en": "Converts a Western calendar year to a Japanese era year and vice versa (e.g. `2025` → `令和7年`, `令和7年` → `2025年`), from Meiji to Reiwa. Shows each selection followed by its result in a new read-only tab.",
-        "ja": "西暦と和暦を相互に変換する（例: `2025` → `令和7年`、`令和7年` → `2025年`、明治から令和に対応）。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+        "en": "Converts a Western calendar year to a Japanese era year and vice versa (e.g. `2025` → `令和7年`, `令和7年` → `2025年`), from Meiji to Reiwa. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "西暦と和暦を相互に変換する（例: `2025` → `令和7年`、`令和7年` → `2025年`、明治から令和に対応）。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {
@@ -1901,8 +1901,8 @@
     {
       "id": "selection-manipulator.morse.to-morse",
       "description": {
-        "en": "Converts alphanumerics and katakana to Morse code (Wabun code for katakana), separating the codes with spaces. Shows each selection followed by its result in a new read-only tab.",
-        "ja": "英数字とカタカナをモールス符号（カタカナは和文モールス）に変換し、符号をスペースで区切る。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+        "en": "Converts alphanumerics and katakana to Morse code (Wabun code for katakana), separating the codes with spaces. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "英数字とカタカナをモールス符号（カタカナは和文モールス）に変換し、符号をスペースで区切る。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {
@@ -1915,8 +1915,8 @@
     {
       "id": "selection-manipulator.morse.from-morse",
       "description": {
-        "en": "Converts space-separated Morse code to text, preferring alphanumerics when a code is also a Wabun code. Shows each selection followed by its result in a new read-only tab.",
-        "ja": "スペース区切りのモールス符号をテキストに変換し、和文と重なる符号は英数字を優先する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+        "en": "Converts space-separated Morse code to text, preferring alphanumerics when a code is also a Wabun code. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、和文と重なる符号は英数字を優先する。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {
@@ -1929,8 +1929,8 @@
     {
       "id": "selection-manipulator.morse.from-morse.kana",
       "description": {
-        "en": "Converts space-separated Morse code to text, preferring katakana (Wabun code) when a code is also an alphanumeric code. Shows each selection followed by its result in a new read-only tab.",
-        "ja": "スペース区切りのモールス符号をテキストに変換し、英数字と重なる符号はカタカナ（和文モールス）を優先する。選択テキストと結果を並べて新しい読み取り専用タブに表示する"
+        "en": "Converts space-separated Morse code to text, preferring katakana (Wabun code) when a code is also an alphanumeric code. Shows each input as a highlighted heading followed by its result in a new read-only tab.",
+        "ja": "スペース区切りのモールス符号をテキストに変換し、英数字と重なる符号はカタカナ（和文モールス）を優先する。入力を強調表示した見出しとし、その下に結果を並べて新しい読み取り専用タブに表示する"
       }
     },
     {

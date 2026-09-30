@@ -235,7 +235,7 @@
       "candidateId": "DATA-020",
       "description": {
         "en": "Loads YAML with js-yaml and writes it back with consistent indentation, reading and writing with the YAML 1.2 Core schema so dates and other values are not rewritten. `<<` stays a normal key, anchors / aliases stay references (renamed to `&ref_0`), and the trailing newline follows the selection. Comments are lost, numbers are rewritten in decimal, null / boolean notation and quoting may change, and integer-like keys become quoted string keys sorted first in numeric order. Tags outside the Core schema, multiple documents and comment-only selections are errors; nesting is limited to js-yaml's 100 levels, and with anchors / aliases \"mappings and sequences × references to them\" is limited to 300,000,000.",
-        "ja": "YAML をjs-yaml で読み込み、インデントを揃えて出力し直す（YAML 1.2 Core スキーマで読み書きし、日時などの値は書き換えない。`<<` は通常のキーのまま、アンカー / エイリアスは参照のまま（名前は `&ref_0` に付け直す）。末尾の改行は選択に合わせる。コメントは失われ、数値表記の 10 進化・null / 真偽値の表記と引用符の付け直しが起こる。整数に見えるキーは引用符付きの文字列キーになり先頭に数値順で並ぶ。Core スキーマにないタグ・複数ドキュメント・コメントだけの選択はエラー。入れ子は js-yaml の上限 100 段、アンカー / エイリアスを含む場合は「マッピングとシーケンスの数 × それらへの参照の数」が 300,000,000 まで）"
+        "ja": "YAML を js-yaml で読み込み、インデントを揃えて出力し直す（YAML 1.2 Core スキーマで読み書きし、日時などの値は書き換えない。`<<` は通常のキーのまま、アンカー / エイリアスは参照のまま（名前は `&ref_0` に付け直す）。末尾の改行は選択に合わせる。コメントは失われ、数値表記の 10 進化・null / 真偽値の表記と引用符の付け直しが起こる。整数に見えるキーは引用符付きの文字列キーになり先頭に数値順で並ぶ。Core スキーマにないタグ・複数ドキュメント・コメントだけの選択はエラー。入れ子は js-yaml の上限 100 段、アンカー / エイリアスを含む場合は「マッピングとシーケンスの数 × それらへの参照の数」が 300,000,000 まで）"
       },
       "example": {
         "en": "`a:   {b: 1}` → `a:⏎··b: 1`",
