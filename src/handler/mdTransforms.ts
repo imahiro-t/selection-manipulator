@@ -220,6 +220,15 @@ const indentStart = (text: string, offset: number, floor: number): number => {
 };
 
 /**
+ * Whether the spaces and tabs right before `offset` (not before `floor`) are 4 columns or more (a
+ * tab counts to the next multiple of 4), so that a block written after them would be read as an
+ * indented code block: Generate Table of Contents, Wrap in Code Fence and Wrap in Details Block
+ * take such indentation into their edit.
+ */
+const indentsCodeBlock = (text: string, offset: number, floor: number): boolean =>
+  indentWidth(text.slice(indentStart(text, offset, floor), offset)) >= 4;
+
+/**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
  * lines of the selection's ends, and the spaces and tabs where it splits a line are taken into
  * the edit; otherwise it gets `NO_LINE_EDGES`). With `lineEdges`, when nothing precedes the
@@ -250,7 +259,7 @@ const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ te
       assertOutputLength(total);
       if (lines !== undefined) {
         const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-        const breakBefore = edges.textBefore || indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4;
+        const breakBefore = edges.textBefore || indentsCodeBlock(text, range.start, floor);
         edited[i] = editRange(text, range, breakBefore, edges.textAfter && endsInsideLine(text, range.end), floor, ceiling);
       }
     }
@@ -496,7 +505,7 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
       }
     }
     const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-    const breakBefore = adjacent || before !== '' || (!textBefore && indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4);
+    const breakBefore = adjacent || before !== '' || (!textBefore && indentsCodeBlock(text, range.start, floor));
     edited[i] = editRange(text, range, breakBefore, textAfter && endsInsideLine(text, range.end), floor, ceiling);
     // The spaces taken into this edit leave the selections of them: they end where the edit starts.
     const editStart = edited[i].start;
