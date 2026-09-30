@@ -16,9 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Number - Add Thousands Separator: a zero loses its sign, like Absolute Value and Negate (`-000` -> `0`, `-0.00` -> `0.00`); other values keep their sign
   - Math - Standard Deviation / Variance / Statistics Summary: the mean is corrected for rounding, so many copies of one value give `σ=0` (before: about `σ=2.5e+296` for 300,000 copies of `1e308`)
 
-- 🔧 Add CI (GitHub Actions `CI` workflow) run on every pull request and push to `main`: lint (new `npm run lint` script, `eslint src --ext ts`), type check (`tsc -p ./`), build (esbuild), tests with `@vscode/test-electron` under xvfb, and `npm audit --audit-level=high`
+- 🔧 Add CI (GitHub Actions `CI` workflow) run on every pull request and push to `main`: lint (new `npm run lint` script, `eslint src`), type check (`tsc -p ./`), build (esbuild), tests with `@vscode/test-electron` under xvfb, and `npm audit --audit-level=high`
   - Add a CodeQL workflow (`javascript-typescript`, on pull requests, pushes to `main` and weekly) and Dependabot updates for npm and GitHub Actions (weekly); `@types/vscode` gets only patch updates and `@types/node` no major updates, since both are raised by hand together with `engines.vscode` and the Node.js version of the extension host
   - Every workflow has only `contents: read` permission (CodeQL's job adds `security-events: write`), checks out without keeping credentials, and pins each action to a commit SHA with its tag in a comment
+
+- 🔧 Update ESLint to 10 and typescript-eslint to 8 (the `typescript-eslint` package replaces `@typescript-eslint/parser` and `@typescript-eslint/eslint-plugin`), and move the ESLint configuration from `.eslintrc.json` to a flat config, `eslint.config.mjs`, with the same files, ignore patterns and rules
+  - `@typescript-eslint/semi`, removed in typescript-eslint 8, is replaced with `@stylistic/semi` from `@stylistic/eslint-plugin`; the `lint` script is now `eslint src`, since ESLint 10 no longer has `--ext`
+  - ESLint 10 needs Node.js `^20.19.0 || ^22.13.0 || >=24` for development; TypeScript stays at 5.x
 
 - ✨ Add 25 Markdown commands (ROADMAP MD-001..025), added to the existing `Markdown` context submenu under `Transform`
   - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only; the final line break of the document is kept; the tables of contents of several cursors on one line are separated by a blank line, also with a selection of only spaces between them), Convert Setext Headings to ATX, Heading to Anchor Link
