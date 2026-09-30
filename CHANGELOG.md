@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-01
+
 - 🔒 Refuse a backslash in the commands that write SQL string literals, so the SQL they write cannot be changed by a value in MySQL / MariaDB's default mode (without `NO_BACKSLASH_ESCAPES`), where `\'` is an escaped quote and a value could end the string and add SQL of its own
   - Quote: SQL IN List (WRAP-006): a line with a backslash (`\`) is now an error and nothing is changed (`The selection was not changed: line 2 contains a backslash (\), …`); with several selections, nothing is changed if any of them is refused. Before, `\` was written as it is (`O\'Neil` -> `('O\''Neil')`). `'` is still doubled as before
   - Escape SQL String Literal (DEV-007) and its (Replace) version (DEV-032): text with a backslash is now an error and nothing is changed or opened (`the text contains a backslash (\), …`). Before, `\` was kept as it is
