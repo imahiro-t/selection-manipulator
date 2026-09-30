@@ -20,6 +20,7 @@ import {
   LineTransformCommand,
 } from '../../handler/lineTransforms';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 type Output = 'replace' | 'clipboard' | 'notify';
 
@@ -769,10 +770,10 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
     }
   });
 
-  test('package.json and the Show Commands list register all 40 commands exactly once with the ROADMAP titles', () => {
+  test('package.json and the Show Commands list register all 40 commands exactly once, as in the showcase data', () => {
     const root = path.resolve(__dirname, '../../..');
     const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-    const roadmap = fs.readFileSync(path.join(root, 'docs/ROADMAP.md'), 'utf8');
+    const rows = new Map(candidateRows('LINE').map(([candidate, , command]) => [candidate, command]));
     const contributes = packageJson.contributes;
     const submenu = contributes.menus['selection-manipulator.line.submenu'];
     const count = (entries: { command?: string }[], id: string) => entries.filter((entry) => entry.command === id).length;
@@ -785,7 +786,7 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
       const command = contributes.commands.find((entry: { command: string }) => entry.command === id);
       assert.ok(command.title.startsWith('Line: '), command.title);
       assert.strictEqual(command.category, 'Selection Manipulator');
-      assert.ok(roadmap.includes(`| ${c.id} | LINE | `) && roadmap.includes(`\`${id}\` | ${command.title} |`), `${c.id} ROADMAP title`);
+      assert.strictEqual(rows.get(c.id), id, `${c.id} showcase data`);
       assert.strictEqual(myCommands.find((entry) => entry.command === id)?.title, command.title);
       assert.strictEqual(
         contributes.menus.commandPalette.find((entry: { command: string }) => entry.command === id).when,

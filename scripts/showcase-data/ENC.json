@@ -1,0 +1,500 @@
+{
+  "category": "ENC",
+  "commands": [
+    {
+      "id": "selection-manipulator.html.encode",
+      "candidateId": "ENC-001",
+      "description": {
+        "en": "Converts &lt; &gt; & \" ' to HTML entities (other characters are unchanged; ' becomes &amp;#39;).",
+        "ja": "&lt; &gt; & \" ' を HTML 実体参照に変換する（他の文字は変えない。' は &amp;#39; にする）"
+      },
+      "example": {
+        "en": "`<a href=\"x\">` → `&lt;a href=&quot;x&quot;&gt;`",
+        "ja": "`<a href=\"x\">` → `&lt;a href=&quot;x&quot;&gt;`"
+      }
+    },
+    {
+      "id": "selection-manipulator.html.decode",
+      "candidateId": "ENC-002",
+      "description": {
+        "en": "Converts named and numeric HTML entities back to characters (named entities are limited to the 5 XML ones, Latin-1 (nbsp to yuml) and common symbols; unknown names and an & without ; are left as is. A numeric reference to 0, a surrogate or above U+10FFFF is an error).",
+        "ja": "名前付き・数値の HTML 実体参照を文字に戻す（名前付きは XML の 5 種・Latin-1（nbsp〜yuml）・よく使う記号のみ対応し、未対応の名前と ; のない & はそのまま残す。数値参照が 0・サロゲート・U+10FFFF 超ならエラー）"
+      },
+      "example": {
+        "en": "`&lt;b&gt; &#12354;` → `<b> あ`",
+        "ja": "`&lt;b&gt; &#12354;` → `<b> あ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.html.encode-numeric",
+      "candidateId": "ENC-003",
+      "description": {
+        "en": "Converts every non-ASCII character to a numeric entity (&#N;) (unlike the title suggests, ASCII is left as is; decimal references per code point).",
+        "ja": "ASCII 以外の文字をすべて数値実体参照（&#N;）にする（タイトルと異なり ASCII はそのまま。コードポイント単位の 10 進参照）"
+      },
+      "example": {
+        "en": "`aあ` → `a&#12354;`",
+        "ja": "`aあ` → `a&#12354;`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.escape",
+      "candidateId": "ENC-004",
+      "description": {
+        "en": "Converts non-ASCII characters to the \\\\uXXXX form (two escapes for a surrogate pair; 4 lowercase hex digits).",
+        "ja": "ASCII 以外の文字を \\\\uXXXX 形式（サロゲートペアは 2 つ）にする（16 進は小文字 4 桁）"
+      },
+      "example": {
+        "en": "`あ😀` → `\\u3042\\ud83d\\ude00`",
+        "ja": "`あ😀` → `\\u3042\\ud83d\\ude00`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.unescape",
+      "candidateId": "ENC-005",
+      "description": {
+        "en": "Converts \\\\uXXXX / \\\\u{…} escapes back to characters (\\\\u{…} takes 1–6 digits). Consecutive high and low surrogates are combined into one character; lone surrogates and values above U+10FFFF are errors, and a \\\\u that does not match either form is left as is.",
+        "ja": "\\\\uXXXX / \\\\u{…} 形式のエスケープを文字に戻す（\\\\u{…} は 1〜6 桁。連続する上位・下位サロゲートは 1 文字に結合し、孤立サロゲートと U+10FFFF 超はエラー。形式に合わない \\\\u はそのまま残す）"
+      },
+      "example": {
+        "en": "`\\u3042` → `あ`",
+        "ja": "`\\u3042` → `あ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.escape-es6",
+      "candidateId": "ENC-006",
+      "description": {
+        "en": "Converts non-ASCII characters to the per-code-point \\\\u{…} form (uppercase hex, no leading zeros).",
+        "ja": "ASCII 以外の文字をコードポイント単位の \\\\u{…} 形式にする（16 進は大文字、先頭ゼロなし）"
+      },
+      "example": {
+        "en": "`😀` → `\\u{1F600}`",
+        "ja": "`😀` → `\\u{1F600}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64url.encode",
+      "candidateId": "ENC-007",
+      "description": {
+        "en": "Encodes the text as URL-safe Base64 without padding. Input containing a lone surrogate is an error.",
+        "ja": "URL セーフな Base64（パディングなし）にエンコードする。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`foo?` → `Zm9vPw`",
+        "ja": "`foo?` → `Zm9vPw`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64url.decode",
+      "candidateId": "ENC-008",
+      "description": {
+        "en": "Decodes Base64URL (whitespace and line breaks are ignored, and correct = padding is accepted). Invalid characters, length or padding, non-zero unused bits in the last character, and a result that is not valid UTF-8 are errors.",
+        "ja": "Base64URL をデコードする（空白・改行は無視し、正しい = パディングも受け付ける。不正な文字・長さ・パディング、末尾文字の未使用ビットが 0 でない場合、UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`Zm9vPw` → `foo?`",
+        "ja": "`Zm9vPw` → `foo?`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base32.encode",
+      "candidateId": "ENC-009",
+      "description": {
+        "en": "Encodes the text as RFC 4648 Base32 (built-in implementation). Input containing a lone surrogate is an error.",
+        "ja": "RFC 4648 の Base32 にエンコードする（自前実装）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`foo` → `MZXW6===`",
+        "ja": "`foo` → `MZXW6===`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base32.decode",
+      "candidateId": "ENC-010",
+      "description": {
+        "en": "Decodes RFC 4648 Base32 (whitespace and line breaks are ignored, case-insensitive, padding optional). Invalid characters, length, padding or leftover bits, and a result that is not valid UTF-8 are errors.",
+        "ja": "RFC 4648 の Base32 をデコードする（空白・改行は無視、大小文字不問、パディングは省略可。不正な文字・長さ・パディング・余りビット、UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`MZXW6===` → `foo`",
+        "ja": "`MZXW6===` → `foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base58.encode",
+      "candidateId": "ENC-011",
+      "description": {
+        "en": "Encodes the text as Base58 using the Bitcoin alphabet (built-in implementation; each leading 0x00 byte becomes 1; input up to 10,000 UTF-8 bytes). Input containing a lone surrogate is an error.",
+        "ja": "Bitcoin 方式のアルファベットで Base58 にエンコードする（自前実装。先頭の 0x00 バイトは 1。入力は 10,000 UTF-8 バイトまで）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`hello` → `Cn8eVZg`",
+        "ja": "`hello` → `Cn8eVZg`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base58.decode",
+      "candidateId": "ENC-012",
+      "description": {
+        "en": "Decodes Base58 (whitespace and line breaks are ignored; characters outside the alphabet, such as 0 O I l, are errors; input up to 14,000 characters excluding whitespace).",
+        "ja": "Base58 をデコードする（空白・改行は無視、アルファベット外の文字（0 O I l など）はエラー。入力は空白を除いて 14,000 文字まで）"
+      },
+      "example": {
+        "en": "`Cn8eVZg` → `hello`",
+        "ja": "`Cn8eVZg` → `hello`"
+      }
+    },
+    {
+      "id": "selection-manipulator.hex.encode",
+      "candidateId": "ENC-013",
+      "description": {
+        "en": "Converts the UTF-8 bytes of the text to a hex string (lowercase, no separators). Input containing a lone surrogate is an error.",
+        "ja": "UTF-8 のバイト列を 16 進文字列にする（小文字・区切りなし）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`abc` → `616263`",
+        "ja": "`abc` → `616263`"
+      }
+    },
+    {
+      "id": "selection-manipulator.hex.decode",
+      "candidateId": "ENC-014",
+      "description": {
+        "en": "Converts a hex string (spaces and 0x separators allowed) back to text as UTF-8 (tokens are split on spaces, tabs and line breaks, case-insensitive; a token is either bare hex digits or starts with 0x / 0X with an even number of digits in each group, e.g. 0x610x62). A 0x in the middle (100x20), a repeated prefix, a 0x without digits, an odd number of digits, non-hex characters, and a result that is not valid UTF-8 are errors.",
+        "ja": "16 進文字列（空白・0x 区切りも可）を UTF-8 として文字列に戻す（空白・タブ・改行でトークンに区切り、大小文字不問。トークンは接頭辞なしの 16 進数字列か、0x / 0X で始まり各グループが偶数桁のもの（0x610x62 も可）。途中の 0x（100x20）、重複した接頭辞、桁のない 0x、奇数桁、16 進以外の文字、UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`61 62 63` → `abc`",
+        "ja": "`61 62 63` → `abc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.binary.encode",
+      "candidateId": "ENC-015",
+      "description": {
+        "en": "Converts the UTF-8 bytes of the text to 8-bit binary notation (separated by single spaces). Input containing a lone surrogate is an error.",
+        "ja": "UTF-8 のバイト列を 8 ビットごとの 2 進表記にする（空白 1 つで区切る）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`Hi` → `01001000 01101001`",
+        "ja": "`Hi` → `01001000 01101001`"
+      }
+    },
+    {
+      "id": "selection-manipulator.binary.decode",
+      "candidateId": "ENC-016",
+      "description": {
+        "en": "Converts binary-notation bytes back to text (whitespace and line breaks are ignored; characters other than 0 / 1, a bit count that is not a multiple of 8, and a result that is not valid UTF-8 are errors).",
+        "ja": "2 進表記のバイト列を文字列に戻す（空白・改行は無視。0 / 1 以外の文字、8 の倍数でないビット数、UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`01001000 01101001` → `Hi`",
+        "ja": "`01001000 01101001` → `Hi`"
+      }
+    },
+    {
+      "id": "selection-manipulator.punycode.encode",
+      "candidateId": "ENC-017",
+      "description": {
+        "en": "Converts an internationalized domain name to Punycode (xn--) using domainToASCII from node:url. The whole selection, trimmed, is treated as one domain name; embedded line breaks or tabs and invalid domain names are errors, and input is limited to 1,000 characters. UTS #46 mapping lowercases ASCII and may expand one character into several (㍿ → xn--6oqv20b1zgzxr).",
+        "ja": "国際化ドメイン名を Punycode（xn--）に変換する（node:url の domainToASCII を使用。選択全体を前後の空白を除いて 1 つのドメイン名として扱う。途中の改行・タブ、不正なドメイン名はエラー。入力は 1,000 文字まで。UTS #46 のマッピングで ASCII は小文字化され、1 文字が複数文字に展開されることがある（㍿ → xn--6oqv20b1zgzxr））"
+      },
+      "example": {
+        "en": "`例え.jp` → `xn--r8jz45g.jp`",
+        "ja": "`例え.jp` → `xn--r8jz45g.jp`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.punycode.decode",
+      "candidateId": "ENC-018",
+      "description": {
+        "en": "Converts a Punycode domain name back to Unicode using domainToUnicode (input handling, error conditions and the length limit are the same as **Encode Punycode (IDN)**). UTS #46 mapping may make the output longer than the input (`ﬃ` → `ffi`, `㍿` → `株式会社`).",
+        "ja": "Punycode のドメイン名を Unicode 表記に戻す（domainToUnicode を使用。入力の扱い・エラー条件・入力長の上限は **Encode Punycode (IDN)** と同じ。UTS #46 のマッピングで出力が入力より長くなることがある（ﬃ → ffi、㍿ → 株式会社））"
+      },
+      "example": {
+        "en": "`xn--r8jz45g.jp` → `例え.jp`",
+        "ja": "`xn--r8jz45g.jp` → `例え.jp`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.quoted-printable.encode",
+      "candidateId": "ENC-019",
+      "description": {
+        "en": "Encodes the text as Quoted-Printable (UTF-8) for email bodies (non-printable-ASCII characters and = become =XX in uppercase, and trailing spaces and tabs become =20 / =09). Lines over 76 characters get soft line breaks (= plus the document's line ending) without splitting an =XX, and original line breaks are kept. Input containing a lone surrogate is an error.",
+        "ja": "メール本文向けの Quoted-Printable（UTF-8）にエンコードする（印字可能 ASCII 以外と = は =XX（大文字）、行末のスペース・タブは =20 / =09。76 文字を超える行は =XX を分割せずにソフト改行（= + 文書の改行コード）を入れ、元の改行はそのまま残す）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`café` → `caf=C3=A9`",
+        "ja": "`café` → `caf=C3=A9`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quoted-printable.decode",
+      "candidateId": "ENC-020",
+      "description": {
+        "en": "Decodes Quoted-Printable (per RFC 2045, trailing spaces and tabs are removed from each line first, then =XX (case-insensitive) and soft line breaks are decoded). An = not followed by two hex digits and a result that is not valid UTF-8 are errors.",
+        "ja": "Quoted-Printable をデコードする（RFC 2045 に従い各行の行末のスペース・タブを除いてから、=XX（大小文字不問）とソフト改行を戻す。= の後が 16 進 2 桁でない場合と UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`caf=C3=A9` → `café`",
+        "ja": "`caf=C3=A9` → `café`"
+      }
+    },
+    {
+      "id": "selection-manipulator.cipher.rot13",
+      "candidateId": "ENC-021",
+      "description": {
+        "en": "Shifts letters by 13 places (for obfuscation, not encryption; ASCII letters only, other characters are unchanged).",
+        "ja": "英字を 13 文字ずらす（難読化用。暗号ではない。ASCII 英字のみ。他の文字は変えない）"
+      },
+      "example": {
+        "en": "`Hello` → `Uryyb`",
+        "ja": "`Hello` → `Uryyb`"
+      }
+    },
+    {
+      "id": "selection-manipulator.cipher.rot47",
+      "candidateId": "ENC-022",
+      "description": {
+        "en": "Shifts characters by 47 places, including ASCII symbols and digits (for obfuscation; only character codes 33–126).",
+        "ja": "ASCII の記号・数字も含めて 47 文字ずらす（難読化用。コード 33〜126 の文字のみ）"
+      },
+      "example": {
+        "en": "`Hello` → `w6==@`",
+        "ja": "`Hello` → `w6==@`"
+      }
+    },
+    {
+      "id": "selection-manipulator.cipher.caesar",
+      "candidateId": "ENC-023",
+      "description": {
+        "en": "Shifts letters by the number you type (for learning and puzzles, not for encryption). The input is a signed integer of 1–9 digits, and a negative number shifts backward. You are asked once even with multiple selections, and nothing happens if you cancel.",
+        "ja": "英字を入力した数だけずらす（学習・パズル用。暗号用途ではない。入力は符号付き 1〜9 桁の整数で、負数は逆方向。複数選択でも入力は 1 回。キャンセル時は何もしない）"
+      },
+      "example": {
+        "en": "`abc（N=3）` → `def`",
+        "ja": "`abc（N=3）` → `def`"
+      }
+    },
+    {
+      "id": "selection-manipulator.cipher.atbash",
+      "candidateId": "ENC-024",
+      "description": {
+        "en": "Replaces each letter with its counterpart in the reversed alphabet (for puzzles; ASCII letters only).",
+        "ja": "英字を逆順のアルファベットに置き換える（パズル用。ASCII 英字のみ）"
+      },
+      "example": {
+        "en": "`abc` → `zyx`",
+        "ja": "`abc` → `zyx`"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii85.encode",
+      "candidateId": "ENC-025",
+      "description": {
+        "en": "Encodes the text as Ascii85 (Adobe style; built-in implementation, and a group of four zero bytes becomes z). Input containing a lone surrogate is an error.",
+        "ja": "Ascii85（Adobe 形式）にエンコードする（自前実装。4 バイトすべて 0 のグループは z）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`hi` → `<~BP@~>`",
+        "ja": "`hi` → `<~BP@~>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.ascii85.decode",
+      "candidateId": "ENC-026",
+      "description": {
+        "en": "Decodes Ascii85 (whitespace and line breaks are ignored, and <~ ~> are optional). Out-of-range characters, a z inside a group, a group above 2^32−1, a final partial group of only one character, and a result that is not valid UTF-8 are errors.",
+        "ja": "Ascii85 をデコードする（空白・改行は無視、<~ ~> は省略可。範囲外の文字、グループ途中の z、2^32−1 超のグループ、1 文字だけの端数グループ、UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`<~BP@~>` → `hi`",
+        "ja": "`<~BP@~>` → `hi`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.gzip",
+      "candidateId": "ENC-027",
+      "description": {
+        "en": "Compresses the text with gzip and then encodes it as Base64 (node:zlib, a different format from **Deflate Base64**; compression level 6, with the gzip header fixed to MTIME=0, XFL=0, OS=0x13 so the same input always gives the same result). Input containing a lone surrogate is an error.",
+        "ja": "gzip で圧縮してから Base64 にする（node:zlib。**Deflate Base64** とは形式が異なる。圧縮レベル 6。同じ入力で常に同じ結果になるよう gzip ヘッダの MTIME=0・XFL=0・OS=0x13 に固定する）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`hi` → `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==`",
+        "ja": "`hi` → `H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.gunzip",
+      "candidateId": "ENC-028",
+      "description": {
+        "en": "Decodes Base64 and then decompresses gzip (the decompressed size is limited to 10 MiB). Whitespace and line breaks are ignored; invalid Base64, corrupt gzip data, and a result that is not valid UTF-8 are errors.",
+        "ja": "Base64 をデコードしてから gzip を展開する（展開後サイズに上限を設ける。上限は 10 MiB。空白・改行は無視し、不正な Base64・壊れた gzip・UTF-8 として不正な結果はエラー）"
+      },
+      "example": {
+        "en": "`H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` → `hi`",
+        "ja": "`H4sIAAAAAAAAE8vIBACsKpPYAgAAAA==` → `hi`"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.encode-form",
+      "candidateId": "ENC-029",
+      "description": {
+        "en": "Encodes the text in form submission format (spaces become +, and everything except letters, digits and * - . _ becomes UTF-8 %XX in uppercase; line breaks also become %0A and so on). Input containing a lone surrogate is an error.",
+        "ja": "フォーム送信形式でエンコードする（空白は +。英数字と * - . _ 以外を UTF-8 の %XX（大文字）にする。改行もそのまま %0A などにする）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`a b&c` → `a+b%26c`",
+        "ja": "`a b&c` → `a+b%26c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.decode-form",
+      "candidateId": "ENC-030",
+      "description": {
+        "en": "Decodes form submission format (+ becomes a space; an invalid %XX is an error).",
+        "ja": "フォーム送信形式をデコードする（+ は空白。不正な %XX はエラー）"
+      },
+      "example": {
+        "en": "`a+b%26c` → `a b&c`",
+        "ja": "`a+b%26c` → `a b&c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.encode-each-line",
+      "candidateId": "ENC-031",
+      "description": {
+        "en": "Encodes each line separately as Base64 (empty lines stay empty, and line endings (LF / CRLF) are kept). Input containing a lone surrogate is an error.",
+        "ja": "各行を個別に Base64 エンコードする（空行は空行のまま、改行コード（LF / CRLF）は保持）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`a⏎b` → `YQ==⏎Yg==`",
+        "ja": "`a⏎b` → `YQ==⏎Yg==`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base64.decode-each-line",
+      "candidateId": "ENC-032",
+      "description": {
+        "en": "Decodes each line separately from Base64 (leading and trailing spaces and tabs on each line are ignored, and empty lines stay empty). If any line is invalid, it is an error that shows the line number.",
+        "ja": "各行を個別に Base64 デコードする（各行の前後のスペース・タブは無視、空行は空行のまま。1 行でも不正ならエラー（何行目かを示す））"
+      },
+      "example": {
+        "en": "`YQ==⏎Yg==` → `a⏎b`",
+        "ja": "`YQ==⏎Yg==` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.nato.encode",
+      "candidateId": "ENC-033",
+      "description": {
+        "en": "Converts letters and digits to NATO phonetic alphabet code words (letters are case-insensitive, ASCII only). Tokens are joined with a single space, each run of spaces within a line becomes one /, and any other character is kept as its own token; leading and trailing whitespace on each line is dropped, and line breaks are kept.",
+        "ja": "英数字を NATO フォネティックコードに変換する（英字は大小文字不問で ASCII のみ。トークンは空白 1 つで連結し、行内の空白の連続は / 1 つ、その他の文字はそのまま 1 トークン。各行の前後の空白は捨て、改行は保持）"
+      },
+      "example": {
+        "en": "`ab1` → `Alfa Bravo One`",
+        "ja": "`ab1` → `Alfa Bravo One`"
+      }
+    },
+    {
+      "id": "selection-manipulator.data-uri.encode-text",
+      "candidateId": "ENC-034",
+      "description": {
+        "en": "Converts the text to a Base64 data URI (text/plain;charset=utf-8) with a standard Base64 body. Input containing a lone surrogate is an error.",
+        "ja": "テキストを Base64 の data URI（text/plain;charset=utf-8）にする（本文は標準 Base64）。孤立サロゲートを含む入力はエラー"
+      },
+      "example": {
+        "en": "`hi` → `data:text/plain;charset=utf-8;base64,aGk=`",
+        "ja": "`hi` → `data:text/plain;charset=utf-8;base64,aGk=`"
+      }
+    },
+    {
+      "id": "selection-manipulator.html.encode.replace",
+      "candidateId": "ENC-035",
+      "derivedFrom": "ENC-001",
+      "description": {
+        "en": "Same conversion as **Encode HTML Entities**, but replaces the selection in place.",
+        "ja": "**Encode HTML Entities** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`<a href=\"x\">` → `&lt;a href=&quot;x&quot;&gt;`",
+        "ja": "`<a href=\"x\">` → `&lt;a href=&quot;x&quot;&gt;`"
+      }
+    },
+    {
+      "id": "selection-manipulator.html.decode.replace",
+      "candidateId": "ENC-036",
+      "derivedFrom": "ENC-002",
+      "description": {
+        "en": "Same conversion as **Decode HTML Entities**, but replaces the selection in place.",
+        "ja": "**Decode HTML Entities** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`&lt;b&gt; &#12354;` → `<b> あ`",
+        "ja": "`&lt;b&gt; &#12354;` → `<b> あ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.escape.replace",
+      "candidateId": "ENC-037",
+      "derivedFrom": "ENC-004",
+      "description": {
+        "en": "Same conversion as **Escape Unicode (\\uXXXX)**, but replaces the selection in place.",
+        "ja": "**Escape Unicode (\\uXXXX)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`あ😀` → `\\u3042\\ud83d\\ude00`",
+        "ja": "`あ😀` → `\\u3042\\ud83d\\ude00`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.unescape.replace",
+      "candidateId": "ENC-038",
+      "derivedFrom": "ENC-005",
+      "description": {
+        "en": "Same conversion as **Unescape Unicode (\\uXXXX)**, but replaces the selection in place.",
+        "ja": "**Unescape Unicode (\\uXXXX)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`\\u3042` → `あ`",
+        "ja": "`\\u3042` → `あ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.hex.encode.replace",
+      "candidateId": "ENC-039",
+      "derivedFrom": "ENC-013",
+      "description": {
+        "en": "Same conversion as **Encode Hex (UTF-8 Bytes)**, but replaces the selection in place.",
+        "ja": "**Encode Hex (UTF-8 Bytes)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`abc` → `616263`",
+        "ja": "`abc` → `616263`"
+      }
+    },
+    {
+      "id": "selection-manipulator.hex.decode.replace",
+      "candidateId": "ENC-040",
+      "derivedFrom": "ENC-014",
+      "description": {
+        "en": "Same conversion as **Decode Hex (UTF-8 Bytes)**, but replaces the selection in place.",
+        "ja": "**Decode Hex (UTF-8 Bytes)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`61 62 63` → `abc`",
+        "ja": "`61 62 63` → `abc`"
+      }
+    }
+  ]
+}

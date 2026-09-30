@@ -17,6 +17,7 @@ import {
 } from '../../handler/encodeTransforms';
 import { ENC_ROADMAP_EXAMPLES } from './encodeExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 
@@ -101,17 +102,9 @@ const closeAllEditors = async () => {
   }
 };
 
-/** The ENC rows of docs/ROADMAP.md: [id, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string][] => {
-  const roadmap = fs.readFileSync(path.resolve(__dirname, '../../../docs/ROADMAP.md'), 'utf8');
-  return roadmap.split('\n')
-    .filter((line) => /^\| ENC-\d{3} \|/.test(line))
-    .map((line) => {
-      // Cells are separated by `|` not preceded by a backslash; `\\`, `\|`, `\*`, `\[`, `\]` are escapes.
-      const cells = line.split(/(?<!\\)\|/).map((cell) => cell.trim());
-      return [cells[1], cells[4].replace(/`/g, ''), cells[5].replace(/\\([\\|*[\]])/g, '$1'), cells[7]];
-    });
-};
+/** The ENC commands of the showcase data (scripts/showcase-data/ENC.json): [id, command ID, title, example]. */
+const dataRows = (): [string, string, string, string][] =>
+  candidateRows('ENC').map(([id, , command, title, example]): [string, string, string, string] => [id, command, title, example]);
 
 suite('Encode Commands (ENC-001..040) Test Suite', () => {
 
@@ -465,8 +458,8 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, titles and examples match the ENC table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs, titles and examples match the ENC commands of the showcase data', () => {
+      const rows = dataRows();
       assert.deepStrictEqual(rows.map(([id]) => id), ENC_COMMAND_ENTRIES.map((entry) => entry.id));
       assert.deepStrictEqual(rows.map(([, command]) => command), ENC_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
       rows.forEach(([id, , , example]) => {
@@ -500,7 +493,7 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
       const count = (entries: { command?: string }[], id: string) => entries.filter((entry) => entry.command === id).length;
       const basicMenu: { command: string; group: string }[] = contributes.menus['selection-manipulator.encode.submenu'];
       const replaceMenu: { command: string; group: string }[] = contributes.menus['selection-manipulator.encode.replace.submenu'];
-      const titles = new Map(roadmapRows().map(([, command, title]) => [command, title]));
+      const titles = new Map(dataRows().map(([, command, title]) => [command, title]));
       let basicIndex = 0;
       let replaceIndex = 0;
       ENC_COMMAND_ENTRIES.forEach((entry) => {

@@ -20,6 +20,7 @@ import {
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandNotation, MSEL_ROADMAP_EXAMPLES, parseMarked, renderMarked } from './mselExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const PREFIX = 'selection-manipulator.';
 
@@ -104,14 +105,8 @@ const codeSpan = (span: string): string => {
   return span.slice(ticks.length, span.length - ticks.length);
 };
 
-/** The MSEL rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| MSEL-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], codeSpan(cells[3]), cells[4], cells[6]];
-    });
+/** The MSEL commands of the showcase data (scripts/showcase-data/MSEL.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('MSEL');
 
 const REDOS = '^(a+)+$';
 const REDOS_TEXT = `[${'a'.repeat(34)}b] [${'a'.repeat(34)}c]`;
@@ -387,8 +382,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, kinds, titles and examples match the MSEL table of docs/ROADMAP.md, in its order', () => {
-      const rows = roadmapRows();
+    test('command IDs, kinds, titles and examples match the MSEL commands of the showcase data, in its order', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 30);
       const order = rows.map(([id]) => id);
       assert.deepStrictEqual(MSEL_COMMAND_ENTRIES.map((entry) => entry.id), order);

@@ -138,7 +138,7 @@ const smallFormsPick = (kind: 'superscript' | 'subscript'): UniQuickPick => ({
 /** The quick pick value of UNI-023 / 024 (the default when none was chosen). */
 const scriptChoice = (context: UniContext): ScriptChoice => (context.choice === 'letters' ? 'letters' : 'digits');
 
-/** The commands in the order of the UNI table of docs/ROADMAP.md. */
+/** The commands in the order of the UNI commands of the showcase data (scripts/showcase-data/UNI.json). */
 export const UNI_COMMAND_ENTRIES: readonly UniCommandEntry[] = [
   {
     id: 'UNI-001', name: 'unicode.normalize-nfc', title: 'Unicode - Normalize NFC', output: 'replace',

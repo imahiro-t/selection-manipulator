@@ -1,0 +1,128 @@
+[
+  {
+    "id": "CASE",
+    "name": {
+      "en": "Case and naming conventions",
+      "ja": "大文字小文字・命名規則の変換拡張"
+    }
+  },
+  {
+    "id": "WS",
+    "name": {
+      "en": "Whitespace, indentation and line breaks",
+      "ja": "空白・インデント・改行の整形"
+    }
+  },
+  {
+    "id": "LINE",
+    "name": {
+      "en": "Line operations (filter, deduplicate, number)",
+      "ja": "行操作（抽出・フィルタ・重複処理・番号付け）"
+    }
+  },
+  {
+    "id": "SORT",
+    "name": {
+      "en": "Sorting (natural, locale, key and column)",
+      "ja": "ソート拡張（自然順・ロケール順・キー／列指定など）"
+    }
+  },
+  {
+    "id": "WRAP",
+    "name": {
+      "en": "Enclosing, quoting and adding text",
+      "ja": "囲み・引用符・括弧・前後への文字付加"
+    }
+  },
+  {
+    "id": "ENC",
+    "name": {
+      "en": "Encoding and decoding (HTML entities, Unicode escapes, Base32/58, hex, Punycode, …)",
+      "ja": "エンコード／デコード（HTML エンティティ・Unicode エスケープ・Base32/58・Hex・Punycode など）"
+    }
+  },
+  {
+    "id": "HASH",
+    "name": {
+      "en": "Hashes and checksums (computed locally)",
+      "ja": "ハッシュ・チェックサム（ローカル計算のみ）"
+    }
+  },
+  {
+    "id": "DATA",
+    "name": {
+      "en": "Data formats (JSON, YAML, TOML, INI, query strings, …)",
+      "ja": "データ形式変換（JSON / YAML / TOML / INI / Query String など）"
+    }
+  },
+  {
+    "id": "TABLE",
+    "name": {
+      "en": "CSV, TSV and tables (columns, transpose, align)",
+      "ja": "CSV / TSV / 表操作（列抽出・転置・整列）"
+    }
+  },
+  {
+    "id": "NUM",
+    "name": {
+      "en": "Numbers, calculation and statistics",
+      "ja": "数値・計算・統計（中央値・標準偏差・丸め・進数変換・桁区切り）"
+    }
+  },
+  {
+    "id": "DATE",
+    "name": {
+      "en": "Dates and times (time zones, weekdays, differences, ISO weeks)",
+      "ja": "日付・時刻（Intl によるタイムゾーン表示・曜日・差分・ISO 週）"
+    }
+  },
+  {
+    "id": "GEN",
+    "name": {
+      "en": "Sequences and generators (letters, Roman numerals, ULID / NanoID, dummy text)",
+      "ja": "連番・生成（英字連番・ローマ数字・ULID / NanoID・ダミーテキスト）"
+    }
+  },
+  {
+    "id": "JA",
+    "name": {
+      "en": "Japanese text (romaji, kanji numerals, punctuation, old kanji forms, …)",
+      "ja": "日本語テキスト（ローマ字・漢数字・句読点・旧字体など）"
+    }
+  },
+  {
+    "id": "UNI",
+    "name": {
+      "en": "Unicode and character types (normalization, invisible characters, code points)",
+      "ja": "Unicode・文字種（正規化 NFC/NFD/NFKC・不可視文字・コードポイント表示）"
+    }
+  },
+  {
+    "id": "DEV",
+    "name": {
+      "en": "Programming (string literals, escaping for SQL, regex and shells; conversion only, nothing is run)",
+      "ja": "プログラミング支援（言語別の文字列リテラル化・SQL/正規表現/シェル向けエスケープなど。変換するだけで実行はしない）"
+    }
+  },
+  {
+    "id": "MSEL",
+    "name": {
+      "en": "Multiple cursors and selections (split, nth selection, align, expand / shrink)",
+      "ja": "マルチカーソル・選択操作（分割・n 番目の選択・整列 Align・選択の拡張／縮小）"
+    }
+  },
+  {
+    "id": "MD",
+    "name": {
+      "en": "Markdown and documents (heading levels, lists, links, table of contents)",
+      "ja": "Markdown・ドキュメント整形（見出しレベル・リスト化・リンク化・目次生成）"
+    }
+  },
+  {
+    "id": "EXISTING",
+    "name": {
+      "en": "Core commands",
+      "ja": "定番コマンド"
+    }
+  }
+]

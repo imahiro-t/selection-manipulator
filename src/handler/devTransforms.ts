@@ -144,7 +144,7 @@ const SQL_FORMAT = base({
 /** The parts of a version DEV-028 can raise (the value is `context.choice`). */
 const SEMVER_PARTS: readonly SemverPart[] = ['patch', 'minor', 'major'];
 
-/** The commands in the order of the DEV table of docs/ROADMAP.md. */
+/** The commands in the order of the DEV commands of the showcase data (scripts/showcase-data/DEV.json). */
 export const DEV_COMMAND_ENTRIES: readonly DevCommandEntry[] = [
   TO_JS_STRING,
   base({

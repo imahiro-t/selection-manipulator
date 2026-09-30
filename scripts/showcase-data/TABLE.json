@@ -1,0 +1,375 @@
+{
+  "category": "TABLE",
+  "commands": [
+    {
+      "id": "selection-manipulator.csv.to-json",
+      "candidateId": "TABLE-001",
+      "description": {
+        "en": "Converts CSV to an array of objects using the first row as the header. Uses an in-house RFC 4180 parser shared by 30 commands: `\"\"`, delimiters and line breaks inside quotes, CRLF / LF / CR, BOM removal, skipped empty lines and skipped spaces / tabs after a closing quote; other characters there and unclosed quotes are errors reported as \"line L: reason\". Values are always strings and the output is JSON with 2-space indentation (the example is shown in compact form; the value is the same); rows longer than the header and duplicate headers are errors, missing cells in short rows become empty strings, `__proto__` is a normal key, and a header-only input gives `[]`. Common to all CSV commands: a selection with 0 records is a `no rows found` error, the result ends with a single newline only when the selection does, the limits are 5,000,000 input characters, 10,000,000 grid cells (rows × max columns) and 10,000,000 output characters (shared across selections), and nothing is changed on failure.",
+        "ja": "1 行目をヘッダーとして CSV をオブジェクトの配列にする（RFC 4180 の引用符に対応。30 コマンドで共有する自前パーサ: `\"\"`・引用符内の区切り文字と改行・CRLF / LF / CR、BOM の除去、空行の読み飛ばし、閉じ引用符の後の空白 / タブは読み飛ばし、それ以外の文字と未閉鎖の引用符は「line L: 理由」のエラー。値は常に文字列、出力は 2 スペースインデントの JSON（例は値として同じ）。見出しより長い行はエラー、短い行の不足は空文字列、見出しの重複はエラー、`__proto__` も通常のキー。見出しだけなら `[]`。全コマンド共通: 0 レコードの選択は `no rows found` のエラー、選択範囲が改行で終わるときだけ結果も改行 1 つで終わる、入力 5,000,000 文字・格子（行数 × 最大列数）10,000,000 セル・出力 10,000,000 文字（全選択で共有）の上限、失敗時は何も変更しない）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `[{\"a\":\"1\",\"b\":\"2\"}]`",
+        "ja": "`a,b⏎1,2` → `[{\"a\":\"1\",\"b\":\"2\"}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-json",
+      "candidateId": "TABLE-002",
+      "description": {
+        "en": "Converts an array of objects to CSV, using the union of keys in order of first appearance as the header. Within each object, integer-like keys (`\"0\"`, `\"10\"`) come first in numeric order (JavaScript key order), but the header keeps that order by first appearance, so they are not necessarily first in the header (`[{\"b\":1},{\"0\":2,\"10\":3}]` → header `b,0,10`, `[{\"b\":1,\"0\":2}]` → header `0,b`). Strings are written as is, numbers and booleans in JSON notation, null and missing keys as empty cells, and nested values as compact JSON text (up to 500 levels). Non-object elements, empty arrays, elements that all have no keys (`the objects have no keys`) and out-of-range numbers (`1e400`, also when nested; `element N: a number is out of range`) are errors; large integers lose precision and `1e-400` becomes 0.",
+        "ja": "オブジェクトの配列を CSV にする（キーの和集合を初出順でヘッダーにする。各オブジェクトの中では整数に見えるキー（`\"0\"`・`\"10\"`）が数値順で先に来る（JavaScript のオブジェクトのキー順）が、ヘッダーはその順序のまま初出順に並ぶため、ヘッダーの先頭に来るとは限らない（`[{\"b\":1},{\"0\":2,\"10\":3}]` → ヘッダー `b,0,10`、`[{\"b\":1,\"0\":2}]` → ヘッダー `0,b`）。文字列はそのまま、数値・真偽値は JSON 表記、null と欠けたキーは空セル、入れ子はコンパクトな JSON テキスト。入れ子は 500 段まで。要素がオブジェクトでない・空配列・すべての要素がキーを持たない（`the objects have no keys`）・範囲外の数値（`1e400`、入れ子の中も。`element N: a number is out of range`）はエラー。大きな整数は精度が落ち、`1e-400` は 0 になる）"
+      },
+      "example": {
+        "en": "`[{\"a\":1,\"b\":2}]` → `a,b⏎1,2`",
+        "ja": "`[{\"a\":1,\"b\":2}]` → `a,b⏎1,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-tsv",
+      "candidateId": "TABLE-003",
+      "description": {
+        "en": "Converts CSV to tab-separated values. Cells containing tabs, `\"` or line breaks are quoted.",
+        "ja": "CSV をタブ区切りにする（タブ・`\"`・改行を含むセルは引用符で囲む）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `a⇥b⏎1⇥2`",
+        "ja": "`a,b⏎1,2` → `a⇥b⏎1⇥2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-tsv",
+      "candidateId": "TABLE-004",
+      "description": {
+        "en": "Converts tab-separated values (e.g. pasted from Excel, quoted cells allowed) to CSV.",
+        "ja": "タブ区切り（Excel からの貼り付けなど。引用符付きセルも可）を CSV にする"
+      },
+      "example": {
+        "en": "`a⇥b⏎1⇥2` → `a,b⏎1,2`",
+        "ja": "`a⇥b⏎1⇥2` → `a,b⏎1,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.transpose",
+      "candidateId": "TABLE-005",
+      "description": {
+        "en": "Swaps rows and columns. Ragged rows are padded with empty cells before transposing.",
+        "ja": "行と列を入れ替える（不揃いな行は空セルで埋めてから転置する）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `a,1⏎b,2`",
+        "ja": "`a,b⏎1,2` → `a,1⏎b,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.extract-column",
+      "candidateId": "TABLE-006",
+      "description": {
+        "en": "Extracts only the column you specify by number (or header name), including the header row. Column specification common to all commands: input consisting only of digits (ignoring surrounding spaces) is a 1-based column number, anything else must exactly match a header cell (case-sensitive, not trimmed). Out-of-range, unmatched or multiply matched columns are errors; the input box accepts up to 1,000 characters without control characters, and cancelling does nothing.",
+        "ja": "入力した番号（または見出し名）の列だけを見出し行を含めて取り出す（全コマンド共通の列指定: 数字だけの入力は前後の空白を除いて 1 始まりの列番号、それ以外は見出しのセルとの完全一致（大文字小文字を区別し、入力は trim しない）。範囲外・該当なし・複数の列に一致はエラー。入力ボックスは 1,000 文字まで・制御文字不可で、キャンセルなら何もしない）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2（column 2）` → `b⏎2`",
+        "ja": "`a,b⏎1,2（列 2）` → `b⏎2`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.remove-column",
+      "candidateId": "TABLE-007",
+      "description": {
+        "en": "Removes the column you specify by number (or header name). A table with only one column is an error, and short rows without that column are left as is.",
+        "ja": "入力した番号（または見出し名）の列を取り除く（列が 1 つしかない表はエラー。その列を持たない短い行はそのまま）"
+      },
+      "example": {
+        "en": "`a,b,c⏎1,2,3（column 2）` → `a,c⏎1,3`",
+        "ja": "`a,b,c⏎1,2,3（列 2）` → `a,c⏎1,3`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.swap-columns",
+      "candidateId": "TABLE-008",
+      "description": {
+        "en": "Swaps the two columns you specify. The input box appears twice and cancelling either does nothing; specifying the same column twice is an error, and ragged rows are padded with empty cells before swapping.",
+        "ja": "入力した 2 つの列を入れ替える（入力ボックスを 2 回出し、どちらかのキャンセルで何もしない。同じ列の指定はエラー。不揃いな行は空セルで埋めてから入れ替える）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2（1, 2）` → `b,a⏎2,1`",
+        "ja": "`a,b⏎1,2（1, 2）` → `b,a⏎2,1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.align-columns",
+      "candidateId": "TABLE-009",
+      "description": {
+        "en": "Aligns column widths by padding with spaces for readability. Every cell except the last in a row is padded to the widest cell as written (including quotes); widths are counted in code points, cells with line breaks inside quotes will not line up visually, and the output length is estimated in advance.",
+        "ja": "各列の幅を揃えるように空白を入れて見やすくする（行の最後以外のセルの後ろに、書き出した形（引用符込み）で最も幅の広いセルまで空白を足す。幅はコードポイント数。引用符内の改行を含むセルでは見た目が揃わない。出力長は事前に見積もる）"
+      },
+      "example": {
+        "en": "`a,bb⏎ccc,d` → `a··,bb⏎ccc,d`",
+        "ja": "`a,bb⏎ccc,d` → `a··,bb⏎ccc,d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.trim-cells",
+      "candidateId": "TABLE-010",
+      "description": {
+        "en": "Removes leading and trailing spaces / tabs from each cell (the inverse of Align Columns).",
+        "ja": "各セルの前後のスペース / タブを取り除く（Align Columns の逆）"
+      },
+      "example": {
+        "en": "`a··,bb⏎ccc,d` → `a,bb⏎ccc,d`",
+        "ja": "`a··,bb⏎ccc,d` → `a,bb⏎ccc,d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-html-table",
+      "candidateId": "TABLE-011",
+      "description": {
+        "en": "Converts CSV to an HTML table element. Cell content is HTML-escaped for `& < > \" '`, the first row uses `<th>` and the rest `<td>`, and the output has one `<tr>` per line with 2-space indentation: `<table>⏎··<tr><th>a</th><th>b</th></tr>⏎··<tr><td>1</td><td>2</td></tr>⏎</table>`. Ragged rows are padded with empty cells.",
+        "ja": "CSV を HTML の table 要素にする（セル内容は `& < > \" '` を HTML エスケープする。1 行目は `<th>`、以降は `<td>`。出力は 1 行 1 `<tr>` の 2 スペースインデント: `<table>⏎··<tr><th>a</th><th>b</th></tr>⏎··<tr><td>1</td><td>2</td></tr>⏎</table>`。不揃いな行は空セルで埋める）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `<table><tr><th>a</th>…</table>`",
+        "ja": "`a,b⏎1,2` → `<table><tr><th>a</th>…</table>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-sql-insert",
+      "candidateId": "TABLE-012",
+      "description": {
+        "en": "Generates INSERT statements using the first row as column names, with strings escaped; the SQL is only generated, never executed. Written in standard SQL: every value is a string literal with `'` doubled (empty cells become `''`, not NULL), and table / column names are kept as is if they match `^[A-Za-z_][A-Za-z0-9_]*$` (a `schema.table` whose `.`-separated parts match is also allowed), otherwise they are wrapped in `\"` with `\"` doubled. Because MySQL / MariaDB's default mode treats `\\` as an escape and cannot be made safe, values, column names or table names containing `\\` (including Windows paths) are an error; quoted identifiers in MySQL require ANSI_QUOTES. Control characters (other than tab and line breaks), empty column names, rows longer than the header and 0 data rows are errors, and missing cells in short rows become `''`.",
+        "ja": "1 行目を列名として INSERT 文を生成する（文字列はエスケープ。SQL は生成するだけで実行しない。標準 SQL で書く: 値はすべて `'` を二重化した文字列リテラル（空セルは `''`、NULL にしない）、表名・列名は `^[A-Za-z_][A-Za-z0-9_]*$`（表名は `.` 区切りの各部分がこれに一致する `schema.table` も可）ならそのまま、それ以外は `\"` で囲み `\"` を二重化。MySQL / MariaDB の既定モードでは `\\` がエスケープとして解釈され安全にできないため、値・列名・表名に `\\` を含むとエラー（Windows のパスなども対象）。MySQL で引用付き識別子を使うには ANSI_QUOTES が必要。制御文字（タブ・改行を除く）・空の列名・見出しより長い行・データ行 0 件はエラー、短い行の不足は `''`）"
+      },
+      "example": {
+        "en": "`id,name⏎1,O'Neil（table name: users）` → `INSERT INTO users (id, name) VALUES ('1', 'O''Neil');`",
+        "ja": "`id,name⏎1,O'Neil（表名: users）` → `INSERT INTO users (id, name) VALUES ('1', 'O''Neil');`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.dedupe-rows",
+      "candidateId": "TABLE-013",
+      "description": {
+        "en": "Removes duplicate rows while keeping the header, keeping the first of exactly matching data rows. Ragged rows `1` and `1,` are different rows.",
+        "ja": "ヘッダーを残したまま重複行を取り除く（データ行の完全一致で最初の 1 行を残す。不揃いな行 `1` と `1,` は別の行）"
+      },
+      "example": {
+        "en": "`a⏎1⏎1` → `a⏎1`",
+        "ja": "`a⏎1⏎1` → `a⏎1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.filter-rows",
+      "candidateId": "TABLE-014",
+      "description": {
+        "en": "Keeps only rows whose value in the column you enter matches a condition (equals / contains). You enter the column, choose `Equals` / `Contains` in a QuickPick, then enter the value; cancelling any step does nothing. Matching is case-sensitive, the value may be empty, and the header row is always kept.",
+        "ja": "入力した列の値が条件（一致・含む）に合う行だけを残す（列を入力 → QuickPick で `Equals` / `Contains` → 値を入力。いずれかのキャンセルで何もしない。大文字小文字を区別し、値は空でもよい。見出し行は常に残す）"
+      },
+      "example": {
+        "en": "`n,v⏎a,1⏎b,2（v = 2）` → `n,v⏎b,2`",
+        "ja": "`n,v⏎a,1⏎b,2（v = 2）` → `n,v⏎b,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.sum-column",
+      "candidateId": "TABLE-015",
+      "description": {
+        "en": "Shows the sum and average of the numbers in the column you enter as a notification. Numbers are decimal notation after trimming (`-1.5`, `.5`, `1e3`); empty cells are ignored, non-numeric cells add ` (N non-numeric cells skipped)` (`1 non-numeric cell skipped` for one), and numbers beyond the float range (`1e400`) also count as non-numeric. Results are rounded to 15 significant digits; no numeric cells (`no numeric cells in the column`) or a sum beyond the float range (`the sum is out of range`) produce a warning. The selection is not changed.",
+        "ja": "入力した列の数値の合計・平均を通知表示する（数値は前後の空白を除いた 10 進表記 `-1.5`・`.5`・`1e3`。空セルは無視し、非数値は ` (N non-numeric cells skipped)` を付ける（単数は `1 non-numeric cell skipped`）。浮動小数の範囲を超える数値（`1e400`）も非数値として数える。有効桁 15 桁に丸める。数値が 0 件（`no numeric cells in the column`）・合計が浮動小数の範囲外（`the sum is out of range`）は警告。選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`n,v⏎a,1⏎b,2（v）` → `sum=3, avg=1.5（notification）`",
+        "ja": "`n,v⏎a,1⏎b,2（v）` → `sum=3, avg=1.5（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.add-index",
+      "candidateId": "TABLE-016",
+      "description": {
+        "en": "Adds a `#` column at the start with sequential numbers from 1.",
+        "ja": "先頭に `#` 列と 1 からの連番を追加する"
+      },
+      "example": {
+        "en": "`a⏎x⏎y` → `#,a⏎1,x⏎2,y`",
+        "ja": "`a⏎x⏎y` → `#,a⏎1,x⏎2,y`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.change-delimiter",
+      "candidateId": "TABLE-017",
+      "description": {
+        "en": "Changes the delimiter to the character you enter (such as ; or |). \"One character\" means one Unicode code point; since a tab cannot be typed into the input box, it is specified only as `\\t` (two characters). Empty input, two or more characters, `\"`, line breaks, other control characters and unpaired surrogates are errors, and output quoting is decided based on the new delimiter.",
+        "ja": "区切り文字を入力した文字（; や | など）に変える（「1 文字」は Unicode のコードポイント 1 つ。タブは入力ボックスに直接入れられないため `\\t`（2 文字）の表記でだけ指定する。空・2 文字以上・`\"`・改行・その他の制御文字・対になっていないサロゲートはエラー。出力の引用符付けは新しい区切り文字で判断する）"
+      },
+      "example": {
+        "en": "`a,b（;）` → `a;b`",
+        "ja": "`a,b（;）` → `a;b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.quote-all",
+      "candidateId": "TABLE-018",
+      "description": {
+        "en": "Wraps every cell in double quotes (empty cells become `\"\"`).",
+        "ja": "すべてのセルをダブルクォートで囲む（空セルも `\"\"`）"
+      },
+      "example": {
+        "en": "`a,b` → `\"a\",\"b\"`",
+        "ja": "`a,b` → `\"a\",\"b\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.unquote",
+      "candidateId": "TABLE-019",
+      "description": {
+        "en": "Removes quotes from cells that contain no delimiter, line break or quote. Other CSV-producing commands also write with this minimal quoting; rows with no cells or a single empty cell are written as `\"\"` because they would otherwise disappear as empty lines when read back.",
+        "ja": "区切り文字・改行・引用符を含まないセルの引用符を外す（CSV を出力する他のコマンドも同じ最小限の引用符付けで書き直す。セルのない行・空セル 1 つだけの行は、読み直すと空行として消えるため `\"\"` と書く）"
+      },
+      "example": {
+        "en": "`\"a\",\"b,c\"` → `a,\"b,c\"`",
+        "ja": "`\"a\",\"b,c\"` → `a,\"b,c\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-yaml",
+      "candidateId": "TABLE-020",
+      "description": {
+        "en": "Converts CSV to a YAML array using the first row as the header, with js-yaml (Core schema, noRefs, unlimited line width). Values are strings and therefore quoted; duplicate headers are an error, and a header-only input gives `[]`.",
+        "ja": "1 行目をヘッダーとして YAML の配列にする（js-yaml を使用。Core schema・noRefs・行幅無制限。値は文字列なので引用される。見出しの重複はエラー、見出しだけなら `[]`）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `- a: '1'⏎··b: '2'`",
+        "ja": "`a,b⏎1,2` → `- a: '1'⏎··b: '2'`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-ascii-table",
+      "candidateId": "TABLE-021",
+      "description": {
+        "en": "Converts CSV to an ASCII table with borders. Widths are counted in code points; line breaks and tabs in cells become a single space (other control characters are kept with width 1). A header-only input gives three lines (border, header, border), and the output length is estimated in advance.",
+        "ja": "CSV を罫線付きの ASCII 表にする（幅はコードポイント数。セル内の改行とタブは空白 1 つにする（それ以外の制御文字はそのまま幅 1）。見出しだけなら罫線・見出し・罫線の 3 行。出力長は事前に見積もる）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `+---+---+⏎| a | b |⏎+---+---+⏎| 1 | 2 |⏎+---+---+`",
+        "ja": "`a,b⏎1,2` → `+---+---+⏎| a | b |⏎+---+---+⏎| 1 | 2 |⏎+---+---+`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-whitespace",
+      "candidateId": "TABLE-022",
+      "description": {
+        "en": "Converts a table separated by runs of whitespace (e.g. command output) to CSV. Each trimmed line is split at one or more spaces / tabs; quotes are not interpreted, so spaces inside values also split, and empty lines are skipped.",
+        "ja": "連続した空白で区切られた表（コマンド出力など）を CSV にする（前後の空白を除いた各行を 1 つ以上のスペース / タブで分割する。引用符は解釈せず、値の中の空白でも分割される。空行は読み飛ばす）"
+      },
+      "example": {
+        "en": "`NAME···AGE⏎bob····30` → `NAME,AGE⏎bob,30`",
+        "ja": "`NAME···AGE⏎bob····30` → `NAME,AGE⏎bob,30`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.info",
+      "candidateId": "TABLE-023",
+      "description": {
+        "en": "Shows the row count, column count and empty cells per column as a notification. Counts are data rows (excluding the header) × maximum columns, with cells missing from short rows counted as empty, and singular / plural are distinguished (`1 row × 1 col`). If there are no empty cells it shows `, no empty cells`; column names are the header (or `column N` if empty) shortened to 60 characters, listing up to 10 columns followed by `…and N more`. The selection is not changed.",
+        "ja": "行数・列数・列ごとの空セル数を通知表示する（データ行数（見出しを除く）× 最大列数。短い行で欠けたセルも空セルに数える。単数・複数を書き分ける（`1 row × 1 col`）。空セルがなければ `, no empty cells`。列名は見出し（空なら `column N`）を 60 文字に短縮し、最大 10 列まで挙げて残りは `…and N more`。選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`a,b⏎1,⏎2,3` → `2 rows × 2 cols, b: 1 empty（notification）`",
+        "ja": "`a,b⏎1,⏎2,3` → `2 rows × 2 cols, b: 1 empty（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.fill-down",
+      "candidateId": "TABLE-024",
+      "description": {
+        "en": "Fills empty cells with the value from the row above. All rows are treated as data, whitespace-only cells count as values, and short rows are padded with empty cells up to the maximum column count before filling.",
+        "ja": "空のセルを直上の行の値で埋める（全行をデータとして扱う。空白だけのセルは値とみなす。短い行は最大列数まで空セルとして補ってから埋める）"
+      },
+      "example": {
+        "en": "`a,1⏎,2` → `a,1⏎a,2`",
+        "ja": "`a,1⏎,2` → `a,1⏎a,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-records",
+      "candidateId": "TABLE-025",
+      "description": {
+        "en": "Converts each row to a vertical \"header: value\" record, with one empty line between records. Line breaks in headers and values become a single space so each line is always one pair; rows longer than the header and 0 data rows are errors.",
+        "ja": "各行を「見出し: 値」の縦並びのレコードにする（レコードの間は空行 1 つ。見出しと値の中の改行は空白 1 つにし、1 行が必ず 1 組になる。見出しより長い行・データ行 0 件はエラー）"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `a: 1⏎b: 2`",
+        "ja": "`a,b⏎1,2` → `a: 1⏎b: 2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-json.replace",
+      "candidateId": "TABLE-026",
+      "derivedFrom": "TABLE-001",
+      "description": {
+        "en": "Same conversion as **CSV - Convert to JSON Array**, but replaces the selection in place.",
+        "ja": "**CSV - Convert to JSON Array** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `[{\"a\":\"1\",\"b\":\"2\"}]`",
+        "ja": "`a,b⏎1,2` → `[{\"a\":\"1\",\"b\":\"2\"}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.from-json.replace",
+      "candidateId": "TABLE-027",
+      "derivedFrom": "TABLE-002",
+      "description": {
+        "en": "Same conversion as **CSV - Convert from JSON Array**, but replaces the selection in place.",
+        "ja": "**CSV - Convert from JSON Array** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`[{\"a\":1,\"b\":2}]` → `a,b⏎1,2`",
+        "ja": "`[{\"a\":1,\"b\":2}]` → `a,b⏎1,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-tsv.replace",
+      "candidateId": "TABLE-028",
+      "derivedFrom": "TABLE-003",
+      "description": {
+        "en": "Same conversion as **CSV - Convert to TSV**, but replaces the selection in place.",
+        "ja": "**CSV - Convert to TSV** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `a⇥b⏎1⇥2`",
+        "ja": "`a,b⏎1,2` → `a⇥b⏎1⇥2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.transpose.replace",
+      "candidateId": "TABLE-029",
+      "derivedFrom": "TABLE-005",
+      "description": {
+        "en": "Same conversion as **CSV - Transpose**, but replaces the selection in place.",
+        "ja": "**CSV - Transpose** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `a,1⏎b,2`",
+        "ja": "`a,b⏎1,2` → `a,1⏎b,2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.to-html-table.replace",
+      "candidateId": "TABLE-030",
+      "derivedFrom": "TABLE-011",
+      "description": {
+        "en": "Same conversion as **CSV - Convert to HTML Table**, but replaces the selection in place.",
+        "ja": "**CSV - Convert to HTML Table** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`a,b⏎1,2` → `<table><tr><th>a</th>…</table>`",
+        "ja": "`a,b⏎1,2` → `<table><tr><th>a</th>…</table>`"
+      }
+    }
+  ]
+}

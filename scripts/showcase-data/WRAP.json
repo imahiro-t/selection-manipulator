@@ -1,0 +1,369 @@
+{
+  "category": "WRAP",
+  "commands": [
+    {
+      "id": "selection-manipulator.enclose.custom",
+      "candidateId": "WRAP-001",
+      "description": {
+        "en": "Encloses the selected text with the prefix and suffix you type (each 0–1,000 characters, no line breaks; nothing changes if both are empty). With an empty selection, inserts the pair at the cursor.",
+        "ja": "入力した前置文字列と後置文字列で選択テキストを囲む（前置・後置は各 0〜1,000 文字で改行不可。両方空なら変更しない。空選択ではカーソル位置に組を挿入する）"
+      },
+      "example": {
+        "en": "`abc（<<, >>）` → `<<abc>>`",
+        "ja": "`abc（<<, >>）` → `<<abc>>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.each-line.custom",
+      "candidateId": "WRAP-002",
+      "description": {
+        "en": "Encloses each line with the prefix and suffix you type (zero-length lines are left as is, whitespace-only lines are enclosed, and a single trailing line break is kept rather than counted as a line). Prefix and suffix limits are the same as in **Enclose: Custom (Prefix / Suffix)**; nothing changes if both are empty.",
+        "ja": "各行を入力した前置・後置文字列で囲む（長さ 0 の行はそのまま、空白のみの行は囲む。末尾の改行 1 つは行として数えずに残す。前置・後置の制限は **Enclose: Custom (Prefix / Suffix)** と同じで、両方空なら変更しない）"
+      },
+      "example": {
+        "en": "`a⏎b（[, ]）` → `[a]⏎[b]`",
+        "ja": "`a⏎b（[, ]）` → `[a]⏎[b]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.each-line.double",
+      "candidateId": "WRAP-003",
+      "description": {
+        "en": "Encloses each line in double quotes (zero-length lines are left as is, whitespace-only lines are enclosed, and a single trailing line break is kept rather than counted as a line).",
+        "ja": "各行をダブルクォートで囲む（長さ 0 の行はそのまま、空白のみの行は囲む。末尾の改行 1 つは行として数えずに残す）"
+      },
+      "example": {
+        "en": "`a⏎b` → `\"a\"⏎\"b\"`",
+        "ja": "`a⏎b` → `\"a\"⏎\"b\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.each-line.single",
+      "candidateId": "WRAP-004",
+      "description": {
+        "en": "Encloses each line in single quotes (empty lines and the trailing line break are handled as in **Quote Each Line: Double (\"\")**).",
+        "ja": "各行をシングルクォートで囲む（空行・末尾改行の扱いは **Quote Each Line: Double (\"\")** と同じ）"
+      },
+      "example": {
+        "en": "`a⏎b` → `'a'⏎'b'`",
+        "ja": "`a⏎b` → `'a'⏎'b'`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.each-word.double",
+      "candidateId": "WRAP-005",
+      "description": {
+        "en": "Encloses each whitespace-separated word in double quotes (a run of non-whitespace characters is a word; spaces and line breaks between words are kept).",
+        "ja": "空白区切りの各単語をダブルクォートで囲む（空白以外の文字の連続を単語とし、単語間の空白・改行はそのまま残す）"
+      },
+      "example": {
+        "en": "`a b` → `\"a\" \"b\"`",
+        "ja": "`a b` → `\"a\" \"b\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.list.sql-in",
+      "candidateId": "WRAP-006",
+      "description": {
+        "en": "Encloses each line in single quotes and puts them, comma-separated, in parentheses (inner ' is escaped as ''; empty and whitespace-only lines are skipped, and lines are not trimmed). The result is a single line, a single trailing line break of the selection is kept after the list, and nothing changes if there are no target lines.",
+        "ja": "各行をシングルクォートで囲み、カンマ区切りで括弧に入れる（内部の ' は '' にエスケープ。空行・空白のみの行は除き、行の前後の空白はトリムしない。結果は 1 行で、選択末尾の改行 1 つはリストの後ろに残す。対象行がなければ変更しない）"
+      },
+      "example": {
+        "en": "`a⏎O'Neil` → `('a', 'O''Neil')`",
+        "ja": "`a⏎O'Neil` → `('a', 'O''Neil')`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.list.array",
+      "candidateId": "WRAP-007",
+      "description": {
+        "en": "Encloses each line in double quotes and turns them into an array literal (inner \\\\ and \" are escaped; empty and whitespace-only lines and the trailing line break are handled as in **Quote: SQL IN List**).",
+        "ja": "各行をダブルクォートで囲み、配列リテラルにする（内部の \\\\ と \" はエスケープする。空行・空白のみの行と末尾改行の扱いは **Quote: SQL IN List** と同じ）"
+      },
+      "example": {
+        "en": "`a⏎b` → `[\"a\", \"b\"]`",
+        "ja": "`a⏎b` → `[\"a\", \"b\"]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.triple-double",
+      "candidateId": "WRAP-008",
+      "description": {
+        "en": "Encloses the text in triple quotes, as used in Python and other languages.",
+        "ja": "Python などの三重引用符で囲む"
+      },
+      "example": {
+        "en": "`abc` → `\"\"\"abc\"\"\"`",
+        "ja": "`abc` → `\"\"\"abc\"\"\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.guillemets",
+      "candidateId": "WRAP-009",
+      "description": {
+        "en": "Encloses the text in guillemets (« »).",
+        "ja": "ギュメ（« »）で囲む"
+      },
+      "example": {
+        "en": "`abc` → `«abc»`",
+        "ja": "`abc` → `«abc»`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.smart-double",
+      "candidateId": "WRAP-010",
+      "description": {
+        "en": "Encloses the text in curly (smart) double quotes.",
+        "ja": "曲がった二重引用符で囲む"
+      },
+      "example": {
+        "en": "`abc` → `“abc”`",
+        "ja": "`abc` → `“abc”`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.smart-single",
+      "candidateId": "WRAP-011",
+      "description": {
+        "en": "Encloses the text in curly (smart) single quotes.",
+        "ja": "曲がった一重引用符で囲む"
+      },
+      "example": {
+        "en": "`abc` → `‘abc’`",
+        "ja": "`abc` → `‘abc’`"
+      }
+    },
+    {
+      "id": "selection-manipulator.quote.double-escaped",
+      "candidateId": "WRAP-012",
+      "description": {
+        "en": "Escapes inner \" and \\\\ and then encloses the text in double quotes (line breaks are not escaped).",
+        "ja": "内部の \" と \\\\ をエスケープしてからダブルクォートで囲む（改行はエスケープしない）"
+      },
+      "example": {
+        "en": "`say \"hi\"` → `\"say \\\"hi\\\"\"`",
+        "ja": "`say \"hi\"` → `\"say \\\"hi\\\"\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unquote.each-line",
+      "candidateId": "WRAP-013",
+      "description": {
+        "en": "Removes matching quotes (\" ' \\`) from both ends of each line (one pair is removed only when both ends of the trimmed line are the same quote; surrounding whitespace is kept, and curly quotes are not handled).",
+        "ja": "各行の両端にある対応した引用符（\" ' \\`）を取り除く（行の前後の空白を除いた部分の両端が同じ引用符のときだけ 1 組を除き、前後の空白は残す。曲がった引用符は対象外）"
+      },
+      "example": {
+        "en": "`\"a\"⏎'b'` → `a⏎b`",
+        "ja": "`\"a\"⏎'b'` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.white-lenticular",
+      "candidateId": "WRAP-014",
+      "description": {
+        "en": "Encloses the text in Japanese white lenticular brackets (〖〗).",
+        "ja": "〖〗で囲む"
+      },
+      "example": {
+        "en": "`注意` → `〖注意〗`",
+        "ja": "`注意` → `〖注意〗`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.tortoise-shell",
+      "candidateId": "WRAP-015",
+      "description": {
+        "en": "Encloses the text in Japanese tortoise shell brackets (〔〕).",
+        "ja": "〔〕で囲む"
+      },
+      "example": {
+        "en": "`注` → `〔注〕`",
+        "ja": "`注` → `〔注〕`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.double-angle",
+      "candidateId": "WRAP-016",
+      "description": {
+        "en": "Encloses the text in Japanese double angle brackets (《》).",
+        "ja": "《》で囲む"
+      },
+      "example": {
+        "en": "`書名` → `《書名》`",
+        "ja": "`書名` → `《書名》`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.japanese.single-angle",
+      "candidateId": "WRAP-017",
+      "description": {
+        "en": "Encloses the text in Japanese single angle brackets (〈〉).",
+        "ja": "〈〉で囲む"
+      },
+      "example": {
+        "en": "`論文` → `〈論文〉`",
+        "ja": "`論文` → `〈論文〉`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.html-tag",
+      "candidateId": "WRAP-018",
+      "description": {
+        "en": "Encloses the text in an opening and closing tag with the tag name you type (1–64 alphanumeric characters and hyphens; attributes are not supported, and the selected text is not HTML-escaped).",
+        "ja": "入力したタグ名の開始タグと終了タグで囲む（タグ名は 1〜64 文字の英数字とハイフンのみ許可し、属性は非対応。選択テキストは HTML エスケープしない）"
+      },
+      "example": {
+        "en": "`abc（b）` → `<b>abc</b>`",
+        "ja": "`abc（b）` → `<b>abc</b>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.html-comment",
+      "candidateId": "WRAP-019",
+      "description": {
+        "en": "Encloses the text in an HTML comment (an inner --> is not converted).",
+        "ja": "HTML コメントで囲む（内部の --> は変換しない）"
+      },
+      "example": {
+        "en": "`abc` → `<!-- abc -->`",
+        "ja": "`abc` → `<!-- abc -->`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.block-comment",
+      "candidateId": "WRAP-020",
+      "description": {
+        "en": "Encloses the text in a C-style block comment (an inner \\*/ is not converted).",
+        "ja": "C 系のブロックコメントで囲む（内部の \\*/ は変換しない）"
+      },
+      "example": {
+        "en": "`abc` → `/* abc */`",
+        "ja": "`abc` → `/* abc */`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.placeholder",
+      "candidateId": "WRAP-021",
+      "description": {
+        "en": "Encloses the text in the placeholder form used by template literals and shell variables.",
+        "ja": "テンプレートリテラルやシェル変数の形式で囲む"
+      },
+      "example": {
+        "en": "`name` → `${name}`",
+        "ja": "`name` → `${name}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.mustache",
+      "candidateId": "WRAP-022",
+      "description": {
+        "en": "Encloses the text in the Mustache / Handlebars placeholder form.",
+        "ja": "Mustache / Handlebars のプレースホルダ形式で囲む"
+      },
+      "example": {
+        "en": "`name` → `{{ name }}`",
+        "ja": "`name` → `{{ name }}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.percent",
+      "candidateId": "WRAP-023",
+      "description": {
+        "en": "Encloses the text in the Windows environment variable form.",
+        "ja": "Windows の環境変数形式で囲む"
+      },
+      "example": {
+        "en": "`PATH` → `%PATH%`",
+        "ja": "`PATH` → `%PATH%`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.pipes",
+      "candidateId": "WRAP-024",
+      "description": {
+        "en": "Encloses the text in vertical bars (pipes).",
+        "ja": "縦棒で囲む"
+      },
+      "example": {
+        "en": "`abc` → `|abc|`",
+        "ja": "`abc` → `|abc|`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.ascii-box",
+      "candidateId": "WRAP-025",
+      "description": {
+        "en": "Draws an ASCII border around the text (the width is the code point count of the longest line, ignoring the display width of full-width characters and tabs; shorter lines are padded with spaces).",
+        "ja": "テキストを ASCII の枠線で囲む（幅は最長行のコードポイント数で、全角文字・タブの表示幅は考慮しない。短い行は空白で埋める）"
+      },
+      "example": {
+        "en": "`abc` → `+-----+⏎| abc |⏎+-----+`",
+        "ja": "`abc` → `+-----+⏎| abc |⏎+-----+`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.each-word.paren",
+      "candidateId": "WRAP-026",
+      "description": {
+        "en": "Encloses each whitespace-separated word in parentheses (words are split as in **Quote Each Word: Double (\"\")**).",
+        "ja": "空白区切りの各単語を丸括弧で囲む（単語の区切り方は **Quote Each Word: Double (\"\")** と同じ）"
+      },
+      "example": {
+        "en": "`a b` → `(a) (b)`",
+        "ja": "`a b` → `(a) (b)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.lines-block",
+      "candidateId": "WRAP-027",
+      "description": {
+        "en": "Adds the lines you type, one before and one after the selected lines (if the selection ends with a line break, the after line is placed after that line break and given its own line break so it does not join the next line). Each input is 0–1,000 characters with no line breaks and may be empty; nothing happens with an empty selection.",
+        "ja": "選択した行群の前後に、入力した行を 1 行ずつ追加する（選択が改行で終わる場合は、後ろの行をその改行の後に置き改行を付けて次の行と連結しない。入力は各 0〜1,000 文字で改行不可、空も可。空選択では何もしない）"
+      },
+      "example": {
+        "en": "`a⏎b（BEGIN, END）` → `BEGIN⏎a⏎b⏎END`",
+        "ja": "`a⏎b（BEGIN, END）` → `BEGIN⏎a⏎b⏎END`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.cycle-brackets",
+      "candidateId": "WRAP-028",
+      "description": {
+        "en": "Cycles the outer brackets in the order () → \\[\\] → {} → () (only when the first and last characters are matching brackets; matching counts only brackets of the same kind, including those inside quotes, and text such as `(a)(b)` is not changed).",
+        "ja": "外側の括弧を () → \\[\\] → {} → () の順に切り替える（先頭と末尾の括弧が対応する場合のみ。対応は同種の括弧だけを数えて判定し、引用符内の括弧も数える。`(a)(b)` などは変更しない）"
+      },
+      "example": {
+        "en": "`(a)` → `[a]`",
+        "ja": "`(a)` → `[a]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.remove-outer-brackets",
+      "candidateId": "WRAP-029",
+      "description": {
+        "en": "Removes the outer pair only when both ends are a matching bracket pair (supports () \\[\\] {} <> and 11 full-width and Japanese bracket pairs; matching is determined as in **Enclose: Cycle Brackets**).",
+        "ja": "両端が対応する括弧の組のときだけ外側の 1 組を取り除く（対象は () \\[\\] {} <> と全角・日本語括弧 11 種。対応の判定は **Enclose: Cycle Brackets** と同じ）"
+      },
+      "example": {
+        "en": "`((a))` → `(a)`",
+        "ja": "`((a))` → `(a)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.enclose.markdown-inline-code",
+      "candidateId": "WRAP-030",
+      "description": {
+        "en": "Encloses the text in a backtick run longer than any run of backticks inside it (for Markdown inline code). If the content starts or ends with a backtick, or both starts and ends with a space or line break without being all whitespace, one space is added on each side per CommonMark rules. Unlike **Quote: Backtick (\\`\\`)**, which always uses a single backtick, this produces a valid code span even when the text contains backticks.",
+        "ja": "内部に含まれる連続したバッククォートより長いバッククォートで囲む（Markdown のインラインコード用）。内容の先頭か末尾がバッククォートの場合、または先頭と末尾がともに空白・改行で全体が空白ではない場合は、CommonMark の規則に合わせて両側に空白を 1 つ足す。常に 1 個のバッククォートで囲む **Quote: Backtick (\\`\\`)** と異なり、内部にバッククォートを含むテキストでも正しいコードスパンになる"
+      },
+      "example": {
+        "en": "``a`b`` → ``` ``a`b`` ```",
+        "ja": "``a`b`` → ``` ``a`b`` ```"
+      }
+    }
+  ]
+}

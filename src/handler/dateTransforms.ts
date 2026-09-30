@@ -207,7 +207,7 @@ const unused: DateTransform = () => {
   throw new Error('this command uses its combine function');
 };
 
-/** The 30 commands in the order of the DATE table of docs/ROADMAP.md. */
+/** The 30 commands in the order of the DATE commands of the showcase data (scripts/showcase-data/DATE.json). */
 export const DATE_COMMAND_ENTRIES: readonly DateCommandEntry[] = [
   {
     id: 'DATE-001', name: 'date.to-utc-string', title: 'Date - Convert to UTC String (RFC 7231)', output: 'new-tab', prompts: [], settings: [],

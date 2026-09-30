@@ -1,0 +1,485 @@
+{
+  "category": "NUM",
+  "commands": [
+    {
+      "id": "selection-manipulator.math.median",
+      "candidateId": "NUM-001",
+      "description": {
+        "en": "Opens the median of the selected numbers in a new read-only editor (for an even count, the mean of the two middle values). The document is not changed; unlike **Math - Sum** / **Math - Average** / **Math - Min** / **Math - Max**, each selection is aggregated independently and produces one output line, in document order. Numbers are decimal tokens in the selection (`-1.5`, `.5`, `1e3`); digits that are part of a word or another token are not numbers (`10px`, `a1`, `09` / `29` in `2026-09-29`, `2` in `1+2`), and a comma is a separator, so `1,234` is 1 and 234. If a selection has text but no numbers, the command stops with the warning `no numbers found`. Whitespace-only selections are skipped and produce no result line, so result lines may not line up with the selections. Safe integers are output as is; other values are rounded to 15 significant digits to remove floating-point error.",
+        "ja": "選択した数値の中央値を新しい読み取り専用エディターに開く（偶数個は中央 2 値の平均。文書は変更せず、**Math - Sum** / **Math - Average** / **Math - Min** / **Math - Max** と違い選択範囲ごとに独立して集計し、文書順に 1 選択範囲 1 行で出力する。数値は選択範囲中の 10 進表記のトークン（`-1.5`・`.5`・`1e3`）で、単語や別のトークンの一部になっている数字は数値にしない（`10px`・`a1`・`2026-09-29` の `09` / `29`・`1+2` の `2`）。カンマは区切りで `1,234` は 1 と 234。文字があるのに数値がない選択範囲があればコマンドを中止して警告 `no numbers found`。空白だけの選択範囲はスキップされ結果行を出さないため、結果の行と選択範囲の対応がずれることがある。安全な整数はそのまま、それ以外は有効桁 15 桁に丸めて浮動小数点の誤差を除く）"
+      },
+      "example": {
+        "en": "`1⏎3⏎2⏎10` → `2.5`",
+        "ja": "`1⏎3⏎2⏎10` → `2.5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.mode",
+      "candidateId": "NUM-002",
+      "description": {
+        "en": "Finds the mode (tied modes are listed in ascending order separated by `, `: `1 2 2 3 3` → `2, 3`). With two or more numbers that each appear once, it reports the error `every number appears once, so there is no mode`; a single number is its own mode. Floating-point error is removed to 15 significant digits.",
+        "ja": "最頻値を求める（同数の最頻値は昇順に `, ` 区切り（`1 2 2 3 3` → `2, 3`）。2 個以上ですべて 1 回ずつなら `every number appears once, so there is no mode` のエラー。1 個ならその値。誤差は有効桁 15 桁で除く）"
+      },
+      "example": {
+        "en": "`1⏎2⏎2⏎3` → `2`",
+        "ja": "`1⏎2⏎2⏎3` → `2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.stddev",
+      "candidateId": "NUM-003",
+      "description": {
+        "en": "Calculates the population and sample standard deviation (rounded half away from zero to 4 decimal places with trailing zeros removed). Tiny values become 0 (`1e-200⏎3e-200` → `σ=0, s=0`). A single number gives `s=n/a`. Intermediate squares do not overflow (`1e155⏎-1e155` → `σ=1e+155, …`).",
+        "ja": "母標準偏差と標本標準偏差を求める（小数点以下 4 桁に 0 から遠い方向へ四捨五入し末尾の 0 を削る。極小値は 0 になる（`1e-200⏎3e-200` → `σ=0, s=0`）。1 個なら `s=n/a`。途中の二乗では溢れない（`1e155⏎-1e155` → `σ=1e+155, …`））"
+      },
+      "example": {
+        "en": "`2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.1381`",
+        "ja": "`2⏎4⏎4⏎4⏎5⏎5⏎7⏎9` → `σ=2, s=2.1381`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.variance",
+      "candidateId": "NUM-004",
+      "description": {
+        "en": "Calculates the population and sample variance as `population / sample` (4 decimal places). A single number gives `0 / n/a`; a variance beyond double precision gives `the result is out of range`.",
+        "ja": "母分散と標本分散を `母分散 / 標本分散` で求める（小数 4 桁。1 個なら `0 / n/a`。分散そのものが倍精度を超えると `the result is out of range`）"
+      },
+      "example": {
+        "en": "`1⏎2⏎3` → `0.6667 / 1`",
+        "ja": "`1⏎2⏎3` → `0.6667 / 1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.count",
+      "candidateId": "NUM-005",
+      "description": {
+        "en": "Counts the numbers in each selection (a selection without numbers gives `0` instead of a warning).",
+        "ja": "選択範囲に含まれる数値の個数を数える（数値のない選択範囲は警告にせず `0`）"
+      },
+      "example": {
+        "en": "`a 1 b 2.5` → `2`",
+        "ja": "`a 1 b 2.5` → `2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.product",
+      "candidateId": "NUM-006",
+      "description": {
+        "en": "Calculates the product of the numbers (floating-point error removed to 15 significant digits; beyond double precision gives `the result is out of range`).",
+        "ja": "数値の積を求める（誤差は有効桁 15 桁で除く。倍精度を超えると `the result is out of range`）"
+      },
+      "example": {
+        "en": "`2⏎3⏎4` → `24`",
+        "ja": "`2⏎3⏎4` → `24`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.range",
+      "candidateId": "NUM-007",
+      "description": {
+        "en": "Calculates the range, the difference between the maximum and minimum (floating-point error removed to 15 significant digits).",
+        "ja": "最大値と最小値の差を求める（誤差は有効桁 15 桁で除く）"
+      },
+      "example": {
+        "en": "`3⏎9⏎1` → `8`",
+        "ja": "`3⏎9⏎1` → `8`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.percentile",
+      "candidateId": "NUM-008",
+      "description": {
+        "en": "Calculates the value at the percentile you type (0 to 100, decimals allowed) using linear interpolation (the same as Excel's PERCENTILE.INC and NumPy's default; floating-point error removed to 15 significant digits).",
+        "ja": "入力したパーセンタイル（0〜100、小数可）の値を線形補間で求める（Excel の PERCENTILE.INC・NumPy の既定と同じ。誤差は有効桁 15 桁で除く）"
+      },
+      "example": {
+        "en": "`1⏎2⏎3⏎4⏎5（90）` → `4.6`",
+        "ja": "`1⏎2⏎3⏎4⏎5（90）` → `4.6`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.summary",
+      "candidateId": "NUM-009",
+      "description": {
+        "en": "Outputs count, sum, mean, min, max, median and standard deviations together (`count=3, sum=6, mean=2, min=1, max=3, median=2, σ=0.8165, s=1`; mean / σ / s are rounded to 4 decimal places, the others to 15 significant digits; a single number gives `s=n/a`).",
+        "ja": "件数・合計・平均・最小・最大・中央値・標準偏差をまとめて出力する（`count=3, sum=6, mean=2, min=1, max=3, median=2, σ=0.8165, s=1`。mean / σ / s は小数 4 桁、他は有効桁 15 桁、1 個なら `s=n/a`）"
+      },
+      "example": {
+        "en": "`1⏎2⏎3` → `count=3, sum=6, mean=2, …`",
+        "ja": "`1⏎2⏎3` → `count=3, sum=6, mean=2, …`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.cumulative-sum",
+      "candidateId": "NUM-010",
+      "description": {
+        "en": "Replaces each line with the cumulative sum. Each line must hold exactly one decimal number, optionally signed (`Infinity`, `0x…` and thousands separators are not accepted); surrounding whitespace, empty lines and LF / CRLF are kept, and empty lines are not added. If any line is invalid, the command stops and notifies `line N: \"…\" is not a number` or similar. The sum is exact while it stays a safe integer, otherwise it is rounded to 15 significant digits, so values beyond 2^53 or the 16th digit after decimals are rounded (`9007199254740991⏎1` → second line `9007199254740990`).",
+        "ja": "各行を累積和に置き換える（各行は前後のスペース / タブを除いて `[-+]?` 付きの 10 進表記の数値 1 個であること（`Infinity`・`0x…`・桁区切り付きは不可）。前後の空白・空行・LF / CRLF は保持し、空行は加算しない。1 行でも不正ならコマンドを中止し `line N: \"…\" is not a number` などを通知。累積和が安全な整数の間は厳密、それ以外は有効桁 15 桁に丸めるので 2^53 を超えた値や小数の後の 16 桁目以降は丸められる（`9007199254740991⏎1` → 2 行目 `9007199254740990`））"
+      },
+      "example": {
+        "en": "`1⏎2⏎3` → `1⏎3⏎6`",
+        "ja": "`1⏎2⏎3` → `1⏎3⏎6`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.round",
+      "candidateId": "NUM-011",
+      "description": {
+        "en": "Rounds numbers to the number of decimal places you type (an integer from 0 to 15), half away from zero on the decimal notation (`1.005（2）` → `1.01`, `-2.5（0）` → `-3`). Trailing zeros are not added.",
+        "ja": "数値を入力した小数点以下の桁数（0〜15 の整数）に四捨五入する（10 進表記の上で 0 から遠い方向に丸める: `1.005（2）` → `1.01`・`-2.5（0）` → `-3`。末尾の 0 は付けない）"
+      },
+      "example": {
+        "en": "`3.14159（2）` → `3.14`",
+        "ja": "`3.14159（2）` → `3.14`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.floor",
+      "candidateId": "NUM-012",
+      "description": {
+        "en": "Rounds numbers down to an integer (toward negative infinity). The resulting integer is output as is: values beyond 2^53 follow the double value (`12345678901234567890` → `12345678901234567000`), values of 1e21 or more become `1e+21`, and `-0` becomes `0`.",
+        "ja": "数値を小数点以下切り捨て（負方向）にする（結果の整数をそのまま出す。2^53 を超える値は倍精度の値どおり（`12345678901234567890` → `12345678901234567000`）、1e21 以上は `1e+21`、`-0` は `0`）"
+      },
+      "example": {
+        "en": "`-2.5⏎2.7` → `-3⏎2`",
+        "ja": "`-2.5⏎2.7` → `-3⏎2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.ceil",
+      "candidateId": "NUM-013",
+      "description": {
+        "en": "Rounds numbers up to an integer (`-0.5` → `0`).",
+        "ja": "数値を小数点以下切り上げにする（`-0.5` → `0`）"
+      },
+      "example": {
+        "en": "`2.1` → `3`",
+        "ja": "`2.1` → `3`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.truncate",
+      "candidateId": "NUM-014",
+      "description": {
+        "en": "Truncates the fractional part of numbers toward zero.",
+        "ja": "数値の小数部を 0 方向に切り捨てる"
+      },
+      "example": {
+        "en": "`-2.7` → `-2`",
+        "ja": "`-2.7` → `-2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.abs",
+      "candidateId": "NUM-015",
+      "description": {
+        "en": "Converts numbers to their absolute value (it only removes a leading `-` / `+` from the text; the digits, including leading zeros, trailing zeros and the exponent, stay as typed: `-1.50` → `1.50`; for zero it just removes the sign: `-0.00` → `0.00`).",
+        "ja": "数値を絶対値にする（文字列で先頭の `-` / `+` を外すだけで、数字部（先頭の 0・末尾の 0・指数部）は入力のまま: `-1.50` → `1.50`。ゼロは符号を外すだけ: `-0.00` → `0.00`）"
+      },
+      "example": {
+        "en": "`-5` → `5`",
+        "ja": "`-5` → `5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.negate",
+      "candidateId": "NUM-016",
+      "description": {
+        "en": "Negates numbers (it removes or adds `-` in the text; `+` is replaced by `-`). The digits stay as typed: `1.50` → `-1.50`, `007` → `-007`. Zero never gets a `-`: `-0.00` → `0.00`, `0e5` → `0e5`.",
+        "ja": "数値の符号を反転する（文字列で `-` を外すか付ける（`+` は外して `-` を付ける）。数字部は入力のまま: `1.50` → `-1.50`・`007` → `-007`。ゼロには `-` を付けない: `-0.00` → `0.00`・`0e5` → `0e5`）"
+      },
+      "example": {
+        "en": "`5⏎-3` → `-5⏎3`",
+        "ja": "`5⏎-3` → `-5⏎3`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.add-separator",
+      "candidateId": "NUM-017",
+      "description": {
+        "en": "Inserts a comma every three digits (input must match `[-+]?\\d+(\\.\\d+)?` or be correctly separated already, so it is idempotent; exponent notation is not accepted). Leading zeros of the integer part are removed (`-0012345` → `-12,345`, `000.5` → `0.5`); `-000` becomes `-0`.",
+        "ja": "3 桁ごとにカンマを入れる（`[-+]?\\d+(\\.\\d+)?` か正しく区切られた入力（冪等）。指数表記は不可。整数部の先頭の 0 は取り除く（`-0012345` → `-12,345`・`000.5` → `0.5`）。`-000` は `-0` になる）"
+      },
+      "example": {
+        "en": "`1234567.89` → `1,234,567.89`",
+        "ja": "`1234567.89` → `1,234,567.89`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.remove-separator",
+      "candidateId": "NUM-018",
+      "description": {
+        "en": "Removes thousands separator commas (only correctly separated or unseparated input; wrong grouping such as `12,34` gives the error `has misplaced thousands separators`).",
+        "ja": "桁区切りのカンマを取り除く（正しい区切り、または区切りなしのみ。`12,34` のような誤った区切りは `has misplaced thousands separators` のエラー）"
+      },
+      "example": {
+        "en": "`1,234,567` → `1234567`",
+        "ja": "`1,234,567` → `1234567`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.format-locale",
+      "candidateId": "NUM-019",
+      "description": {
+        "en": "Formats numbers in the notation of the locale you type using Intl.NumberFormat (the locale must be up to 35 alphanumerics and `-` and supported by Intl; `maximumFractionDigits: 20`). Separators such as U+202F for fr-FR are whatever the runtime's ICU outputs. Precision is limited to double precision.",
+        "ja": "Intl.NumberFormat で入力したロケールの表記にする（ロケールは英数字と `-` の 35 文字以内で Intl が対応していること。`maximumFractionDigits: 20`。fr-FR の U+202F など区切り文字は実行環境の ICU の出力どおり。精度は倍精度の範囲）"
+      },
+      "example": {
+        "en": "`1234.5（de-DE）` → `1.234,5`",
+        "ja": "`1234.5（de-DE）` → `1.234,5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-hex",
+      "candidateId": "NUM-020",
+      "description": {
+        "en": "Converts decimal numbers to hexadecimal with a `0x` prefix (BigInt supported: signed decimal integers up to 1,000 digits). The output is lowercase, negative numbers become `-0xff`, and decimals are an error.",
+        "ja": "10 進数を 16 進数（0x 付き）にする（BigInt 対応で符号付き 10 進整数 1,000 桁まで。小文字、負数は `-0xff`、小数はエラー）"
+      },
+      "example": {
+        "en": "`255` → `0xff`",
+        "ja": "`255` → `0xff`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-hex",
+      "candidateId": "NUM-021",
+      "description": {
+        "en": "Converts hexadecimal numbers to decimal. The `0x` prefix is optional, letters are case-insensitive, a sign is allowed, and up to 1,000 digits are converted exactly with BigInt.",
+        "ja": "16 進数を 10 進数にする（接頭辞 `0x` はあってもなくてもよく、大文字小文字不問、符号可、数字部 1,000 桁まで BigInt で正確に変換）"
+      },
+      "example": {
+        "en": "`0xff` → `255`",
+        "ja": "`0xff` → `255`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-binary",
+      "candidateId": "NUM-022",
+      "description": {
+        "en": "Converts decimal numbers to binary (with a `0b` prefix).",
+        "ja": "10 進数を 2 進数にする（`0b` 付き）"
+      },
+      "example": {
+        "en": "`10` → `0b1010`",
+        "ja": "`10` → `0b1010`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-binary",
+      "candidateId": "NUM-023",
+      "description": {
+        "en": "Converts binary numbers to decimal.",
+        "ja": "2 進数を 10 進数にする"
+      },
+      "example": {
+        "en": "`0b1010` → `10`",
+        "ja": "`0b1010` → `10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-octal",
+      "candidateId": "NUM-024",
+      "description": {
+        "en": "Converts decimal numbers to octal (with a `0o` prefix).",
+        "ja": "10 進数を 8 進数にする（`0o` 付き）"
+      },
+      "example": {
+        "en": "`8` → `0o10`",
+        "ja": "`8` → `0o10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-octal",
+      "candidateId": "NUM-025",
+      "description": {
+        "en": "Converts octal numbers to decimal.",
+        "ja": "8 進数を 10 進数にする"
+      },
+      "example": {
+        "en": "`0o10` → `8`",
+        "ja": "`0o10` → `8`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.convert-base",
+      "candidateId": "NUM-026",
+      "description": {
+        "en": "Converts integers between the bases you type (2 to 36; enter the source base, then the target base). Digits must be valid for the source base (case-insensitive, no prefix, sign allowed, up to 1,000 digits). Converted with BigInt and output in lowercase without leading zeros.",
+        "ja": "入力した基数（2〜36）の間で整数を変換する（変換元・変換先の基数を順に入力。数字部は変換元基数の文字だけ（大文字小文字不問、接頭辞なし、符号可、1,000 桁まで）。BigInt で変換し小文字・先頭の 0 なしで出力）"
+      },
+      "example": {
+        "en": "`zz（36 → 10）` → `1295`",
+        "ja": "`zz（36 → 10）` → `1295`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-scientific",
+      "candidateId": "NUM-027",
+      "description": {
+        "en": "Converts numbers to scientific notation (`toExponential()` of the value with floating-point error removed; `0` → `0e+0`, and 16-digit integers round-trip through **Number - From Scientific Notation**).",
+        "ja": "数値を指数表記にする（誤差を除いた値の `toExponential()`。`0` → `0e+0`、16 桁の整数も **Number - From Scientific Notation** で元に戻る）"
+      },
+      "example": {
+        "en": "`12300` → `1.23e+4`",
+        "ja": "`12300` → `1.23e+4`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-scientific",
+      "candidateId": "NUM-028",
+      "description": {
+        "en": "Converts scientific notation to plain notation (only input containing `e` / `E`; the absolute exponent is up to 1,000). The decimal point is moved in the text, keeping the mantissa's digits (`1.50e1` → `15.0`).",
+        "ja": "指数表記を通常の表記にする（`e` / `E` を含む入力のみ。指数の絶対値は 1,000 まで。文字列で小数点を移動し仮数の桁を保つ（`1.50e1` → `15.0`））"
+      },
+      "example": {
+        "en": "`1.23e+4` → `12300`",
+        "ja": "`1.23e+4` → `12300`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-percent",
+      "candidateId": "NUM-029",
+      "description": {
+        "en": "Converts decimals to percent notation (exponent notation is not accepted). The decimal point is moved two places right in the text, keeping the digits: `0.1250` → `12.50%`.",
+        "ja": "小数を百分率の表記にする（指数表記は不可。文字列で小数点を 2 桁右へ移動し桁を保つ: `0.1250` → `12.50%`）"
+      },
+      "example": {
+        "en": "`0.125` → `12.5%`",
+        "ja": "`0.125` → `12.5%`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.bytes-to-human",
+      "candidateId": "NUM-030",
+      "description": {
+        "en": "Converts byte counts to a human-readable form such as KiB / MiB (non-negative integers up to 30 digits). Below 1024 it gives `512 B`; otherwise KiB to YiB with up to 2 decimal places (trailing zeros removed). If rounding reaches 1024, the next unit is used (`1048575` → `1 MiB`); values beyond YiB stay in YiB (`1024 YiB`).",
+        "ja": "バイト数を KiB / MiB などの読みやすい表記にする（0 以上の整数 30 桁まで。1024 未満は `512 B`、以上は KiB〜YiB で小数点以下最大 2 桁（末尾の 0 は削る）。丸めで 1024 に達したら次の単位（`1048575` → `1 MiB`）、YiB を超える値は YiB のまま（`1024 YiB`））"
+      },
+      "example": {
+        "en": "`1536` → `1.5 KiB`",
+        "ja": "`1536` → `1.5 KiB`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.human-to-bytes",
+      "candidateId": "NUM-031",
+      "description": {
+        "en": "Converts sizes such as KB / MiB to a byte count (`<number>[space]<unit>`; units are `B`, SI KB to YB (powers of 1000) and IEC KiB to YiB (powers of 1024), case-insensitive). The number is non-negative with up to 30 digits. Calculated exactly with BigInt and rounded half up; every output of **Number - Bytes to Human Readable** can be read.",
+        "ja": "KB / MiB などの表記をバイト数にする（`<数値>[空白]<単位>`。単位は `B`、SI の KB〜YB（1000 の累乗）、IEC の KiB〜YiB（1024 の累乗）で大文字小文字不問。数値は非負で 30 桁まで。BigInt で正確に計算し端数は四捨五入。**Number - Bytes to Human Readable** の出力はすべて読める）"
+      },
+      "example": {
+        "en": "`1.5 MiB` → `1572864`",
+        "ja": "`1.5 MiB` → `1572864`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-words-en",
+      "candidateId": "NUM-032",
+      "description": {
+        "en": "Converts integers to English number words (sign allowed, up to 36 digits (up to decillion)). American style without `and`, negative numbers as `minus …`, 0 as `zero`; decimals are an error.",
+        "ja": "整数を英語の数詞にする（符号可、36 桁まで（decillion まで）。米国式で `and` なし、負数は `minus …`、0 は `zero`。小数はエラー）"
+      },
+      "example": {
+        "en": "`42` → `forty-two`",
+        "ja": "`42` → `forty-two`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.ordinal-en",
+      "candidateId": "NUM-033",
+      "description": {
+        "en": "Appends the English ordinal suffix to numbers (decided by the integer's last two digits, 11 to 13 get `th`). Digits and sign are kept: `-1` → `-1st`, `0` → `0th`.",
+        "ja": "数値に英語の序数接尾辞を付ける（整数の末尾 2 桁で判定し 11〜13 は `th`。桁と符号はそのまま: `-1` → `-1st`・`0` → `0th`）"
+      },
+      "example": {
+        "en": "`1⏎2⏎11` → `1st⏎2nd⏎11th`",
+        "ja": "`1⏎2⏎11` → `1st⏎2nd⏎11th`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-fraction",
+      "candidateId": "NUM-034",
+      "description": {
+        "en": "Converts decimals to an irreducible fraction (repeating decimals are approximated; exponent notation is not accepted, up to 30 digits). Terminating decimals are reduced exactly (`0.1` → `1/10`, `0.500000` → `1/2`). Approximation is used only with 6 or more decimal places: among fractions that give those digits by rounding or truncation, the one with the smallest denominator is used if that denominator is 99 or less and has a prime factor other than 2 and 5 (`0.333333` → `1/3`, `0.666667` → `2/3`, `0.314159` → `314159/1000000`). Inputs that match by chance are also approximated (`0.123456` → `10/81`).",
+        "ja": "小数を既約分数にする（循環小数は近似。指数表記は不可、数字 30 桁まで。有限小数は正確に約分する（`0.1` → `1/10`・`0.500000` → `1/2`）。近似は小数 6 桁以上のときだけで、その桁を四捨五入または切り捨てで与える分数のうち分母が最小で、分母が 99 以下かつ 2 と 5 以外の素因数を持つものがあれば採用する（`0.333333` → `1/3`・`0.666667` → `2/3`、`0.314159` → `314159/1000000`）。偶然一致する入力も近似側になる（`0.123456` → `10/81`））"
+      },
+      "example": {
+        "en": "`0.75` → `3/4`",
+        "ja": "`0.75` → `3/4`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.celsius-to-fahrenheit",
+      "candidateId": "NUM-035",
+      "description": {
+        "en": "Converts Celsius to Fahrenheit (rounded to 4 decimal places, so smaller values become 0). No unit symbol is added, unlike **Unit: kg to lb**.",
+        "ja": "摂氏を華氏に変換する（小数 4 桁に丸めるため、それより小さい値は 0 になる。単位記号は付けない（**Unit: kg to lb** とは異なる））"
+      },
+      "example": {
+        "en": "`100` → `212`",
+        "ja": "`100` → `212`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.fahrenheit-to-celsius",
+      "candidateId": "NUM-036",
+      "description": {
+        "en": "Converts Fahrenheit to Celsius.",
+        "ja": "華氏を摂氏に変換する"
+      },
+      "example": {
+        "en": "`212` → `100`",
+        "ja": "`212` → `100`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.km-to-mile",
+      "candidateId": "NUM-037",
+      "description": {
+        "en": "Converts kilometers to miles (1 mile = 1.609344 km).",
+        "ja": "キロメートルをマイルに変換する（1 mile = 1.609344 km）"
+      },
+      "example": {
+        "en": "`10` → `6.2137`",
+        "ja": "`10` → `6.2137`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.mile-to-km",
+      "candidateId": "NUM-038",
+      "description": {
+        "en": "Converts miles to kilometers (1 mile = 1.609344 km).",
+        "ja": "マイルをキロメートルに変換する（1 mile = 1.609344 km）"
+      },
+      "example": {
+        "en": "`1` → `1.6093`",
+        "ja": "`1` → `1.6093`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.cm-to-inch",
+      "candidateId": "NUM-039",
+      "description": {
+        "en": "Converts centimeters to inches (1 inch = 2.54 cm).",
+        "ja": "センチメートルをインチに変換する（1 inch = 2.54 cm）"
+      },
+      "example": {
+        "en": "`2.54` → `1`",
+        "ja": "`2.54` → `1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.inch-to-cm",
+      "candidateId": "NUM-040",
+      "description": {
+        "en": "Converts inches to centimeters (1 inch = 2.54 cm).",
+        "ja": "インチをセンチメートルに変換する（1 inch = 2.54 cm）"
+      },
+      "example": {
+        "en": "`1` → `2.54`",
+        "ja": "`1` → `2.54`"
+      }
+    }
+  ]
+}

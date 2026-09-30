@@ -14,6 +14,7 @@ import { runRegexInWorker } from '../../handler/lineRegex';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { SortLineCommand, SortSelectionCommand } from '../../handler/sortTransforms';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 type Kind = 'sort-line' | 'sort';
 
@@ -480,10 +481,10 @@ suite('Sort Commands (SORT-001..030) Test Suite', () => {
     });
   });
 
-  test('package.json and the Show Commands list register all 30 commands exactly once with the ROADMAP titles', () => {
+  test('package.json and the Show Commands list register all 30 commands exactly once, as in the showcase data', () => {
     const root = path.resolve(__dirname, '../../..');
     const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-    const roadmap = fs.readFileSync(path.join(root, 'docs/ROADMAP.md'), 'utf8');
+    const rows = new Map(candidateRows('SORT').map(([candidate, , command]) => [candidate, command]));
     const contributes = packageJson.contributes;
     const count = (entries: { command?: string }[], id: string) => entries.filter((entry) => entry.command === id).length;
     cases.forEach((c) => {
@@ -495,7 +496,7 @@ suite('Sort Commands (SORT-001..030) Test Suite', () => {
       assert.strictEqual(count(myCommands, id), 1, `showCommands: ${id}`);
       const command = contributes.commands.find((entry: { command: string }) => entry.command === id);
       assert.strictEqual(command.category, 'Selection Manipulator');
-      assert.ok(roadmap.includes(`| ${c.id} | SORT | `) && roadmap.includes(`\`${id}\` | ${command.title} |`), `${c.id} ROADMAP title`);
+      assert.strictEqual(rows.get(c.id), id, `${c.id} showcase data`);
       assert.strictEqual(myCommands.find((entry) => entry.command === id)?.title, `Extract - ${command.title}`);
       assert.strictEqual(
         contributes.menus.commandPalette.find((entry: { command: string }) => entry.command === id).when,

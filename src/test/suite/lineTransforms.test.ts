@@ -21,7 +21,7 @@ import {
 } from '../../handler/lineTransforms';
 
 /**
- * Notation used in this file (same as docs/ROADMAP.md):
+ * Notation used in this file (same as the examples of the showcase data, scripts/showcase-data/):
  * `·` = space, `⇥` = tab, `⏎` = line break.
  */
 const ws = (s: string): string => s.replace(/·/g, ' ').replace(/⇥/g, '\t').replace(/⏎/g, '\n');

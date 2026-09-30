@@ -1,0 +1,494 @@
+{
+  "category": "LINE",
+  "commands": [
+    {
+      "id": "selection-manipulator.line.filter-contains",
+      "candidateId": "LINE-001",
+      "description": {
+        "en": "Keeps only the lines containing the text you enter (case-sensitive literal match; the input is 1 to 1,000 characters without line breaks).",
+        "ja": "入力した文字列を含む行だけを残す（大文字小文字を区別するリテラル一致。入力は 1〜1,000 文字で改行を含まない）"
+      },
+      "example": {
+        "en": "`apple⏎banana⏎cherry（an）` → `banana`",
+        "ja": "`apple⏎banana⏎cherry（an）` → `banana`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.filter-not-contains",
+      "candidateId": "LINE-002",
+      "description": {
+        "en": "Removes the lines containing the text you enter (matching and input are the same as in **Line: Keep Lines Containing Text**).",
+        "ja": "入力した文字列を含む行を取り除く（一致の判定と入力は **Line: Keep Lines Containing Text** と同じ）"
+      },
+      "example": {
+        "en": "`apple⏎banana⏎cherry（an）` → `apple⏎cherry`",
+        "ja": "`apple⏎banana⏎cherry（an）` → `apple⏎cherry`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.filter-regex",
+      "candidateId": "LINE-003",
+      "description": {
+        "en": "Keeps only the lines matching the regular expression you enter (JavaScript syntax, `u` flag, case-sensitive). To guard against ReDoS, the pattern must be 1 to 500 characters (syntax errors are rejected on input), the target is limited to 10,000,000 characters in total across all selections, and matching runs in a Worker thread separate from the extension host and is aborted after 2 seconds. If matching is aborted, a limit is exceeded, or the document is edited during matching, a warning is shown and nothing is changed.",
+        "ja": "入力した正規表現（JavaScript 構文・`u` フラグ・大文字小文字を区別）に一致する行だけを残す。ReDoS 対策として、パターンは 1〜500 文字（構文エラーは入力時に拒否）、対象は全選択範囲の合計 10,000,000 文字までとし、照合は拡張ホストとは別の Worker スレッドで行って 2 秒で打ち切る。打ち切り・上限超過の場合と、照合中に文書が編集された場合は警告を出して変更しない"
+      },
+      "example": {
+        "en": "`a1⏎b⏎c2（\\d）` → `a1⏎c2`",
+        "ja": "`a1⏎b⏎c2（\\d）` → `a1⏎c2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.filter-not-regex",
+      "candidateId": "LINE-004",
+      "description": {
+        "en": "Removes the lines matching the regular expression you enter (the regex syntax and limits are the same as in **Line: Keep Lines Matching Regex**).",
+        "ja": "入力した正規表現に一致する行を取り除く（正規表現の構文と制限は **Line: Keep Lines Matching Regex** と同じ）"
+      },
+      "example": {
+        "en": "`a1⏎b⏎c2（\\d）` → `b`",
+        "ja": "`a1⏎b⏎c2（\\d）` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.add-numbers",
+      "candidateId": "LINE-005",
+      "description": {
+        "en": "Prefixes each line with \"number: \" (the reverse of **Text - Remove Line Numbers**).",
+        "ja": "各行の先頭に「番号: 」を付ける（**Text - Remove Line Numbers** の逆）"
+      },
+      "example": {
+        "en": "`a⏎b` → `1: a⏎2: b`",
+        "ja": "`a⏎b` → `1: a⏎2: b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.add-numbers-padded",
+      "candidateId": "LINE-006",
+      "description": {
+        "en": "Adds line numbers zero-padded to the number of digits of the line count.",
+        "ja": "行数の桁数に合わせてゼロ埋めした行番号を付ける"
+      },
+      "example": {
+        "en": "`a⏎…⏎j（10 lines）` → `01 a⏎…⏎10 j`",
+        "ja": "`a⏎…⏎j（10 行）` → `01 a⏎…⏎10 j`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-duplicates",
+      "candidateId": "LINE-007",
+      "description": {
+        "en": "Keeps one copy of each line that appears two or more times.",
+        "ja": "2 回以上出現する行だけを 1 行ずつ残す"
+      },
+      "example": {
+        "en": "`a⏎b⏎a⏎c⏎b` → `a⏎b`",
+        "ja": "`a⏎b⏎a⏎c⏎b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-unique-only",
+      "candidateId": "LINE-008",
+      "description": {
+        "en": "Keeps only the lines that appear exactly once.",
+        "ja": "1 回しか出現しない行だけを残す"
+      },
+      "example": {
+        "en": "`a⏎b⏎a` → `b`",
+        "ja": "`a⏎b⏎a` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.dedupe-ignore-case",
+      "candidateId": "LINE-009",
+      "description": {
+        "en": "Removes duplicate lines ignoring case (the first occurrence is kept).",
+        "ja": "大文字小文字を区別せずに重複行を取り除く（最初の行を残す）"
+      },
+      "example": {
+        "en": "`Apple⏎apple⏎b` → `Apple⏎b`",
+        "ja": "`Apple⏎apple⏎b` → `Apple⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.dedupe-ignore-whitespace",
+      "candidateId": "LINE-010",
+      "description": {
+        "en": "Removes duplicate lines ignoring leading and trailing whitespace (the first occurrence is kept as is; whitespace in the middle of a line is still significant).",
+        "ja": "前後の空白を無視して重複行を取り除く（最初の行をそのまま残す。行の途中の空白は区別する）"
+      },
+      "example": {
+        "en": "`a⏎··a⏎b` → `a⏎b`",
+        "ja": "`a⏎··a⏎b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.dedupe-adjacent",
+      "candidateId": "LINE-011",
+      "description": {
+        "en": "Collapses only adjacent duplicate lines into one (like uniq).",
+        "ja": "隣り合う重複行だけを 1 行にまとめる（uniq 相当）"
+      },
+      "example": {
+        "en": "`a⏎a⏎b⏎a` → `a⏎b⏎a`",
+        "ja": "`a⏎a⏎b⏎a` → `a⏎b⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.reverse-words",
+      "candidateId": "LINE-012",
+      "description": {
+        "en": "Reverses the order of words (runs of non-whitespace) within each line. The whitespace between words and at the start and end of the line stays in place (`··a·b⇥c` → `··c·b⇥a`). The order of lines is not changed (**Reverse Selections** reverses the order of lines).",
+        "ja": "各行の中で単語（空白以外の連続）の並びを逆にする。単語の間と行頭・行末の空白は元の位置のまま残す（`··a·b⇥c` → `··c·b⇥a`）。行の順序は変えない（**Reverse Selections** は行の順序を逆にする）"
+      },
+      "example": {
+        "en": "`a b c⏎d e` → `c b a⏎e d`",
+        "ja": "`a b c⏎d e` → `c b a⏎e d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.rotate",
+      "candidateId": "LINE-013",
+      "description": {
+        "en": "Moves the last line to the top and shifts the other lines down by one.",
+        "ja": "最後の行を先頭に移し、ほかの行を 1 行ずつ下にずらす"
+      },
+      "example": {
+        "en": "`a⏎b⏎c` → `c⏎a⏎b`",
+        "ja": "`a⏎b⏎c` → `c⏎a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-every-nth",
+      "candidateId": "LINE-014",
+      "description": {
+        "en": "Keeps one line out of every N (lines whose 1-based line number is a multiple of N; N is an integer from 1 to 1,000,000, default 2).",
+        "ja": "N 行ごとに 1 行（1 始まりの行番号が N の倍数の行）だけを残す（N は 1〜1,000,000 の整数、既定値 2）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d（N=2）` → `b⏎d`",
+        "ja": "`a⏎b⏎c⏎d（N=2）` → `b⏎d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.remove-every-nth",
+      "candidateId": "LINE-015",
+      "description": {
+        "en": "Removes one line out of every N (lines whose 1-based line number is a multiple of N; N is entered as in **Line: Keep Every Nth Line**).",
+        "ja": "N 行ごとに 1 行（1 始まりの行番号が N の倍数の行）を取り除く（N は **Line: Keep Every Nth Line** と同じ）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d（N=2）` → `a⏎c`",
+        "ja": "`a⏎b⏎c⏎d（N=2）` → `a⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-odd",
+      "candidateId": "LINE-016",
+      "description": {
+        "en": "Keeps only the odd-numbered lines.",
+        "ja": "奇数行だけを残す"
+      },
+      "example": {
+        "en": "`a⏎b⏎c` → `a⏎c`",
+        "ja": "`a⏎b⏎c` → `a⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-even",
+      "candidateId": "LINE-017",
+      "description": {
+        "en": "Keeps only the even-numbered lines.",
+        "ja": "偶数行だけを残す"
+      },
+      "example": {
+        "en": "`a⏎b⏎c` → `b`",
+        "ja": "`a⏎b⏎c` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.head",
+      "candidateId": "LINE-018",
+      "description": {
+        "en": "Keeps only the first N lines (N is an integer from 1 to 1,000,000, default 10; nothing changes if N is greater than or equal to the line count).",
+        "ja": "先頭から N 行だけを残す（N は 1〜1,000,000 の整数、既定値 10。N が行数以上なら変えない）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c（N=2）` → `a⏎b`",
+        "ja": "`a⏎b⏎c（N=2）` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.tail",
+      "candidateId": "LINE-019",
+      "description": {
+        "en": "Keeps only the last N lines (N is entered as in **Line: Keep First N Lines**).",
+        "ja": "末尾から N 行だけを残す（N は **Line: Keep First N Lines** と同じ）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c（N=2）` → `b⏎c`",
+        "ja": "`a⏎b⏎c（N=2）` → `b⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.duplicate-each",
+      "candidateId": "LINE-020",
+      "description": {
+        "en": "Duplicates each line right after itself.",
+        "ja": "各行をその直後に複製する"
+      },
+      "example": {
+        "en": "`a⏎b` → `a⏎a⏎b⏎b`",
+        "ja": "`a⏎b` → `a⏎a⏎b⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.swap-pairs",
+      "candidateId": "LINE-021",
+      "description": {
+        "en": "Swaps adjacent pairs of lines, such as lines 1 and 2, lines 3 and 4, and so on (with an odd line count, the last line stays as is).",
+        "ja": "1・2 行目、3・4 行目…のように隣り合う 2 行ずつを入れ替える（行数が奇数のときの最終行はそのまま）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d⏎e` → `b⏎a⏎d⏎c⏎e`",
+        "ja": "`a⏎b⏎c⏎d⏎e` → `b⏎a⏎d⏎c⏎e`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.join-continuation",
+      "candidateId": "LINE-022",
+      "description": {
+        "en": "Treats a line as a continuation line (as in shell scripts and Makefiles) only when it ends (right before the line break) with an odd number of consecutive backslashes, removes only the last backslash, and joins it with the next line after trimming that line's leading spaces and tabs. An even number (including zero) is an escaped literal and is not joined (`a\\\\⏎b` is unchanged, `a\\\\\\⏎b` → `a\\\\b`). Lines with whitespace after the backslash are not continued. Whitespace before the backslash is kept and no new whitespace is added. Continuations chain (`a·\\⏎b·\\⏎c` → `a·b·c`). With CRLF, the character before `\\r\\n` is checked, and a lone CR is also treated as a line break. Line endings of lines that are not joined are kept as they are (including mixed LF, CRLF and CR). The last line of the selection, and the line before a line break at the end of the selection, are not joined because the next line is outside the selection.",
+        "ja": "行末（改行の直前）に連続するバックスラッシュが奇数個の行だけを継続行（シェルスクリプトや Makefile の継続行）とみなし、最後の 1 個だけを取り除いて、次の行の先頭の空白・タブを詰めて連結する。偶数個（0 個を含む）はエスケープされたリテラルとして連結しない（`a\\\\⏎b` は変えない、`a\\\\\\⏎b` → `a\\\\b`）。バックスラッシュの後ろに空白がある行は継続しない。バックスラッシュの前の空白は残し、新しい空白は足さない。継続は連鎖する（`a·\\⏎b·\\⏎c` → `a·b·c`）。CRLF でも `\\r\\n` の直前の文字で判定し、単独の CR も改行として扱う。連結しない行の改行コードは元のまま（LF・CRLF・CR の混在も）保つ。選択範囲の最後の行と、選択範囲の末尾の改行の直前の行は、次の行が選択範囲の外にあるため連結しない"
+      },
+      "example": {
+        "en": "`ls·\\⏎··-l⏎pwd` → `ls·-l⏎pwd`",
+        "ja": "`ls·\\⏎··-l⏎pwd` → `ls·-l⏎pwd`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.move-matching-to-top",
+      "candidateId": "LINE-023",
+      "description": {
+        "en": "Gathers the lines containing the text you enter at the top in their original order, followed by the remaining lines in their original order (matching and input are the same as in **Line: Keep Lines Containing Text**).",
+        "ja": "入力した文字列を含む行を元の順序のまま先頭に集め、残りの行を元の順序のままその後ろに続ける（一致の判定と入力は **Line: Keep Lines Containing Text** と同じ）"
+      },
+      "example": {
+        "en": "`b⏎x1⏎c⏎x2（x）` → `x1⏎x2⏎b⏎c`",
+        "ja": "`b⏎x1⏎c⏎x2（x）` → `x1⏎x2⏎b⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.remove-prefix",
+      "candidateId": "LINE-024",
+      "description": {
+        "en": "Removes the text you enter once from the start of each line that begins with it (literal exact match that does not ignore leading indentation; case-sensitive).",
+        "ja": "入力した文字列で始まる行から、その接頭辞を 1 回だけ取り除く（行頭の字下げは無視しないリテラルの完全一致。大文字小文字を区別する）"
+      },
+      "example": {
+        "en": "`- a⏎- b（- ）` → `a⏎b`",
+        "ja": "`- a⏎- b（- ）` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.remove-suffix",
+      "candidateId": "LINE-025",
+      "description": {
+        "en": "Removes the text you enter once from the end of each line that ends with it (literal exact match that does not ignore trailing whitespace; case-sensitive).",
+        "ja": "入力した文字列で終わる行から、その接尾辞を 1 回だけ取り除く（行末の空白は無視しないリテラルの完全一致。大文字小文字を区別する）"
+      },
+      "example": {
+        "en": "`a;⏎b;（;）` → `a⏎b`",
+        "ja": "`a;⏎b;（;）` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.interleave-halves",
+      "candidateId": "LINE-026",
+      "description": {
+        "en": "Interleaves the lines of the first half (`ceil(line count / 2)` lines) and the second half (with an odd line count, the last line of the first half comes last).",
+        "ja": "前半（`ceil(行数 / 2)` 行）と後半の行を交互に並べる（行数が奇数なら前半の最後の行が末尾に来る）"
+      },
+      "example": {
+        "en": "`a⏎b⏎1⏎2` → `a⏎1⏎b⏎2`",
+        "ja": "`a⏎b⏎1⏎2` → `a⏎1⏎b⏎2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.join-every-n",
+      "candidateId": "LINE-027",
+      "description": {
+        "en": "Asks for N (an integer from 1 to 1,000,000, default 2) in the first input and a delimiter (literal of 0 to 100 characters without line breaks, default `,`; if empty, lines are joined with no delimiter) in the second input, then joins every N lines into one line (the last group is joined even if it has fewer than N lines).",
+        "ja": "1 回目の入力で N（1〜1,000,000 の整数、既定値 2）、2 回目の入力で区切り文字（リテラル 0〜100 文字、改行を含まない、既定値 `,`。空なら区切りなしで連結）を受け取り、N 行ずつ 1 行に連結する（最後のグループは N 行未満でもそのまま連結する）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d（N=2, delimiter: ,）` → `a,b⏎c,d`",
+        "ja": "`a⏎b⏎c⏎d（N=2, 区切り: ,）` → `a,b⏎c,d`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.split-sentences",
+      "candidateId": "LINE-028",
+      "description": {
+        "en": "Splits text into one sentence per line, breaking after runs of \". ! ?\" followed by whitespace and after \"。\". The whitespace at the break is removed, and closing quotes and brackets right after the punctuation (`\"` `'` `”` `’` `)` `]` `」` `』`) stay with the preceding sentence. It does not break at a `.` without following whitespace (`3.14`), at the end of a line, or at full-width `？` `！`. Existing line breaks are kept. Note that it also breaks after abbreviations such as `e.g.`.",
+        "ja": "「. ! ?」の連続の後ろに空白が続く位置と「。」の後ろで文を区切り、1 文 1 行にする。区切り位置の空白は取り除き、句読点の直後の閉じ引用符・閉じ括弧（`\"` `'` `”` `’` `)` `]` `」` `』`）は前の文に含める。後ろに空白がない `.`（`3.14`）、行末、全角の `？` `！` では区切らない。もとの改行は残す。`e.g.` などの略語の後ろでも区切ってしまう"
+      },
+      "example": {
+        "en": "`Hello. Bye!` → `Hello.⏎Bye!`",
+        "ja": "`Hello. Bye!` → `Hello.⏎Bye!`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.split-fixed-width",
+      "candidateId": "LINE-029",
+      "description": {
+        "en": "Splits each line into chunks of N code points (N is an integer from 1 to 1,000, default 80; each line is split independently and empty lines are left as is).",
+        "ja": "各行をコードポイントで N 文字ごとに分割する（N は 1〜1,000 の整数、既定値 80。行ごとに独立に分割し、空行はそのまま）"
+      },
+      "example": {
+        "en": "`abcdef（N=2）` → `ab⏎cd⏎ef`",
+        "ja": "`abcdef（N=2）` → `ab⏎cd⏎ef`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.remove-comment-lines",
+      "candidateId": "LINE-030",
+      "description": {
+        "en": "Removes lines starting with # or // (leading whitespace is ignored).",
+        "ja": "# や // で始まる行（先頭の空白は無視）を取り除く"
+      },
+      "example": {
+        "en": "`# a⏎b⏎// c` → `b`",
+        "ja": "`# a⏎b⏎// c` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.count-stats",
+      "candidateId": "LINE-031",
+      "description": {
+        "en": "Counts lines, words and characters and shows them as a notification (totals across all selections; the editor is not changed). The line count does not count one trailing line break, words are runs of non-whitespace, and characters are counted in code points with each line break (including CRLF) counted as one character. Singular forms are used for 1 (such as `1 line`), and ` (N selections)` is appended when there are multiple selections.",
+        "ja": "行数・単語数・文字数を数えて通知表示する（全選択範囲の合計。エディタは変更しない）。行数は末尾の改行 1 つを数えず、単語は空白以外の連続、文字数はコードポイントで数えて改行（CRLF を含む）を 1 文字とする。1 のときは単数形（`1 line` など）にし、選択範囲が複数のときは末尾に ` (N selections)` を付ける"
+      },
+      "example": {
+        "en": "`a b⏎c` → `2 lines, 3 words, 5 chars（notification）`",
+        "ja": "`a b⏎c` → `2 lines, 3 words, 5 chars（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.extract-between-markers",
+      "candidateId": "LINE-032",
+      "description": {
+        "en": "Asks for a start marker in the first input and an end marker in the second input (both literal, 1 to 1,000 characters without line breaks, case-sensitive) and extracts the lines between the lines containing the markers (the marker lines are excluded). If there are multiple blocks, all of them are joined in order. The start and end markers may be the same text. A block without an end marker runs to the end of the selection. Selections without a start marker line are left unchanged, and if no selection contains one, \"No lines were found between the markers\" is shown as a notification. Partial lines at the start or end of a selection that begins or ends mid-line are used neither for marker detection nor for extraction.",
+        "ja": "1 回目の入力で開始マーカー、2 回目の入力で終了マーカー（どちらもリテラル 1〜1,000 文字、改行を含まない、大文字小文字を区別）を受け取り、マーカー文字列を含む行の間の行を取り出す（マーカー行は含めない）。ブロックが複数あればすべてを順に連結する。開始と終了は同じ文字列でもよい。終了マーカーのないブロックは選択範囲の末尾までとする。開始マーカー行のない選択範囲は変更せず、すべての選択範囲で見つからなければ「No lines were found between the markers」を通知する。行の途中から始まる / 途中で終わる選択範囲の先頭 / 末尾の部分行は、マーカーの判定にも抽出にも使わない"
+      },
+      "example": {
+        "en": "`x⏎BEGIN⏎a⏎END⏎y` → `a`",
+        "ja": "`x⏎BEGIN⏎a⏎END⏎y` → `a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.extract-longest",
+      "candidateId": "LINE-033",
+      "description": {
+        "en": "Extracts the longest line (by code points; the first one wins on ties).",
+        "ja": "最も長い行（コードポイント数）を取り出す（同じ長さなら最初の行）"
+      },
+      "example": {
+        "en": "`a⏎abc⏎ab` → `abc`",
+        "ja": "`a⏎abc⏎ab` → `abc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.extract-shortest",
+      "candidateId": "LINE-034",
+      "description": {
+        "en": "Extracts the shortest line (by code points; empty and whitespace-only lines are excluded, the first one wins on ties, and nothing changes if there is no candidate).",
+        "ja": "最も短い行（コードポイント数）を取り出す（空行と空白だけの行は除く。同じ長さなら最初の行。候補がなければ変えない）"
+      },
+      "example": {
+        "en": "`abc⏎a⏎ab` → `a`",
+        "ja": "`abc⏎a⏎ab` → `a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.filter-contains.clipboard",
+      "candidateId": "LINE-035",
+      "derivedFrom": "LINE-001",
+      "description": {
+        "en": "Same conversion as **Line: Keep Lines Containing Text**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Keep Lines Containing Text** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`apple⏎banana⏎cherry（an）` → `banana`",
+        "ja": "`apple⏎banana⏎cherry（an）` → `banana`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.filter-regex.clipboard",
+      "candidateId": "LINE-036",
+      "derivedFrom": "LINE-003",
+      "description": {
+        "en": "Same conversion as **Line: Keep Lines Matching Regex**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Keep Lines Matching Regex** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`a1⏎b⏎c2（\\d）` → `a1⏎c2`",
+        "ja": "`a1⏎b⏎c2（\\d）` → `a1⏎c2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-duplicates.clipboard",
+      "candidateId": "LINE-037",
+      "derivedFrom": "LINE-007",
+      "description": {
+        "en": "Same conversion as **Line: Keep Only Duplicated Lines**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Keep Only Duplicated Lines** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`a⏎b⏎a⏎c⏎b` → `a⏎b`",
+        "ja": "`a⏎b⏎a⏎c⏎b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.keep-unique-only.clipboard",
+      "candidateId": "LINE-038",
+      "derivedFrom": "LINE-008",
+      "description": {
+        "en": "Same conversion as **Line: Keep Lines Appearing Once**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Keep Lines Appearing Once** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`a⏎b⏎a` → `b`",
+        "ja": "`a⏎b⏎a` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.dedupe-adjacent.clipboard",
+      "candidateId": "LINE-039",
+      "derivedFrom": "LINE-011",
+      "description": {
+        "en": "Same conversion as **Line: Remove Adjacent Duplicate Lines**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Remove Adjacent Duplicate Lines** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`a⏎a⏎b⏎a` → `a⏎b⏎a`",
+        "ja": "`a⏎a⏎b⏎a` → `a⏎b⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.extract-between-markers.clipboard",
+      "candidateId": "LINE-040",
+      "derivedFrom": "LINE-032",
+      "description": {
+        "en": "Same conversion as **Line: Extract Lines Between Markers**, but copies the result to the clipboard (the editor is not changed). The results of each selection are joined with the document's line ending (no trailing line break), skipping selections with an empty result and selections without a start marker line. If there is nothing to copy, the clipboard is left unchanged and a notification is shown. The selected text is treated as whole lines even if the selection starts or ends mid-line, so the result may differ from the replace version.",
+        "ja": "**Line: Extract Lines Between Markers** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）。クリップボードには選択範囲ごとの結果を文書の改行コードで連結し（末尾に改行は付けない）、結果が空の選択範囲と開始マーカー行のない選択範囲は除く。コピーするものがなければクリップボードを変えずに通知する。選択範囲が行の途中から始まる / 途中で終わるかは考慮せず選択したテキストをそのまま行として扱うため、置換版と結果が異なる場合がある"
+      },
+      "example": {
+        "en": "`x⏎BEGIN⏎a⏎END⏎y` → `a`",
+        "ja": "`x⏎BEGIN⏎a⏎END⏎y` → `a`"
+      }
+    }
+  ]
+}

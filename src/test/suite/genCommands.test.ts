@@ -9,6 +9,7 @@ import { GEN_COMMAND_ENTRIES, GEN_RANDOM_ENTRIES, GEN_SEQUENCE_ENTRIES, GenComma
 import { myCommands } from '../../handler/showCommandsHandler';
 import { fakeRandom, GEN_TEST_NOW } from './genTestUtils';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 /**
  * Records what the handlers show instead of touching VS Code's UI. The input boxes take their
@@ -87,14 +88,9 @@ const closeAllEditors = async () => {
 
 const readRepoFile = (file: string): string => fs.readFileSync(path.resolve(__dirname, '../../..', file), 'utf8');
 
-/** The GEN rows of docs/ROADMAP.md: [id, kind, command ID, title]. */
-const roadmapRows = (): [string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| GEN-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4]];
-    });
+/** The GEN commands of the showcase data (scripts/showcase-data/GEN.json): [id, kind, command ID, title]. */
+const dataRows = (): [string, string, string, string][] =>
+  candidateRows('GEN').map(([id, kind, command, title]): [string, string, string, string] => [id, kind, command, title]);
 
 suite('Generator Commands (GEN) Test Suite', () => {
   teardown(closeAllEditors);
@@ -540,8 +536,8 @@ suite('Generator Commands (GEN) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs and titles match the GEN table of docs/ROADMAP.md', () => {
-      const rows = roadmapRows();
+    test('command IDs and titles match the GEN commands of the showcase data', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 30);
       GEN_COMMAND_ENTRIES.forEach((entry) => {
         const row = rows.find(([id]) => id === entry.id);

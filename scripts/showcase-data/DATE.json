@@ -1,0 +1,378 @@
+{
+  "category": "DATE",
+  "commands": [
+    {
+      "id": "selection-manipulator.date.to-utc-string",
+      "candidateId": "DATE-001",
+      "description": {
+        "en": "Converts dates to the HTTP header format (toUTCString) and opens the result in a new read-only editor. Each line of the selection is one value; surrounding whitespace, empty lines and LF / CRLF are kept, and if any line is invalid the command stops and notifies `line N: \"…\" is not a date` or similar. Dates are read strictly as `YYYY-MM-DD` / `YYYY/MM/DD` (1–2 digit month and day, years 0001–9999), optionally followed by `T` or one space and `HH:mm[:ss[.SSS]]`, and by `Z` / `±HH:MM` / `±HHMM`; nonexistent dates are an error. A date alone is treated as 00:00 UTC and a date-time without offset as VS Code's local time; Unix timestamps (`-?\\d{1,13}`) are also accepted.",
+        "ja": "日付を HTTP ヘッダー形式（toUTCString）にして新しい読み取り専用エディターに開く（選択範囲の 1 行 = 1 値で、前後の空白・空行・LF / CRLF は保持し、1 行でも不正ならコマンドを中止して `line N: \"…\" is not a date` などを通知。日付は `YYYY-MM-DD` / `YYYY/MM/DD`（月・日は 1〜2 桁、年 0001〜9999）に任意で `T` か空白 1 個と `HH:mm[:ss[.SSS]]`、`Z` / `±HH:MM` / `±HHMM` を付けたものだけを厳密に読み、存在しない日付はエラー。日付だけなら UTC 0 時、オフセットなしの日時は VS Code のローカル時刻として扱い、Unix タイムスタンプ（`-?\\d{1,13}`）も読む）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `Mon, 28 Sep 2026 00:00:00 GMT`",
+        "ja": "`2026-09-28` → `Mon, 28 Sep 2026 00:00:00 GMT`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timezone",
+      "candidateId": "DATE-002",
+      "description": {
+        "en": "Converts date-times to the IANA time zone you type (up to 64 characters of `[A-Za-z0-9_+\\-/]`, supported by Intl) as `YYYY-MM-DD HH:mm:ss ±HH:MM` (uses Intl.DateTimeFormat; daylight saving time is applied, and second-level offsets (LMT) are shown as `±HH:MM:SS`). A result outside the years 0001–9999 is an error.",
+        "ja": "入力した IANA タイムゾーン（`[A-Za-z0-9_+\\-/]` の 64 文字以内で Intl が対応するもの）での日時を `YYYY-MM-DD HH:mm:ss ±HH:MM` にする（Intl.DateTimeFormat を使用。夏時間を反映し、秒単位のオフセット（LMT）は `±HH:MM:SS`。結果が 0001〜9999 年の外ならエラー）"
+      },
+      "example": {
+        "en": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`",
+        "ja": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timezones",
+      "candidateId": "DATE-003",
+      "description": {
+        "en": "Outputs the time in each time zone of the setting `selection-manipulator.date.timeZones` (1 to 20 entries, default `UTC`, `Asia/Tokyo`, `America/Los_Angeles`), one line each as `<IANA name> HH:mm`, adding ` (前日)` (previous day) / ` (翌日)` (next day) when the date differs from UTC. IANA names are used because abbreviations such as JST or PDT cannot be produced reliably with Intl. Selections are separated by one empty line, but multiple values within one selection are not separated.",
+        "ja": "設定 `selection-manipulator.date.timeZones`（1〜20 件、既定 `UTC`・`Asia/Tokyo`・`America/Los_Angeles`）の各タイムゾーンでの時刻を `<IANA 名> HH:mm` で 1 行ずつ出し、UTC と日付が違えば ` (前日)` / ` (翌日)` を付ける（JST・PDT などの略称は Intl で安定して出せないため IANA 名。選択範囲の間は空行 1 行で区切るが、1 選択内の複数の値の間には区切りを入れない）"
+      },
+      "example": {
+        "en": "`2026-09-28T00:00:00Z` → `UTC 00:00⏎Asia/Tokyo 09:00⏎America/Los_Angeles 17:00 (前日)`",
+        "ja": "`2026-09-28T00:00:00Z` → `UTC 00:00⏎Asia/Tokyo 09:00⏎America/Los_Angeles 17:00 (前日)`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.weekday",
+      "candidateId": "DATE-004",
+      "description": {
+        "en": "Shows the weekday of dates as a notification (values of all selections are collected in document order; with two or more it shows `2026-09-28: Monday（月）, 2026-09-29: Tuesday（火）`). Empty lines are not counted, from the 21st value on it shows `, … and N more`, and each value is shortened to 60 characters. The editor is not changed.",
+        "ja": "日付の曜日を通知表示する（全選択の値を文書順に集め、2 つ以上なら `2026-09-28: Monday（月）, 2026-09-29: Tuesday（火）`。空行は数えず、21 件目以降は `, … and N more`、各値は 60 文字で短縮。エディターは変えない）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `Monday（月）`",
+        "ja": "`2026-09-28` → `Monday（月）`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.append-weekday",
+      "candidateId": "DATE-005",
+      "description": {
+        "en": "Appends the weekday after dates (setting `selection-manipulator.date.weekdayLanguage`: `ja` (default, ` (月)`) / `en` (` (Mon)`)). Replaces the selection; whitespace after the value is kept after the weekday.",
+        "ja": "日付の後ろに曜日を付ける（設定 `selection-manipulator.date.weekdayLanguage` の `ja`（既定、` (月)`）/ `en`（` (Mon)`）。選択範囲を置換し、値の後ろの空白は曜日の後ろに残す）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `2026-09-28 (月)`",
+        "ja": "`2026-09-28` → `2026-09-28 (月)`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.iso-week",
+      "candidateId": "DATE-006",
+      "description": {
+        "en": "Converts dates to the ISO 8601 week number (the week-based year can differ from the calendar year: `2027-01-01` → `2026-W53`).",
+        "ja": "ISO 8601 の週番号にする（週年は暦年と異なることがある: `2027-01-01` → `2026-W53`）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `2026-W40`",
+        "ja": "`2026-09-28` → `2026-W40`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.day-of-year",
+      "candidateId": "DATE-007",
+      "description": {
+        "en": "Converts dates to the day of the year.",
+        "ja": "その年の通算日にする"
+      },
+      "example": {
+        "en": "`2026-09-28` → `271`",
+        "ja": "`2026-09-28` → `271`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.diff",
+      "candidateId": "DATE-008",
+      "description": {
+        "en": "Outputs the difference between two selections (or two dates on one line) in days, hours and minutes. The separator on one line is the first found of tab, ` / `, `..`, `~`, `〜`, `～` and `,`; otherwise exactly two selections with one value each are required. The difference is \"later − earlier\" with a sign; with times it looks like `1 day 1 hour 30 minutes` (seconds are truncated). Either both values have an offset or neither does.",
+        "ja": "2 つの選択（または 1 行 2 日付）の差を日・時間・分で出す（1 行の区切りはタブ・` / `・`..`・`~`・`〜`・`～`・`,` の最初に見つかったもの。そうでなければちょうど 2 選択で各 1 値。差は「後 − 前」で符号つき、時刻つきは `1 day 1 hour 30 minutes`（秒は切り捨て）。オフセットは両方あるか両方ないこと）"
+      },
+      "example": {
+        "en": "`2026-01-01 / 2026-09-28` → `270 days`",
+        "ja": "`2026-01-01 / 2026-09-28` → `270 days`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.add-days",
+      "candidateId": "DATE-009",
+      "description": {
+        "en": "Adds the number of days you type (an integer from -1,000,000 to 1,000,000). Replaces the selection; the `-` / `/` separator, time and offset are kept as written, and month and day are written with 2 digits. A result outside the years 0001–9999 is an error.",
+        "ja": "入力した日数（-1,000,000〜1,000,000 の整数）を足す（選択範囲を置換。区切り `-` / `/`・時刻・オフセットは書かれたまま残し、月・日は 2 桁で書く。結果が 0001〜9999 年の外ならエラー）"
+      },
+      "example": {
+        "en": "`2026-09-28（+5）` → `2026-10-03`",
+        "ja": "`2026-09-28（+5）` → `2026-10-03`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.add-months",
+      "candidateId": "DATE-010",
+      "description": {
+        "en": "Adds the number of months you type (an integer from -120,000 to 120,000; the day is clamped to the end of the month). Replaces the selection; the format is the same as **Date - Add Days**.",
+        "ja": "入力した月数（-120,000〜120,000 の整数）を足す（月末は丸める。選択範囲を置換。書式は **Date - Add Days** と同じ）"
+      },
+      "example": {
+        "en": "`2026-01-31（+1）` → `2026-02-28`",
+        "ja": "`2026-01-31（+1）` → `2026-02-28`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-relative",
+      "candidateId": "DATE-011",
+      "description": {
+        "en": "Converts dates to relative time from now (Japanese output of Intl.RelativeTimeFormat). A date alone uses the calendar-day difference from the local today: 0 gives `今日` (today), under 30 days uses days, under 12 months calendar months, and calendar years beyond that. Date-times and timestamps use the difference from the current time: seconds under 60 seconds, minutes under 60 minutes, hours under 24 hours, and the same as dates beyond that.",
+        "ja": "現在時刻からの相対表現にする（Intl.RelativeTimeFormat の日本語。日付だけの値はローカルの今日との暦日の差で、0 なら `今日`、30 日未満は日、12 か月未満は暦の月、以降は暦の年。時刻つき・タイムスタンプは現在時刻との差で 60 秒未満は秒、60 分未満は分、24 時間未満は時、以降は日付と同じ）"
+      },
+      "example": {
+        "en": "`2026-09-25` → `3 日前`",
+        "ja": "`2026-09-25` → `3 日前`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.format-pattern",
+      "candidateId": "DATE-012",
+      "description": {
+        "en": "Formats date-times with the pattern you type (1 to 100 characters, such as yyyy/MM/dd HH:mm; own implementation). Tokens are `yyyy` `yy` `MM` `M` `dd` `d` `HH` `H` `hh` `h` `mm` `m` `ss` `s` `SSS` `a` `EEEE` `E`. The pattern is scanned from the left, each run of the same letter is one unit, and runs of an unsupported length (`yyy`, `EEE`, `MMM` and so on) are an error. `'…'` is a literal and `''` is `'`. Undefined letters (`YYYY`, `DD`, `T` and so on) are output as is. The value's written calendar date and time are used without time zone conversion.",
+        "ja": "入力したパターン（1〜100 文字、yyyy/MM/dd HH:mm など）で書式化する（自前実装。トークンは `yyyy` `yy` `MM` `M` `dd` `d` `HH` `H` `hh` `h` `mm` `m` `ss` `s` `SSS` `a` `EEEE` `E`。左から走査し同じ英字の連なりを 1 単位とし、長さが合わないもの（`yyy` `EEE` `MMM` など）はエラー。`'…'` はリテラル、`''` は `'`。定義にない英字（`YYYY` `DD` `T` など）はそのまま出力。値は書かれた暦の日時をそのまま使い、タイムゾーン変換はしない）"
+      },
+      "example": {
+        "en": "`2026-09-28T09:05:00（yyyy/MM/dd HH:mm）` → `2026/09/28 09:05`",
+        "ja": "`2026-09-28T09:05:00（yyyy/MM/dd HH:mm）` → `2026/09/28 09:05`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-compact",
+      "candidateId": "DATE-013",
+      "description": {
+        "en": "Converts dates to 8 digits without separators (the time is dropped).",
+        "ja": "日付を区切りなしの 8 桁にする（時刻は捨てる）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `20260928`",
+        "ja": "`2026-09-28` → `20260928`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.from-compact",
+      "candidateId": "DATE-014",
+      "description": {
+        "en": "Converts 8-digit dates to ISO 8601 dates (nonexistent dates are an error).",
+        "ja": "8 桁の日付を ISO 8601 の日付にする（存在しない日付はエラー）"
+      },
+      "example": {
+        "en": "`20260928` → `2026-09-28`",
+        "ja": "`20260928` → `2026-09-28`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.month-calendar",
+      "candidateId": "DATE-015",
+      "description": {
+        "en": "Creates a text calendar from a year and month (`YYYY-MM` / `YYYY/MM`, or the month of a date). Replaces the selection. It uses the Sunday-first `cal` format: each day is right-aligned in 2 characters, days are separated by one space, there is no trailing whitespace and no year-month heading.",
+        "ja": "年月からテキストのカレンダーを作る（`YYYY-MM` / `YYYY/MM` または日付からその月。選択範囲を置換。日曜始まりの `cal` 形式で、各日は 2 桁の右寄せ、日の間は空白 1 個、行末の空白なし、年月の見出しなし）"
+      },
+      "example": {
+        "en": "`2026-09` → `Su Mo Tu We Th Fr Sa⏎·······1··2··3··4··5⏎…`",
+        "ja": "`2026-09` → `Su Mo Tu We Th Fr Sa⏎·······1··2··3··4··5⏎…`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.duration-to-human",
+      "candidateId": "DATE-016",
+      "description": {
+        "en": "Converts ISO 8601 durations to a readable form (`年` year, `か月` month, `週` week, `日` day, `時間` hour, `分` minute, `秒` second). Zero components are omitted, and if all are zero it gives `0 秒`. Decimals (`.` / `,`) are allowed only in the last component, each number has up to 15 digits, and signs are not allowed.",
+        "ja": "ISO 8601 の期間表記を読みやすい表記にする（`年` `か月` `週` `日` `時間` `分` `秒`。0 の要素は省き、すべて 0 なら `0 秒`。小数（`.` / `,`）は最後の要素だけ、各数値は 15 桁まで、符号は不可）"
+      },
+      "example": {
+        "en": "`PT1H30M` → `1 時間 30 分`",
+        "ja": "`PT1H30M` → `1 時間 30 分`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.seconds-to-hms",
+      "candidateId": "DATE-017",
+      "description": {
+        "en": "Converts seconds to hours:minutes:seconds (within the safe integer range; 100 hours or more adds hour digits, and negative values give `-01:00:00`).",
+        "ja": "秒数を時:分:秒にする（安全な整数の範囲。100 時間以上は時の桁が増え、負数は `-01:00:00`）"
+      },
+      "example": {
+        "en": "`3661` → `01:01:01`",
+        "ja": "`3661` → `01:01:01`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.hms-to-seconds",
+      "candidateId": "DATE-018",
+      "description": {
+        "en": "Converts hours:minutes:seconds to seconds (`[-]H:MM:SS` or `[-]M:SS`; minutes and seconds are 2 digits from 0 to 59).",
+        "ja": "時:分:秒を秒数にする（`[-]H:MM:SS` または `[-]M:SS`、分・秒は 2 桁で 0〜59）"
+      },
+      "example": {
+        "en": "`01:01:01` → `3661`",
+        "ja": "`01:01:01` → `3661`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-excel-serial",
+      "candidateId": "DATE-019",
+      "description": {
+        "en": "Converts dates to the Excel serial number (1900 date system). For compatibility with Excel, which counts the nonexistent 1900-02-29, it counts days from 1899-12-30 for 1900-03-01 onward and from 1899-12-31 for 1900-01-01 to 02-28. Times add a fraction of up to 10 decimal places. Dates before 1900-01-01 are an error.",
+        "ja": "日付を Excel のシリアル値（1900 年方式）にする（存在しない 1900-02-29 を数える Excel との互換のため、1900-03-01 以降は 1899-12-30、1900-01-01〜02-28 は 1899-12-31 からの日数。時刻つきは小数 10 桁までの端数を足す。1900-01-01 より前はエラー）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `46293`",
+        "ja": "`2026-09-28` → `46293`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.from-excel-serial",
+      "candidateId": "DATE-020",
+      "description": {
+        "en": "Converts Excel serial numbers to dates (1 to 2,958,465 (9999-12-31), decimals allowed). The fractional part is rounded to seconds and appended as ` HH:mm:ss`; a value that reaches 24:00:00 carries over to 00:00:00 of the next day (`59.9999999` → `1900-03-01 00:00:00`). An integer part of 60 (the Excel-only 1900-02-29) and values beyond 9999-12-31 are an error.",
+        "ja": "Excel のシリアル値を日付にする（1〜2,958,465（9999-12-31）、小数可。小数部は秒に四捨五入して ` HH:mm:ss` を付け、24:00:00 になる値は翌日の 00:00:00 に繰り上げる（`59.9999999` → `1900-03-01 00:00:00`）。整数部が 60（Excel だけにある 1900-02-29）と、9999-12-31 を超える値はエラー）"
+      },
+      "example": {
+        "en": "`46293` → `2026-09-28`",
+        "ja": "`46293` → `2026-09-28`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-japanese",
+      "candidateId": "DATE-021",
+      "description": {
+        "en": "Converts dates to the Japanese `YYYY年M月D日` format (no zero padding; the time is dropped).",
+        "ja": "日付を「YYYY年M月D日」形式にする（ゼロ埋めなし、時刻は捨てる）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `2026年9月28日`",
+        "ja": "`2026-09-28` → `2026年9月28日`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.range",
+      "candidateId": "DATE-022",
+      "description": {
+        "en": "Lists the dates between a start date and an end date, one per line (limited to 10,000 per range). The separator is `..`, `~`, `〜` or `～` (spaces around it allowed). Replaces the selection; if the start is after the end, the list is descending, and the format follows the separator of the start date. Values with a time are an error.",
+        "ja": "開始日と終了日の間の日付を 1 行ずつ列挙する（上限件数あり: 1 範囲 10,000 件まで。区切りは `..`・`~`・`〜`・`～`（前後の空白可）。選択範囲を置換し、開始 > 終了なら降順、書式は開始側の区切りに合わせる。時刻つきはエラー）"
+      },
+      "example": {
+        "en": "`2026-09-28..2026-09-30` → `2026-09-28⏎2026-09-29⏎2026-09-30`",
+        "ja": "`2026-09-28..2026-09-30` → `2026-09-28⏎2026-09-29⏎2026-09-30`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.age",
+      "candidateId": "DATE-023",
+      "description": {
+        "en": "Calculates the age as of today from a birth date (people born on 2/29 age on 3/1 in non-leap years; future dates are an error).",
+        "ja": "生年月日から今日時点の満年齢を求める（2/29 生まれはうるう年以外は 3/1 に加算。未来の日付はエラー）"
+      },
+      "example": {
+        "en": "`1990-04-01` → `36`",
+        "ja": "`1990-04-01` → `36`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.quarter",
+      "candidateId": "DATE-024",
+      "description": {
+        "en": "Outputs the quarter and the fiscal year (the start month is set with `selection-manipulator.date.fiscalYearStartMonth`, default April). Quarters follow the calendar year, the fiscal year is named after the year it starts in, and its first 6 months are the first half (`上期`; the second half is `下期`).",
+        "ja": "四半期と年度（開始月は設定 `selection-manipulator.date.fiscalYearStartMonth` で指定、既定 4 月）を出す（四半期は暦年、年度は開始月の年で呼び、最初の 6 か月が上期）"
+      },
+      "example": {
+        "en": "`2026-09-28` → `2026 Q3 / FY2026 上期`",
+        "ja": "`2026-09-28` → `2026 Q3 / FY2026 上期`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.cron-explain",
+      "candidateId": "DATE-025",
+      "description": {
+        "en": "Explains a cron expression (5 fields) in Japanese and lists the next 5 run times. Supports names `JAN`–`DEC` / `SUN`–`SAT` (case-insensitive), `,`, `a-b`, `*/n`, `a-b/n`, `a/n` and weekdays 0–7; `L` `W` `#` `?`, macros such as `@daily` and field counts other than 5 are an error. When both day of month and day of week are given, they are combined with OR. Next runs are searched after the current local time up to 8 years ahead (DST is not considered), and all 5 are joined with `, `; if there are none it shows `（次回: なし）` (next: none). Each line is up to 200 characters, 1,000 lines in total across all selections. Selections are separated by one empty line.",
+        "ja": "cron 式（5 フィールド）の意味を日本語で説明し、次回実行予定を 5 件出す（名前 `JAN`〜`DEC` / `SUN`〜`SAT`（大小無視）、`,`・`a-b`・`*/n`・`a-b/n`・`a/n`、曜日 0〜7 に対応し、`L` `W` `#` `?`・`@daily` などのマクロ・5 以外のフィールド数はエラー。日と曜日が両方指定されたら OR。次回はローカル時刻の現在より後を 8 年先まで探し（DST は考慮しない）、5 件すべてを `, ` で連結し、なければ `（次回: なし）`。1 行 200 文字まで、全選択の合計 1,000 行まで。選択範囲の間は空行 1 行で区切る）"
+      },
+      "example": {
+        "en": "`0 9 * * 1` → `毎週月曜 09:00（次回: 2026-10-05 09:00 …）`",
+        "ja": "`0 9 * * 1` → `毎週月曜 09:00（次回: 2026-10-05 09:00 …）`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timezone.replace",
+      "candidateId": "DATE-026",
+      "derivedFrom": "DATE-002",
+      "description": {
+        "en": "Same conversion as **Date - Convert to Time Zone**, but replaces the selection in place.",
+        "ja": "**Date - Convert to Time Zone** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`",
+        "ja": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-timezone.clipboard",
+      "candidateId": "DATE-027",
+      "derivedFrom": "DATE-002",
+      "description": {
+        "en": "Same conversion as **Date - Convert to Time Zone**, but copies the result to the clipboard (the editor is not changed).",
+        "ja": "**Date - Convert to Time Zone** と同じ変換を行い、結果をクリップボードにコピーする（エディタの内容は変えない）"
+      },
+      "example": {
+        "en": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`",
+        "ja": "`2026-09-28T00:00:00Z（Asia/Tokyo）` → `2026-09-28 09:00:00 +09:00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.format-pattern.replace",
+      "candidateId": "DATE-028",
+      "derivedFrom": "DATE-012",
+      "description": {
+        "en": "Same conversion as **Date - Format with Pattern**, but replaces the selection in place.",
+        "ja": "**Date - Format with Pattern** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`2026-09-28T09:05:00（yyyy/MM/dd HH:mm）` → `2026/09/28 09:05`",
+        "ja": "`2026-09-28T09:05:00（yyyy/MM/dd HH:mm）` → `2026/09/28 09:05`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-compact.replace",
+      "candidateId": "DATE-029",
+      "derivedFrom": "DATE-013",
+      "description": {
+        "en": "Same conversion as **Date - Convert to Compact (YYYYMMDD)**, but replaces the selection in place.",
+        "ja": "**Date - Convert to Compact (YYYYMMDD)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`2026-09-28` → `20260928`",
+        "ja": "`2026-09-28` → `20260928`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.from-compact.replace",
+      "candidateId": "DATE-030",
+      "derivedFrom": "DATE-014",
+      "description": {
+        "en": "Same conversion as **Date - Convert from Compact (YYYYMMDD)**, but replaces the selection in place.",
+        "ja": "**Date - Convert from Compact (YYYYMMDD)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`20260928` → `2026-09-28`",
+        "ja": "`20260928` → `2026-09-28`"
+      }
+    }
+  ]
+}

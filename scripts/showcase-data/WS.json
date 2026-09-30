@@ -1,0 +1,427 @@
+{
+  "category": "WS",
+  "commands": [
+    {
+      "id": "selection-manipulator.whitespace.tabs-to-spaces-2",
+      "candidateId": "WS-001",
+      "description": {
+        "en": "Replaces leading tabs with 2 spaces each.",
+        "ja": "行頭のタブを空白 2 個に置き換える"
+      },
+      "example": {
+        "en": "`⇥foo` → `··foo`",
+        "ja": "`⇥foo` → `··foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.tabs-to-spaces-4",
+      "candidateId": "WS-002",
+      "description": {
+        "en": "Replaces leading tabs with 4 spaces each.",
+        "ja": "行頭のタブを空白 4 個に置き換える"
+      },
+      "example": {
+        "en": "`⇥foo` → `····foo`",
+        "ja": "`⇥foo` → `····foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.spaces-to-tabs-2",
+      "candidateId": "WS-003",
+      "description": {
+        "en": "Replaces every 2 leading spaces with one tab.",
+        "ja": "行頭の空白 2 個ごとにタブ 1 個へ置き換える"
+      },
+      "example": {
+        "en": "`····foo` → `⇥⇥foo`",
+        "ja": "`····foo` → `⇥⇥foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.spaces-to-tabs-4",
+      "candidateId": "WS-004",
+      "description": {
+        "en": "Replaces every 4 leading spaces with one tab.",
+        "ja": "行頭の空白 4 個ごとにタブ 1 個へ置き換える"
+      },
+      "example": {
+        "en": "`····foo` → `⇥foo`",
+        "ja": "`····foo` → `⇥foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.reindent-2-to-4",
+      "candidateId": "WS-005",
+      "description": {
+        "en": "Re-indents 2-space indentation to 4-space indentation.",
+        "ja": "2 空白単位のインデントを 4 空白単位に変換する"
+      },
+      "example": {
+        "en": "`··a⏎····b` → `····a⏎········b`",
+        "ja": "`··a⏎····b` → `····a⏎········b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.reindent-4-to-2",
+      "candidateId": "WS-006",
+      "description": {
+        "en": "Re-indents 4-space indentation to 2-space indentation.",
+        "ja": "4 空白単位のインデントを 2 空白単位に変換する"
+      },
+      "example": {
+        "en": "`····a⏎········b` → `··a⏎····b`",
+        "ja": "`····a⏎········b` → `··a⏎····b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.dedent",
+      "candidateId": "WS-007",
+      "description": {
+        "en": "Removes only the leading indentation common to all lines (dedent).",
+        "ja": "すべての行に共通する先頭インデントだけを取り除く"
+      },
+      "example": {
+        "en": "`····a⏎······b` → `a⏎··b`",
+        "ja": "`····a⏎······b` → `a⏎··b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.trim-leading",
+      "candidateId": "WS-008",
+      "description": {
+        "en": "Trims only the leading whitespace of each line (**Text - Trim All Lines** trims both ends and **Text: Trim Trailing Whitespace** trims the trailing side only).",
+        "ja": "各行の先頭の空白だけを取り除く（**Text - Trim All Lines** は両端、**Text: Trim Trailing Whitespace** は末尾を取り除く）"
+      },
+      "example": {
+        "en": "`··a··⏎·b` → `a··⏎b`",
+        "ja": "`··a··⏎·b` → `a··⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.collapse-blank-lines",
+      "candidateId": "WS-009",
+      "description": {
+        "en": "Collapses consecutive blank lines into a single blank line.",
+        "ja": "連続する空行を 1 行にまとめる"
+      },
+      "example": {
+        "en": "`a⏎⏎⏎⏎b` → `a⏎⏎b`",
+        "ja": "`a⏎⏎⏎⏎b` → `a⏎⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.remove-all",
+      "candidateId": "WS-010",
+      "description": {
+        "en": "Removes all spaces, tabs and line breaks.",
+        "ja": "空白・タブ・改行をすべて取り除く"
+      },
+      "example": {
+        "en": "`a b⇥c⏎d` → `abcd`",
+        "ja": "`a b⇥c⏎d` → `abcd`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.unwrap-paragraphs",
+      "candidateId": "WS-011",
+      "description": {
+        "en": "Replaces line breaks within paragraphs with spaces, keeping blank lines as paragraph separators.",
+        "ja": "段落内の改行を空白に置き換え、空行による段落区切りは残す"
+      },
+      "example": {
+        "en": "`a⏎b⏎⏎c⏎d` → `a b⏎⏎c d`",
+        "ja": "`a⏎b⏎⏎c⏎d` → `a b⏎⏎c d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.hard-wrap-80",
+      "candidateId": "WS-012",
+      "description": {
+        "en": "Hard-wraps lines at word boundaries every 80 columns.",
+        "ja": "単語境界で 80 桁ごとに改行を入れる"
+      },
+      "example": {
+        "en": "`（a single 90-character line）` → `（2 lines wrapped at 80 columns）`",
+        "ja": "`（90 文字の 1 行）` → `（80 桁で折り返した 2 行）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.hard-wrap-n",
+      "candidateId": "WS-013",
+      "description": {
+        "en": "Hard-wraps lines at word boundaries at the column width you enter.",
+        "ja": "単語境界で入力した桁数ごとに改行を入れる"
+      },
+      "example": {
+        "en": "`aa bb cc（N=5）` → `aa bb⏎cc`",
+        "ja": "`aa bb cc（N=5）` → `aa bb⏎cc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.nbsp-to-space",
+      "candidateId": "WS-014",
+      "description": {
+        "en": "Replaces special spaces such as NBSP (U+00A0) and thin spaces with normal spaces.",
+        "ja": "NBSP（U+00A0）や細いスペースなど特殊な空白を通常の空白に置き換える"
+      },
+      "example": {
+        "en": "`a{U+00A0}b` → `a b`",
+        "ja": "`a{U+00A0}b` → `a b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.visualize",
+      "candidateId": "WS-015",
+      "description": {
+        "en": "Makes whitespace visible by replacing spaces with \"·\" (U+00B7) and tabs with \"→\" (U+2192). In this example, the `·` and `→` on the output side are not notation symbols but the characters actually inserted.",
+        "ja": "空白を「·」（U+00B7）、タブを「→」（U+2192）に置き換えて見えるようにする。この例の出力側の `·` と `→` は表記ルールの記号ではなく、実際に挿入される文字である"
+      },
+      "example": {
+        "en": "`a·b⇥c` → `a·b→c`",
+        "ja": "`a·b⇥c` → `a·b→c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.unvisualize",
+      "candidateId": "WS-016",
+      "description": {
+        "en": "Turns \"·\" (U+00B7) back into spaces and \"→\" (U+2192) back into tabs (the reverse of **Whitespace: Visualize Spaces and Tabs**). In this example, the `·` and `→` on the input side are the actual characters (U+00B7, U+2192), not notation symbols, while the `·` and `⇥` on the output side represent a space and a tab as usual. Any `·` `→` that existed before visualizing are also turned into spaces and tabs, so a round trip with **Whitespace: Visualize Spaces and Tabs** is not reversible.",
+        "ja": "「·」（U+00B7）を空白、「→」（U+2192）をタブに戻す（**Whitespace: Visualize Spaces and Tabs** の逆変換）。この例の入力側の `·` と `→` は表記ルールの記号ではなく実際の文字（U+00B7・U+2192）であり、出力側の `·` と `⇥` は表記ルールどおり空白とタブを表す。可視化する前から含まれていた `·` `→` も空白・タブに変わるため、**Whitespace: Visualize Spaces and Tabs** との往復は可逆ではない"
+      },
+      "example": {
+        "en": "`a·b→c` → `a·b⇥c`",
+        "ja": "`a·b→c` → `a·b⇥c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.center-align",
+      "candidateId": "WS-017",
+      "description": {
+        "en": "Center-aligns each line relative to the longest line.",
+        "ja": "最も長い行に合わせて各行を中央寄せする"
+      },
+      "example": {
+        "en": "`a⏎abc` → `·a⏎abc`",
+        "ja": "`a⏎abc` → `·a⏎abc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.right-align",
+      "candidateId": "WS-018",
+      "description": {
+        "en": "Right-aligns each line relative to the longest line.",
+        "ja": "最も長い行に合わせて各行を右寄せする"
+      },
+      "example": {
+        "en": "`a⏎abc` → `··a⏎abc`",
+        "ja": "`a⏎abc` → `··a⏎abc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.pad-to-longest",
+      "candidateId": "WS-019",
+      "description": {
+        "en": "Pads lines with trailing spaces so that all lines are as long as the longest line.",
+        "ja": "末尾に空白を足して全行を最長行と同じ長さにする"
+      },
+      "example": {
+        "en": "`a⏎abc` → `a··⏎abc`",
+        "ja": "`a⏎abc` → `a··⏎abc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.align-equals",
+      "candidateId": "WS-020",
+      "description": {
+        "en": "Inserts spaces so that the first \"=\" on each line lines up. Operators containing \"=\" (`+=` `!=` `<=` `==` `=>`, etc.) are not split and are aligned at the start of the operator. The right side of the operator is left unchanged (`a=1⏎bb = 2` becomes `a··=1⏎bb = 2`, with no space added after \"=\").",
+        "ja": "各行の最初の「=」の位置が揃うように空白を入れる。「=」を含む演算子（`+=` `!=` `<=` `==` `=>` など）は分割せず、その演算子の先頭の位置で揃える。演算子の右側は変えない（`a=1⏎bb = 2` は `a··=1⏎bb = 2` になり、「=」の後ろに空白は入らない）"
+      },
+      "example": {
+        "en": "`a = 1⏎bbb = 2` → `a···= 1⏎bbb = 2`",
+        "ja": "`a = 1⏎bbb = 2` → `a···= 1⏎bbb = 2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.align-colon",
+      "candidateId": "WS-021",
+      "description": {
+        "en": "Aligns the start of the value after the first standalone \":\" on each line (a \":\" inside `::` is not treated as a separator). No spaces are added to lines with an empty value (`key:`).",
+        "ja": "各行の最初の単独の「:」の後ろの値の開始位置を揃える（`::` の中の「:」は区切りにしない）。値が空の行（`key:`）には空白を足さない"
+      },
+      "example": {
+        "en": "`a: 1⏎bbb: 2` → `a:···1⏎bbb: 2`",
+        "ja": "`a: 1⏎bbb: 2` → `a:···1⏎bbb: 2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.align-comma",
+      "candidateId": "WS-022",
+      "description": {
+        "en": "Aligns the start position of each comma-separated column.",
+        "ja": "カンマ区切りの各列の開始位置を揃える"
+      },
+      "example": {
+        "en": "`a,bb,c⏎ccc,d,e` → `a,··bb,c⏎ccc,d,·e`",
+        "ja": "`a,bb,c⏎ccc,d,e` → `a,··bb,c⏎ccc,d,·e`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.align-custom",
+      "candidateId": "WS-023",
+      "description": {
+        "en": "Inserts spaces so that the delimiter you enter lines up.",
+        "ja": "入力した区切り文字の位置が揃うように空白を入れる"
+      },
+      "example": {
+        "en": "`a => 1⏎bb => 2（delimiter: =>）` → `a··=> 1⏎bb·=> 2`",
+        "ja": "`a => 1⏎bb => 2（区切り: =>）` → `a··=> 1⏎bb·=> 2`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.blank-line-between",
+      "candidateId": "WS-024",
+      "description": {
+        "en": "Inserts a blank line between lines.",
+        "ja": "各行の間に空行を入れる"
+      },
+      "example": {
+        "en": "`a⏎b` → `a⏎⏎b`",
+        "ja": "`a⏎b` → `a⏎⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.remove-trailing-blank-lines",
+      "candidateId": "WS-025",
+      "description": {
+        "en": "Removes only the blank lines at the end of the selection.",
+        "ja": "選択範囲の末尾にある空行だけを取り除く"
+      },
+      "example": {
+        "en": "`a⏎b⏎⏎⏎` → `a⏎b`",
+        "ja": "`a⏎b⏎⏎⏎` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.remove-leading-blank-lines",
+      "candidateId": "WS-026",
+      "description": {
+        "en": "Removes only the blank lines at the start of the selection.",
+        "ja": "選択範囲の先頭にある空行だけを取り除く"
+      },
+      "example": {
+        "en": "`⏎⏎a⏎b` → `a⏎b`",
+        "ja": "`⏎⏎a⏎b` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.collapse-inline",
+      "candidateId": "WS-027",
+      "description": {
+        "en": "Collapses consecutive spaces within a line into one while keeping the indentation.",
+        "ja": "インデントは残したまま、行中の連続空白を 1 個にまとめる"
+      },
+      "example": {
+        "en": "`··a···b` → `··a b`",
+        "ja": "`··a···b` → `··a b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.space-around-operators",
+      "candidateId": "WS-028",
+      "description": {
+        "en": "Adds one space before and after operators such as = + - \\* / (string literals are not affected).",
+        "ja": "= + - \\* / などの演算子の前後に空白を 1 個入れる（文字列リテラル内は対象外）"
+      },
+      "example": {
+        "en": "`a=b+c` → `a = b + c`",
+        "ja": "`a=b+c` → `a = b + c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.remove-space-before-punctuation",
+      "candidateId": "WS-029",
+      "description": {
+        "en": "Removes whitespace immediately before \", . ! ? ; :\".",
+        "ja": "「, . ! ? ; :」の直前の空白を取り除く"
+      },
+      "example": {
+        "en": "`hello , world !` → `hello, world!`",
+        "ja": "`hello , world !` → `hello, world!`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.space-after-comma",
+      "candidateId": "WS-030",
+      "description": {
+        "en": "Inserts a space after each comma that is not already followed by one.",
+        "ja": "カンマの直後に空白がなければ 1 個入れる"
+      },
+      "example": {
+        "en": "`a,b,c` → `a, b, c`",
+        "ja": "`a,b,c` → `a, b, c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.indent-n",
+      "candidateId": "WS-031",
+      "description": {
+        "en": "Adds the number of spaces you enter to the start of each line.",
+        "ja": "入力した数の空白を各行の先頭に足す"
+      },
+      "example": {
+        "en": "`a⏎b（N=3）` → `···a⏎···b`",
+        "ja": "`a⏎b（N=3）` → `···a⏎···b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.outdent-n",
+      "candidateId": "WS-032",
+      "description": {
+        "en": "Removes up to the number of spaces you enter from the start of each line.",
+        "ja": "各行の先頭から入力した数までの空白を取り除く"
+      },
+      "example": {
+        "en": "`····a⏎·b（N=2）` → `··a⏎b`",
+        "ja": "`····a⏎·b（N=2）` → `··a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.expand-tabs",
+      "candidateId": "WS-033",
+      "description": {
+        "en": "Expands all tabs, including those in the middle of lines, to spaces taking tab stops (4) into account.",
+        "ja": "行中のタブも含め、タブストップ（4）を考慮して空白に展開する"
+      },
+      "example": {
+        "en": "`a⇥b` → `a···b`",
+        "ja": "`a⇥b` → `a···b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.unexpand-tabs",
+      "candidateId": "WS-034",
+      "description": {
+        "en": "Converts runs of spaces that end on a tab stop (4) boundary back into tabs.",
+        "ja": "タブストップ（4）境界に揃う連続空白をタブに戻す"
+      },
+      "example": {
+        "en": "`a···b` → `a⇥b`",
+        "ja": "`a···b` → `a⇥b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.whitespace.clear-blank-only-lines",
+      "candidateId": "WS-035",
+      "description": {
+        "en": "Turns whitespace-only lines into empty lines.",
+        "ja": "空白だけの行を中身のない空行にする"
+      },
+      "example": {
+        "en": "`a⏎··⏎b` → `a⏎⏎b`",
+        "ja": "`a⏎··⏎b` → `a⏎⏎b`"
+      }
+    }
+  ]
+}

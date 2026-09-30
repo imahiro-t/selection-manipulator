@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the UNI table of docs/ROADMAP.md (`{U+XXXX}`, `⏎` and `·`
+ * The input / output examples of the UNI commands of the showcase data (scripts/showcase-data/UNI.json) (`{U+XXXX}`, `⏎` and `·`
  * expanded), with the exact results of the commands and, for the commands that ask something
  * before running, the value chosen in the tests.
  */

@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the DATA table of docs/ROADMAP.md (`⏎` and `··` expanded), with
+ * The input / output examples of the DATA commands of the showcase data (scripts/showcase-data/DATA.json) (`⏎` and `··` expanded), with
  * the exact results of the commands. Commands that write other formats as JSON indent it with 2
  * spaces, so their expected result is the ROADMAP example re-indented (`pretty`); the ROADMAP test
  * compares those semantically.

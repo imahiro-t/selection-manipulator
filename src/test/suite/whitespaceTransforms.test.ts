@@ -12,7 +12,7 @@ import {
 } from '../../handler/whitespaceTransforms';
 
 /**
- * Notation used in this file (same as docs/ROADMAP.md):
+ * Notation used in this file (same as the examples of the showcase data, scripts/showcase-data/):
  * `·` = space, `⇥` = tab, `⏎` = line break. Tests for WS-015 / WS-016, where U+00B7
  * and U+2192 are real characters, use explicit escapes instead.
  */

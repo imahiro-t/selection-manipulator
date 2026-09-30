@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Generates docs/showcase.html, a self-contained page that lists every command
-// registered in package.json (contributes.commands), grouped by the categories
-// of docs/ROADMAP.md, with the description and input -> output example of the
-// ROADMAP when there is one.
+// Generates docs/showcase.html, a self-contained bilingual (English / Japanese) page that explains
+// how to use the extension and lists every command registered in package.json
+// (contributes.commands), grouped by the categories of the showcase data
+// (scripts/showcase-data/), with a description and an input -> output example in both languages.
 //
 //   node scripts/generate-showcase.mjs          write docs/showcase.html
-//   node scripts/generate-showcase.mjs --check  verify it without writing
+//   node scripts/generate-showcase.mjs --check  verify the data and the page without writing
 //
 // Only Node.js built-in modules are used (no new dependency).
 
@@ -14,41 +14,30 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const COMMAND_PREFIX = 'selection-manipulator.';
-export const EXISTING_CATEGORY = { id: 'EXISTING', name: '既存コマンド' };
-export const OTHER_CATEGORY = { id: 'OTHER', name: 'その他（ROADMAP 未掲載）' };
+export const DATA_DIR = 'scripts/showcase-data';
+export const CATEGORIES_FILE = 'categories.json';
+export const LANGUAGES = ['en', 'ja'];
+export const MARKETPLACE_URL = 'https://marketplace.visualstudio.com/items?itemName=erintheblack.selection-manipulator';
+export const EXTENSION_ID = 'erintheblack.selection-manipulator';
+export const LANGUAGE_STORAGE_KEY = 'selection-manipulator-showcase-lang';
 
-const CANDIDATE_SECTION = 'カテゴリ別の候補表';
-const INVENTORY_SECTION = '既存コマンド棚卸し';
-const CANDIDATE_CELLS = 9;
-const INVENTORY_CELLS = 5;
-const CANDIDATE_ID = /^[A-Z]+-\d{3}$/;
+/**
+ * Candidate IDs whose English example may keep Japanese inside a full-width `（…）`: the
+ * parentheses hold a translated note together with real Japanese data (the selected text or the
+ * value typed into the input box), which must not be translated.
+ */
+export const NOTE_PARENTHESES_ALLOW_LIST = Object.freeze(['MD-022', 'MD-024']);
+
 const ARROW = ' → ';
+
+/** Hiragana, katakana or kanji. */
+export const JAPANESE = /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u;
 
 export class ShowcaseError extends Error {
     constructor(message) {
         super(message);
         this.name = 'ShowcaseError';
     }
-}
-
-// ---------------------------------------------------------------------------
-// Table rows (GFM: cells are split before any inline parsing)
-// ---------------------------------------------------------------------------
-
-/**
- * Splits a Markdown table row into cells the way GFM does: a `|` splits the
- * row unless it is preceded by `\` (also inside code spans), and `\|` is then
- * turned back into `|` in every cell, before the inline parsing.
- */
-export function splitTableRow(line) {
-    let row = line.trim();
-    if (row.startsWith('|')) {
-        row = row.slice(1);
-    }
-    if (row.endsWith('|') && !row.endsWith('\\|')) {
-        row = row.slice(0, -1);
-    }
-    return row.split(/(?<!\\)\|/).map((cell) => cell.trim().replace(/\\\|/g, '|'));
 }
 
 // ---------------------------------------------------------------------------
@@ -62,7 +51,7 @@ const NAMED_ENTITIES = new Map([
     ['amp', '&'],
     ['quot', '"'],
     ['apos', "'"],
-    ['nbsp', ' '],
+    ['nbsp', ' '],
 ]);
 const ENTITY = /^&(?:#[xX]([0-9a-fA-F]{1,6})|#([0-9]{1,7})|([A-Za-z][A-Za-z0-9]*));/;
 const LINK = /^!?\[([^[\]`]*)\]\(([^\s()]*)\)/;
@@ -89,7 +78,7 @@ function decodeEntity(match) {
 
 // Index of the closing `**` of a strong span opened just before `start`, or -1.
 // The search stops at the next backtick (strong spans never contain code spans
-// in the ROADMAP) and skips backslash escapes.
+// in the data) and skips backslash escapes.
 function findStrongClose(src, start) {
     for (let i = start; i < src.length; i++) {
         const c = src[i];
@@ -114,8 +103,8 @@ function findStrongClose(src, start) {
 }
 
 /**
- * Parses the inline Markdown of a table cell (after `\|` was restored) into
- * tokens in one left-to-right scan:
+ * Parses the inline Markdown of a description or an example into tokens in one
+ * left-to-right scan:
  *   { type: 'text', value }, { type: 'code', value }, { type: 'strong', children }
  * Only code spans, backslash escapes, entity references, links / images (the
  * destination is dropped) and `**strong**` are recognized; everything else is
@@ -236,6 +225,14 @@ function plainText(token) {
     return token.value;
 }
 
+/** The text of the tokens outside code spans (what a reader sees as prose). */
+export function proseText(tokens) {
+    return tokens
+        .filter((token) => token.type !== 'code')
+        .map((token) => (token.type === 'strong' ? proseText(token.children) : token.value))
+        .join('');
+}
+
 const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
 export function escapeHtml(value) {
@@ -296,107 +293,23 @@ export function splitExample(tokens) {
 }
 
 // ---------------------------------------------------------------------------
-// ROADMAP and package.json
+// package.json and the showcase data
 // ---------------------------------------------------------------------------
 
 export function normalizeNewlines(text) {
     return text.replace(/\r\n?/g, '\n');
 }
 
-function singleCodeSpan(cell) {
-    const tokens = parseInline(cell);
-    return tokens.length === 1 && tokens[0].type === 'code' ? tokens[0].value : undefined;
+function parseJson(text, fileName) {
+    try {
+        return JSON.parse(normalizeNewlines(text));
+    } catch (error) {
+        throw new ShowcaseError(`${fileName}: invalid JSON (${error.message})`);
+    }
 }
 
-/**
- * Reads the candidate tables ("## カテゴリ別の候補表") and the inventory of the
- * existing commands ("## 既存コマンド棚卸し"). Tables of other sections are
- * ignored. Rows with a wrong number of cells, or whose command ID cell is not
- * a single code span, throw a ShowcaseError with the line number.
- */
-export function parseRoadmap(roadmap, fileName = 'docs/ROADMAP.md') {
-    const lines = normalizeNewlines(roadmap).split('\n');
-    const categories = [];
-    const candidates = new Map();
-    const inventory = new Map();
-    let section = '';
-    let category;
-    const fail = (lineNumber, message) => {
-        throw new ShowcaseError(`${fileName}:${lineNumber}: ${message}`);
-    };
-
-    lines.forEach((line, index) => {
-        const lineNumber = index + 1;
-        if (line.startsWith('## ')) {
-            section = line.slice(3).trim();
-            category = undefined;
-            return;
-        }
-        if (section === CANDIDATE_SECTION) {
-            if (line.startsWith('### ')) {
-                category = { id: line.slice(4).trim(), name: '' };
-                categories.push(category);
-                return;
-            }
-            const name = /^\*\*(.+?)\*\*\s*—/.exec(line);
-            if (name && category && category.name === '') {
-                category.name = name[1].trim();
-                return;
-            }
-        }
-        if (!line.trim().startsWith('|')) {
-            return;
-        }
-        if (section === CANDIDATE_SECTION) {
-            const cells = splitTableRow(line);
-            if (!CANDIDATE_ID.test(cells[0])) {
-                return;
-            }
-            const candidateId = cells[0];
-            if (cells.length !== CANDIDATE_CELLS) {
-                fail(lineNumber, `candidate ${candidateId} has ${cells.length} cells (expected ${CANDIDATE_CELLS}); escape "|" in a cell as "\\|"`);
-            }
-            if (!category) {
-                fail(lineNumber, `candidate ${candidateId} is outside a "### <category>" heading`);
-            }
-            if (cells[1] !== category.id) {
-                fail(lineNumber, `candidate ${candidateId} has category ${cells[1]} under "### ${category.id}"`);
-            }
-            const commandId = singleCodeSpan(cells[3]);
-            if (commandId === undefined) {
-                fail(lineNumber, `candidate ${candidateId}: the command ID cell must be a single code span`);
-            }
-            if (candidates.has(commandId)) {
-                fail(lineNumber, `candidate ${candidateId}: command ID ${commandId} is listed twice`);
-            }
-            candidates.set(commandId, {
-                candidateId,
-                category: category.id,
-                kind: cells[2],
-                summary: cells[5],
-                example: cells[6],
-                line: lineNumber,
-            });
-        } else if (section === INVENTORY_SECTION) {
-            const cells = splitTableRow(line);
-            if (!/^\d+$/.test(cells[0])) {
-                return;
-            }
-            if (cells.length !== INVENTORY_CELLS) {
-                fail(lineNumber, `inventory row ${cells[0]} has ${cells.length} cells (expected ${INVENTORY_CELLS}); escape "|" in a cell as "\\|"`);
-            }
-            const baseId = singleCodeSpan(cells[1]);
-            if (baseId === undefined) {
-                fail(lineNumber, `inventory row ${cells[0]}: the command ID cell must be a single code span`);
-            }
-            inventory.set(COMMAND_PREFIX + baseId, { note: cells[4], line: lineNumber });
-        }
-    });
-    return { categories, candidates, inventory };
-}
-
-function readCommands(packageJson) {
-    const pkg = typeof packageJson === 'string' ? JSON.parse(normalizeNewlines(packageJson)) : packageJson;
+function readPackage(packageJson) {
+    const pkg = typeof packageJson === 'string' ? parseJson(packageJson, 'package.json') : packageJson;
     const commands = pkg?.contributes?.commands;
     if (!Array.isArray(commands)) {
         throw new ShowcaseError('package.json has no contributes.commands array');
@@ -411,85 +324,375 @@ function readCommands(packageJson) {
         }
         seen.add(command.command);
     }
-    return commands;
+    const keybindings = Array.isArray(pkg.contributes.keybindings) ? pkg.contributes.keybindings : [];
+    return { commands, keybindings };
 }
 
-function inventoryEntry(inventory, commandId) {
-    if (inventory.has(commandId)) {
-        return inventory.get(commandId);
+/** The kinds of data problems, in the order they are summarized. */
+export const PROBLEM_KINDS = Object.freeze({
+    invalidData: 'invalid data',
+    categoryFile: 'category file mismatch',
+    categoryName: 'missing category name',
+    missingCommand: 'command missing from the data',
+    duplicateCommand: 'command listed twice',
+    unknownCommand: 'command not in package.json',
+    descriptionEn: 'missing English description',
+    descriptionJa: 'missing Japanese description',
+    exampleSide: 'missing example side',
+    japaneseInEnglish: 'Japanese in an English field',
+    unclassified: 'unclassified Japanese example',
+    untranslatedNote: 'untranslated note',
+    partlyUntranslatedNote: 'partly untranslated note',
+    translatedData: 'translated real data',
+    misplacedClassification: 'classification without Japanese',
+    changedWithoutJapanese: 'English example differs although there is nothing to translate',
+    invalidClassification: 'invalid classification',
+});
+
+const isText = (value) => typeof value === 'string' && value.trim() !== '';
+const hasJapanese = (text) => JAPANESE.test(text);
+const japaneseInProse = (markdown) => hasJapanese(proseText(parseInline(markdown)));
+const noteParentheses = (text) => [...text.matchAll(/（([^（）]*)）/g)].map((match) => match[1]);
+
+/**
+ * Validates the parsed showcase data against the command IDs of package.json.
+ *
+ *   categories     the parsed categories.json (array of { id, name: { en, ja } })
+ *   files          Map of file name (e.g. "CASE.json") -> parsed category file
+ *   commandIds     the command IDs of package.json
+ *   allowList      candidate IDs whose English example may keep Japanese inside （…）
+ *                  (default: NOTE_PARENTHESES_ALLOW_LIST)
+ *
+ * Returns the list of problems ({ kind, message }), empty when the data is fine.
+ */
+export function validateShowcaseData({ categories, files, commandIds, allowList = NOTE_PARENTHESES_ALLOW_LIST }) {
+    const problems = [];
+    const add = (kind, message) => problems.push({ kind, message });
+    const allowed = new Set(allowList);
+    const dir = DATA_DIR;
+
+    if (!Array.isArray(categories)) {
+        add(PROBLEM_KINDS.invalidData, `${dir}/${CATEGORIES_FILE}: must be an array of categories`);
+        return problems;
     }
-    const base = commandId.replace(/\.(replace|clipboard)$/, '');
-    return base !== commandId ? inventory.get(base) : undefined;
+    const categoryIds = new Set();
+    for (const category of categories) {
+        if (typeof category?.id !== 'string' || !/^[A-Z]+$/.test(category.id)) {
+            add(PROBLEM_KINDS.invalidData, `${dir}/${CATEGORIES_FILE}: a category has no valid ID (${JSON.stringify(category?.id)})`);
+            continue;
+        }
+        if (categoryIds.has(category.id)) {
+            add(PROBLEM_KINDS.invalidData, `${dir}/${CATEGORIES_FILE}: category ${category.id} is listed twice`);
+        }
+        categoryIds.add(category.id);
+        for (const lang of LANGUAGES) {
+            if (!isText(category.name?.[lang])) {
+                add(PROBLEM_KINDS.categoryName, `${dir}/${CATEGORIES_FILE}: category ${category.id} has no name.${lang}`);
+            }
+        }
+        if (!files.has(`${category.id}.json`)) {
+            add(PROBLEM_KINDS.categoryFile, `${dir}/${category.id}.json: missing (category ${category.id} is in ${CATEGORIES_FILE})`);
+        }
+    }
+
+    const expected = new Set(commandIds);
+    const seen = new Map();
+    for (const [fileName, file] of files) {
+        const where = `${dir}/${fileName}`;
+        const categoryId = fileName.replace(/\.json$/, '');
+        if (!categoryIds.has(categoryId)) {
+            add(PROBLEM_KINDS.categoryFile, `${where}: category ${categoryId} is not in ${CATEGORIES_FILE}`);
+        }
+        if (file?.category !== categoryId) {
+            add(PROBLEM_KINDS.categoryFile, `${where}: "category" is ${JSON.stringify(file?.category)}, expected "${categoryId}" (the file name)`);
+        }
+        if (!Array.isArray(file?.commands)) {
+            add(PROBLEM_KINDS.invalidData, `${where}: "commands" must be an array`);
+            continue;
+        }
+        file.commands.forEach((command, index) => {
+            if (typeof command?.id !== 'string' || command.id === '') {
+                add(PROBLEM_KINDS.invalidData, `${where}: command #${index + 1} has no ID`);
+                return;
+            }
+            const label = command.candidateId ? `${command.id} (${command.candidateId})` : command.id;
+            const at = `${where}: ${label}`;
+            if (seen.has(command.id)) {
+                add(PROBLEM_KINDS.duplicateCommand, `${at}: already listed in ${seen.get(command.id)}`);
+            } else {
+                seen.set(command.id, where);
+            }
+            if (!expected.has(command.id)) {
+                add(PROBLEM_KINDS.unknownCommand, `${at}: not registered in package.json`);
+            }
+            validateCommand(command, at, allowed, add);
+        });
+    }
+    for (const id of commandIds) {
+        if (!seen.has(id)) {
+            add(PROBLEM_KINDS.missingCommand, `${id}: registered in package.json but not in any file of ${dir}`);
+        }
+    }
+    return problems;
 }
 
-function candidateNumber(candidateId) {
-    return Number(candidateId.slice(candidateId.lastIndexOf('-') + 1));
+function validateCommand(command, at, allowed, add) {
+    const description = command.description;
+    if (!isText(description?.en)) {
+        add(PROBLEM_KINDS.descriptionEn, `${at}: description.en is missing or empty`);
+    } else if (japaneseInProse(description.en)) {
+        add(PROBLEM_KINDS.japaneseInEnglish, `${at}: description.en has Japanese outside code spans`);
+    }
+    if (!isText(description?.ja)) {
+        add(PROBLEM_KINDS.descriptionJa, `${at}: description.ja is missing or empty`);
+    }
+    const example = command.example;
+    if (example === undefined) {
+        return;
+    }
+    if (!isText(example?.en) || !isText(example?.ja)) {
+        const missing = LANGUAGES.filter((lang) => !isText(example?.[lang])).map((lang) => `example.${lang}`);
+        add(PROBLEM_KINDS.exampleSide, `${at}: ${missing.join(' and ')} is missing or empty (an example needs both en and ja)`);
+        return;
+    }
+    const classification = example.japanese;
+    if (classification !== undefined && classification !== 'note' && classification !== 'data') {
+        add(PROBLEM_KINDS.invalidClassification, `${at}: example.japanese is ${JSON.stringify(classification)} (must be "note" or "data")`);
+        return;
+    }
+    if (!hasJapanese(example.ja)) {
+        if (classification !== undefined) {
+            add(PROBLEM_KINDS.misplacedClassification, `${at}: example.japanese is "${classification}" but example.ja has no Japanese`);
+        }
+        if (example.en !== example.ja) {
+            add(PROBLEM_KINDS.changedWithoutJapanese, `${at}: example.en differs from example.ja although example.ja has no Japanese to translate`);
+        }
+        if (japaneseInProse(example.en)) {
+            add(PROBLEM_KINDS.japaneseInEnglish, `${at}: example.en has Japanese outside code spans`);
+        }
+        return;
+    }
+    if (classification === undefined) {
+        add(PROBLEM_KINDS.unclassified, `${at}: example.ja has Japanese but no "japanese": "note" or "data"`);
+        return;
+    }
+    if (classification === 'data') {
+        // The Japanese is real input / output: example.en must be the same string.
+        if (example.en !== example.ja) {
+            add(PROBLEM_KINDS.translatedData, `${at}: example.japanese is "data" (real Japanese data) but example.en differs from example.ja`);
+        }
+        return;
+    }
+    if (example.en === example.ja) {
+        add(PROBLEM_KINDS.untranslatedNote, `${at}: example.japanese is "note" but example.en is the same as example.ja (the note is not translated)`);
+        return;
+    }
+    const allowListed = command.candidateId !== undefined && allowed.has(command.candidateId);
+    if (!allowListed && noteParentheses(example.en).some(hasJapanese)) {
+        add(PROBLEM_KINDS.partlyUntranslatedNote, `${at}: example.japanese is "note" but a （…） of example.en still has Japanese`);
+    }
+    // Remarks outside the full-width parentheses (and outside code spans) must be English too.
+    if (japaneseInProse(example.en.replace(/（[^（）]*）/g, ''))) {
+        add(PROBLEM_KINDS.japaneseInEnglish, `${at}: example.en has Japanese outside code spans`);
+    }
+}
+
+/** Formats the problems with a count per kind. */
+export function formatProblems(problems) {
+    const counts = new Map();
+    for (const problem of problems) {
+        counts.set(problem.kind, (counts.get(problem.kind) ?? 0) + 1);
+    }
+    const order = Object.values(PROBLEM_KINDS);
+    const summary = [...counts.entries()]
+        .sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]))
+        .map(([kind, count]) => `${kind}: ${count}`)
+        .join(', ');
+    return [
+        `the showcase data (${DATA_DIR}) has ${problems.length} problem(s):`,
+        ...problems.map((problem) => `  ${problem.message} [${problem.kind}]`),
+        `problems by kind: ${summary}`,
+    ].join('\n');
 }
 
 /**
- * Joins the commands of package.json with the ROADMAP. Returns the categories
- * in display order, each with its items in display order.
+ * Reads package.json and the showcase data, validates them, and joins them.
+ * Inputs are the file contents: { packageJson, categories, categoryFiles: { "CASE.json": text, … } }.
+ * Throws a ShowcaseError listing every problem when the data is not complete.
  */
-export function collectCommands({ packageJson, roadmap, warn = defaultWarn }) {
-    const commands = readCommands(packageJson);
-    const { categories, candidates, inventory } = parseRoadmap(roadmap);
-    const groups = new Map(categories.map((c) => [c.id, { ...c, items: [] }]));
-    const existing = { ...EXISTING_CATEGORY, items: [] };
-    const other = { ...OTHER_CATEGORY, items: [] };
-
-    for (const command of commands) {
-        const id = command.command;
-        const title = typeof command.title === 'string' ? command.title : id;
-        const candidate = candidates.get(id);
-        if (candidate) {
-            groups.get(candidate.category).items.push({
-                id,
-                title,
-                category: candidate.category,
-                candidateId: candidate.candidateId,
-                kind: candidate.kind,
-                description: candidate.summary,
-                example: candidate.example,
-            });
-            continue;
-        }
-        const entry = inventoryEntry(inventory, id);
-        if (entry) {
-            const note = entry.note.trim();
-            existing.items.push({
-                id,
-                title,
-                category: EXISTING_CATEGORY.id,
-                description: note !== '' && note !== '—' ? note : undefined,
-            });
-            continue;
-        }
-        other.items.push({ id, title, category: OTHER_CATEGORY.id });
+export function collectCommands({ packageJson, categories, categoryFiles, allowList }) {
+    const { commands, keybindings } = readPackage(packageJson);
+    const parsedCategories = parseJson(categories, `${DATA_DIR}/${CATEGORIES_FILE}`);
+    const files = new Map(
+        Object.keys(categoryFiles)
+            .sort()
+            .map((fileName) => [fileName, parseJson(categoryFiles[fileName], `${DATA_DIR}/${fileName}`)]),
+    );
+    const commandIds = commands.map((command) => command.command);
+    const problems = validateShowcaseData({ categories: parsedCategories, files, commandIds, allowList });
+    if (problems.length > 0) {
+        throw new ShowcaseError(formatProblems(problems));
     }
-
-    for (const group of groups.values()) {
-        group.items.sort((a, b) => candidateNumber(a.candidateId) - candidateNumber(b.candidateId));
-    }
-    if (other.items.length > 0) {
-        warn(
-            `warning: ${other.items.length} command(s) are not in docs/ROADMAP.md and are listed under "${OTHER_CATEGORY.name}": ` +
-                other.items.map((item) => item.id).join(', '),
-        );
-    }
-    const ordered = [...groups.values(), existing];
-    if (other.items.length > 0) {
-        ordered.push(other);
-    }
-    return {
-        categories: ordered,
-        total: commands.length,
-        unlisted: other.items.map((item) => item.id),
-        commandIds: commands.map((command) => command.command),
-    };
+    const titles = new Map(commands.map((command) => [command.command, typeof command.title === 'string' ? command.title : command.command]));
+    const ordered = parsedCategories.map((category) => ({
+        id: category.id,
+        name: { en: category.name.en, ja: category.name.ja },
+        items: files.get(`${category.id}.json`).commands.map((command) => ({
+            id: command.id,
+            title: titles.get(command.id),
+            category: category.id,
+            description: command.description,
+            example: command.example,
+        })),
+    }));
+    return { categories: ordered, total: commands.length, commandIds, titles, keybindings };
 }
 
-function defaultWarn(message) {
-    process.stderr.write(`${message}\n`);
+// ---------------------------------------------------------------------------
+// Texts of the page (English / Japanese)
+// ---------------------------------------------------------------------------
+
+/**
+ * Every fixed text of the page, in both languages. Values are HTML (already
+ * escaped); `{count}` is replaced with the number of commands.
+ */
+export const UI_TEXT = Object.freeze({
+    pageTitle: { en: 'Selection Manipulator Commands', ja: 'Selection Manipulator コマンド一覧' },
+    skipLink: { en: 'Skip to main content', ja: '本文へ移動' },
+    languageGroup: { en: 'Language', ja: '言語' },
+    lead: {
+        en: 'A VS Code extension with <strong>{count}</strong> commands that transform, generate and extract the text of your selections.',
+        ja: '選択範囲のテキストを変換・生成・抽出する <strong>{count}</strong> 件のコマンドを持つ VS Code 拡張機能です。',
+    },
+    usageHeading: { en: 'Getting started', ja: '使い方' },
+    overviewHeading: { en: 'Overview', ja: '概要' },
+    overview: {
+        en:
+            'Selection Manipulator transforms, generates and extracts text in place, right in the editor: in the selection, or in every selection at once when you use multiple cursors. ' +
+            'It has <strong>{count}</strong> commands for case conversion, whitespace and lines, sorting, encoding, hashing, data formats, tables, numbers, dates, generators, Japanese text, Unicode, programming, multiple cursors and Markdown. ' +
+            'They are all listed below, with a description and an input → output example.',
+        ja:
+            'Selection Manipulator は、エディタで選択したテキスト（マルチカーソルなら各選択範囲）をその場で変換・生成・抽出する拡張機能です。' +
+            '大文字小文字の変換、空白・行の整形、ソート、エンコード、ハッシュ、データ形式、表、数値、日付、生成、日本語テキスト、Unicode、プログラミング支援、マルチカーソル、Markdown など、全 <strong>{count}</strong> 件のコマンドがあります。' +
+            'すべてのコマンドを、説明と入出力例付きで下に掲載しています。',
+    },
+    installHeading: { en: 'Installation', ja: 'インストール' },
+    install: {
+        en:
+            'In VS Code, open the Extensions view (<code>Cmd+Shift+X</code> / <code>Ctrl+Shift+X</code>), search for “Selection Manipulator” and select <strong>Install</strong>. ' +
+            `Or open Quick Open (<code>Cmd+P</code> / <code>Ctrl+P</code>) and run <code>ext install ${EXTENSION_ID}</code>. ` +
+            `The extension is also on the <a href="${MARKETPLACE_URL}">Visual Studio Marketplace</a>.`,
+        ja:
+            'VS Code の拡張機能ビュー（<code>Cmd+Shift+X</code> / <code>Ctrl+Shift+X</code>）で「Selection Manipulator」を検索し、<strong>インストール</strong>を選びます。' +
+            `または Quick Open（<code>Cmd+P</code> / <code>Ctrl+P</code>）を開いて <code>ext install ${EXTENSION_ID}</code> を実行します。` +
+            `<a href="${MARKETPLACE_URL}">Visual Studio Marketplace のページ</a>からもインストールできます。`,
+    },
+    paletteHeading: { en: 'Command Palette', ja: 'コマンドパレット' },
+    palette: {
+        en:
+            'Select some text, open the Command Palette (<code>Cmd+Shift+P</code> / <code>Ctrl+Shift+P</code>) and type <code>Selection Manipulator</code> to find the commands of this extension. ' +
+            'The command <code>Show Selection Manipulator Commands</code> shows all of them in one list to pick from.',
+        ja:
+            'テキストを選択してコマンドパレット（<code>Cmd+Shift+P</code> / <code>Ctrl+Shift+P</code>）を開き、<code>Selection Manipulator</code> と入力すると、この拡張機能のコマンドが見つかります。' +
+            'コマンド <code>Show Selection Manipulator Commands</code> を使うと、すべてのコマンドを 1 つの一覧から選べます。',
+    },
+    contextMenuHeading: { en: 'Context menu', ja: '右クリックメニュー' },
+    contextMenu: {
+        en: 'Right-click the selected text in the editor and open the <strong>Selection Manipulator</strong> submenu. The commands are grouped into submenus by kind.',
+        ja: 'エディタで選択したテキストを右クリックし、<strong>Selection Manipulator</strong> サブメニューから実行します。コマンドは種類ごとのサブメニューにまとまっています。',
+    },
+    keybindingsHeading: { en: 'Keybindings', ja: 'キーバインド' },
+    keybindings: {
+        en: 'These commands have a default keybinding (you can change them in <strong>Keyboard Shortcuts</strong>):',
+        ja: '次のコマンドには既定のキーバインドがあります（<strong>キーボード ショートカット</strong>で変更できます）。',
+    },
+    keybindingCommand: { en: 'Command', ja: 'コマンド' },
+    keybindingMac: { en: 'Mac', ja: 'Mac' },
+    keybindingOther: { en: 'Windows / Linux', ja: 'Windows・Linux' },
+    multiSelectionHeading: { en: 'Multiple selections', ja: 'マルチセレクション' },
+    multiSelection: {
+        en:
+            'With several selections (multiple cursors), a command is applied to each selection separately. ' +
+            '<code>Convert to Multi Selection</code> splits a multi-line selection into one selection per line, and the commands in <strong>Multiple cursors and selections</strong> keep, split, align or adjust selections.',
+        ja:
+            '選択範囲が複数あるとき（マルチカーソル）は、コマンドは各選択範囲に個別に適用されます。' +
+            '<code>Convert to Multi Selection</code> で複数行の選択を 1 行ずつの選択に分けられ、<strong>マルチカーソル・選択操作</strong>のコマンドで選択を絞り込む・分割する・揃える・調整することもできます。',
+    },
+    outputHeading: { en: 'Where the result goes', ja: '結果の出力先' },
+    outputs: {
+        en: [
+            '<strong>New read-only tab</strong>: many commands open the result in a new tab, which closes without asking to save.',
+            '<strong>Replace the selection</strong>: the <code>(Replace)</code> versions, and the commands that edit text in place, replace the selected text with the result.',
+            '<strong>Clipboard</strong>: the <code>(Clipboard)</code> versions copy the result to the clipboard.',
+            '<strong>Notification</strong>: commands that count or check something show the result in a notification.',
+        ],
+        ja: [
+            '<strong>新しい読み取り専用タブ</strong>: 多くのコマンドは結果を新しいタブに開きます。閉じるときに保存を確認されません。',
+            '<strong>選択範囲の置き換え</strong>: <code>(Replace)</code> 版や、その場で編集するコマンドは、選択したテキストを結果で置き換えます。',
+            '<strong>クリップボード</strong>: <code>(Clipboard)</code> 版は結果をクリップボードにコピーします。',
+            '<strong>通知</strong>: 数えたり確かめたりするコマンドは、結果を通知で表示します。',
+        ],
+    },
+    commandsHeading: { en: 'All commands', ja: 'コマンド一覧' },
+    totalCount: { en: '<strong>{count}</strong> commands', ja: '全 <strong>{count}</strong> 件' },
+    visibleBefore: { en: 'Showing', ja: '表示中' },
+    /** Unit after a shown count ("Showing 12" / "表示中 12 件"); empty when the language needs none. */
+    countUnit: { en: '', ja: '件' },
+    searchLabel: {
+        en: 'Search (command ID, title, description or example; separate words with spaces to match all of them)',
+        ja: 'キーワード検索（コマンド ID・タイトル・説明・例。空白区切りで AND）',
+    },
+    searchPlaceholder: { en: 'e.g. base64', ja: '例: base64' },
+    filterLegend: { en: 'Filter by category', ja: 'カテゴリで絞り込み' },
+    all: { en: 'All', ja: 'すべて' },
+    unit: { en: 'commands', ja: '件' },
+    sectionShowing: { en: 'Showing', ja: '表示' },
+    empty: { en: 'No matching commands.', ja: '該当するコマンドはありません' },
+    input: { en: 'Input', ja: '入力' },
+    output: { en: 'Output', ja: '出力' },
+    example: { en: 'Example', ja: '例' },
+    legendSummary: { en: 'Notation of the examples', ja: '入出力例の表記' },
+    legendItems: {
+        en: [
+            '<code>⏎</code> = line break',
+            '<code>⇥</code> = tab',
+            '<code>·</code> = a space that matters',
+            '<code>{U+XXXX}</code> = an invisible character (its code point)',
+            '<code>[a]</code> = a selection',
+            '<code>|</code> = the cursor position',
+            '<code>（notification）</code> = the result is shown in a notification',
+            'Other remarks in full-width parentheses <code>（ ）</code> after an input are values typed when the command runs, the number of cursors, and similar notes.',
+            '<code>\\n</code> in a string literal stands for the two characters “backslash + n” (a real line break is <code>⏎</code>).',
+            'In the output of “Whitespace: Visualize Spaces and Tabs” and the input of “Whitespace: Restore Visualized Spaces and Tabs”, <code>·</code> and <code>→</code> are real characters, not notation.',
+        ],
+        ja: [
+            '<code>⏎</code> = 改行',
+            '<code>⇥</code> = タブ',
+            '<code>·</code> = 意味のある空白',
+            '<code>{U+XXXX}</code> = 不可視文字（コードポイント）',
+            '<code>[a]</code> = 選択範囲',
+            '<code>|</code> = カーソル位置',
+            '<code>（通知）</code> = 結果を通知で表示する',
+            '入力の後ろの全角括弧 <code>（ ）</code> は、コマンド実行時に入力する値やカーソル数などの補足です。',
+            '文字列リテラルの <code>\\n</code> などは「バックスラッシュ + n」の 2 文字を表します（実際の改行は <code>⏎</code>）。',
+            '「Whitespace: Visualize Spaces and Tabs」の出力側と「Whitespace: Restore Visualized Spaces and Tabs」の入力側では、<code>·</code> と <code>→</code> は表記記号ではなく実際の文字です。',
+        ],
+    },
+});
+
+function checkUiText() {
+    for (const [key, value] of Object.entries(UI_TEXT)) {
+        for (const lang of LANGUAGES) {
+            const text = value[lang];
+            const ok = Array.isArray(text) ? text.length > 0 && text.every((item) => item !== '') : typeof text === 'string';
+            if (!ok) {
+                throw new ShowcaseError(`UI_TEXT.${key} has no ${lang} text`);
+            }
+        }
+        if (Array.isArray(value.en) !== Array.isArray(value.ja) || (Array.isArray(value.en) && value.en.length !== value.ja.length)) {
+            throw new ShowcaseError(`UI_TEXT.${key}: the en and ja lists differ in length`);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -509,8 +712,6 @@ const STYLE = `
   --accent-text: #ffffff;
   --code-bg: #eff1f3;
   --code-text: #1f2328;
-  --badge-bg: #e7eefa;
-  --badge-text: #0b4a8b;
   --focus: #0b5cad;
 }
 @media (prefers-color-scheme: dark) {
@@ -526,11 +727,10 @@ const STYLE = `
     --accent-text: #0d1117;
     --code-bg: #2a2e35;
     --code-text: #e6e8eb;
-    --badge-bg: #20344d;
-    --badge-text: #b8d6fb;
     --focus: #7cb4f5;
   }
 }
+html[data-lang="en"] [data-l="ja"], html[data-lang="ja"] [data-l="en"] { display: none !important; }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
@@ -543,6 +743,7 @@ body {
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+a { color: var(--accent); }
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 0.9em;
@@ -558,11 +759,33 @@ code {
 .skip { position: absolute; left: -9999px; }
 .skip:focus { left: 16px; top: 8px; background: var(--surface); padding: 4px 8px; z-index: 1; }
 header.top { border-bottom: 1px solid var(--border); background: var(--surface); padding: 16px 0 12px; }
-h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 4px; }
-.lead { margin: 0 0 12px; color: var(--muted); }
+.top-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+h1 { font-size: 1.5rem; line-height: 1.3; margin: 0; }
+.lang { display: flex; gap: 6px; }
+.lang button {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 3px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.lang button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.lead { margin: 8px 0 0; color: var(--muted); }
 .lead strong { color: var(--text); }
+main { padding-top: 8px; padding-bottom: 32px; }
+h2 { font-size: 1.3rem; line-height: 1.4; margin: 24px 0 8px; }
+.usage { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px 16px 12px; margin-top: 16px; }
+.usage h3 { font-size: 1.05rem; margin: 16px 0 4px; }
+.usage p, .usage ul { margin: 4px 0; }
+.usage ul { padding-left: 1.2em; }
+.keys { border-collapse: collapse; margin: 6px 0; font-size: 0.9rem; max-width: 100%; }
+.keys th, .keys td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; vertical-align: top; }
+.keys-scroll { overflow-x: auto; }
 .search { display: block; width: 100%; max-width: 560px; }
-.search span { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 2px; }
+.search span.label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 2px; }
 .search input {
   width: 100%;
   font: inherit;
@@ -583,6 +806,7 @@ h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 4px; }
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  text-align: left;
 }
 .chip .n { color: var(--muted); margin-left: 2px; }
 .sr-only {
@@ -603,11 +827,10 @@ h1 { font-size: 1.5rem; line-height: 1.3; margin: 0 0 4px; }
 .legend summary { cursor: pointer; }
 .legend ul { margin: 6px 0 0; padding-left: 1.2em; }
 .legend li { margin: 2px 0; }
-main { padding-top: 8px; padding-bottom: 32px; }
 .empty { padding: 24px 0; color: var(--muted); }
-section { margin-top: 24px; }
-h2 { font-size: 1.15rem; line-height: 1.4; margin: 0 0 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
-.cat-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--accent); }
+.empty p { margin: 0; }
+section.cat { margin-top: 24px; }
+h3.cat-h { font-size: 1.1rem; line-height: 1.4; margin: 0 0 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .cat-count { font-size: 0.85rem; font-weight: normal; color: var(--muted); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 10px; }
 .cmd {
@@ -617,23 +840,62 @@ h2 { font-size: 1.15rem; line-height: 1.4; margin: 0 0 10px; display: flex; flex
   border-radius: 10px;
   padding: 10px 12px;
 }
-.cmd h3 { font-size: 1rem; line-height: 1.4; margin: 0 0 4px; }
+.cmd h4 { font-size: 1rem; line-height: 1.4; margin: 0 0 4px; }
 .meta { margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; min-width: 0; }
 .meta code { font-size: 0.8rem; min-width: 0; }
-.badge { font-size: 0.75rem; background: var(--badge-bg); color: var(--badge-text); border-radius: 4px; padding: 0 6px; white-space: nowrap; }
 .desc { margin: 0 0 6px; font-size: 0.9rem; }
 .ex { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; font-size: 0.85rem; }
 .ex dt { color: var(--muted); }
 .ex dd { margin: 0; min-width: 0; }
 `;
 
-const SCRIPT = `
+const HEAD_SCRIPT = (titles) => `
 (function () {
+  var root = document.documentElement;
+  var lang = null;
+  try {
+    var saved = window.localStorage.getItem(${JSON.stringify(LANGUAGE_STORAGE_KEY)});
+    if (saved === 'en' || saved === 'ja') { lang = saved; }
+  } catch (e) {}
+  if (!lang) {
+    lang = String(navigator.language || '').toLowerCase().indexOf('ja') === 0 ? 'ja' : 'en';
+  }
+  root.setAttribute('lang', lang);
+  root.setAttribute('data-lang', lang);
+  document.title = ${JSON.stringify(titles)}[lang];
+})();
+`;
+
+const BODY_SCRIPT = (titles) => `
+(function () {
+  var root = document.documentElement;
+  var titles = ${JSON.stringify(titles)};
   var input = document.getElementById('q');
   var visible = document.getElementById('visible-count');
   var empty = document.getElementById('empty');
+  var langGroup = document.getElementById('lang-switch');
+  var langButtons = Array.prototype.slice.call(document.querySelectorAll('button[data-set-lang]'));
+  function applyLanguage(lang) {
+    root.setAttribute('lang', lang);
+    root.setAttribute('data-lang', lang);
+    document.title = titles[lang];
+    input.setAttribute('placeholder', input.getAttribute('data-placeholder-' + lang) || '');
+    langGroup.setAttribute('aria-label', langGroup.getAttribute('data-label-' + lang) || '');
+    langButtons.forEach(function (button) {
+      button.setAttribute('aria-pressed', String(button.getAttribute('data-set-lang') === lang));
+    });
+  }
+  langButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var lang = button.getAttribute('data-set-lang');
+      applyLanguage(lang);
+      try { window.localStorage.setItem(${JSON.stringify(LANGUAGE_STORAGE_KEY)}, lang); } catch (e) {}
+    });
+  });
+  applyLanguage(root.getAttribute('data-lang') === 'ja' ? 'ja' : 'en');
+
   var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  var sections = Array.prototype.slice.call(document.querySelectorAll('main section')).map(function (section) {
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.cat')).map(function (section) {
     return {
       el: section,
       count: section.querySelector('.sec-visible'),
@@ -673,54 +935,75 @@ const SCRIPT = `
 })();
 `;
 
-const LEGEND = [
-    ['⏎', '改行'],
-    ['⇥', 'タブ'],
-    ['·', '意味のある空白'],
-    ['{U+XXXX}', '不可視文字（コードポイント）'],
-    ['[a]', '選択範囲'],
-    ['|', 'カーソル位置'],
-    ['（通知）', '結果を通知で表示する'],
-];
+const fill = (html, count) => html.replace(/\{count\}/g, String(count));
 
-function renderLegend() {
-    const items = LEGEND.map(([symbol, meaning]) => `<li><code>${escapeHtml(symbol)}</code> = ${escapeHtml(meaning)}</li>`);
-    items.push('<li>入力の後ろの（ ）は、コマンド実行時に入力する値やカーソル数などの補足です。</li>');
-    items.push('<li>文字列リテラルの <code>\\n</code> などは「バックスラッシュ + n」の 2 文字を表します（実際の改行は <code>⏎</code>）。</li>');
-    items.push(
-        '<li>WS-015（空白の可視化）の出力側と WS-016（可視化を戻す）の入力側では、<code>·</code> と <code>→</code> は表記記号ではなく実際の文字です。</li>',
-    );
-    return `<details class="legend"><summary>入出力例の表記</summary><ul>\n${items.join('\n')}\n</ul></details>`;
+/** Inline bilingual text: one span per language, only the current one is shown. */
+function bi(pair, count = '') {
+    return `<span data-l="en" lang="en">${fill(pair.en, count)}</span><span data-l="ja" lang="ja">${fill(pair.ja, count)}</span>`;
 }
 
-function renderExample(tokens) {
+/**
+ * A suffix per language after a number, e.g. " 件" in Japanese. A language
+ * whose text is empty gets no span at all.
+ */
+function biSuffix(pair) {
+    return LANGUAGES.filter((lang) => pair[lang] !== '')
+        .map((lang) => `<span data-l="${lang}" lang="${lang}"> ${pair[lang]}</span>`)
+        .join('');
+}
+
+/** A block element per language, e.g. <p data-l="en" lang="en">…</p><p data-l="ja" lang="ja">…</p>. */
+function biBlock(tag, attributes, pair, count = '') {
+    const attrs = attributes ? ` ${attributes}` : '';
+    return LANGUAGES.map((lang) => `<${tag}${attrs} data-l="${lang}" lang="${lang}">${fill(pair[lang], count)}</${tag}>`).join('');
+}
+
+function renderLegend() {
+    const lists = LANGUAGES.map(
+        (lang) => `<ul data-l="${lang}" lang="${lang}">\n${UI_TEXT.legendItems[lang].map((item) => `<li>${item}</li>`).join('\n')}\n</ul>`,
+    );
+    return `<details class="legend"><summary>${bi(UI_TEXT.legendSummary)}</summary>\n${lists.join('\n')}\n</details>`;
+}
+
+function exampleList(tokens, labels) {
     const split = splitExample(tokens);
     if (split) {
-        return `<dl class="ex"><dt>入力</dt><dd>${renderInline(split.input)}</dd><dt>出力</dt><dd>${renderInline(split.output)}</dd></dl>`;
+        return `<dt>${labels.input}</dt><dd>${renderInline(split.input)}</dd><dt>${labels.output}</dt><dd>${renderInline(split.output)}</dd>`;
     }
-    return `<dl class="ex"><dt>例</dt><dd>${renderInline(tokens)}</dd></dl>`;
+    return `<dt>${labels.example}</dt><dd>${renderInline(tokens)}</dd>`;
+}
+
+function renderExample(example) {
+    if (example.en === example.ja) {
+        // Nothing to translate: one list with bilingual labels.
+        const labels = { input: bi(UI_TEXT.input), output: bi(UI_TEXT.output), example: bi(UI_TEXT.example) };
+        return `<dl class="ex">${exampleList(parseInline(example.en), labels)}</dl>`;
+    }
+    return LANGUAGES.map((lang) => {
+        const labels = { input: UI_TEXT.input[lang], output: UI_TEXT.output[lang], example: UI_TEXT.example[lang] };
+        return `<dl class="ex" data-l="${lang}" lang="${lang}">${exampleList(parseInline(example[lang]), labels)}</dl>`;
+    }).join('');
 }
 
 function renderItem(item) {
     const parts = [item.id, item.title];
-    if (item.candidateId) {
-        parts.push(item.candidateId);
-    }
     const body = [];
-    body.push(`<h3>${escapeHtml(item.title)}</h3>`);
-    const badges = item.candidateId
-        ? ` <span class="badge">${escapeHtml(item.candidateId)}</span> <span class="badge">${escapeHtml(item.kind)}</span>`
-        : '';
-    body.push(`<p class="meta"><code>${escapeHtml(item.id)}</code>${badges}</p>`);
-    if (item.description !== undefined) {
-        const tokens = parseInline(item.description);
+    // Titles are English in both languages (package.json), so mark them as such.
+    body.push(`<h4 lang="en">${escapeHtml(item.title)}</h4>`);
+    body.push(`<p class="meta"><code>${escapeHtml(item.id)}</code></p>`);
+    const descriptions = LANGUAGES.map((lang) => {
+        const tokens = parseInline(item.description[lang]);
         parts.push(searchText(tokens));
-        body.push(`<p class="desc">${renderInline(tokens)}</p>`);
-    }
+        return `<p class="desc" data-l="${lang}" lang="${lang}">${renderInline(tokens)}</p>`;
+    });
+    body.push(descriptions.join(''));
     if (item.example !== undefined) {
-        const tokens = parseInline(item.example);
-        parts.push(searchText(tokens));
-        body.push(renderExample(tokens));
+        for (const lang of LANGUAGES) {
+            if (lang === 'en' || item.example.ja !== item.example.en) {
+                parts.push(searchText(parseInline(item.example[lang])));
+            }
+        }
+        body.push(renderExample(item.example));
     }
     const search = parts.join(' ').normalize('NFKC').toLowerCase();
     return (
@@ -729,13 +1012,18 @@ function renderItem(item) {
     );
 }
 
+function escapedPair(pair) {
+    return { en: escapeHtml(pair.en), ja: escapeHtml(pair.ja) };
+}
+
 function renderSection(category) {
     const id = escapeHtml(category.id);
     const count = category.items.length;
     return [
-        `<section id="cat-${id}" data-category="${id}" aria-labelledby="h-${id}">`,
-        `<h2 id="h-${id}"><span class="cat-id">${id}</span> <span>${escapeHtml(category.name)}</span> ` +
-            `<span class="cat-count">表示 <span class="sec-visible">${count}</span> / ${count} 件</span></h2>`,
+        `<section id="cat-${id}" class="cat" data-category="${id}" aria-labelledby="h-${id}">`,
+        `<h3 id="h-${id}" class="cat-h">${bi(escapedPair(category.name))} ` +
+            `<span class="cat-count">${bi(UI_TEXT.sectionShowing)} <span class="sec-visible">${count}</span> / ${count}` +
+            `${biSuffix(UI_TEXT.countUnit)}</span></h3>`,
         '<div class="grid">',
         ...category.items.map(renderItem),
         '</div>',
@@ -744,81 +1032,134 @@ function renderSection(category) {
 }
 
 /**
- * A category filter button. The visible text is the label and the count; the
- * accessible name starts with that label and adds the category name (when it
- * differs from the label) and the unit, e.g. "CASE 大文字小文字変換 30 件".
- * No title attribute: it would repeat the hidden category name, and some
- * screen readers would then announce the name twice.
+ * A category filter button. The visible text is the category name in the
+ * current language and the count; the unit is only for screen readers, so the
+ * accessible name reads e.g. "Case and naming 30 commands". No title attribute.
  */
-function renderChip({ filter, label, name, count, pressed }) {
-    const hasName = name !== undefined && name !== label;
-    const hiddenName = hasName ? ` <span class="sr-only">${escapeHtml(name)}</span>` : '';
+function renderChip({ filter, name, count, pressed }) {
     return (
         `<button type="button" class="chip" data-filter="${escapeHtml(filter)}" aria-pressed="${pressed}">` +
-        `${escapeHtml(label)}${hiddenName} <span class="n">${count}</span><span class="sr-only"> 件</span></button>`
+        `${bi(name)} <span class="n">${count}</span><span class="sr-only"> ${bi(UI_TEXT.unit)}</span></button>`
     );
 }
 
-/** Candidate categories show their short ID; EXISTING / OTHER show their name. */
-function chipLabel(category) {
-    const named = category.id === EXISTING_CATEGORY.id || category.id === OTHER_CATEGORY.id;
-    return named ? category.name : category.id;
+function renderKeybindings(keybindings, titles) {
+    const rows = keybindings.map((binding) => {
+        const other = binding.win && binding.key && binding.win !== binding.key ? `${binding.win} (Windows) / ${binding.key} (Linux)` : (binding.win ?? binding.key ?? '');
+        const title = titles.get(binding.command) ?? binding.command;
+        return (
+            `<tr data-keybinding="${escapeHtml(binding.command)}"><td lang="en">${escapeHtml(title)}<br><code>${escapeHtml(binding.command)}</code></td>` +
+            `<td><code>${escapeHtml(binding.mac ?? binding.key ?? '')}</code></td><td><code>${escapeHtml(other)}</code></td></tr>`
+        );
+    });
+    return [
+        biBlock('p', '', UI_TEXT.keybindings),
+        '<div class="keys-scroll"><table class="keys">',
+        `<thead><tr><th scope="col">${bi(UI_TEXT.keybindingCommand)}</th><th scope="col">${bi(UI_TEXT.keybindingMac)}</th><th scope="col">${bi(UI_TEXT.keybindingOther)}</th></tr></thead>`,
+        `<tbody>\n${rows.join('\n')}\n</tbody>`,
+        '</table></div>',
+    ].join('\n');
+}
+
+function renderUsage(total, keybindings, titles) {
+    const outputs = LANGUAGES.map(
+        (lang) => `<ul data-l="${lang}" lang="${lang}">\n${UI_TEXT.outputs[lang].map((item) => `<li>${item}</li>`).join('\n')}\n</ul>`,
+    );
+    return [
+        '<section id="usage" class="usage" aria-labelledby="usage-h">',
+        `<h2 id="usage-h">${bi(UI_TEXT.usageHeading)}</h2>`,
+        `<h3 id="usage-overview">${bi(UI_TEXT.overviewHeading)}</h3>`,
+        biBlock('p', '', UI_TEXT.overview, total),
+        `<h3 id="usage-install">${bi(UI_TEXT.installHeading)}</h3>`,
+        biBlock('p', '', UI_TEXT.install),
+        `<h3 id="usage-palette">${bi(UI_TEXT.paletteHeading)}</h3>`,
+        biBlock('p', '', UI_TEXT.palette),
+        `<h3 id="usage-context-menu">${bi(UI_TEXT.contextMenuHeading)}</h3>`,
+        biBlock('p', '', UI_TEXT.contextMenu),
+        `<h3 id="usage-keybindings">${bi(UI_TEXT.keybindingsHeading)}</h3>`,
+        renderKeybindings(keybindings, titles),
+        `<h3 id="usage-multi-selection">${bi(UI_TEXT.multiSelectionHeading)}</h3>`,
+        biBlock('p', '', UI_TEXT.multiSelection),
+        `<h3 id="usage-output">${bi(UI_TEXT.outputHeading)}</h3>`,
+        ...outputs,
+        '</section>',
+    ].join('\n');
 }
 
 /**
  * Builds the showcase page. Deterministic: the same inputs give the same
  * bytes (LF newlines, one final newline, no dates or paths).
+ * Inputs: { packageJson, categories, categoryFiles } (file contents), see readInputs.
  */
-export function buildShowcase({ packageJson, roadmap, warn = defaultWarn }) {
-    const { categories, total, unlisted, commandIds } = collectCommands({ packageJson, roadmap, warn });
-    const chips = [renderChip({ filter: '', label: 'すべて', count: total, pressed: true })];
+export function buildShowcase(inputs) {
+    checkUiText();
+    const { categories, total, commandIds, titles, keybindings } = collectCommands(inputs);
+    const pageTitles = { en: UI_TEXT.pageTitle.en, ja: UI_TEXT.pageTitle.ja };
+    const chips = [renderChip({ filter: '', name: UI_TEXT.all, count: total, pressed: true })];
     for (const category of categories) {
-        const label = chipLabel(category);
-        chips.push(renderChip({ filter: category.id, label, name: category.name, count: category.items.length, pressed: false }));
+        chips.push(renderChip({ filter: category.id, name: escapedPair(category.name), count: category.items.length, pressed: false }));
     }
     const html = [
         '<!doctype html>',
-        '<html lang="ja">',
+        '<html lang="en" data-lang="en">',
         '<head>',
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        '<title>Selection Manipulator Commands</title>',
+        `<title>${escapeHtml(pageTitles.en)}</title>`,
+        `<script>${HEAD_SCRIPT(pageTitles)}</script>`,
         `<style>${STYLE}</style>`,
         '</head>',
         '<body>',
-        '<a class="skip" href="#commands">コマンド一覧へ移動</a>',
+        `<a class="skip" href="#main">${bi(UI_TEXT.skipLink)}</a>`,
         '<header class="top">',
         '<div class="wrap">',
-        '<h1>Selection Manipulator Commands</h1>',
-        `<p class="lead">全 <strong id="total-count">${total}</strong> 件 ・ ` +
-            `<span role="status">表示中 <strong id="visible-count">${total}</strong> 件</span></p>`,
-        '<label class="search"><span>キーワード検索（ID・表示名・説明・例。空白区切りで AND）</span>' +
-            '<input type="search" id="q" autocomplete="off" spellcheck="false"></label>',
-        '<fieldset class="filters"><legend>カテゴリで絞り込み</legend>',
+        '<div class="top-row">',
+        `<h1>${bi(escapedPair(UI_TEXT.pageTitle))}</h1>`,
+        `<div class="lang" role="group" id="lang-switch" aria-label="${escapeHtml(UI_TEXT.languageGroup.en)}" ` +
+            `data-label-en="${escapeHtml(UI_TEXT.languageGroup.en)}" data-label-ja="${escapeHtml(UI_TEXT.languageGroup.ja)}">` +
+            '<button type="button" data-set-lang="en" lang="en" aria-pressed="true">English</button>' +
+            '<button type="button" data-set-lang="ja" lang="ja" aria-pressed="false">日本語</button></div>',
+        '</div>',
+        biBlock('p', 'class="lead"', UI_TEXT.lead, total),
+        '</div>',
+        '</header>',
+        '<main id="main" class="wrap">',
+        renderUsage(total, keybindings, titles),
+        '<section id="commands" aria-labelledby="commands-h">',
+        `<h2 id="commands-h">${bi(UI_TEXT.commandsHeading)}</h2>`,
+        `<p class="lead">${bi(UI_TEXT.totalCount, total)} ・ ` +
+            `<span role="status">${bi(UI_TEXT.visibleBefore)} <strong id="visible-count">${total}</strong>${biSuffix(UI_TEXT.countUnit)}</span></p>`,
+        `<label class="search"><span class="label">${bi(UI_TEXT.searchLabel)}</span>` +
+            `<input type="search" id="q" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(UI_TEXT.searchPlaceholder.en)}" ` +
+            `data-placeholder-en="${escapeHtml(UI_TEXT.searchPlaceholder.en)}" data-placeholder-ja="${escapeHtml(UI_TEXT.searchPlaceholder.ja)}"></label>`,
+        `<fieldset class="filters"><legend>${bi(UI_TEXT.filterLegend)}</legend>`,
         ...chips,
         '</fieldset>',
         renderLegend(),
-        '</div>',
-        '</header>',
-        '<main id="commands" class="wrap">',
-        '<p id="empty" class="empty" hidden>該当するコマンドはありません</p>',
+        `<div id="empty" class="empty" hidden>${biBlock('p', '', UI_TEXT.empty)}</div>`,
         ...categories.map(renderSection),
+        '</section>',
         '</main>',
-        `<script>${SCRIPT}</script>`,
+        `<script>${BODY_SCRIPT(pageTitles)}</script>`,
         '</body>',
         '</html>',
         '',
     ].join('\n');
     const counts = Object.fromEntries(categories.map((c) => [c.id, c.items.length]));
-    return { html, stats: { total, counts, unlisted, commandIds } };
+    return { html, stats: { total, counts, commandIds } };
 }
 
 // ---------------------------------------------------------------------------
 // Verification
 // ---------------------------------------------------------------------------
 
+/**
+ * Patterns of external resources the page must not load. A link (`<a href>`)
+ * is a navigation, not a load, so the href of <a> elements is allowed.
+ */
 export const EXTERNAL_RESOURCE_PATTERNS = [
-    /(src|href)\s*=\s*["']?\s*(https?:)?\/\//i,
+    /\bsrc\s*=\s*["']?\s*(https?:)?\/\//i,
+    /<(?!a[\s>])[a-z][a-z0-9-]*\b[^>]*?\shref\s*=\s*["']?\s*(https?:)?\/\//i,
     /<link/i,
     /@import/i,
     /url\(\s*["']?(https?:)?\/\//i,
@@ -872,18 +1213,26 @@ export function checkShowcase(html, commandIds) {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = 'docs/showcase.html';
 
+/** Reads package.json, categories.json and every category file of the showcase data. */
 export function readInputs(root = ROOT) {
+    const dataDir = path.join(root, ...DATA_DIR.split('/'));
+    const categoryFiles = {};
+    for (const fileName of fs.readdirSync(dataDir).sort()) {
+        if (fileName.endsWith('.json') && fileName !== CATEGORIES_FILE) {
+            categoryFiles[fileName] = fs.readFileSync(path.join(dataDir, fileName), 'utf8');
+        }
+    }
     return {
         packageJson: fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
-        roadmap: fs.readFileSync(path.join(root, 'docs', 'ROADMAP.md'), 'utf8'),
+        categories: fs.readFileSync(path.join(dataDir, CATEGORIES_FILE), 'utf8'),
+        categoryFiles,
     };
 }
 
 function runCheck(root) {
     const inputs = readInputs(root);
-    const warnings = [];
-    const first = buildShowcase({ ...inputs, warn: (message) => warnings.push(message) });
-    const second = buildShowcase({ ...inputs, warn: () => {} });
+    const first = buildShowcase(inputs);
+    const second = buildShowcase(inputs);
     const errors = [];
     if (first.html !== second.html) {
         errors.push('the generation is not deterministic (two runs gave different output)');
@@ -901,16 +1250,13 @@ function runCheck(root) {
         errors.push(`${OUTPUT} is out of date; run "npm run showcase" and commit the result`);
     }
     errors.push(...checkShowcase(first.html, first.stats.commandIds));
-    for (const message of warnings) {
-        process.stderr.write(`${message}\n`);
-    }
     if (errors.length > 0) {
         for (const error of errors) {
             process.stderr.write(`error: ${error}\n`);
         }
         return 1;
     }
-    process.stdout.write(`${OUTPUT} is up to date (${first.stats.total} commands)\n`);
+    process.stdout.write(`${OUTPUT} is up to date (${first.stats.total} commands, English and Japanese)\n`);
     return 0;
 }
 
@@ -931,7 +1277,7 @@ export function main(argv, root = ROOT) {
     try {
         return args.includes('--check') ? runCheck(root) : runGenerate(root);
     } catch (error) {
-        if (error instanceof ShowcaseError || error instanceof SyntaxError) {
+        if (error instanceof ShowcaseError || error instanceof SyntaxError || error?.code === 'ENOENT') {
             process.stderr.write(`error: ${error.message}\n`);
             return 1;
         }

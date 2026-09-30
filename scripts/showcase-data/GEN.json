@@ -1,0 +1,388 @@
+{
+  "category": "GEN",
+  "commands": [
+    {
+      "id": "selection-manipulator.random.uuid-v7",
+      "candidateId": "GEN-001",
+      "description": {
+        "en": "Generates time-ordered UUID v7 values (RFC 9562: the first 48 bits are the current time in milliseconds, version 7, variant `10`, and the remaining 74 bits come from crypto.randomBytes; lowercase with hyphens). When several are generated in one run, they are sorted in ascending order before being assigned in document order (monotonicity across runs is not guaranteed). Selections are replaced and empty cursors get an insertion, all in one edit (up to 100,000 targets). The context menu is shown only when there is a selection, so with only cursors use the Command Palette.",
+        "ja": "時刻順に並ぶ UUID v7 を生成する（RFC 9562。先頭 48 ビットに現在時刻（ミリ秒）、version 7、variant `10`、残り 74 ビットは crypto.randomBytes。小文字ハイフン区切り。1 回の実行で複数生成したときは昇順に並べてから文書順に割り当てる（実行をまたいだ単調増加は保証しない）。選択は置換、空のカーソルは挿入として 1 回の編集で書く（対象は 100,000 個まで）。コンテキストメニューは選択があるときだけ表示されるため、カーソルだけのときはコマンドパレットから使う）"
+      },
+      "example": {
+        "en": "`（cursor）` → `0192f0c1-8e3a-7c4d-9b1e-3f2a…`",
+        "ja": "`（カーソル）` → `0192f0c1-8e3a-7c4d-9b1e-3f2a…`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.ulid",
+      "candidateId": "GEN-002",
+      "description": {
+        "en": "Generates ULIDs (a 48-bit millisecond timestamp (10 characters) plus 80 random bits (16 characters), 26 uppercase Crockford Base32 characters). When several are generated, they are sorted in ascending order before being assigned, as in **Random - UUID v7**.",
+        "ja": "ULID を生成する（48 ビットのミリ秒時刻（10 文字）＋ 80 ビット乱数（16 文字）を Crockford Base32 の大文字で 26 文字。複数生成時は **Random - UUID v7** と同じく昇順に並べてから割り当てる）"
+      },
+      "example": {
+        "en": "`（cursor）` → `01J8Z3K5Q7W9X2Y4Z6A8B0C1D2`",
+        "ja": "`（カーソル）` → `01J8Z3K5Q7W9X2Y4Z6A8B0C1D2`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.nanoid",
+      "candidateId": "GEN-003",
+      "description": {
+        "en": "Generates 21-character NanoIDs (own implementation using the 64 characters `A-Za-z0-9_-`; the lower 6 bits of each byte are used, so there is no bias).",
+        "ja": "21 文字の NanoID を生成する（自前実装。記号 `A-Za-z0-9_-` の 64 文字で、1 バイトの下位 6 ビットを使うため偏りなし）"
+      },
+      "example": {
+        "en": "`（cursor）` → `V1StGXR8_Z5jdHi6B-myT`",
+        "ja": "`（カーソル）` → `V1StGXR8_Z5jdHi6B-myT`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.hex",
+      "candidateId": "GEN-004",
+      "description": {
+        "en": "Generates cryptographically random bytes of the length you type (1 to 1,024, default 16) as lowercase hexadecimal (the output is twice as many characters as bytes).",
+        "ja": "入力したバイト数（1〜1,024、既定 16）の暗号学的乱数を小文字の 16 進で生成する（出力はバイト数の 2 倍の文字数）"
+      },
+      "example": {
+        "en": "`（16 bytes）` → `9f86d081884c7d659a2feaa0c55ad015`",
+        "ja": "`（16 バイト）` → `9f86d081884c7d659a2feaa0c55ad015`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.base64",
+      "candidateId": "GEN-005",
+      "description": {
+        "en": "Generates random bytes of the length you type (1 to 1,024, default 24) as Base64URL (`-` `_`, no padding).",
+        "ja": "入力したバイト数（1〜1,024、既定 24）の乱数を Base64URL（`-` `_`、パディングなし）で生成する"
+      },
+      "example": {
+        "en": "`（24 bytes）` → `q3Zp…（32 characters）`",
+        "ja": "`（24 バイト）` → `q3Zp…（32 文字）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.integer",
+      "candidateId": "GEN-006",
+      "description": {
+        "en": "Generates an integer in the range you type at each cursor (`min..max`, both ends inclusive, default `1..100`; each end must be a decimal safe integer (±(2^53 − 1)), `min > max` is an error, and there can be up to 2^48 − 1 candidates). Uses crypto.randomInt for an unbiased uniform choice.",
+        "ja": "入力した範囲の整数を各カーソルに生成する（`min..max` で両端を含む、既定 `1..100`。各端は 10 進整数のみで安全な整数（±(2^53 − 1)）、`min > max` はエラー、候補数は 2^48 − 1 まで。crypto.randomInt による偏りのない一様選択）"
+      },
+      "example": {
+        "en": "`（1..6）` → `4`",
+        "ja": "`（1..6）` → `4`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.float",
+      "candidateId": "GEN-007",
+      "description": {
+        "en": "Generates a decimal number in the range and with the number of decimal places you type. The range is `min..max` (default `0..1`) with each end in decimal notation without exponent and an absolute value of 1,000,000,000 or less; the decimal places are 0 to 10 (default 3). It uses only decimal string and integer conversion, never floating-point arithmetic, so there is no error (`0.1..0.3` gives `0.100` to `0.300`). The decimal places of each end are counted as written and must not exceed the requested places (`1.000` with 2 places is an error); each end × 10^places must have an absolute value of 2^53 − 1 or less, and there can be up to 2^48 − 1 candidates. The output has exactly the requested places (no decimal point for 0), and `-0.000` is output as `0.000`.",
+        "ja": "入力した範囲・桁数の小数を生成する（範囲は `min..max`（既定 `0..1`）で各端は指数表記なしの 10 進表記・絶対値 1,000,000,000 以下、桁数は 0〜10（既定 3）。浮動小数の演算を通さず 10 進文字列と整数の変換だけで扱うため誤差なし（`0.1..0.3` は `0.100`〜`0.300`）。端の小数部の桁数は字面で数え桁数を超えたらエラー（`1.000` を 2 桁はエラー）、各端 × 10^桁数 の絶対値は 2^53 − 1 以下、候補数は 2^48 − 1 まで。出力はちょうど指定桁数（0 桁なら小数点なし）で、`-0.000` は出さず `0.000`）"
+      },
+      "example": {
+        "en": "`（0..1, 3 places）` → `0.582`",
+        "ja": "`（0..1, 3 桁）` → `0.582`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.pick-line",
+      "candidateId": "GEN-008",
+      "description": {
+        "en": "Picks one random line from the selected lines (whitespace-only lines are never picked, and the picked line keeps its surrounding whitespace). Each selection is picked independently. Empty or whitespace-only selections are left as is, and if there is no target at all it warns `Select the lines to pick from.` and changes nothing.",
+        "ja": "選択範囲の行からランダムに 1 行を選ぶ（空白だけの行は選ばず、選んだ行の前後の空白は残す。選択ごとに独立に選ぶ。空の選択・空白だけの選択はそのまま残し、対象が 1 つもなければ警告 `Select the lines to pick from.` を出して何も変更しない）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c` → `b`",
+        "ja": "`a⏎b⏎c` → `b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.sample-lines",
+      "candidateId": "GEN-009",
+      "description": {
+        "en": "Picks N lines without repetition from the selected lines (N is 1 to 10,000, default 2). Whitespace-only lines are never picked, and lines with the same content at different positions count as different lines. Uses a partial Fisher–Yates shuffle and joins the lines in the picked (random) order with the document's line ending. N larger than the number of candidate lines is an error. Without targets it warns, as in **Random - Pick One Line**.",
+        "ja": "選択範囲の行から重複なしで N 行を選ぶ（N は 1〜10,000、既定 2。空白だけの行は選ばず、同じ内容の行も位置が違えば別の行として扱う。部分 Fisher–Yates で選び、選ばれた順（ランダム順）に文書の改行で連結。N が候補行数を超えたらエラー。対象がないときの扱いは **Random - Pick One Line** と同じく警告）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d（N=2）` → `d⏎a`",
+        "ja": "`a⏎b⏎c⏎d（N=2）` → `d⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.mac",
+      "candidateId": "GEN-010",
+      "description": {
+        "en": "Generates MAC addresses with the locally administered bit set (the lower 2 bits of the first byte are `10` (unicast, locally administered), so the last digit of the first byte is `2` / `6` / `a` / `e`; lowercase, colon-separated).",
+        "ja": "ローカル管理ビットを立てた MAC アドレスを生成する（先頭バイトの下位 2 ビットを `10`（ユニキャスト・ローカル管理）にするため、先頭バイトの下 1 桁は `2` / `6` / `a` / `e`。小文字コロン区切り）"
+      },
+      "example": {
+        "en": "`（cursor）` → `02:5e:a1:3c:77:0b`",
+        "ja": "`（カーソル）` → `02:5e:a1:3c:77:0b`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.color",
+      "candidateId": "GEN-011",
+      "description": {
+        "en": "Generates random color codes (3 bytes as lowercase `#rrggbb`).",
+        "ja": "ランダムな色コードを生成する（3 バイトを `#rrggbb` の小文字）"
+      },
+      "example": {
+        "en": "`（cursor）` → `#3fa2c8`",
+        "ja": "`（カーソル）` → `#3fa2c8`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.date",
+      "candidateId": "GEN-012",
+      "description": {
+        "en": "Generates a random date in the period you type (`YYYY-MM-DD..YYYY-MM-DD`, both ends inclusive, 0001-01-01 to 9999-12-31, default `01-01..12-31` of the current year). Nonexistent dates and a start after the end are an error. Chooses uniformly from the range of day numbers.",
+        "ja": "入力した期間内のランダムな日付を生成する（`YYYY-MM-DD..YYYY-MM-DD` で両端を含む、0001-01-01〜9999-12-31、既定は今年の `01-01..12-31`。存在しない日付・開始 > 終了はエラー。日番号の区間から一様に選ぶ）"
+      },
+      "example": {
+        "en": "`（2026-01-01..2026-12-31）` → `2026-05-17`",
+        "ja": "`（2026-01-01..2026-12-31）` → `2026-05-17`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.email",
+      "candidateId": "GEN-013",
+      "description": {
+        "en": "Generates dummy email addresses on the reserved domain example.com (one of 30 built-in words + 4 digits + `@example.com`; only the RFC 2606 reserved domain).",
+        "ja": "予約ドメイン example.com のダミーメールアドレスを生成する（内蔵の語 30 件から 1 語＋ 4 桁の数字＋ `@example.com`（RFC 2606 の予約ドメインのみ））"
+      },
+      "example": {
+        "en": "`（cursor）` → `user4821@example.com`",
+        "ja": "`（カーソル）` → `user4821@example.com`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.name",
+      "candidateId": "GEN-014",
+      "description": {
+        "en": "Generates dummy English names from a small built-in list (`First Last` from 30 first names × 30 last names).",
+        "ja": "内蔵の小さな名簿から英語のダミー氏名を生成する（名 30 件 × 姓 30 件から `First Last`）"
+      },
+      "example": {
+        "en": "`（cursor）` → `Emily Clark`",
+        "ja": "`（カーソル）` → `Emily Clark`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.name-ja",
+      "candidateId": "GEN-015",
+      "description": {
+        "en": "Generates dummy Japanese names from a small built-in list (`姓 名` (family name, given name) from 30 family names × 30 given names, separated by a half-width space).",
+        "ja": "内蔵の小さな名簿から日本語のダミー氏名を生成する（姓 30 件 × 名 30 件から `姓 名`、半角スペース区切り）"
+      },
+      "example": {
+        "en": "`（cursor）` → `佐藤 花子`",
+        "ja": "`（カーソル）` → `佐藤 花子`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.phone-jp",
+      "candidateId": "GEN-016",
+      "description": {
+        "en": "Generates dummy phone numbers in the fictional number block (for example 090-0xxx) that the Ministry of Internal Affairs and Communications designates for use in TV dramas and the like (each x in `090-0xxx-xxxx` is a uniform random digit 0–9). The source of the number block could not be strictly verified, so **it is not guaranteed that the numbers do not exist (are unused)**.",
+        "ja": "総務省がドラマ等向けに案内している架空番号帯（例: 090-0xxx）のダミー電話番号を生成する（`090-0xxx-xxxx` の x を 0〜9 の一様乱数にする。番号帯の出典は厳密に確認できていないため、**実在しない（未使用の）番号であることは保証しない**）"
+      },
+      "example": {
+        "en": "`（cursor）` → `090-0123-4567`",
+        "ja": "`（カーソル）` → `090-0123-4567`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.text-ja",
+      "candidateId": "GEN-017",
+      "description": {
+        "en": "Generates Japanese text from built-in dummy sentences (a Japanese Lorem Ipsum). The number of sentences is 1 to 1,000 (default 3). Each sentence is chosen independently and uniformly, with repetition, from 20 built-in sentences (the same sentence can repeat) and concatenated without separators or line breaks. Each selection / cursor is generated independently.",
+        "ja": "内蔵のダミー文章から日本語の文章を生成する（Lorem Ipsum の日本語版。文の数は 1〜1,000（既定 3）。内蔵の 20 文から各文を重複ありで独立に一様に選び（同じ文が続くこともある）、区切り・改行なしで連結する。選択・カーソルごとに独立に生成）"
+      },
+      "example": {
+        "en": "`（3 sentences）` → `これはダミーの文章です。…`",
+        "ja": "`（3 文）` → `これはダミーの文章です。…`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.boolean",
+      "candidateId": "GEN-018",
+      "description": {
+        "en": "Generates true / false at random (chooses 0 / 1 with crypto.randomInt).",
+        "ja": "true / false をランダムに生成する（crypto.randomInt で 0 / 1 を選ぶ）"
+      },
+      "example": {
+        "en": "`（cursor）` → `true`",
+        "ja": "`（カーソル）` → `true`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.dice",
+      "candidateId": "GEN-019",
+      "description": {
+        "en": "Rolls dice in NdM notation and outputs the total and breakdown (output `total (a+b+…)`, `3 (3)` when N = 1). The case of `d` is ignored. Whitespace around the whole expression is ignored, but none is allowed inside it (`2 d 6` is an error). N is 1 to 100, M is 2 to 1,000,000. If there are empty cursors or whitespace-only selections, the expression is asked once in the input box (default `1d6`) and used for all of them. Selections that are not a valid expression give an error that quotes the selection.",
+        "ja": "NdM 形式でサイコロを振り、合計と内訳を出す（出力は `合計 (a+b+…)`、N = 1 なら `3 (3)`。`d` の大小は無視。式全体の前後の空白は無視するが、式の中には空白を入れられない（`2 d 6` はエラー）。N は 1〜100、M は 2〜1,000,000。空のカーソル・空白だけの選択があれば入力ボックスで式を 1 回だけ尋ね（既定 `1d6`）、それらすべてに使う。式として不正な選択は引用つきのエラー）"
+      },
+      "example": {
+        "en": "`2d6` → `7 (3+4)`",
+        "ja": "`2d6` → `7 (3+4)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.alpha-sequence",
+      "candidateId": "GEN-020",
+      "description": {
+        "en": "Inserts the sequence a, b, …, z, aa at each cursor (bijective base-26, lowercase only; `aa` follows `z`).",
+        "ja": "各カーソルに a, b, …, z, aa の連番を入れる（全単射 26 進の小文字のみ。`z` の次は `aa`）"
+      },
+      "example": {
+        "en": "`（3 cursors）` → `a / b / c`",
+        "ja": "`（3 カーソル）` → `a / b / c`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.roman-sequence",
+      "candidateId": "GEN-021",
+      "description": {
+        "en": "Inserts a Roman numeral sequence at each cursor (from `I` up to 3,999 (`MMMCMXCIX`); more cursors than that is an error and nothing changes).",
+        "ja": "各カーソルにローマ数字の連番を入れる（`I` から 3,999（`MMMCMXCIX`）まで。カーソル数が超えたらエラーで何も変更しない）"
+      },
+      "example": {
+        "en": "`（4 cursors）` → `I / II / III / IV`",
+        "ja": "`（4 カーソル）` → `I / II / III / IV`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.date-sequence",
+      "candidateId": "GEN-022",
+      "description": {
+        "en": "Inserts dates advancing one day at a time from a start date at each cursor (the start date is `YYYY-MM-DD` only, default today in local time; a last date beyond 9999-12-31 is an error).",
+        "ja": "各カーソルに開始日から 1 日ずつ進めた日付を入れる（開始日は `YYYY-MM-DD` のみで既定はローカル時刻の今日。最後の日付が 9999-12-31 を超えたらエラー）"
+      },
+      "example": {
+        "en": "`（3 cursors, 2026-09-28）` → `2026-09-28 / 2026-09-29 / 2026-09-30`",
+        "ja": "`（3 カーソル, 2026-09-28）` → `2026-09-28 / 2026-09-29 / 2026-09-30`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.number-range",
+      "candidateId": "GEN-023",
+      "description": {
+        "en": "Generates a number sequence from start, end and step (`start..end` or `start..end step s`, `step` is case-insensitive). Integers only; both ends and the step must be safe integers. Without a step it is +1 if start ≤ end and −1 if start > end. A step of 0 or in the wrong direction is an error. The sequence ends at the last term not beyond `end` (`1..10 step 4` → `1⏎5⏎9`), with up to 100,000 terms (counted exactly). The same sequence is inserted at each cursor, joined with the document's line ending. Default `1..10`.",
+        "ja": "開始・終了・増分から数列を生成する（`start..end` または `start..end step s`（`step` の大小無視）。整数のみで両端・増分は安全な整数。増分を省くと start ≤ end なら +1、start > end なら −1。増分 0・向きと逆の増分はエラー。`end` を超えない最後の項まで（`1..10 step 4` → `1⏎5⏎9`）で、項数は 100,000 まで（正確に数える）。各カーソルに同じ数列を文書の改行で連結して入れる。既定 `1..10`）"
+      },
+      "example": {
+        "en": "`1..10 step 3` → `1⏎4⏎7⏎10`",
+        "ja": "`1..10 step 3` → `1⏎4⏎7⏎10`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.repeat-char",
+      "candidateId": "GEN-024",
+      "description": {
+        "en": "Repeats the characters you type up to the given width (for separator lines and the like). The characters are 1 to 16 code points, with surrounding whitespace kept as typed (so spaces or `- ` can be repeated); control characters such as tab and newline, U+2028 / U+2029 and lone surrogates are not allowed. The width is 1 to 10,000 code points (default 80); the output is cut exactly at the width without splitting a surrogate pair.",
+        "ja": "入力した文字を指定の幅まで繰り返す（区切り線など。文字は 1〜16 文字（コードポイント）で前後の空白も入力どおり保持し（空白や `- ` も繰り返せる）、タブ・改行などの制御文字・U+2028 / U+2029・孤立サロゲートは不可。幅は 1〜10,000（既定 80）のコードポイント数で、幅ちょうどで切り、サロゲートペアは途中で切らない）"
+      },
+      "example": {
+        "en": "`=（20）` → `====================`",
+        "ja": "`=（20）` → `====================`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.hex-sequence",
+      "candidateId": "GEN-025",
+      "description": {
+        "en": "Inserts a hexadecimal sequence at each cursor (the start value is 1 to 13 hex digits, default `0x00`). The `0x` / `0X` / no prefix and the digit count (zero-padding width; it grows when more digits are needed) follow the input. Letters are lowercase only when all letters in the input are lowercase; with no letters, uppercase or mixed case they are uppercase (`ff` → `ff / 100 / 101`, `0x09` → `0x09 / 0x0A`).",
+        "ja": "各カーソルに 16 進の連番を入れる（開始値は 16 進 1〜13 桁、既定 `0x00`。`0x` / `0X` / 接頭辞なし、桁数（ゼロ埋め幅。桁が増えたらそのまま伸ばす）を入力に合わせ、英字は入力の英字が小文字だけのときだけ小文字、英字なし・大文字・混在なら大文字（`ff` → `ff / 100 / 101`、`0x09` → `0x09 / 0x0A`））"
+      },
+      "example": {
+        "en": "`（3 cursors, from 0x0A）` → `0x0A / 0x0B / 0x0C`",
+        "ja": "`（3 カーソル, 0x0A から）` → `0x0A / 0x0B / 0x0C`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.kana-sequence",
+      "candidateId": "GEN-026",
+      "description": {
+        "en": "Inserts a Japanese kana sequence `あ, い, う…` (gojūon) or `イ, ロ, ハ…` (iroha) at each cursor (chosen with a quick pick). Gojūon is the 46 plain hiragana characters `あ`–`ん` (including `を` and `ん`, excluding `ゐ` `ゑ`, small kana and voiced / semi-voiced kana); iroha is the 47 katakana characters `イ`–`ス` (including `ヰ` `ヱ`, excluding `ン`). More cursors than characters is an error; it does not wrap around.",
+        "ja": "各カーソルに「あ, い, う…」または「イ, ロ, ハ…」の連番を入れる（クイックピックで選ぶ。五十音はひらがなの清音 46 文字 `あ`〜`ん`（`を` `ん` を含み、`ゐ` `ゑ`・小書き・濁音・半濁音は含まない）、いろははカタカナ 47 文字 `イ`〜`ス`（`ヰ` `ヱ` を含み `ン` は含まない）。文字数を超えるカーソル数はエラーで折り返さない）"
+      },
+      "example": {
+        "en": "`（3 cursors）` → `あ / い / う`",
+        "ja": "`（3 カーソル）` → `あ / い / う`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.circled-sequence",
+      "candidateId": "GEN-027",
+      "description": {
+        "en": "Inserts a circled number sequence ①②③ at each cursor (up to 50: ① to ⑳ from U+2460, ㉑ to ㉟ from U+3251, ㊱ to ㊿ from U+32B1; 51 or more is an error).",
+        "ja": "各カーソルに ①②③ の連番を入れる（50 まで。①〜⑳ U+2460〜、㉑〜㉟ U+3251〜、㊱〜㊿ U+32B1〜。51 以上はエラー）"
+      },
+      "example": {
+        "en": "`（3 cursors）` → `① / ② / ③`",
+        "ja": "`（3 カーソル）` → `① / ② / ③`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.column-ruler",
+      "candidateId": "GEN-028",
+      "description": {
+        "en": "Generates a ruler showing column positions (1 to 1,000 columns, default 80). The first line shows the tens digit every 10 columns (column 100 is `0`, column 110 is `1`) and `·` (U+00B7) elsewhere; the second line shows the ones digit of each column. The two lines are joined with the document's line ending.",
+        "ja": "桁位置を示すルーラー行を生成する（桁数 1〜1,000、既定 80。1 行目は 10 桁ごとに十の位の数字（100 桁目は `0`、110 桁目は `1`）でそれ以外は `·`（U+00B7）、2 行目は各桁の一の位。文書の改行で 2 行を連結）"
+      },
+      "example": {
+        "en": "`（30 columns）` → `·········1·········2·········3⏎123456789012345678901234567890`",
+        "ja": "`（30 桁）` → `·········1·········2·········3⏎123456789012345678901234567890`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.guid-braced",
+      "candidateId": "GEN-029",
+      "description": {
+        "en": "Generates GUIDs in Windows / .NET format (braces, uppercase): crypto.randomUUID (version 4) in uppercase, wrapped in `{}`.",
+        "ja": "Windows / .NET 形式（波括弧・大文字）の GUID を生成する（crypto.randomUUID（version 4）を大文字にして `{}` で囲む）"
+      },
+      "example": {
+        "en": "`（cursor）` → `{3F2504E0-4F89-41D3-9A0C-0305E82C3301}`",
+        "ja": "`（カーソル）` → `{3F2504E0-4F89-41D3-9A0C-0305E82C3301}`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.ipv4-sequence",
+      "candidateId": "GEN-030",
+      "description": {
+        "en": "Inserts consecutive IPv4 addresses from a start address at each cursor (the default start is `192.0.2.1`, an RFC 5737 documentation address). Only strict dotted-decimal notation is accepted; leading zeros, out-of-range octets and CIDR notation are not. Addresses advance by 1 as 32-bit integers, and a last address beyond 255.255.255.255 is an error.",
+        "ja": "各カーソルに開始アドレスから連続する IPv4 アドレスを入れる（開始アドレスの既定は `192.0.2.1`（RFC 5737 の文書用アドレス）。厳密な 10 進ドット表記のみで先頭ゼロ・範囲外・CIDR 表記は不可。32 ビット整数として 1 ずつ進め、最後のアドレスが 255.255.255.255 を超えたらエラー）"
+      },
+      "example": {
+        "en": "`（3 cursors, 192.0.2.1）` → `192.0.2.1 / 192.0.2.2 / 192.0.2.3`",
+        "ja": "`（3 カーソル, 192.0.2.1）` → `192.0.2.1 / 192.0.2.2 / 192.0.2.3`",
+        "japanese": "note"
+      }
+    }
+  ]
+}

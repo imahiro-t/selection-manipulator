@@ -16,6 +16,7 @@ import { JA_COMMAND_ENTRIES, JA_DERIVED_FROM, JaCommandEntry } from '../../handl
 import { myCommands } from '../../handler/showCommandsHandler';
 import { JA_ROADMAP_EXAMPLES } from './jaExamples';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
 const NOT_CHANGED = 'The selection was not changed: ';
@@ -104,14 +105,8 @@ const closeAllEditors = async () => {
 
 const readRepoFile = (file: string): string => fs.readFileSync(path.resolve(__dirname, '../../..', file), 'utf8');
 
-/** The JA rows of docs/ROADMAP.md: [id, kind, command ID, title, example]. */
-const roadmapRows = (): [string, string, string, string, string][] =>
-  readRepoFile('docs/ROADMAP.md').split('\n')
-    .filter((line) => /^\| JA-\d{3} \|/.test(line))
-    .map((line) => {
-      const cells = line.split(' | ').map((cell) => cell.trim());
-      return [cells[0].replace(/^\| /, ''), cells[2], cells[3].replace(/`/g, ''), cells[4], cells[6]];
-    });
+/** The JA commands of the showcase data (scripts/showcase-data/JA.json): [id, kind, command ID, title, example]. */
+const dataRows = (): [string, string, string, string, string][] => candidateRows('JA');
 
 /** Commands of a fake table that exercise the notify / select / quick pick paths in isolation. */
 const FAKE_ENTRIES: readonly JaCommandEntry[] = [
@@ -514,8 +509,8 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
   });
 
   suite('registration', () => {
-    test('command IDs, kinds, titles and examples match the JA table of docs/ROADMAP.md, in its order', () => {
-      const rows = roadmapRows();
+    test('command IDs, kinds, titles and examples match the JA commands of the showcase data, in its order', () => {
+      const rows = dataRows();
       assert.strictEqual(rows.length, 35);
       const byId = new Map(rows.map((row) => [row[0], row]));
       const order = rows.map(([id]) => id);

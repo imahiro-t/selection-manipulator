@@ -27,7 +27,7 @@ interface Example {
   options?: Partial<WrapOptions>;
 }
 
-/** The input / output examples of the WRAP table in docs/ROADMAP.md, as they are (⏎ = \n). */
+/** The input / output examples of the WRAP commands of the showcase data (scripts/showcase-data/WRAP.json), as they are (⏎ = \n). */
 const roadmapExamples: Example[] = [
   { id: 'WRAP-001', command: 'enclose.custom', input: 'abc', expected: '<<abc>>', options: { prefix: '<<', suffix: '>>' } },
   { id: 'WRAP-002', command: 'enclose.each-line.custom', input: 'a\nb', expected: '[a]\n[b]', options: { prefix: '[', suffix: ']' } },

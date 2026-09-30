@@ -19,6 +19,7 @@ import {
   WrapInputCommand,
 } from '../../handler/wrapTransforms';
 import { createTextEditor } from './testUtils';
+import { candidateRows } from './showcaseData';
 
 type Runner = (editor: vscode.TextEditor) => Promise<void>;
 
@@ -402,20 +403,12 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
     });
   });
 
-  /** The WRAP rows of docs/ROADMAP.md: [id, command ID, title]. */
-  const roadmapRows = (): [string, string, string][] => {
-    const roadmap = fs.readFileSync(path.resolve(__dirname, '../../../docs/ROADMAP.md'), 'utf8');
-    return roadmap.split('\n')
-      .filter((line) => /^\| WRAP-\d{3} \|/.test(line))
-      .map((line) => {
-        // Cells are separated by `|` not preceded by a backslash; `\|`, `\*`, `\[`, `\]` are escapes.
-        const cells = line.split(/(?<!\\)\|/).map((cell) => cell.trim());
-        return [cells[1], cells[4].replace(/`/g, ''), cells[5].replace(/\\([|*[\]])/g, '$1')];
-      });
-  };
+  /** The WRAP commands of the showcase data (scripts/showcase-data/WRAP.json): [id, command ID, title]. */
+  const dataRows = (): [string, string, string][] =>
+    candidateRows('WRAP').map(([id, , command, title]): [string, string, string] => [id, command, title]);
 
-  test('command IDs and titles match the WRAP table of docs/ROADMAP.md', () => {
-    const rows = roadmapRows();
+  test('command IDs and titles match the WRAP commands of the showcase data', () => {
+    const rows = dataRows();
     assert.deepStrictEqual(rows.map(([id]) => id), cases.map((c) => c.id));
     assert.deepStrictEqual(rows.map(([, command]) => command), WRAP_COMMANDS.map((name) => `selection-manipulator.${name}`));
   });
@@ -425,7 +418,7 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
     const contributes = packageJson.contributes;
     const count = (entries: { command?: string }[], id: string) => entries.filter((entry) => entry.command === id).length;
     const submenu: { command: string; group: string }[] = contributes.menus['selection-manipulator.quote.submenu'];
-    const titles = new Map(roadmapRows().map(([, command, title]) => [command, title]));
+    const titles = new Map(dataRows().map(([, command, title]) => [command, title]));
     WRAP_COMMANDS.forEach((name, i) => {
       const id = `selection-manipulator.${name}`;
       assert.strictEqual(count(contributes.commands, id), 1, `commands: ${id}`);

@@ -1,0 +1,494 @@
+{
+  "category": "DATA",
+  "commands": [
+    {
+      "id": "selection-manipulator.json.sort-keys",
+      "candidateId": "DATA-001",
+      "description": {
+        "en": "Sorts object keys recursively in ascending order (by UTF-16 code units), keeping array order. The input layout is kept (a one-line selection stays on one line, multi-line uses 2-space indentation), and integer-like keys always come first in numeric order per the JavaScript specification.",
+        "ja": "オブジェクトのキーを再帰的に昇順（UTF-16 コード単位順）に並べ替える。配列の順序は保つ。入力の書式を保つ（1 行の選択は 1 行、複数行は 2 スペースインデント）。整数に見えるキーは JavaScript の仕様で常に先頭に数値順で並ぶ"
+      },
+      "example": {
+        "en": "`{\"b\":1,\"a\":{\"d\":2,\"c\":3}}` → `{\"a\":{\"c\":3,\"d\":2},\"b\":1}`",
+        "ja": "`{\"b\":1,\"a\":{\"d\":2,\"c\":3}}` → `{\"a\":{\"c\":3,\"d\":2},\"b\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-query-string",
+      "candidateId": "DATA-002",
+      "description": {
+        "en": "Converts a flat JSON object into a URL query string using URLSearchParams. Array values repeat the same key, null becomes an empty value, and nested objects are an error.",
+        "ja": "フラットな JSON オブジェクトを URL クエリ文字列にする（URLSearchParams を使用。値の配列は同じキーを繰り返し、null は空値、入れ子のオブジェクトはエラー）"
+      },
+      "example": {
+        "en": "`{\"a\":1,\"b\":\"x y\"}` → `a=1&b=x+y`",
+        "ja": "`{\"a\":1,\"b\":\"x y\"}` → `a=1&b=x+y`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-env",
+      "candidateId": "DATA-003",
+      "description": {
+        "en": "Converts flat JSON into a KEY=VALUE .env file (the inverse of **Data - Convert Env to JSON**). Keys may contain only letters, digits, _, . and -; values with spaces, #, = or quotes are wrapped in \"…\" ('…' if they contain \"), and values with $, backticks or \\ are always single-quoted so shells, Docker Compose and dotenv do not expand them. Values containing both such characters and ', values with line breaks and nested values are an error; null becomes an empty value.",
+        "ja": "フラットな JSON を KEY=VALUE 形式の .env にする（**Data - Convert Env to JSON** の逆。キーは英数字・_・.・- のみ。空白・#・=・引用符を含む値は \"…\"（\" を含めば '…'）で囲み、$・バッククォート・\\ を含む値はシェル・Docker Compose・dotenv で展開されないよう必ず単一引用符で囲む。それらと ' を両方含む値、改行を含む値、入れ子はエラー。null は空値）"
+      },
+      "example": {
+        "en": "`{\"A\":\"1\",\"B\":\"x y\"}` → `A=1⏎B=\"x y\"`",
+        "ja": "`{\"A\":\"1\",\"B\":\"x y\"}` → `A=1⏎B=\"x y\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-xml",
+      "candidateId": "DATA-004",
+      "description": {
+        "en": "Converts JSON to XML and formats it with xml-formatter. An object with a single key uses that key as the root, otherwise the result is wrapped in `<root>`; arrays repeat the element (nested arrays use `<item>`), null becomes an empty element and empty arrays produce nothing. Element names are limited to ASCII letters, digits, _, . and - (starting with a letter or _, not with xml), and keys with non-ASCII characters, spaces or symbols are an error because xml-formatter's XML parser rejects them.",
+        "ja": "JSON を XML に変換し、xml-formatter で整形する（自前変換。キーが 1 つのオブジェクトはそのキーをルートに、それ以外は `<root>` で包む。配列は同名要素の繰り返し（配列の中の配列は `<item>`）、null は空要素、空配列は要素を出さない。要素名は ASCII 英数字・_・.・- に限り（先頭は英字か _、xml で始まらない）、非 ASCII・空白・記号を含むキーはエラー。xml-formatter が内部の XML パーサでそれ以外の名前を受け付けないため）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}` → `<a>⏎··<b>1</b>⏎</a>`",
+        "ja": "`{\"a\":{\"b\":1}}` → `<a>⏎··<b>1</b>⏎</a>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-toml",
+      "candidateId": "DATA-005",
+      "description": {
+        "en": "Converts JSON to TOML (in-house implementation). Values come first, tables are written as `[a.b]` and arrays of objects as `[[a]]`, and headers of tables without direct values are omitted; null is an error and integers beyond ±(2^53−1) are written as floats with .0.",
+        "ja": "JSON を TOML に変換する（自前実装。値を先に、テーブルは `[a.b]`、オブジェクトの配列は `[[a]]` で出し、直接の値を持たないテーブルはヘッダを省略する。null はエラー、±(2^53−1) を超える整数は .0 付きの浮動小数で出す）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}` → `[a]⏎b = 1`",
+        "ja": "`{\"a\":{\"b\":1}}` → `[a]⏎b = 1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.toml.to-json",
+      "candidateId": "DATA-006",
+      "description": {
+        "en": "Converts TOML to JSON with an in-house subset parser for the main TOML 1.0 syntax, without new dependencies (no eval, input up to 5,000,000 characters). Supports comments, bare / quoted / dotted keys, `[table]` and `[[array]]`, inline tables, multi-line arrays, the four string types with line-ending `\\`, decimal / hex / octal / binary integers with `_`, floats, booleans and the four date-time types (output as written). Duplicate keys or tables, extending inline tables or static arrays, mixing `[x]` and `[[x]]`, and extending a header-defined table through a parent's dotted key are errors, as are inf / nan and integers beyond ±(2^53−1); dates are checked for format and range only. Errors are notified as \"line L: reason\".",
+        "ja": "TOML を JSON に変換する。新規依存を追加せず、TOML 1.0 の主要構文を扱う自前サブセットパーサで実装する（eval 不使用・入力 5,000,000 文字まで。コメント、裸 / 引用符 / ドット付きキー、`[table]`・`[[array]]`、インラインテーブル、複数行配列、4 種の文字列と行末 `\\`、10 / 16 / 8 / 2 進整数と `_`、浮動小数、真偽値、4 種の日時（書かれたとおりの文字列で出力）に対応。キー・テーブルの重複、インラインテーブル / 静的配列の拡張、`[x]` と `[[x]]` の混用、ヘッダで作られたテーブルを親のドット付きキーで拡張することはエラー。inf / nan・±(2^53−1) を超える整数は未対応でエラー、日付は書式と範囲のみ検査し暦としての妥当性は見ない。エラーは「line L: 理由」で通知）"
+      },
+      "example": {
+        "en": "`[a]⏎b = 1` → `{\"a\":{\"b\":1}}`",
+        "ja": "`[a]⏎b = 1` → `{\"a\":{\"b\":1}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-ini",
+      "candidateId": "DATA-007",
+      "description": {
+        "en": "Converts JSON of up to two levels to INI, writing top-level values first and objects as [section]. A third level, arrays, values with line breaks and keys containing = [ ] ; # and similar are errors; values with leading / trailing spaces, containing ; or #, or fully wrapped in quotes are enclosed in \"…\" so **Convert INI to JSON** can read them back.",
+        "ja": "2 階層までの JSON を INI 形式にする（最上位の値を先に、オブジェクトを [section] にする。3 階層目・配列・改行を含む値、= [ ] ; # などを含むキーはエラー。前後に空白がある値・; # を含む値・全体が引用符で囲まれた値は \"…\" で囲み、**Convert INI to JSON** で読み戻せる）"
+      },
+      "example": {
+        "en": "`{\"db\":{\"host\":\"x\"}}` → `[db]⏎host=x`",
+        "ja": "`{\"db\":{\"host\":\"x\"}}` → `[db]⏎host=x`"
+      }
+    },
+    {
+      "id": "selection-manipulator.ini.to-json",
+      "candidateId": "DATA-008",
+      "description": {
+        "en": "Converts INI (sections, keys, comments) to JSON (in-house implementation). Lines are split at = or :, lines starting with ; or # are comments, keys before the first section go to the top level, and values are strings with surrounding quotes removed. Duplicate keys keep the last value, sections with the same name are merged, and unparsable lines are an error.",
+        "ja": "INI 形式（セクション・キー・コメント）を JSON にする（自前実装。= または : で分割し、; と # の行はコメント。最初のセクションより前のキーは最上位、値は文字列で全体を囲む引用符は外す。重複キーは後勝ち、同名セクションはマージ、解釈できない行はエラー）"
+      },
+      "example": {
+        "en": "`[db]⏎host=x` → `{\"db\":{\"host\":\"x\"}}`",
+        "ja": "`[db]⏎host=x` → `{\"db\":{\"host\":\"x\"}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-properties",
+      "candidateId": "DATA-009",
+      "description": {
+        "en": "Converts nested JSON to Java .properties with dot-separated keys (arrays as name[n]). Spaces and : = # ! in keys, leading spaces in values, \\ and control characters are escaped, and non-ASCII characters are kept as is (UTF-8 assumed). Empty objects / arrays are omitted, but empty objects / arrays inside arrays are an error because indexes would shift when read back; keys containing . [ ] are an error.",
+        "ja": "ネストした JSON をドット区切りキーの Java .properties 形式にする（配列は name[n]。キーの空白・: = # !、値の先頭空白、\\・制御文字をエスケープし、非 ASCII はそのまま（UTF-8 前提）。空オブジェクト / 空配列は出力しないが、配列の要素が空オブジェクト / 空配列の場合は読み戻すと添字がずれるためエラー。キーに . [ ] を含む JSON はエラー）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}` → `a.b=1`",
+        "ja": "`{\"a\":{\"b\":1}}` → `a.b=1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.properties.to-json",
+      "candidateId": "DATA-010",
+      "description": {
+        "en": "Converts Java .properties to nested JSON, supporting # / ! comments, = / : / whitespace separators, line continuations and escapes. name[n] is an array index; indexes that skip past the current length and keys used both as a value and as a parent are errors. Values are strings.",
+        "ja": "Java .properties 形式をネストした JSON にする（# / ! コメント、= / : / 空白の区切り、行継続、エスケープに対応。name[n] は配列の添字で、現在の長さを超える添字（要素の飛び越し）と、値と親の両方に使われるキーはエラー。値は文字列）"
+      },
+      "example": {
+        "en": "`a.b=1` → `{\"a\":{\"b\":\"1\"}}`",
+        "ja": "`a.b=1` → `{\"a\":{\"b\":\"1\"}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.remove-nulls",
+      "candidateId": "DATA-011",
+      "description": {
+        "en": "Recursively removes keys and array elements whose value is null (objects / arrays that become empty are kept).",
+        "ja": "値が null のキーと配列要素を再帰的に取り除く（結果として空になったオブジェクト / 配列は残す）"
+      },
+      "example": {
+        "en": "`{\"a\":null,\"b\":[1,null]}` → `{\"b\":[1]}`",
+        "ja": "`{\"a\":null,\"b\":[1,null]}` → `{\"b\":[1]}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-jsonl",
+      "candidateId": "DATA-012",
+      "description": {
+        "en": "Converts a JSON array to JSON Lines with one element per line.",
+        "ja": "JSON 配列を 1 行 1 要素の JSON Lines にする"
+      },
+      "example": {
+        "en": "`[{\"a\":1},{\"a\":2}]` → `{\"a\":1}⏎{\"a\":2}`",
+        "ja": "`[{\"a\":1},{\"a\":2}]` → `{\"a\":1}⏎{\"a\":2}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.jsonl.to-json",
+      "candidateId": "DATA-013",
+      "description": {
+        "en": "Combines JSON Lines into a single JSON array. Empty lines are ignored, and errors are notified as \"line L, column C: reason\".",
+        "ja": "JSON Lines を 1 つの JSON 配列にする（空行は無視。誤りは「line L, column C: 理由」で通知）"
+      },
+      "example": {
+        "en": "`{\"a\":1}⏎{\"a\":2}` → `[{\"a\":1},{\"a\":2}]`",
+        "ja": "`{\"a\":1}⏎{\"a\":2}` → `[{\"a\":1},{\"a\":2}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.jsonc.to-json",
+      "candidateId": "DATA-014",
+      "description": {
+        "en": "Converts JSON with comments, trailing commas and unquoted keys to standard JSON using an in-house parser (no eval). Also accepts single-quoted strings, numeric keys, line continuations, hex numbers, leading / trailing decimal points and + signs; Infinity / NaN / undefined, identifier values, functions and computed properties are errors.",
+        "ja": "コメント・末尾カンマ・引用符なしキーを含む JSON を標準 JSON にする（自前パーサ。eval は使わない。単一引用符文字列・数値キー・行継続・16 進数・先頭 / 末尾の小数点・+ 符号にも対応。Infinity / NaN / undefined / 識別子の値 / 関数 / 計算プロパティはエラー）"
+      },
+      "example": {
+        "en": "`{a: 1, // c⏎}` → `{\"a\":1}`",
+        "ja": "`{a: 1, // c⏎}` → `{\"a\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.get-path",
+      "candidateId": "DATA-015",
+      "description": {
+        "en": "Extracts the value at the path you enter (a.b\\[0\\] style). Paths use $, .name, [n] and [\"any key\"] notation ($ is optional) up to 1,000 characters; strings are output without quotes, a missing path is an error, and cancelling the input box does nothing.",
+        "ja": "入力したパス（a.b\\[0\\] 形式）の値を取り出す（パスは $・.name・[n]・[\"任意のキー\"] の表記で、$ は省略可。1,000 文字まで。文字列は引用符なしで出し、見つからなければエラー。入力ボックスのキャンセルで何もしない）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":[5]}}（a.b[0]）` → `5`",
+        "ja": "`{\"a\":{\"b\":[5]}}（a.b[0]）` → `5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.list-paths",
+      "candidateId": "DATA-016",
+      "description": {
+        "en": "Lists the path to every leaf value, one per line (leaves are scalars, empty objects and empty arrays). Keys that are not identifiers use [\"…\"], a scalar root gives $, and the output can be entered directly into **Extract JSON Value by Path**.",
+        "ja": "すべての葉の値へのパスを 1 行ずつ列挙する（葉はスカラー・空オブジェクト・空配列。識別子にならないキーは [\"…\"]、ルートがスカラーなら $。出力はそのまま **Extract JSON Value by Path** に入力できる）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1},\"c\":[2]}` → `a.b⏎c[0]`",
+        "ja": "`{\"a\":{\"b\":1},\"c\":[2]}` → `a.b⏎c[0]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.keys",
+      "candidateId": "DATA-017",
+      "description": {
+        "en": "Extracts the top-level keys, one per line (an error if the top level is not an object).",
+        "ja": "最上位のキーを 1 行ずつ取り出す（最上位がオブジェクトでなければエラー）"
+      },
+      "example": {
+        "en": "`{\"a\":1,\"b\":2}` → `a⏎b`",
+        "ja": "`{\"a\":1,\"b\":2}` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.merge-selections",
+      "candidateId": "DATA-018",
+      "description": {
+        "en": "Deep-merges the JSON objects in multiple selections (later values win, arrays are replaced). Merges in document order into a single new editor, and only warns if fewer than two selections are non-empty.",
+        "ja": "複数選択した JSON オブジェクトを深くマージする（後勝ち。配列は置き換え。文書順にマージして新規エディタ 1 つに出す。空でない選択が 2 つ未満なら警告のみ）"
+      },
+      "example": {
+        "en": "`[{\"a\":1}] [{\"b\":2}]` → `{\"a\":1,\"b\":2}`",
+        "ja": "`[{\"a\":1}] [{\"b\":2}]` → `{\"a\":1,\"b\":2}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.validate",
+      "candidateId": "DATA-019",
+      "description": {
+        "en": "Validates JSON strictly per RFC 8259 and, on error, notifies the line and column and selects the error position. The notification is \"Valid JSON\" (\"Valid JSON (n selections)\" for multiple selections) or \"Invalid JSON at line L, column C: reason\" with document positions; the offending character is selected, or the cursor is placed at the end of the selection if the input ends early.",
+        "ja": "JSON として正しいかを検査し、誤りがあれば行・列を通知して該当位置を選択する（RFC 8259 の厳密な検査。通知は「Valid JSON」（複数選択は「Valid JSON (n selections)」）または「Invalid JSON at line L, column C: 理由」で、行・列は文書上の位置。誤りの 1 文字を選択し、入力が途中で終わる場合は選択範囲の末尾にカーソルを置く）"
+      },
+      "example": {
+        "en": "`{\"a\":1,}` → `Invalid JSON at line 1, column 8（notification）`",
+        "ja": "`{\"a\":1,}` → `1 行 8 列目でエラー（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.format",
+      "candidateId": "DATA-020",
+      "description": {
+        "en": "Loads YAML with js-yaml and writes it back with consistent indentation, reading and writing with the YAML 1.2 Core schema so dates and other values are not rewritten. `<<` stays a normal key, anchors / aliases stay references (renamed to `&ref_0`), and the trailing newline follows the selection. Comments are lost, numbers are rewritten in decimal, null / boolean notation and quoting may change, and integer-like keys become quoted string keys sorted first in numeric order. Tags outside the Core schema, multiple documents and comment-only selections are errors; nesting is limited to js-yaml's 100 levels, and with anchors / aliases \"mappings and sequences × references to them\" is limited to 300,000,000.",
+        "ja": "YAML を js-yaml で読み込み、インデントを揃えて出力し直す（YAML 1.2 Core スキーマで読み書きし、日時などの値は書き換えない。`<<` は通常のキーのまま、アンカー / エイリアスは参照のまま（名前は `&ref_0` に付け直す）。末尾の改行は選択に合わせる。コメントは失われ、数値表記の 10 進化・null / 真偽値の表記と引用符の付け直しが起こる。整数に見えるキーは引用符付きの文字列キーになり先頭に数値順で並ぶ。Core スキーマにないタグ・複数ドキュメント・コメントだけの選択はエラー。入れ子は js-yaml の上限 100 段、アンカー / エイリアスを含む場合は「マッピングとシーケンスの数 × それらへの参照の数」が 300,000,000 まで）"
+      },
+      "example": {
+        "en": "`a:   {b: 1}` → `a:⏎··b: 1`",
+        "ja": "`a:   {b: 1}` → `a:⏎··b: 1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.sort-keys",
+      "candidateId": "DATA-021",
+      "description": {
+        "en": "Sorts YAML keys recursively in ascending order using js-yaml's sortKeys. Schema, formatting, trailing newline and limits are the same as **Format YAML**.",
+        "ja": "YAML のキーを再帰的に昇順に並べ替える（js-yaml の sortKeys を使用。スキーマ・書式・末尾改行・制限は **Format YAML** と同じ）"
+      },
+      "example": {
+        "en": "`b: 1⏎a: 2` → `a: 2⏎b: 1`",
+        "ja": "`b: 1⏎a: 2` → `a: 2⏎b: 1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.array-unique",
+      "candidateId": "DATA-022",
+      "description": {
+        "en": "Removes duplicate elements from a JSON array, keeping the first occurrence. Objects are compared by content regardless of key order.",
+        "ja": "JSON 配列の重複要素を取り除く（オブジェクトは内容で比較し、キーの順序は区別しない。最初の出現を残す）"
+      },
+      "example": {
+        "en": "`[1,2,1,{\"a\":1},{\"a\":1}]` → `[1,2,{\"a\":1}]`",
+        "ja": "`[1,2,1,{\"a\":1},{\"a\":1}]` → `[1,2,{\"a\":1}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.pluck",
+      "candidateId": "DATA-023",
+      "description": {
+        "en": "Extracts only the value of the field you enter from an array of objects. The field uses the same path notation as **Extract JSON Value by Path**, and elements without the value become null to keep positions.",
+        "ja": "オブジェクト配列から入力したフィールドの値だけを取り出す（フィールドは **Extract JSON Value by Path** と同じパス表記。値のない要素は null にして位置を保つ）"
+      },
+      "example": {
+        "en": "`[{\"id\":1},{\"id\":2}]（id）` → `[1,2]`",
+        "ja": "`[{\"id\":1},{\"id\":2}]（id）` → `[1,2]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.group-by",
+      "candidateId": "DATA-024",
+      "description": {
+        "en": "Groups an array of objects by the value of the field you enter. Group names are the string value as is, or the JSON notation otherwise (so 1 and \"1\" share a group), in order of first appearance; elements missing the field or whose value is an object / array are an error.",
+        "ja": "オブジェクト配列を入力したフィールドの値でグループ化する（グループ名は文字列ならそのまま、それ以外は JSON 表記なので 1 と \"1\" は同じグループになる。グループは初出順。フィールドがない要素と、値がオブジェクト / 配列の要素はエラー）"
+      },
+      "example": {
+        "en": "`[{\"t\":\"a\",\"v\":1},{\"t\":\"a\",\"v\":2}]（t）` → `{\"a\":[{\"t\":\"a\",\"v\":1},{\"t\":\"a\",\"v\":2}]}`",
+        "ja": "`[{\"t\":\"a\",\"v\":1},{\"t\":\"a\",\"v\":2}]（t）` → `{\"a\":[{\"t\":\"a\",\"v\":1},{\"t\":\"a\",\"v\":2}]}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.count",
+      "candidateId": "DATA-025",
+      "description": {
+        "en": "Shows the number of array elements or object keys and the total node count as a notification, e.g. \"3 elements (4 nodes in total)\". Objects are counted in keys and scalars as 1 value; multiple selections are shown as \"Selection 1: …; Selection 2: …\".",
+        "ja": "配列の要素数・オブジェクトのキー数・全体のノード数を通知表示する（通知は「3 elements (4 nodes in total)」の形。オブジェクトは keys、スカラーは 1 value。複数選択は「Selection 1: …; Selection 2: …」）"
+      },
+      "example": {
+        "en": "`[1,2,3]` → `3 elements（notification）`",
+        "ja": "`[1,2,3]` → `3 elements（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-schema",
+      "candidateId": "DATA-026",
+      "description": {
+        "en": "Generates a JSON Schema (draft 2020-12) skeleton from sample JSON: $schema, type, properties, required (the sample's keys), array items (anyOf when elements have several schemas, {} for empty arrays), and integer for integers. The $schema URL is just output as text; no network access is made.",
+        "ja": "サンプル JSON から JSON Schema（draft 2020-12）の雛形を作る（$schema・type・properties・required（サンプルのキー）、配列の items（要素のスキーマが複数なら anyOf、空配列は {}）、整数は integer。$schema の URL は文字列として出すだけで通信しない）"
+      },
+      "example": {
+        "en": "`{\"a\":1}` → `{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"a\":{\"type\":\"integer\"}},\"required\":[\"a\"]}`",
+        "ja": "`{\"a\":1}` → `{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"properties\":{\"a\":{\"type\":\"integer\"}},\"required\":[\"a\"]}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-js-object",
+      "candidateId": "DATA-027",
+      "description": {
+        "en": "Converts JSON to JavaScript object literal notation, keeping key quotes only where needed and using single-quoted strings. One-line input stays on one line, multi-line uses 2-space indentation, and the key `__proto__` is written as `['__proto__']`.",
+        "ja": "キーの引用符を必要な場合だけ残す JavaScript のオブジェクトリテラル表記にする（文字列は単一引用符。1 行の入力は 1 行、複数行は 2 スペースインデント。キー `__proto__` は `['__proto__']` と出力する）"
+      },
+      "example": {
+        "en": "`{\"a\":1,\"b-c\":2}` → `{ a: 1, 'b-c': 2 }`",
+        "ja": "`{\"a\":1,\"b-c\":2}` → `{ a: 1, 'b-c': 2 }`"
+      }
+    },
+    {
+      "id": "selection-manipulator.js-object.to-json",
+      "candidateId": "DATA-028",
+      "description": {
+        "en": "Converts a JavaScript object literal (literal values only) to JSON using an in-house parser (no eval / new Function). In addition to the **Convert JSONC / JSON5 to JSON** syntax, it accepts template literals without `${`, `_` numeric separators, `0o` / `0b`, `\\u{…}` and computed property names consisting of a single string literal (such as `['__proto__']`); other computed properties, functions, identifier values, spreads, `${}` and BigInt are errors.",
+        "ja": "JavaScript のオブジェクトリテラル（リテラル値のみ）を JSON にする（自前パーサ。eval / new Function は使わない。**Convert JSONC / JSON5 to JSON** の構文に加え、`${` を含まないテンプレートリテラル・数値の `_` 区切り・`0o` / `0b`・`\\u{…}`、文字列リテラル 1 つだけの計算プロパティ名（`['__proto__']` など）を受け付ける。それ以外の計算プロパティ・関数・識別子の値・スプレッド・`${}`・BigInt はエラー）"
+      },
+      "example": {
+        "en": "`{ a: 1, 'b': [true] }` → `{\"a\":1,\"b\":[true]}`",
+        "ja": "`{ a: 1, 'b': [true] }` → `{\"a\":1,\"b\":[true]}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.cookie.to-json",
+      "candidateId": "DATA-029",
+      "description": {
+        "en": "Converts a Cookie header value to a JSON object. A leading Cookie: is removed, values are not decoded, and repeated names are collected into an array of values.",
+        "ja": "Cookie ヘッダーの値を JSON オブジェクトにする（先頭の Cookie: は除く。値はデコードせず、同名は値の配列にまとめる）"
+      },
+      "example": {
+        "en": "`a=1; b=x` → `{\"a\":\"1\",\"b\":\"x\"}`",
+        "ja": "`a=1; b=x` → `{\"a\":\"1\",\"b\":\"x\"}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.set-cookie.to-json",
+      "candidateId": "DATA-030",
+      "description": {
+        "en": "Converts a Set-Cookie value to JSON with the name, value and attributes (Path, Secure, etc.). Attribute names are case-insensitive, Max-Age becomes a number if it is an integer, unknown attributes use lowercase keys, and attributes colliding with name / value are an error; multiple lines become an array with one cookie per line.",
+        "ja": "Set-Cookie の値を名前・値・属性（Path, Secure など）の JSON にする（属性名は大小無視。Max-Age は整数なら数値。未知の属性は小文字のキーで、name / value と衝突する属性はエラー。複数行は 1 行 1 Cookie の配列）"
+      },
+      "example": {
+        "en": "`id=1; Path=/; Secure` → `{\"name\":\"id\",\"value\":\"1\",\"path\":\"/\",\"secure\":true}`",
+        "ja": "`id=1; Path=/; Secure` → `{\"name\":\"id\",\"value\":\"1\",\"path\":\"/\",\"secure\":true}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.http-headers.to-json",
+      "candidateId": "DATA-031",
+      "description": {
+        "en": "Converts HTTP header lines in \"Name: value\" form to JSON. A leading request / status line and empty lines are skipped, continuation lines starting with whitespace are appended to the previous value, repeated names (case-insensitive) become an array of values, and lines without : are an error.",
+        "ja": "「名前: 値」形式の HTTP ヘッダー行を JSON にする（先頭のリクエスト行 / ステータス行と空行は読み飛ばし、行頭が空白の継続行は直前の値に連結。同名（大小無視）は値の配列。: のない行はエラー）"
+      },
+      "example": {
+        "en": "`Accept: a⏎X-Id: 1` → `{\"Accept\":\"a\",\"X-Id\":\"1\"}`",
+        "ja": "`Accept: a⏎X-Id: 1` → `{\"Accept\":\"a\",\"X-Id\":\"1\"}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.user-agent.to-json",
+      "candidateId": "DATA-032",
+      "description": {
+        "en": "Roughly identifies the browser, OS and version from a User-Agent string and outputs JSON, using built-in rules. Browsers get only the major version, unknown values become Unknown, and Windows 11 cannot be distinguished from Windows 10; each line may be up to 2,000 characters, and multiple lines become an array with one entry per line.",
+        "ja": "User-Agent 文字列からブラウザ・OS・バージョンを簡易に判別して JSON にする（規則は内蔵。ブラウザは主要バージョンのみ、判別できなければ Unknown。Windows 11 は Windows 10 と区別できない。1 行 2,000 文字まで、複数行は 1 行 1 件の配列）"
+      },
+      "example": {
+        "en": "`Mozilla/5.0 (Windows NT 10.0…) Chrome/120.0` → `{\"browser\":\"Chrome 120\",\"os\":\"Windows 10\"}`",
+        "ja": "`Mozilla/5.0 (Windows NT 10.0…) Chrome/120.0` → `{\"browser\":\"Chrome 120\",\"os\":\"Windows 10\"}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.parse-nested",
+      "candidateId": "DATA-033",
+      "description": {
+        "en": "Recursively expands values that are JSON strings into objects. Only strings starting with { or [ are expanded (\"123\" and \"true\" stay strings), and the expanded depth is limited to 500 levels.",
+        "ja": "値が JSON 文字列になっている箇所を再帰的にオブジェクトへ展開する（{ か [ で始まる文字列だけを展開し、\"123\" や \"true\" は文字列のまま。展開後の深さも 500 段まで）"
+      },
+      "example": {
+        "en": "`{\"a\":\"{\\\"b\\\":1}\"}` → `{\"a\":{\"b\":1}}`",
+        "ja": "`{\"a\":\"{\\\"b\\\":1}\"}` → `{\"a\":{\"b\":1}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.sort-keys.replace",
+      "candidateId": "DATA-034",
+      "derivedFrom": "DATA-001",
+      "description": {
+        "en": "Same conversion as **Sort JSON Keys**, but replaces the selection in place.",
+        "ja": "**Sort JSON Keys** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`{\"b\":1,\"a\":{\"d\":2,\"c\":3}}` → `{\"a\":{\"c\":3,\"d\":2},\"b\":1}`",
+        "ja": "`{\"b\":1,\"a\":{\"d\":2,\"c\":3}}` → `{\"a\":{\"c\":3,\"d\":2},\"b\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-xml.replace",
+      "candidateId": "DATA-035",
+      "derivedFrom": "DATA-004",
+      "description": {
+        "en": "Same conversion as **Convert JSON to XML**, but replaces the selection in place.",
+        "ja": "**Convert JSON to XML** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}` → `<a>⏎··<b>1</b>⏎</a>`",
+        "ja": "`{\"a\":{\"b\":1}}` → `<a>⏎··<b>1</b>⏎</a>`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-toml.replace",
+      "candidateId": "DATA-036",
+      "derivedFrom": "DATA-005",
+      "description": {
+        "en": "Same conversion as **Convert JSON to TOML**, but replaces the selection in place.",
+        "ja": "**Convert JSON to TOML** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}` → `[a]⏎b = 1`",
+        "ja": "`{\"a\":{\"b\":1}}` → `[a]⏎b = 1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.toml.to-json.replace",
+      "candidateId": "DATA-037",
+      "derivedFrom": "DATA-006",
+      "description": {
+        "en": "Same conversion as **Convert TOML to JSON**, but replaces the selection in place.",
+        "ja": "**Convert TOML to JSON** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`[a]⏎b = 1` → `{\"a\":{\"b\":1}}`",
+        "ja": "`[a]⏎b = 1` → `{\"a\":{\"b\":1}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-jsonl.replace",
+      "candidateId": "DATA-038",
+      "derivedFrom": "DATA-012",
+      "description": {
+        "en": "Same conversion as **Convert JSON Array to JSON Lines**, but replaces the selection in place.",
+        "ja": "**Convert JSON Array to JSON Lines** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`[{\"a\":1},{\"a\":2}]` → `{\"a\":1}⏎{\"a\":2}`",
+        "ja": "`[{\"a\":1},{\"a\":2}]` → `{\"a\":1}⏎{\"a\":2}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.jsonl.to-json.replace",
+      "candidateId": "DATA-039",
+      "derivedFrom": "DATA-013",
+      "description": {
+        "en": "Same conversion as **Convert JSON Lines to JSON Array**, but replaces the selection in place.",
+        "ja": "**Convert JSON Lines to JSON Array** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`{\"a\":1}⏎{\"a\":2}` → `[{\"a\":1},{\"a\":2}]`",
+        "ja": "`{\"a\":1}⏎{\"a\":2}` → `[{\"a\":1},{\"a\":2}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.format.replace",
+      "candidateId": "DATA-040",
+      "derivedFrom": "DATA-020",
+      "description": {
+        "en": "Same conversion as **Format YAML**, but replaces the selection in place.",
+        "ja": "**Format YAML** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`a:   {b: 1}` → `a:⏎··b: 1`",
+        "ja": "`a:   {b: 1}` → `a:⏎··b: 1`"
+      }
+    }
+  ]
+}

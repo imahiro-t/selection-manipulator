@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the HASH table in docs/ROADMAP.md with the full expected values
+ * The input / output examples of the HASH commands of the showcase data (scripts/showcase-data/HASH.json) with the full expected values
  * (the ROADMAP shows only their first characters followed by `…`). `key` is the HMAC key and, for
  * HASH-017, `expected` is the notification text.
  */

@@ -1,0 +1,463 @@
+{
+  "category": "JA",
+  "commands": [
+    {
+      "id": "selection-manipulator.japanese.kana-to-romaji",
+      "candidateId": "JA-001",
+      "description": {
+        "en": "Converts hiragana and katakana (including half-width katakana) to Hepburn romaji. Long vowels follow the kana spelling without macrons and `ー` repeats the preceding vowel; `ん` becomes `n'` before a vowel or `y`, `っ` doubles the next consonant (`t` before `ch`) and becomes `xtsu` when no consonant follows, `を` becomes `o`, and `ヵ` `ヶ` become `ka` `ke`; iteration marks and non-kana characters are left unchanged.",
+        "ja": "ひらがな・カタカナ（半角カタカナを含む）をヘボン式ローマ字にする（長音は綴りどおりでマクロンなし、`ー` は直前の母音を重ねる。`ん` は母音・`y` の前で `n'`、`っ` は次の子音を重ね `ch` の前は `t`、後ろに子音がない `っ` は `xtsu`。`を` は `o`、`ヵ` `ヶ` は `ka` `ke`。踊り字・仮名以外はそのまま）"
+      },
+      "example": {
+        "en": "`しんじゅく` → `shinjuku`",
+        "ja": "`しんじゅく` → `shinjuku`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.romaji-to-hiragana",
+      "candidateId": "JA-002",
+      "description": {
+        "en": "Converts romaji (both Hepburn and Kunrei, case-insensitive) to hiragana. Each run of letters is converted only when all of it can be read, otherwise it is left as is (`hello` → `hello`); `nn`, `n'`, `n` before a consonant and `m` before `b` `p` become `ん`, a doubled consonant (including `mm`) and `tch` become `っ`, and small kana start with `x` (not `l`).",
+        "ja": "ローマ字（ヘボン式・訓令式の両方、大文字小文字を問わない）をひらがなにする（英字の並びごとに、全部読めたときだけ変換し、読めない並びはそのまま（`hello` → `hello`）。`nn`・`n'`・子音の前の `n`・`b` `p` の前の `m` は `ん`、同じ子音の重なり（`mm` を含む）と `tch` は `っ`、小書きは `x` 始まり（`l` 始まりは扱わない））"
+      },
+      "example": {
+        "en": "`sushi` → `すし`",
+        "ja": "`sushi` → `すし`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.number-to-kanji",
+      "candidateId": "JA-003",
+      "description": {
+        "en": "Converts Arabic numerals to kanji numerals, one value per line. Accepts integers from 0 to 10^20−1, including full-width digits and `,` thousands separators (`10000` → `一万`, `0` → `〇`).",
+        "ja": "算用数字を漢数字にする（1 行 1 値。0〜10^20−1 の整数、全角数字・3 桁区切りの `,` も可。`10000` → `一万`、`0` → `〇`）"
+      },
+      "example": {
+        "en": "`1234` → `千二百三十四`",
+        "ja": "`1234` → `千二百三十四`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kanji-to-number",
+      "candidateId": "JA-004",
+      "description": {
+        "en": "Converts kanji numerals (including the units `万` and `億`) to Arabic numerals, one value per line. Supports positional notation, digit strings without units (`二〇二六`), mixed Arabic numerals (`3億5000万`) and daiji, up to 10^20−1. Units of `万` and above need a preceding digit (`一万` is valid, `万` alone is an error), and wrong unit order, multiple digits before a unit, `〇十` and `,` are errors.",
+        "ja": "漢数字（万・億を含む）を算用数字にする（1 行 1 値。位取り・位なしの数字列（`二〇二六`）・算用数字の混在（`3億5000万`）・大字に対応し、上限は 10^20−1。万以上の位は前に数字が必要（`一万` は可、`万` だけはエラー）。位の順序誤り・位の前の複数桁・`〇十`・`,` はエラー）"
+      },
+      "example": {
+        "en": "`三億五千万` → `350000000`",
+        "ja": "`三億五千万` → `350000000`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.number-to-daiji",
+      "candidateId": "JA-005",
+      "description": {
+        "en": "Converts Arabic numerals to daiji (formal numerals such as `壱`, `弐`, `参`, `拾`), one value per line. The range is the same as in **Japanese - Number to Kanji Numeral**; `壱` is also written before `拾`, `百` and `千`, `万` becomes `萬`, and `0` becomes `零`.",
+        "ja": "算用数字を大字（壱・弐・参・拾）にする（1 行 1 値。範囲は **Japanese - Number to Kanji Numeral** と同じ。拾・百・千の前にも `壱`、万は `萬`、`0` は `零`）"
+      },
+      "example": {
+        "en": "`123` → `壱百弐拾参`",
+        "ja": "`123` → `壱百弐拾参`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.punctuation-to-comma",
+      "candidateId": "JA-006",
+      "description": {
+        "en": "Converts Japanese punctuation `、` and `。` to the comma and period `，` `．` used in official documents and academic papers.",
+        "ja": "句読点を公用文・論文向けの「，」「．」にする"
+      },
+      "example": {
+        "en": "`今日は、晴れ。` → `今日は，晴れ．`",
+        "ja": "`今日は、晴れ。` → `今日は，晴れ．`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.punctuation-to-touten",
+      "candidateId": "JA-007",
+      "description": {
+        "en": "Converts the comma and period `，` `．` to the Japanese punctuation `、` and `。`.",
+        "ja": "「，」「．」を「、」「。」にする"
+      },
+      "example": {
+        "en": "`今日は，晴れ．` → `今日は、晴れ。`",
+        "ja": "`今日は，晴れ．` → `今日は、晴れ。`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kyujitai-to-shinjitai",
+      "candidateId": "JA-008",
+      "description": {
+        "en": "Converts old kanji forms (kyujitai) to new forms (shinjitai). Covers the 305 kyujitai in parentheses of the Joyo Kanji list that can be written with unified ideographs (including `辨` `瓣` `辯` → `弁`) and normalizes the compatibility ideographs U+FA30–FA6A (such as `海` and `社`); the mapping table is a constant in the extension.",
+        "ja": "旧字体を新字体にする（常用漢字表の括弧内の旧字体のうち統合漢字で表せる 305 字（`辨` `瓣` `辯` → `弁` を含む）と、互換漢字 U+FA30〜FA6A（`海` `社` など）の正規化。対応表は拡張内の定数）"
+      },
+      "example": {
+        "en": "`國學` → `国学`",
+        "ja": "`國學` → `国学`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.shinjitai-to-kyujitai",
+      "candidateId": "JA-009",
+      "description": {
+        "en": "Converts new kanji forms (shinjitai) to old forms (kyujitai) using the same table as **Japanese - Old Kanji to New (Kyujitai to Shinjitai)**. `弁`, which has several kyujitai, and `芸` `欠` `予` `余` `台` `糸` `缶` `虫`, which are also different characters with other meanings, are not converted, and compatibility ideographs are never output.",
+        "ja": "新字体を旧字体にする（**Japanese - Old Kanji to New (Kyujitai to Shinjitai)** と同じ表。旧字体が複数ある `弁` と、別の意味の字でもある `芸` `欠` `予` `余` `台` `糸` `缶` `虫` は変換しない。互換漢字は出力しない）"
+      },
+      "example": {
+        "en": "`国学` → `國學`",
+        "ja": "`国学` → `國學`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.small-kana-to-normal",
+      "candidateId": "JA-010",
+      "description": {
+        "en": "Converts small kana (`ぁ`, `っ`, `ゃ`, etc.) to normal-size kana, including katakana, `ヵ` `ヶ`, `ゕ` `ゖ`, `ㇰ`–`ㇿ` and half-width `ｧ`–`ｯ`.",
+        "ja": "小書きの仮名（ぁ・っ・ゃ など）を通常の仮名にする（カタカナ・`ヵ` `ヶ`・`ゕ` `ゖ`・`ㇰ`〜`ㇿ`・半角 `ｧ`〜`ｯ` を含む）"
+      },
+      "example": {
+        "en": "`きゃっと` → `きやつと`",
+        "ja": "`きゃっと` → `きやつと`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.manuscript-count",
+      "candidateId": "JA-011",
+      "description": {
+        "en": "Shows the character count and the equivalent number of 400-character manuscript paper sheets as a notification, totaled over all selections. Counts code points, excluding line breaks but including spaces; selections of only spaces, tabs and line breaks are not counted, and the sheet count is rounded to one decimal place.",
+        "ja": "文字数と 400 字詰め原稿用紙の換算枚数を通知表示する（全選択の合計。コードポイントで数え、改行は数えず空白は数える。空白・タブ・改行だけの選択は数えない。枚数は小数第 1 位に四捨五入）"
+      },
+      "example": {
+        "en": "`（1,234-character text）` → `1,234 字 / 原稿用紙 3.1 枚（notification）`",
+        "ja": "`（1,234 字の文章）` → `1,234 字 / 原稿用紙 3.1 枚（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.remove-ruby",
+      "candidateId": "JA-012",
+      "description": {
+        "en": "Removes ruby annotations written as `漢字《かんじ》`, `｜漢字《かんじ》` or `漢字（かんじ）`. A `《…》` without `｜` is treated as ruby only when it follows a kanji, and parentheses are removed only when they directly follow a kanji and contain only kana; the half-width `|` is also accepted, and ruby does not span lines.",
+        "ja": "「漢字《かんじ》」「｜漢字《かんじ》」「漢字（かんじ）」形式のルビを取り除く（`｜` のない `《…》` は直前が漢字のときだけルビとみなし、それ以外は残す。括弧は漢字の直後で中身が仮名だけのときだけ取り除く。`|`（半角）も可、改行をまたがない）"
+      },
+      "example": {
+        "en": "`｜東京《とうきょう》` → `東京`",
+        "ja": "`｜東京《とうきょう》` → `東京`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.ruby-to-html",
+      "candidateId": "JA-013",
+      "description": {
+        "en": "Converts ruby annotations written as `｜漢字《かんじ》` to HTML ruby elements. `漢字《かんじ》` is also converted, with the same ruby detection as **Japanese - Remove Ruby Notation**, but parenthesized ruby is not; only the base text and the ruby text are HTML-escaped, and the rest of the text is left unchanged.",
+        "ja": "「｜漢字《かんじ》」形式のルビを HTML の ruby 要素にする（`漢字《かんじ》` も対象で、ルビの判定は **Japanese - Remove Ruby Notation** と同じ。括弧のルビは対象外。親字とルビだけを HTML エスケープし、ほかの本文はそのまま）"
+      },
+      "example": {
+        "en": "`｜東京《とうきょう》` → `<ruby>東京<rt>とうきょう</rt></ruby>`",
+        "ja": "`｜東京《とうきょう》` → `<ruby>東京<rt>とうきょう</rt></ruby>`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.fullwidth-alnum-to-half",
+      "candidateId": "JA-014",
+      "description": {
+        "en": "Converts only full-width alphanumerics and symbols (U+FF01–FF5E) to half-width, leaving kana (including half-width kana) and ideographic spaces unchanged (**Convert Full-width to Half-width** also converts kana).",
+        "ja": "全角英数字・記号（U+FF01〜FF5E）だけを半角にし、仮名（半角を含む）と全角空白はそのまま残す（**Convert Full-width to Half-width** は仮名も変換する）"
+      },
+      "example": {
+        "en": "`ＡＢＣ１２３カナ` → `ABC123カナ`",
+        "ja": "`ＡＢＣ１２３カナ` → `ABC123カナ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.ideographic-space-to-space",
+      "candidateId": "JA-015",
+      "description": {
+        "en": "Converts only ideographic (full-width) spaces to half-width spaces.",
+        "ja": "全角空白だけを半角空白にする"
+      },
+      "example": {
+        "en": "`東京　大阪` → `東京 大阪`",
+        "ja": "`東京　大阪` → `東京 大阪`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.normalize-wave-dash",
+      "candidateId": "JA-016",
+      "description": {
+        "en": "Normalizes the wave dash (`〜` U+301C) and the full-width tilde (`～` U+FF5E) to the one chosen in a quick pick.",
+        "ja": "波ダッシュ（〜 U+301C）と全角チルダ（～ U+FF5E）をクイックピックで選んだ一方に統一する"
+      },
+      "example": {
+        "en": "`1〜3、4～5（〜）` → `1〜3、4〜5`",
+        "ja": "`1〜3、4～5（〜）` → `1〜3、4〜5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.normalize-hyphens",
+      "candidateId": "JA-017",
+      "description": {
+        "en": "Normalizes hyphen-like characters after kana to the long vowel mark `ー`, and long vowel marks between digits to hyphens. Hyphen-like characters are `‐` `‑` `‒` `–` `—` `―` `−` `－` (ASCII `-` is not changed); after half-width katakana the mark becomes `ｰ`, and a long vowel mark or hyphen-like character between digits (including full-width digits) becomes `-`.",
+        "ja": "仮名の後ろのハイフン類を長音符「ー」に、数字の間の長音符をハイフンに統一する（ハイフン類は `‐` `‑` `‒` `–` `—` `―` `−` `－` で、ASCII の `-` は変えない。直前が半角カタカナなら `ｰ`。数字（全角を含む）に挟まれた長音符・ハイフン類は `-`）"
+      },
+      "example": {
+        "en": "`コ−ヒ− 03ー1234` → `コーヒー 03-1234`",
+        "ja": "`コ−ヒ− 03ー1234` → `コーヒー 03-1234`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.extract-kanji",
+      "candidateId": "JA-018",
+      "description": {
+        "en": "Extracts only the kanji, line by line, dropping lines without kanji. `ヶ` is not counted as kanji, and a notification is shown when nothing is found.",
+        "ja": "漢字だけを取り出す（行ごと。漢字のない行は落とす。`ヶ` は漢字に含めない。該当なしは通知）"
+      },
+      "example": {
+        "en": "`東京タワーへ行く` → `東京行`",
+        "ja": "`東京タワーへ行く` → `東京行`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.extract-katakana-words",
+      "candidateId": "JA-019",
+      "description": {
+        "en": "Extracts katakana words, one per line: the longest runs of katakana (including half-width). `・` is included only between katakana, a leading `ー` and the like are removed, and a lone `ヵ` or `ヶ` is not a word; a notification is shown when nothing is found.",
+        "ja": "カタカナ語を 1 行ずつ取り出す（半角を含むカタカナの最長の並び。`・` は両側がカタカナのときだけ含め、先頭の `ー` などは除く。`ヵ` `ヶ` 1 文字だけは語としない。該当なしは通知）"
+      },
+      "example": {
+        "en": "`東京タワーとスカイツリー` → `タワー⏎スカイツリー`",
+        "ja": "`東京タワーとスカイツリー` → `タワー⏎スカイツリー`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.char-type-count",
+      "candidateId": "JA-020",
+      "description": {
+        "en": "Shows the number of hiragana, katakana, kanji, alphanumeric, symbol and other characters as a notification, totaled over all selections. Spaces are not counted and types with 0 characters are omitted; symbols are Unicode punctuation and symbols (P and S), and other covers the rest (`①`, Hangul, accented Latin letters, etc.).",
+        "ja": "ひらがな・カタカナ・漢字・英数字・記号・その他ごとの文字数を通知表示する（全選択の合計。空白は数えず、0 件の種別は省略。記号は Unicode の約物・記号（P・S）、その他はそれ以外（`①`・ハングル・アクセント付きラテン文字など））"
+      },
+      "example": {
+        "en": "`東京タワーへgo` → `漢字 2 / カタカナ 3 / ひらがな 1 / 英数字 2（notification）`",
+        "ja": "`東京タワーへgo` → `漢字 2 / カタカナ 3 / ひらがな 1 / 英数字 2（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.circled-number-to-paren",
+      "candidateId": "JA-021",
+      "description": {
+        "en": "Converts circled numbers, which are often platform-dependent, to the `(1)` format.",
+        "ja": "環境依存になりやすい丸数字を (1) 形式にする"
+      },
+      "example": {
+        "en": "`①②` → `(1)(2)`",
+        "ja": "`①②` → `(1)(2)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.prefecture-code",
+      "candidateId": "JA-022",
+      "description": {
+        "en": "Converts between prefecture names and JIS codes (01–47) using a built-in table, one value per line. Full names and short names (`東京`) become 2-digit codes, and 1- or 2-digit codes (full-width allowed) become full names.",
+        "ja": "都道府県名と JIS コード（01〜47）を相互に変換する（対応表を内蔵。1 行 1 値。正式名称・略称（`東京`）→ 2 桁コード、1〜2 桁のコード（全角可）→ 正式名称）"
+      },
+      "example": {
+        "en": "`東京都` → `13`",
+        "ja": "`東京都` → `13`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.postal-code-format",
+      "candidateId": "JA-023",
+      "description": {
+        "en": "Formats 7-digit postal codes as `〒123-4567`, one value per line, without looking up addresses. Accepts full-width digits, a `-` or `－` after the third digit and a leading `〒`.",
+        "ja": "7 桁の郵便番号を「〒123-4567」形式にする（住所検索はしない。1 行 1 値。全角数字、3 桁目の後ろの `-` `－`、先頭の `〒` を受け付ける）"
+      },
+      "example": {
+        "en": "`1000001` → `〒100-0001`",
+        "ja": "`1000001` → `〒100-0001`"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.hiragana-to-halfwidth-katakana",
+      "candidateId": "JA-024",
+      "description": {
+        "en": "Converts hiragana to half-width katakana with separate voiced sound marks. A long vowel mark `ー` right after converted hiragana also becomes `ｰ`; katakana, punctuation, alphanumerics and `ゎ` `ゐ` `ゑ`, which have no half-width form, are left unchanged.",
+        "ja": "ひらがなを半角カタカナにする（濁点は分離。変換したひらがなの直後の長音符 `ー` も `ｰ` にする。カタカナ・約物・英数字と半角のない `ゎ` `ゐ` `ゑ` はそのまま）"
+      },
+      "example": {
+        "en": "`がっこう` → `ｶﾞｯｺｳ`",
+        "ja": "`がっこう` → `ｶﾞｯｺｳ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.remove-spaces-between-japanese",
+      "candidateId": "JA-025",
+      "description": {
+        "en": "Removes spaces between Japanese characters while keeping spaces between English words. Targets half-width and full-width spaces and tabs between kanji, kana and Japanese punctuation, without crossing line breaks; full-width alphanumerics are not treated as Japanese characters.",
+        "ja": "日本語の文字どうしの間の空白を取り除く（英単語間の空白は残す。漢字・仮名・和文約物の間の半角・全角空白とタブが対象で、改行はまたがない。全角英数字は日本語の文字に含めない）"
+      },
+      "example": {
+        "en": "`日本 語 の hello world` → `日本語の hello world`",
+        "ja": "`日本 語 の hello world` → `日本語の hello world`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.space-between-ja-en",
+      "candidateId": "JA-026",
+      "description": {
+        "en": "Adds a half-width space at boundaries between Japanese and alphanumerics, in both directions between kanji or kana and ASCII letters or digits. No space is added where one already exists, next to punctuation or next to full-width alphanumerics, so running it again changes nothing.",
+        "ja": "日本語と英数字の境目に半角空白を入れる（漢字・仮名と ASCII 英数字の境目、両方向。空白がすでにある所・約物・全角英数字との境目には入れないので、繰り返しても変わらない）"
+      },
+      "example": {
+        "en": "`Vue3で開発` → `Vue3 で開発`",
+        "ja": "`Vue3で開発` → `Vue3 で開発`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.compose-dakuten",
+      "candidateId": "JA-027",
+      "description": {
+        "en": "Composes separated voiced and semi-voiced sound marks (combining characters or `゛` `゜`) with the preceding kana. Only pairs with full-width kana that can be composed into one character are combined; other pairs and the rest of the text are not normalized.",
+        "ja": "分離した濁点・半濁点（結合文字・゛゜）を直前の仮名と合成する（全角の仮名との組で 1 文字に合成できるときだけ。ほかの組と本文全体は正規化しない）"
+      },
+      "example": {
+        "en": "`か゛は゜` → `がぱ`",
+        "ja": "`か゛は゜` → `がぱ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kana-to-romaji-kunrei",
+      "candidateId": "JA-028",
+      "description": {
+        "en": "Converts hiragana and katakana to Kunrei romaji. The rules are the same as in **Japanese - Kana to Romaji (Hepburn)** (`まっち` → `matti`), and `っ` with no following consonant becomes `xtu`.",
+        "ja": "ひらがな・カタカナを訓令式ローマ字にする（規則は **Japanese - Kana to Romaji (Hepburn)** と同じ（`まっち` → `matti`）で、後ろに子音がない `っ` は `xtu`）"
+      },
+      "example": {
+        "en": "`しんじゅく` → `sinzyuku`",
+        "ja": "`しんじゅく` → `sinzyuku`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.detect-platform-dependent",
+      "candidateId": "JA-029",
+      "description": {
+        "en": "Detects and selects characters outside JIS X 0208, such as circled numbers and `髙`. The reference set is rows 1–84 of JIS X 0208 (excluding row 13) and JIS X 0201 (ASCII, `¥`, `‾`, half-width katakana), so emoji, Hangul and the like are also detected; line breaks and tabs are ignored, and more than 10,000 characters is an error.",
+        "ja": "丸数字・髙などの JIS X 0208 外の文字を検出して選択する（JIS X 0208 の第 1〜84 区（13 区を除く）と JIS X 0201（ASCII・`¥`・`‾`・半角カタカナ）を基準にし、絵文字・ハングルなども検出。改行・タブは対象外。10,000 字を超えたらエラー）"
+      },
+      "example": {
+        "en": "`①髙橋` → `\"①\" and \"髙\" selected`",
+        "ja": "`①髙橋` → `「①」「髙」を選択`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kana-to-romaji.replace",
+      "candidateId": "JA-030",
+      "derivedFrom": "JA-001",
+      "description": {
+        "en": "Same conversion as **Japanese - Kana to Romaji (Hepburn)**, but replaces the selection in place.",
+        "ja": "**Japanese - Kana to Romaji (Hepburn)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`しんじゅく` → `shinjuku`",
+        "ja": "`しんじゅく` → `shinjuku`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.romaji-to-hiragana.replace",
+      "candidateId": "JA-031",
+      "derivedFrom": "JA-002",
+      "description": {
+        "en": "Same conversion as **Japanese - Romaji to Hiragana**, but replaces the selection in place.",
+        "ja": "**Japanese - Romaji to Hiragana** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`sushi` → `すし`",
+        "ja": "`sushi` → `すし`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.number-to-kanji.replace",
+      "candidateId": "JA-032",
+      "derivedFrom": "JA-003",
+      "description": {
+        "en": "Same conversion as **Japanese - Number to Kanji Numeral**, but replaces the selection in place.",
+        "ja": "**Japanese - Number to Kanji Numeral** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`1234` → `千二百三十四`",
+        "ja": "`1234` → `千二百三十四`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kanji-to-number.replace",
+      "candidateId": "JA-033",
+      "derivedFrom": "JA-004",
+      "description": {
+        "en": "Same conversion as **Japanese - Kanji Numeral to Number**, but replaces the selection in place.",
+        "ja": "**Japanese - Kanji Numeral to Number** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`三億五千万` → `350000000`",
+        "ja": "`三億五千万` → `350000000`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.kyujitai-to-shinjitai.replace",
+      "candidateId": "JA-034",
+      "derivedFrom": "JA-008",
+      "description": {
+        "en": "Same conversion as **Japanese - Old Kanji to New (Kyujitai to Shinjitai)**, but replaces the selection in place.",
+        "ja": "**Japanese - Old Kanji to New (Kyujitai to Shinjitai)** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`國學` → `国学`",
+        "ja": "`國學` → `国学`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.space-between-ja-en.replace",
+      "candidateId": "JA-035",
+      "derivedFrom": "JA-026",
+      "description": {
+        "en": "Same conversion as **Japanese - Add Space Between Japanese and Alphanumerics**, but replaces the selection in place.",
+        "ja": "**Japanese - Add Space Between Japanese and Alphanumerics** と同じ変換を行い、選択範囲をその場で置き換える"
+      },
+      "example": {
+        "en": "`Vue3で開発` → `Vue3 で開発`",
+        "ja": "`Vue3で開発` → `Vue3 で開発`",
+        "japanese": "data"
+      }
+    }
+  ]
+}

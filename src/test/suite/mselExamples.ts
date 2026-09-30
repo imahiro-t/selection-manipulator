@@ -1,5 +1,5 @@
 /**
- * The input / output examples of the MSEL table of docs/ROADMAP.md, in its notation:
+ * The input / output examples of the MSEL commands of the showcase data (scripts/showcase-data/MSEL.json), in its notation:
  * `[text]` is a selection, `|` (`\|` in the table) and `[]` are cursors (empty selections),
  * `⏎` is a line break and `·` a space. A text without any marker is selected as a whole.
  */
