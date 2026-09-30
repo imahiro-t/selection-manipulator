@@ -10455,6 +10455,7 @@
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "watch": "npm run esbuild-watch",
+    "lint": "eslint src --ext ts",
     "test-compile": "tsc -p ./",
     "test": "npm run test-compile && npm run esbuild && node ./out/test/runTest.js"
   },
