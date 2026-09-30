@@ -10463,7 +10463,7 @@
     "test:showcase": "node --test scripts/generate-showcase.test.mjs"
   },
   "devDependencies": {
-    "@types/diff": "^7.0.2",
+    "@types/diff": "^8.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
