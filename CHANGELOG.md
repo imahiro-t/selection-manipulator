@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 🔒 Refuse a backslash in the commands that write SQL string literals, so the SQL they write cannot be changed by a value in MySQL / MariaDB's default mode (without `NO_BACKSLASH_ESCAPES`), where `\'` is an escaped quote and a value could end the string and add SQL of its own
+  - Quote: SQL IN List (WRAP-006): a line with a backslash (`\`) is now an error and nothing is changed (`The selection was not changed: line 2 contains a backslash (\), …`); with several selections, nothing is changed if any of them is refused. Before, `\` was written as it is (`O\'Neil` -> `('O\''Neil')`). `'` is still doubled as before
+  - Escape SQL String Literal (DEV-007) and its (Replace) version (DEV-032): text with a backslash is now an error and nothing is changed or opened (`the text contains a backslash (\), …`). Before, `\` was kept as it is
+  - Also refuse a yen sign (`¥`, U+00A5) in these commands and in CSV - Convert to SQL INSERT (TABLE-012), because VS Code saves it as a backslash (the byte 0x5C) in Shift_JIS, CP932 and EUC-JP: **CSV - Convert to SQL INSERT now refuses a value, column name or table name with `¥`**, which it wrote as it is before (a backslash was already refused). The full-width `￥` (U+FFE5) and `＼` (U+FF3C) are still accepted
+  - The reason is shared in a new module, `src/handler/sqlSafety.ts`; the message for a backslash is unchanged, and the one for a yen sign is `a yen sign (¥), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)`
+
 ## [0.1.0] - 2026-09-30
 
 - 📚 Add a command showcase, published on GitHub Pages at https://imahiro-t.github.io/selection-manipulator/ and linked from the README: every command registered in `package.json` (831 now) by category, with its ID, title, description and input → output example in English and Japanese, a "Getting started" section (installation, Command Palette, context menu, keybindings, multiple selections, where results go), keyword search in both languages (ID, title, description, example) and category filters with counts, light / dark themes, and a layout that fits a 360px-wide screen; a single file with no external resources

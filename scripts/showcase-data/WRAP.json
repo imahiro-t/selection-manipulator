@@ -65,8 +65,8 @@
       "id": "selection-manipulator.quote.list.sql-in",
       "candidateId": "WRAP-006",
       "description": {
-        "en": "Encloses each line in single quotes and puts them, comma-separated, in parentheses (inner ' is escaped as ''; empty and whitespace-only lines are skipped, and lines are not trimmed). The result is a single line, a single trailing line break of the selection is kept after the list, and nothing changes if there are no target lines.",
-        "ja": "各行をシングルクォートで囲み、カンマ区切りで括弧に入れる（内部の ' は '' にエスケープ。空行・空白のみの行は除き、行の前後の空白はトリムしない。結果は 1 行で、選択末尾の改行 1 つはリストの後ろに残す。対象行がなければ変更しない）"
+        "en": "Encloses each line in single quotes and puts them, comma-separated, in parentheses (inner ' is escaped as ''; empty and whitespace-only lines are skipped, and lines are not trimmed). The result is a single line, a single trailing line break of the selection is kept after the list, and nothing changes if there are no target lines. A line containing `\\` or `¥` (U+00A5, saved as `\\` in Shift_JIS / CP932 / EUC-JP) is an error and nothing changes, because MySQL / MariaDB's default mode treats `\\` as an escape and the value could end the string.",
+        "ja": "各行をシングルクォートで囲み、カンマ区切りで括弧に入れる（内部の ' は '' にエスケープ。空行・空白のみの行は除き、行の前後の空白はトリムしない。結果は 1 行で、選択末尾の改行 1 つはリストの後ろに残す。対象行がなければ変更しない。`\\` または `¥`（U+00A5。Shift_JIS / CP932 / EUC-JP で保存すると `\\` になる）を含む行があるとエラーで何も変更しない。MySQL / MariaDB の既定モードでは `\\` がエスケープとして解釈され、値が文字列を終わらせられるため）"
       },
       "example": {
         "en": "`a⏎O'Neil` → `('a', 'O''Neil')`",
