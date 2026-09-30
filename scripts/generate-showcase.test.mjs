@@ -103,6 +103,12 @@ function dataSearch(article) {
     return /data-search="([^"]*)"/.exec(article)[1];
 }
 
+/** Body of the first `<script>` element in an HTML fragment (the generator writes the tags in lower case). */
+function firstScript(html) {
+    const start = html.indexOf('<script>') + '<script>'.length;
+    return html.slice(start, html.indexOf('</script>', start));
+}
+
 /** Visible text of an HTML fragment in one language (drops the other language and the tags). */
 function visibleText(html, lang) {
     const other = lang === 'en' ? 'ja' : 'en';
@@ -408,7 +414,7 @@ describe('real data: the page', () => {
 
     test('the head script picks the language before the body: saved choice, then navigator.language, in try/catch', () => {
         const head = real.html.slice(0, real.html.indexOf('</head>'));
-        const script = /<script>([\s\S]*?)<\/script>/.exec(head)[1];
+        const script = firstScript(head);
         assert.ok(script.includes('localStorage.getItem('));
         assert.ok(script.includes('navigator.language'));
         assert.match(script, /try \{[\s\S]*localStorage\.getItem[\s\S]*\} catch \(e\) \{\}/);
@@ -424,7 +430,7 @@ describe('real data: the page', () => {
 
     test('the head script chooses the language as specified', () => {
         const head = real.html.slice(0, real.html.indexOf('</head>'));
-        const script = /<script>([\s\S]*?)<\/script>/.exec(head)[1];
+        const script = firstScript(head);
         const run = ({ saved, language, throws = false }) => {
             const attributes = {};
             const document = { documentElement: { setAttribute: (name, value) => (attributes[name] = value) }, title: '' };
@@ -474,7 +480,7 @@ describe('real data: the page', () => {
         }
         assert.ok(visibleText(usage, 'ja').includes('拡張機能ビュー') && visibleText(usage, 'ja').includes('読み取り専用タブ') && visibleText(usage, 'ja').includes('通知'));
         assert.ok(visibleText(usage, 'en').includes('Extensions view') && visibleText(usage, 'en').includes('read-only tab') && visibleText(usage, 'en').includes('notification'));
-        assert.equal((usage.match(new RegExp(`<a href="${MARKETPLACE_URL.replace(/[.?]/g, '\\$&')}">`, 'g')) ?? []).length, 2);
+        assert.equal(usage.split(`<a href="${MARKETPLACE_URL}">`).length - 1, 2);
     });
 
     test('the keybindings table lists the 3 keybindings of package.json', () => {
