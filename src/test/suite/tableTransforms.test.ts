@@ -11,6 +11,7 @@ import {
   TableCommandEntry,
   TableNotice,
 } from '../../handler/tableTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { TABLE_ROADMAP_EXAMPLES, VALID_INPUTS } from './tableExamples';
 
 const entry = (id: string): TableCommandEntry => {
@@ -382,7 +383,7 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
     });
 
     test('a backslash in a value, a column name or the table name is an error (MySQL reads it as an escape)', () => {
-      const reason = "a backslash (\\), which is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const reason = SQL_BACKSLASH_REASON;
       const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
         (error: unknown) => error instanceof TableInputError && error.message === message);
       // The attack of the security review: `\'` would end the first literal early in MySQL.
@@ -393,6 +394,17 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
       refused('a\n1', 'app.\\', `the table name contains ${reason}`);
       // Nothing else changed: characters that are special to MySQL only outside a literal stay inside it.
       assert.strictEqual(run('TABLE-012', 'a\n"%_""`/*"', ['t']), "INSERT INTO t (a) VALUES ('%_\"`/*');");
+    });
+
+    test('a yen sign (U+00A5, saved as a backslash in Shift_JIS / EUC-JP) in a value or a name is an error', () => {
+      const reason = SQL_YEN_SIGN_REASON;
+      const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
+        (error: unknown) => error instanceof TableInputError && error.message === message);
+      refused('a,b\n\u00A5,); DROP TABLE users; -- ', 'users', `row 2, column 1 contains ${reason}`);
+      refused('a,price\u00A5\n1,2', 't', `column 2 of the header contains ${reason}`);
+      refused('a\n1', 'my\u00A5table', `the table name contains ${reason}`);
+      // The fullwidth yen sign (U+FFE5) is not saved as 0x5C (Shift_JIS: 0x818F).
+      assert.strictEqual(run('TABLE-012', 'a\n\uFFE5100', ['t']), "INSERT INTO t (a) VALUES ('\uFFE5100');");
     });
 
     test('the output limit stops long INSERT lists', () => {

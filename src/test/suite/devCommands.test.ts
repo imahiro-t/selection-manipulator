@@ -7,6 +7,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { DEV_NOTHING_SELECTED, devCommandHandlerInternal, DevDependencies, DevPickItem } from '../../handler/devCommandHandler';
 import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor } from './testUtils';
 import { DEV_ROADMAP_EXAMPLES } from './devExamples';
 import { candidateRows } from './showcaseData';
@@ -224,6 +225,37 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       assert.strictEqual(editor.document.getText(), ['O\'\'Reilly', 'plain', '\'\'\'\''].join(SEPARATOR));
       await vscode.commands.executeCommand('undo');
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+    });
+
+    test('DEV-032 (Replace) with a backslash in one selection changes nothing (MySQL default mode)', async () => {
+      const { dependencies, errors } = recorder();
+      const blocks = ['O\'Reilly', 'C:\\Users'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [
+        `${NOT_CHANGED}selection 2 of 2: the text contains ${SQL_BACKSLASH_REASON}`,
+      ]);
+    });
+
+    test('DEV-032 (Replace) with a yen sign (saved as a backslash in Shift_JIS / EUC-JP) changes nothing', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createTextEditor('\u00A5\' OR 1=1 --');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), '\u00A5\' OR 1=1 --');
+      assert.deepStrictEqual(errors, [`${NOT_CHANGED}the text contains ${SQL_YEN_SIGN_REASON}`]);
+    });
+
+    test('DEV-007 (new editor) with a backslash shows no result', async () => {
+      const { dependencies, errors, opened } = recorder();
+      const editor = await createTextEditor('O\\\'Neil');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-007'), dependencies)(editor);
+      assert.deepStrictEqual(opened, []);
+      assert.strictEqual(errors.length, 1);
+      assert.ok(errors[0].startsWith(`${NOT_SHOWN}the text contains a backslash`), errors[0]);
     });
 
     test('one invalid selection among several changes nothing; the message names the selection', async () => {
