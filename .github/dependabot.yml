@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    ignore:
+      # @types/vscode is always published as 1.x, following the VS Code version.
+      # Only patch updates are allowed: a newer minor would let the code use APIs
+      # newer than engines.vscode (^1.85.0), and vsce package refuses @types/vscode
+      # newer than engines.vscode. Raise it by hand together with engines.vscode.
+      - dependency-name: "@types/vscode"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      # @types/node follows the major version of Node.js. Raise it by hand to match
+      # the Node.js major of the VS Code extension host.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

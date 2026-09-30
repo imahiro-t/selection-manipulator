@@ -15,6 +15,7 @@
 
 <!-- How did you verify the change? List the tests you added or ran. -->
 
+- [ ] `npm run lint` passes (no errors)
 - [ ] `npm run test-compile` passes
 - [ ] `npm test` passes
 
