@@ -11,7 +11,7 @@
  * sentence terminator). Anything that would need a "quantifier followed by a
  * look-ahead to the end" is implemented as a hand-written backwards scan.
  */
-import * as changeCase from 'change-case';
+import * as changeCase from './changeCaseCompat';
 import { quoteForDisplay } from '../textFormat';
 
 // ---------------------------------------------------------------------------
@@ -35,7 +35,7 @@ const upperFirstCased = (word: string): string => {
   return word;
 };
 
-/** Words of `value` as split by change-case v4 (lower-cased, non-ASCII dropped). */
+/** Words of `value` as split by the change-case v4 compatible rules (lower-cased, non-ASCII dropped; see changeCaseCompat). */
 const noCaseWords = (value: string): string[] =>
   changeCase.noCase(value).split(' ').filter((word) => word.length > 0);
 
@@ -156,11 +156,11 @@ export const upperFirst = (value: string): string => mapFirstNonWhitespace(value
 export const lowerFirst = (value: string): string => mapFirstNonWhitespace(value, (ch) => ch.toLowerCase());
 
 // ---------------------------------------------------------------------------
-// CASE-006 .. CASE-013: naming conventions (change-case v4 word splitting)
+// CASE-006 .. CASE-013: naming conventions (change-case v4 compatible word splitting)
 // ---------------------------------------------------------------------------
 
 /** CASE-006: `userName` -> `USER-NAME`. */
-export const cobolCase = (value: string): string => changeCase.paramCase(value).toUpperCase();
+export const cobolCase = (value: string): string => changeCase.kebabCase(value).toUpperCase();
 
 /** CASE-007: `user name` -> `User_Name`. */
 export const adaCase = (value: string): string => changeCase.capitalCase(value, { delimiter: '_' });
@@ -279,7 +279,7 @@ export const cycleCase = (value: string): string => {
     case 'camelCase':
       return changeCase.snakeCase(value);
     case 'snake_case':
-      return changeCase.paramCase(value);
+      return changeCase.kebabCase(value);
     case 'kebab-case':
       return changeCase.pascalCase(value);
     case 'PascalCase':
@@ -432,7 +432,7 @@ export const convertJsonKeys = (json: string, keyFn: (key: string) => string): s
 
 /** CASE-026: `primaryColor` -> `--primary-color` (idempotent). */
 export const cssVariableCase = (value: string): string => {
-  const kebab = changeCase.paramCase(value);
+  const kebab = changeCase.kebabCase(value);
   return kebab === '' ? '' : `--${kebab}`;
 };
 

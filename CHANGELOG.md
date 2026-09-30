@@ -27,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `@typescript-eslint/semi`, removed in typescript-eslint 8, is replaced with `@stylistic/semi` from `@stylistic/eslint-plugin`; the `lint` script is now `eslint src`, since ESLint 10 no longer has `--ext`
   - ESLint 10 needs Node.js `^20.19.0 || ^22.13.0 || >=24` for development; TypeScript stays at 5.x
 
+- 🔧 Update change-case to 5 (ESM-only; replaces Dependabot PR #18), with no change to the output of the case commands
+  - A new wrapper, `src/handler/changeCaseCompat.ts`, is the only module that imports change-case; it always splits words the way change-case 4 did and converts case without the locale, so non-ASCII text and locales such as Turkish give the same output as before (for example, Kebab Case of `café au lait` stays `caf-au-lait`); a new test compares every wrapped function with outputs recorded from change-case 4.1.2
+  - Renamed functions: `paramCase` -> `kebabCase`, `headerCase` -> `trainCase`
+  - The extension still loads change-case from its esbuild bundle (`out/main.js` has no `require("change-case")`), so older VS Code versions are not affected; for the tests compiled with `tsc`, TypeScript is updated to ^5.9.3 and `tsconfig.json` uses `"module": "node20"`, and the test VS Code loads change-case with `require(esm)`
+  - change-case 5 has no dependencies, so its former sub-packages (`no-case`, `pascal-case` and others) are removed from `package-lock.json`
+
 - ✨ Add 25 Markdown commands (ROADMAP MD-001..025), added to the existing `Markdown` context submenu under `Transform`
   - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only; the final line break of the document is kept; the tables of contents of several cursors on one line are separated by a blank line, also with a selection of only spaces between them), Convert Setext Headings to ATX, Heading to Anchor Link
   - Lists and tasks: Convert Lines to Bullet / Numbered / Task List, Toggle Task Checkbox, Remove List Markers, Renumber Ordered List (per nesting level), Blockquote
