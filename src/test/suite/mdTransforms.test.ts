@@ -626,6 +626,39 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       // CRLF.
       assert.strictEqual(run('MD-003', 'p\r\n# A', { ranges: [{ start: 3, end: 6 }], eol: '\r\n' }), 'p\r\n\r\n- [A](#a)');
     });
+
+    test('MD-003: the final line break of the text is kept when the edit reaches the end', () => {
+      // The selection takes the final line break: it is written again after the list.
+      assert.strictEqual(run('MD-003', '# A\n## B\n', { ranges: [{ start: 0, end: 9 }] }), '- [A](#a)\n  - [B](#b)\n');
+      assert.strictEqual(run('MD-003', '# A\r\n## B\r\n', { eol: '\r\n' }), '- [A](#a)\r\n  - [B](#b)\r\n');
+      assert.strictEqual(run('MD-003', '# A\r## B\r', { eol: '\n' }), '- [A](#a)\n  - [B](#b)\r');
+      // No final line break: none is added.
+      assert.strictEqual(run('MD-003', '# A\n## B'), '- [A](#a)\n  - [B](#b)');
+      // The selection ends before the final line break: it stays where it is (not doubled).
+      assert.strictEqual(run('MD-003', '# A\n## B\n', { ranges: [{ start: 0, end: 8 }] }), '- [A](#a)\n  - [B](#b)\n');
+      // Text before the selection; a cursor at the end; blank lines at the end (one line break kept).
+      assert.strictEqual(run('MD-003', 'x\n# A\n', { ranges: [{ start: 2, end: 6 }] }), 'x\n\n- [A](#a)\n');
+      assert.strictEqual(run('MD-003', '# A\n', { ranges: [{ start: 4, end: 4 }] }), '# A\n\n- [A](#a)\n');
+      assert.strictEqual(run('MD-003', '# A\n\n', { ranges: [{ start: 5, end: 5 }] }), '# A\n\n- [A](#a)\n');
+      assert.strictEqual(run('MD-003', '# A\n\n'), '- [A](#a)\n');
+    });
+
+    test('MD-003: indentation of 4 columns or more before the list is dropped (no indented code block)', () => {
+      assert.strictEqual(run('MD-003', '# A\n\n    \n## B', { ranges: [{ start: 9, end: 9 }] }), '# A\n\n- [A](#a)\n  - [B](#b)\n\n## B');
+      // At the start of the text; a tab (4 columns); more than 4 spaces; a selection after the indentation.
+      assert.strictEqual(run('MD-003', '    \n# A', { ranges: [{ start: 4, end: 4 }] }), '- [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', '\t\n# A', { ranges: [{ start: 1, end: 1 }] }), '- [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', '  \t\n# A', { ranges: [{ start: 3, end: 3 }] }), '- [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', '      \n# A', { ranges: [{ start: 6, end: 6 }] }), '- [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', 'x\n\n    \n# A', { ranges: [{ start: 7, end: 11 }] }), 'x\n\n- [A](#a)');
+      // Up to 3 columns stay, as before.
+      assert.strictEqual(run('MD-003', '  \n# A', { ranges: [{ start: 2, end: 2 }] }), '  - [A](#a)\n\n# A');
+      assert.strictEqual(run('MD-003', '   # A', { ranges: [{ start: 3, end: 6 }] }), '   - [A](#a)');
+      // Text before the cursor on its line: split as before.
+      assert.strictEqual(run('MD-003', 'a  b\n# A', { ranges: [{ start: 2, end: 2 }] }), 'a\n\n- [A](#a)\n\nb\n# A');
+      // Two cursors on one line of spaces: each list starts at the start of a line.
+      assert.strictEqual(run('MD-003', '        \n# A', { ranges: [{ start: 4, end: 4 }, { start: 8, end: 8 }] }), '- [A](#a)\n- [A](#a)\n\n# A');
+    });
   });
 
   suite('helpers', () => {

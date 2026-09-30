@@ -8,14 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - ✨ Add 25 Markdown commands (ROADMAP MD-001..025), added to the existing `Markdown` context submenu under `Transform`
-  - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only), Convert Setext Headings to ATX, Heading to Anchor Link
+  - Headings: Increase / Decrease Heading Level, Generate Table of Contents (a selection is replaced with the table of contents of its headings; a cursor inserts the table of contents of the whole document; GitHub-style anchors, repeated headings numbered over the whole document; ATX headings only; the final line break of the document is kept), Convert Setext Headings to ATX, Heading to Anchor Link
   - Lists and tasks: Convert Lines to Bullet / Numbered / Task List, Toggle Task Checkbox, Remove List Markers, Renumber Ordered List (per nesting level), Blockquote
   - Inline: Bold, Italic, Strikethrough, Wrap in Code Fence (language: empty or up to 50 letters, digits and `_ + # . -`), Image (alt text up to 1,000 characters, escaped), Linkify URLs, Wrap in Details Block (summary up to 1,000 characters, HTML-escaped)
   - Format Table (column widths in code points, alignments kept) and Strip Formatting
   - Convert to HTML: the extension's own CommonMark subset with no new dependency (headings, paragraphs, bold / italic / strikethrough, inline code, code fences, bullet / ordered lists, block quotes, links, images, thematic breaks); raw HTML is escaped, and `javascript:` / `vbscript:` / `data:` / `file:` URLs become `#`
   - Convert to Footnote and Inline Links to Reference Links (numbered after the existing footnotes / definitions in the document; the definitions are added after a blank line)
   - Front Matter to JSON: reads the front matter with `js-yaml` (YAML 1.2 Core schema, no code is run) and writes one line of JSON, unlike the indented output of Convert YAML to JSON
-  - Blocks written by Generate Table of Contents, Wrap in Code Fence, Wrap in Details Block and Inline Links to Reference Links never share a line with other text: when a selection starts or ends in the middle of a line, line breaks (and blank lines where the next line would continue the block) are added
+  - Blocks written by Generate Table of Contents, Wrap in Code Fence, Wrap in Details Block and Inline Links to Reference Links never share a line with other text: when a selection starts or ends in the middle of a line, line breaks (and blank lines where the next line would continue the block) are added; indentation of 4 columns or more before a table of contents is dropped so that it is not read as an indented code block
   - Each selection is converted on its own, as one undo step; empty selections are ignored except by Generate Table of Contents; if any selection fails, nothing is changed and a warning is shown, and a run whose results would exceed 10,000,000 characters is refused (see README for limitations)
 
 - ✨ Add 30 multi-cursor and selection commands (ROADMAP MSEL-001..030), also grouped in a new `Multi Cursor` context submenu

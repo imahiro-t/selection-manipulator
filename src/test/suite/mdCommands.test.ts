@@ -235,6 +235,25 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(footnote.document.getText(), 'a [^1]\r\n\r\n[^1]: b\r\n');
     });
 
+    test('MD-003: the final line break is kept and code-block indentation is dropped (SELEC-00064)', async () => {
+      // The whole document selected, up to the end of its final line break.
+      const text = '# A\n## B\n';
+      const whole = await open(text);
+      await run(entryOf('MD-003'), recorder().dependencies)(whole);
+      assert.strictEqual(whole.document.getText(), '- [A](#a)\n  - [B](#b)\n');
+      await vscode.commands.executeCommand('undo');
+      assert.strictEqual(whole.document.getText(), text, 'one undo restores the text');
+      // CRLF: the final line break stays CRLF.
+      const crlf = await open('# A\r\n## B\r\n');
+      assert.strictEqual(crlf.document.eol, vscode.EndOfLine.CRLF);
+      await run(entryOf('MD-003'), recorder().dependencies)(crlf);
+      assert.strictEqual(crlf.document.getText(), '- [A](#a)\r\n  - [B](#b)\r\n');
+      // A cursor after 4 spaces on a line after a blank line: the list starts at the line start.
+      const indented = await open('# A\n\n    \n## B', [[9, 9]]);
+      await run(entryOf('MD-003'), recorder().dependencies)(indented);
+      assert.strictEqual(indented.document.getText(), '# A\n\n- [A](#a)\n  - [B](#b)\n\n## B');
+    });
+
     test('a failure in one selection changes nothing and warns', async () => {
       const { dependencies, warnings, errors } = recorder();
       const text = '|a|\n|-|\n\nnot a table';

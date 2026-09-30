@@ -392,6 +392,22 @@ const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol, used:
 };
 
 /**
+ * Where the spaces and tabs right before `offset` start (not before `floor`): with no text
+ * before `offset` on its line, that is the indentation of the line.
+ */
+const indentStart = (text: string, offset: number, floor: number): number => {
+  let start = offset;
+  while (start > floor && isSpaceOrTab(text[start - 1])) {
+    start--;
+  }
+  return start;
+};
+
+/** The line break that ends `text` ("\r\n" is one), or '' when it does not end with one. */
+const finalLineBreak = (text: string): string =>
+  text.endsWith('\r\n') ? '\r\n' : isLineBreak(text[text.length - 1]) ? text[text.length - 1] : '';
+
+/**
  * MD-003: a selection is replaced with the table of contents of the headings in it (a selection
  * without headings is left); a cursor inserts the table of contents of the whole document. The
  * anchors of repeated headings are numbered over the whole document. The list is a block of its
@@ -399,7 +415,11 @@ const tableOfContents = (headings: readonly DocumentHeading[], eol: MdEol, used:
  * added before it when text comes before it on its line or on the line before, and after it when
  * text follows it on its line or on the line after (a text line right after the list would
  * continue its last item, and a list item right before it would take it into its list). The
- * spaces and tabs where a line is split are dropped. The headings of a selection are found by
+ * spaces and tabs where a line is split are dropped. When nothing comes before the list on its
+ * line and the indentation there is 4 columns or more (a tab counting to the next multiple of 4),
+ * the indentation is dropped too, so that the first entry is not read as an indented code block.
+ * When the edit reaches the end of a text that ends with a line break, that line break is kept
+ * after the list. The headings of a selection are found by
  * walking the headings and the selections (both in document order) together, and the whole
  * table of contents is made once for all cursors.
  */
@@ -440,11 +460,15 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     const textBefore = lines.textBefore(range.start);
     const textAfter = lines.textAfter(range.end);
     const before = textBefore ? eol + eol : lines.textOnPreviousLine(range.start) ? eol : '';
-    const after = textAfter ? eol + eol : lines.textOnNextLine(range.end) ? eol : '';
+    let after = textAfter ? eol + eol : lines.textOnNextLine(range.end) ? eol : '';
+    const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
+    const breakBefore = before !== '' || (!textBefore && indentWidth(text.slice(indentStart(text, range.start, floor), range.start)) >= 4);
+    edited[i] = editRange(text, range, breakBefore, textAfter && endsInsideLine(text, range.end), floor, ceiling);
+    if (after === '' && edited[i].end === text.length) {
+      after = finalLineBreak(text);
+    }
     total += before.length + toc.length + after.length;
     assertOutputLength(total);
-    const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-    edited[i] = editRange(text, range, before !== '', textAfter && endsInsideLine(text, range.end), floor, ceiling);
     floor = edited[i].end;
     return before + toc + after;
   });
