@@ -26,6 +26,7 @@ import {
     MARKETPLACE_URL,
     JAPANESE,
     normalizeNewlines,
+    UI_TEXT,
 } from './generate-showcase.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./generate-showcase.mjs', import.meta.url));
@@ -348,7 +349,7 @@ describe('real data: the page', () => {
         for (const command of COMMANDS) {
             const article = articleOf(real.html, command.command);
             assert.ok(article.includes(`<code>${command.command}</code>`), command.command);
-            const title = /<h4>([\s\S]*?)<\/h4>/.exec(article)[1];
+            const title = /<h4 lang="en">([\s\S]*?)<\/h4>/.exec(article)[1];
             assert.equal(title, command.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
             descriptionOf(article, 'en');
             descriptionOf(article, 'ja');
@@ -484,6 +485,34 @@ describe('real data: the page', () => {
             ['selection-manipulator.remove-character-from-each-side', 'cmd+shift+backspace', 'ctrl+shift+backspace'],
         ]);
         assert.equal(PACKAGE.contributes.keybindings.length, 3);
+        // The titles stay English in the Japanese page, so their cells are marked lang="en".
+        for (const [, row] of real.html.matchAll(/<tr data-keybinding="[^"]+">([\s\S]*?)<\/tr>/g)) {
+            assert.match(row, /^<td lang="en">/);
+        }
+    });
+
+    test('every id in the page is unique', () => {
+        const ids = [...real.html.matchAll(/\sid="([^"]*)"/g)].map((m) => m[1]);
+        assert.ok(ids.length > 20);
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+        assert.deepEqual(duplicates, []);
+    });
+
+    test('the language group is named in the display language', () => {
+        assert.ok(
+            real.html.includes(
+                `<div class="lang" role="group" id="lang-switch" aria-label="${UI_TEXT.languageGroup.en}" data-label-en="${UI_TEXT.languageGroup.en}" data-label-ja="${UI_TEXT.languageGroup.ja}">`,
+            ),
+        );
+        const body = real.html.slice(real.html.indexOf('<body>'));
+        assert.ok(body.includes("langGroup.setAttribute('aria-label', langGroup.getAttribute('data-label-' + lang) || '');"));
+    });
+
+    test('the count units come from UI_TEXT: a Japanese unit only, no empty English span', () => {
+        assert.deepEqual(UI_TEXT.countUnit, { en: '', ja: '件' });
+        assert.ok(real.html.includes('<strong id="visible-count">831</strong><span data-l="ja" lang="ja"> 件</span></span>'));
+        assert.ok(!real.html.includes('<span data-l="en" lang="en"> </span>'));
+        assert.ok(!('visibleAfter' in UI_TEXT));
     });
 
     test('sections follow categories.json, with the category name and count in both languages', () => {
@@ -801,7 +830,7 @@ describe('validation: correct data passes (not too strict)', () => {
         const { html, stats } = buildShowcase(fixtureInputs(state));
         assert.deepEqual(stats.counts, { AAA: 2, EXISTING: 1 });
         const first = articleOf(html, `${P}a`);
-        assert.ok(first.includes(`<h4>Title of ${P}a</h4>`));
+        assert.ok(first.includes(`<h4 lang="en">Title of ${P}a</h4>`));
         assert.ok(first.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
         assert.ok(!first.includes('<script>'));
         assert.ok(!articleOf(html, `${P}foo`).includes('class="ex"'));

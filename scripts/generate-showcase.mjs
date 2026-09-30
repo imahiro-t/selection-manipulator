@@ -613,10 +613,10 @@ export const UI_TEXT = Object.freeze({
     multiSelection: {
         en:
             'With several selections (multiple cursors), a command is applied to each selection separately. ' +
-            '<code>Convert to Multi Selection</code> splits a multi-line selection into one selection per line, and the Multi Cursor &amp; Selection commands keep, split, align or adjust selections.',
+            '<code>Convert to Multi Selection</code> splits a multi-line selection into one selection per line, and the commands in <strong>Multiple cursors and selections</strong> keep, split, align or adjust selections.',
         ja:
             '選択範囲が複数あるとき（マルチカーソル）は、コマンドは各選択範囲に個別に適用されます。' +
-            '<code>Convert to Multi Selection</code> で複数行の選択を 1 行ずつの選択に分けられ、マルチカーソル・選択操作のコマンドで選択を絞り込む・分割する・揃える・調整することもできます。',
+            '<code>Convert to Multi Selection</code> で複数行の選択を 1 行ずつの選択に分けられ、<strong>マルチカーソル・選択操作</strong>のコマンドで選択を絞り込む・分割する・揃える・調整することもできます。',
     },
     outputHeading: { en: 'Where the result goes', ja: '結果の出力先' },
     outputs: {
@@ -634,9 +634,10 @@ export const UI_TEXT = Object.freeze({
         ],
     },
     commandsHeading: { en: 'All commands', ja: 'コマンド一覧' },
-    totalCount: { en: '<strong id="total-count">{count}</strong> commands', ja: '全 <strong id="total-count">{count}</strong> 件' },
+    totalCount: { en: '<strong>{count}</strong> commands', ja: '全 <strong>{count}</strong> 件' },
     visibleBefore: { en: 'Showing', ja: '表示中' },
-    visibleAfter: { en: '', ja: '件' },
+    /** Unit after a shown count ("Showing 12" / "表示中 12 件"); empty when the language needs none. */
+    countUnit: { en: '', ja: '件' },
     searchLabel: {
         en: 'Search (command ID, title, description or example; separate words with spaces to match all of them)',
         ja: 'キーワード検索（コマンド ID・タイトル・説明・例。空白区切りで AND）',
@@ -872,12 +873,14 @@ const BODY_SCRIPT = (titles) => `
   var input = document.getElementById('q');
   var visible = document.getElementById('visible-count');
   var empty = document.getElementById('empty');
+  var langGroup = document.getElementById('lang-switch');
   var langButtons = Array.prototype.slice.call(document.querySelectorAll('button[data-set-lang]'));
   function applyLanguage(lang) {
     root.setAttribute('lang', lang);
     root.setAttribute('data-lang', lang);
     document.title = titles[lang];
     input.setAttribute('placeholder', input.getAttribute('data-placeholder-' + lang) || '');
+    langGroup.setAttribute('aria-label', langGroup.getAttribute('data-label-' + lang) || '');
     langButtons.forEach(function (button) {
       button.setAttribute('aria-pressed', String(button.getAttribute('data-set-lang') === lang));
     });
@@ -939,6 +942,16 @@ function bi(pair, count = '') {
     return `<span data-l="en" lang="en">${fill(pair.en, count)}</span><span data-l="ja" lang="ja">${fill(pair.ja, count)}</span>`;
 }
 
+/**
+ * A suffix per language after a number, e.g. " 件" in Japanese. A language
+ * whose text is empty gets no span at all.
+ */
+function biSuffix(pair) {
+    return LANGUAGES.filter((lang) => pair[lang] !== '')
+        .map((lang) => `<span data-l="${lang}" lang="${lang}"> ${pair[lang]}</span>`)
+        .join('');
+}
+
 /** A block element per language, e.g. <p data-l="en" lang="en">…</p><p data-l="ja" lang="ja">…</p>. */
 function biBlock(tag, attributes, pair, count = '') {
     const attrs = attributes ? ` ${attributes}` : '';
@@ -975,7 +988,8 @@ function renderExample(example) {
 function renderItem(item) {
     const parts = [item.id, item.title];
     const body = [];
-    body.push(`<h4>${escapeHtml(item.title)}</h4>`);
+    // Titles are English in both languages (package.json), so mark them as such.
+    body.push(`<h4 lang="en">${escapeHtml(item.title)}</h4>`);
     body.push(`<p class="meta"><code>${escapeHtml(item.id)}</code></p>`);
     const descriptions = LANGUAGES.map((lang) => {
         const tokens = parseInline(item.description[lang]);
@@ -1009,7 +1023,7 @@ function renderSection(category) {
         `<section id="cat-${id}" class="cat" data-category="${id}" aria-labelledby="h-${id}">`,
         `<h3 id="h-${id}" class="cat-h">${bi(escapedPair(category.name))} ` +
             `<span class="cat-count">${bi(UI_TEXT.sectionShowing)} <span class="sec-visible">${count}</span> / ${count}` +
-            `<span data-l="ja" lang="ja"> 件</span></span></h3>`,
+            `${biSuffix(UI_TEXT.countUnit)}</span></h3>`,
         '<div class="grid">',
         ...category.items.map(renderItem),
         '</div>',
@@ -1034,7 +1048,7 @@ function renderKeybindings(keybindings, titles) {
         const other = binding.win && binding.key && binding.win !== binding.key ? `${binding.win} (Windows) / ${binding.key} (Linux)` : (binding.win ?? binding.key ?? '');
         const title = titles.get(binding.command) ?? binding.command;
         return (
-            `<tr data-keybinding="${escapeHtml(binding.command)}"><td>${escapeHtml(title)}<br><code>${escapeHtml(binding.command)}</code></td>` +
+            `<tr data-keybinding="${escapeHtml(binding.command)}"><td lang="en">${escapeHtml(title)}<br><code>${escapeHtml(binding.command)}</code></td>` +
             `<td><code>${escapeHtml(binding.mac ?? binding.key ?? '')}</code></td><td><code>${escapeHtml(other)}</code></td></tr>`
         );
     });
@@ -1101,7 +1115,8 @@ export function buildShowcase(inputs) {
         '<div class="wrap">',
         '<div class="top-row">',
         `<h1>${bi(escapedPair(UI_TEXT.pageTitle))}</h1>`,
-        `<div class="lang" role="group" aria-label="Language / 言語">` +
+        `<div class="lang" role="group" id="lang-switch" aria-label="${escapeHtml(UI_TEXT.languageGroup.en)}" ` +
+            `data-label-en="${escapeHtml(UI_TEXT.languageGroup.en)}" data-label-ja="${escapeHtml(UI_TEXT.languageGroup.ja)}">` +
             '<button type="button" data-set-lang="en" lang="en" aria-pressed="true">English</button>' +
             '<button type="button" data-set-lang="ja" lang="ja" aria-pressed="false">日本語</button></div>',
         '</div>',
@@ -1113,7 +1128,7 @@ export function buildShowcase(inputs) {
         '<section id="commands" aria-labelledby="commands-h">',
         `<h2 id="commands-h">${bi(UI_TEXT.commandsHeading)}</h2>`,
         `<p class="lead">${bi(UI_TEXT.totalCount, total)} ・ ` +
-            `<span role="status">${bi(UI_TEXT.visibleBefore)} <strong id="visible-count">${total}</strong><span data-l="ja" lang="ja"> ${UI_TEXT.visibleAfter.ja}</span></span></p>`,
+            `<span role="status">${bi(UI_TEXT.visibleBefore)} <strong id="visible-count">${total}</strong>${biSuffix(UI_TEXT.countUnit)}</span></p>`,
         `<label class="search"><span class="label">${bi(UI_TEXT.searchLabel)}</span>` +
             `<input type="search" id="q" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(UI_TEXT.searchPlaceholder.en)}" ` +
             `data-placeholder-en="${escapeHtml(UI_TEXT.searchPlaceholder.en)}" data-placeholder-ja="${escapeHtml(UI_TEXT.searchPlaceholder.ja)}"></label>`,
