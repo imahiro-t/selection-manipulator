@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -12,6 +11,7 @@ import {
   TableCommandEntry,
   TableNotice,
 } from '../../handler/tableTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { TABLE_ROADMAP_EXAMPLES, VALID_INPUTS } from './tableExamples';
 
 const entry = (id: string): TableCommandEntry => {

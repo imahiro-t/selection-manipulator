@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -8,6 +7,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { DEV_NOTHING_SELECTED, devCommandHandlerInternal, DevDependencies, DevPickItem } from '../../handler/devCommandHandler';
 import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor } from './testUtils';
 import { DEV_ROADMAP_EXAMPLES } from './devExamples';
 import { candidateRows } from './showcaseData';

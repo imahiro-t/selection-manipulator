@@ -1,5 +1,4 @@
 import * as assert from 'assert';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
@@ -19,6 +18,7 @@ import {
   WrapCommand,
   WrapInputCommand,
 } from '../../handler/wrapTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor } from './testUtils';
 import { candidateRows } from './showcaseData';
 
