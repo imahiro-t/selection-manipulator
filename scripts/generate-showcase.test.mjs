@@ -146,7 +146,7 @@ describe('real data: the whole page', () => {
         const ids = [...real.html.matchAll(/data-command-id="([^"]*)"/g)].map((m) => m[1]);
         assert.equal(ids.length, COMMANDS.length);
         assert.deepEqual([...ids].sort(), COMMANDS.map((c) => c.command).sort());
-        assert.deepEqual(checkShowcase(real.html, COMMANDS), []);
+        assert.deepEqual(checkShowcase(real.html, COMMANDS.map((c) => c.command)), []);
     });
 
     test('each item shows the full command ID and the package.json title', () => {

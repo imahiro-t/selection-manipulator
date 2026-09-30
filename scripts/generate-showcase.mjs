@@ -831,19 +831,19 @@ function unescapeAttribute(value) {
 /**
  * Checks a generated page: every command ID appears exactly once as
  * data-command-id, no other ID appears, and nothing is loaded from outside.
- * `commands` is a list of command IDs (or of package.json command objects).
+ * `commandIds` is the list of command ID strings (e.g. `stats.commandIds`
+ * from `buildShowcase`).
  * Returns the list of problems (empty when the page is fine).
  */
-export function checkShowcase(html, commands) {
+export function checkShowcase(html, commandIds) {
     const errors = [];
-    const expected = commands.map((c) => (typeof c === 'string' ? c : c.command));
     const found = new Map();
     for (const match of html.matchAll(/data-command-id="([^"]*)"/g)) {
         const id = unescapeAttribute(match[1]);
         found.set(id, (found.get(id) ?? 0) + 1);
     }
-    const expectedSet = new Set(expected);
-    for (const id of expected) {
+    const expectedSet = new Set(commandIds);
+    for (const id of commandIds) {
         const count = found.get(id) ?? 0;
         if (count === 0) {
             errors.push(`missing command: ${id}`);
