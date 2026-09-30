@@ -18,6 +18,7 @@ import {
   WrapCommand,
   WrapInputCommand,
 } from '../../handler/wrapTransforms';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor } from './testUtils';
 import { candidateRows } from './showcaseData';
 
@@ -336,6 +337,52 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
       editor.selection = new vscode.Selection(0, 0, 2, 0);
       await runnerFor(caseOf('enclose.lines-block'))(editor);
       assert.strictEqual(editor.document.getText(), 'BEGIN\na\nb\nEND\nz');
+    });
+  });
+
+  suite('WRAP-006 backslash (MySQL default mode)', () => {
+    const REASON = SQL_BACKSLASH_REASON;
+
+    test('a selection with a backslash is left unchanged with one error', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = "a\nO\\'Neil";
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.deepStrictEqual([warnings, errors], [[], [`The selection was not changed: line 2 contains ${REASON}`]]);
+    });
+
+    test('one selection with a backslash among several changes none of them', async () => {
+      const { notifier, errors } = recordingNotifier();
+      const blocks: [string, string] = ["a\nO'Neil", 'C:\\Users'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [`The selection was not changed: line 1 contains ${REASON}`]);
+    });
+
+    test('a selection with a yen sign (saved as a backslash in Shift_JIS / EUC-JP) is left unchanged with one error', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = "a\n\u00A5' OR 1=1 --";
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.deepStrictEqual(
+        [warnings, errors],
+        [[], [`The selection was not changed: line 2 contains ${SQL_YEN_SIGN_REASON}`]]
+      );
+    });
+
+    test('single quotes alone are still doubled', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const editor = await createTextEditor("'; DROP TABLE t; --");
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), "('''; DROP TABLE t; --')");
+      assert.deepStrictEqual([warnings, errors], [[], []]);
     });
   });
 

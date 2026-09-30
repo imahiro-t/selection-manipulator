@@ -5,7 +5,8 @@
  * regular expressions are constants without nested quantifiers, and every function is linear in
  * the length of its input.
  */
-import { splitDevLines } from './devCommon';
+import { DevInputError, splitDevLines } from './devCommon';
+import { sqlUnsafeCharacterReason } from './sqlSafety';
 import { writeCell } from './tableCsv';
 
 const hex2 = (code: number): string => code.toString(16).padStart(2, '0');
@@ -152,8 +153,18 @@ export const toTemplateLiteral = (text: string): string => `\`${escapeTemplateLi
  */
 export const escapeRegex = (text: string): string => text.replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&');
 
-/** DEV-007: `'` doubled for the inside of a standard SQL string literal (no quotes added). */
-export const escapeSql = (text: string): string => text.replace(/'/g, '\'\'');
+/**
+ * DEV-007: `'` doubled for the inside of a standard SQL string literal (no quotes added). Text
+ * with `\` or `¥` is an error (see sqlUnsafeCharacterReason), like TABLE-012 and WRAP-006: in
+ * MySQL's default mode `\'` would be read as an escaped quote and the text could end the literal.
+ */
+export const escapeSql = (text: string): string => {
+  const unsafe = sqlUnsafeCharacterReason(text);
+  if (unsafe !== undefined) {
+    throw new DevInputError(`the text contains ${unsafe}`);
+  }
+  return text.replace(/'/g, '\'\'');
+};
 
 /** DEV-008: in single quotes for a POSIX shell; every `'` becomes `'\''`. */
 export const quotePosixShell = (text: string): string => `'${text.replace(/'/g, '\'\\\'\'')}'`;

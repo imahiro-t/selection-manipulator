@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
 import { DEV_MAX_INPUT_LENGTH, DevInputError, splitDevLines } from '../../handler/devCommon';
 import {
@@ -148,7 +149,33 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
     test('single quotes are doubled; nothing else changes', () => {
       assert.strictEqual(escapeSql('O\'Reilly'), 'O\'\'Reilly');
       assert.strictEqual(escapeSql('\'; DROP TABLE t; --'), '\'\'; DROP TABLE t; --');
-      assert.strictEqual(escapeSql('a\\\'b"c'), 'a\\\'\'b"c');
+      assert.strictEqual(escapeSql('a\'b"c'), 'a\'\'b"c');
+      assert.strictEqual(escapeSql(''), '');
+    });
+
+    test('text with a backslash is refused (MySQL default mode reads \\\' as an escaped quote)', () => {
+      for (const text of ['a\\\'b"c', 'C:\\Users', '\\', 'O\'Neil\n\\']) {
+        assert.throws(
+          () => escapeSql(text),
+          (error: unknown) =>
+            error instanceof DevInputError &&
+            error.message === `the text contains ${SQL_BACKSLASH_REASON}`,
+          text
+        );
+      }
+    });
+
+    test('text with a yen sign (U+00A5, saved as a backslash in Shift_JIS / EUC-JP) is refused', () => {
+      for (const text of ['\u00A5\' OR 1=1 --', '\u00A5100', 'O\'Neil\n\u00A5']) {
+        assert.throws(
+          () => escapeSql(text),
+          (error: unknown) =>
+            error instanceof DevInputError &&
+            error.message === `the text contains ${SQL_YEN_SIGN_REASON}`,
+          text
+        );
+      }
+      assert.strictEqual(escapeSql('\uFFE5100 O\'Neil'), '\uFFE5100 O\'\'Neil');
     });
   });
 

@@ -14,6 +14,7 @@
  *   `WrapOutputTooLargeError` when the count exceeds the limit, so a small selection (or a long
  *   prefix repeated on many lines) can never blow up into hundreds of megabytes.
  */
+import { sqlUnsafeCharacterReason } from './sqlSafety';
 
 /** The 30 commands in ROADMAP order (WRAP-001..WRAP-030). */
 export const WRAP_COMMANDS = [
@@ -281,15 +282,24 @@ const encloseEachWord = (open: string, close: string): WrapTransform => (text, o
 /**
  * WRAP-006 / WRAP-007: the lines that are not blank, each quoted, joined with `, ` in one line.
  * One trailing line break of the selection is kept after the list. Unchanged when every line is
- * blank.
+ * blank. `validate` sees every line that is not blank (with its 1-based line number in the
+ * selection) before anything is built, so a refused line leaves no partial result.
  */
 const quoteList = (
   open: string,
   close: string,
   escape: (line: string) => string,
-  extraPerLine: (line: string) => number
+  extraPerLine: (line: string) => number,
+  validate?: (line: string, lineNumber: number) => void
 ): WrapTransform => (text, options) => {
   const split = splitLines(text);
+  if (validate) {
+    split.lines.forEach((line, index) => {
+      if (line.trim() !== '') {
+        validate(line, index + 1);
+      }
+    });
+  }
   const items = split.lines.filter((line) => line.trim() !== '');
   if (items.length === 0) {
     return text;
@@ -299,6 +309,19 @@ const quoteList = (
   ensureAddedLength(added, options);
   const list = `${open}${items.map(escape).join(', ')}${close}`;
   return split.trailingBreak ? list + options.eol : list;
+};
+
+/**
+ * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012, so a line with a character
+ * that is unsafe there is an error: a backslash `\`, or a yen sign `¥` (saved as `\` in Shift_JIS,
+ * CP932 and EUC-JP). MySQL's default mode would read `\'` as an escaped quote. The reason comes
+ * from sqlUnsafeCharacterReason.
+ */
+const rejectSqlUnsafeCharacter = (line: string, lineNumber: number): void => {
+  const unsafe = sqlUnsafeCharacterReason(line);
+  if (unsafe !== undefined) {
+    throw new Error(`line ${lineNumber} contains ${unsafe}`);
+  }
 };
 
 const QUOTE_CHARACTERS = ['"', "'", '`'];
@@ -467,7 +490,13 @@ export const wrapTransforms: Record<WrapCommand, WrapTransform> = {
   'quote.each-line.double': (text, options) => encloseEachLine(text, '"', '"', options),
   'quote.each-line.single': (text, options) => encloseEachLine(text, "'", "'", options),
   'quote.each-word.double': encloseEachWord('"', '"'),
-  'quote.list.sql-in': quoteList('(', ')', (line) => `'${line.replace(/'/g, "''")}'`, (line) => countChar(line, "'")),
+  'quote.list.sql-in': quoteList(
+    '(',
+    ')',
+    (line) => `'${line.replace(/'/g, "''")}'`,
+    (line) => countChar(line, "'"),
+    rejectSqlUnsafeCharacter
+  ),
   'quote.list.array': quoteList(
     '[',
     ']',

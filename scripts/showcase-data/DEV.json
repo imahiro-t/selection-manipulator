@@ -77,8 +77,8 @@
       "id": "selection-manipulator.programmatic.escape-sql",
       "candidateId": "DEV-007",
       "description": {
-        "en": "Escapes the text for an SQL string literal by turning ' into '' (standard SQL; no surrounding quotes are added, and nothing is executed).",
-        "ja": "SQL の文字列リテラル用に ' を '' にする（標準 SQL。囲みの引用符は付けない。生成のみで実行しない）"
+        "en": "Escapes the text for an SQL string literal by turning ' into '' (standard SQL; no surrounding quotes are added, and nothing is executed). Text containing `\\` or `¥` (U+00A5, saved as `\\` in Shift_JIS / CP932 / EUC-JP) is an error and nothing changes, because MySQL / MariaDB's default mode treats `\\` as an escape and the text could end the string.",
+        "ja": "SQL の文字列リテラル用に ' を '' にする（標準 SQL。囲みの引用符は付けない。生成のみで実行しない。`\\` または `¥`（U+00A5。Shift_JIS / CP932 / EUC-JP で保存すると `\\` になる）を含むとエラーで何も変更しない。MySQL / MariaDB の既定モードでは `\\` がエスケープとして解釈され、文字列を終わらせられるため）"
       },
       "example": {
         "en": "`O'Reilly` → `O''Reilly`",
@@ -380,8 +380,8 @@
       "candidateId": "DEV-032",
       "derivedFrom": "DEV-007",
       "description": {
-        "en": "Same conversion as **Escape SQL String Literal**, but replaces the selection in place.",
-        "ja": "**Escape SQL String Literal** と同じ変換を行い、選択範囲をその場で置き換える"
+        "en": "Same conversion as **Escape SQL String Literal**, but replaces the selection in place (text containing `\\` or `¥` is an error in the same way, and nothing is replaced).",
+        "ja": "**Escape SQL String Literal** と同じ変換を行い、選択範囲をその場で置き換える（`\\` または `¥` を含む場合は同様にエラーで、何も置き換えない）"
       },
       "example": {
         "en": "`O'Reilly` → `O''Reilly`",
