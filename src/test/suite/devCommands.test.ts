@@ -238,6 +238,16 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       ]);
     });
 
+    test('DEV-032 (Replace) with a yen sign (saved as a backslash in Shift_JIS / EUC-JP) changes nothing', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createTextEditor('\u00A5\' OR 1=1 --');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), '\u00A5\' OR 1=1 --');
+      assert.strictEqual(errors.length, 1);
+      assert.ok(errors[0].startsWith(`${NOT_CHANGED}the text contains a yen sign (\u00A5)`), errors[0]);
+    });
+
     test('DEV-007 (new editor) with a backslash shows no result', async () => {
       const { dependencies, errors, opened } = recorder();
       const editor = await createTextEditor('O\\\'Neil');

@@ -163,6 +163,19 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
         );
       }
     });
+
+    test('text with a yen sign (U+00A5, saved as a backslash in Shift_JIS / EUC-JP) is refused', () => {
+      for (const text of ['\u00A5\' OR 1=1 --', '\u00A5100', 'O\'Neil\n\u00A5']) {
+        assert.throws(
+          () => escapeSql(text),
+          (error: unknown) =>
+            error instanceof DevInputError &&
+            error.message === 'the text contains a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL\'s default mode (the SQL is written as standard SQL)',
+          text
+        );
+      }
+      assert.strictEqual(escapeSql('\uFFE5100 O\'Neil'), '\uFFE5100 O\'\'Neil');
+    });
   });
 
   suite('DEV-008 quote-posix-shell', () => {

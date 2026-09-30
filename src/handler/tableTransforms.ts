@@ -11,7 +11,7 @@
 import * as yaml from 'js-yaml';
 import { createRecord, DataInputError, isJsonObject, JsonValue, OutputBuffer, setOwn, stringifyCompact, stringifyPretty } from './dataCommon';
 import { parseJson } from './dataTransforms';
-import { SQL_BACKSLASH_REASON } from './sqlSafety';
+import { sqlUnsafeCharacterReason } from './sqlSafety';
 import { codePointWidth } from './whitespaceTransforms';
 import {
   assertTableInputLength,
@@ -362,8 +362,9 @@ export const sqlTableName = (name: string): string => {
   if (SQL_FORBIDDEN.test(name)) {
     throw new TableInputError('the table name contains a control character');
   }
-  if (name.includes('\\')) {
-    throw new TableInputError(`the table name contains ${SQL_BACKSLASH_REASON}`);
+  const unsafe = sqlUnsafeCharacterReason(name);
+  if (unsafe !== undefined) {
+    throw new TableInputError(`the table name contains ${unsafe}`);
   }
   return name.split('.').every((part) => SQL_IDENTIFIER.test(part)) ? name : quoteIdentifier(name);
 };
@@ -375,8 +376,9 @@ const sqlColumnName = (name: string, column: number): string => {
   if (SQL_FORBIDDEN.test(name)) {
     throw new TableInputError(`column ${column + 1} of the header contains a control character`);
   }
-  if (name.includes('\\')) {
-    throw new TableInputError(`column ${column + 1} of the header contains ${SQL_BACKSLASH_REASON}`);
+  const unsafe = sqlUnsafeCharacterReason(name);
+  if (unsafe !== undefined) {
+    throw new TableInputError(`column ${column + 1} of the header contains ${unsafe}`);
   }
   return SQL_IDENTIFIER.test(name) ? name : quoteIdentifier(name);
 };
@@ -384,7 +386,8 @@ const sqlColumnName = (name: string, column: number): string => {
 /**
  * TABLE-012: one `INSERT INTO t (c1, c2) VALUES ('v1', 'v2');` per data row. Every value is a
  * string literal (`'` doubled, an empty cell is `''`), names follow standard SQL. A backslash
- * in a value or a name is an error (see SQL_BACKSLASH_REASON). The SQL is only generated.
+ * or a yen sign in a value or a name is an error (see sqlUnsafeCharacterReason). The SQL is only
+ * generated.
  */
 export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
   const table = sqlTableName(tableName);
@@ -397,8 +400,9 @@ export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
       if (SQL_FORBIDDEN.test(value)) {
         throw new TableInputError(`row ${r + 2}, column ${column + 1} contains a control character`);
       }
-      if (value.includes('\\')) {
-        throw new TableInputError(`row ${r + 2}, column ${column + 1} contains ${SQL_BACKSLASH_REASON}`);
+      const unsafe = sqlUnsafeCharacterReason(value);
+      if (unsafe !== undefined) {
+        throw new TableInputError(`row ${r + 2}, column ${column + 1} contains ${unsafe}`);
       }
       return `'${value.replace(/'/g, "''")}'`;
     });

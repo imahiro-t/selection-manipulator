@@ -395,6 +395,17 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
       assert.strictEqual(run('TABLE-012', 'a\n"%_""`/*"', ['t']), "INSERT INTO t (a) VALUES ('%_\"`/*');");
     });
 
+    test('a yen sign (U+00A5, saved as a backslash in Shift_JIS / EUC-JP) in a value or a name is an error', () => {
+      const reason = "a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
+        (error: unknown) => error instanceof TableInputError && error.message === message);
+      refused('a,b\n\u00A5,); DROP TABLE users; -- ', 'users', `row 2, column 1 contains ${reason}`);
+      refused('a,price\u00A5\n1,2', 't', `column 2 of the header contains ${reason}`);
+      refused('a\n1', 'my\u00A5table', `the table name contains ${reason}`);
+      // The fullwidth yen sign (U+FFE5) is not saved as 0x5C (Shift_JIS: 0x818F).
+      assert.strictEqual(run('TABLE-012', 'a\n\uFFE5100', ['t']), "INSERT INTO t (a) VALUES ('\uFFE5100');");
+    });
+
     test('the output limit stops long INSERT lists', () => {
       const text = `${Array.from({ length: 100 }, (_, i) => `column_${i}`).join(',')}\n${`${'1,'.repeat(99)}1\n`.repeat(20_000)}`;
       tooLarge(() => run('TABLE-012', text, ['t']));

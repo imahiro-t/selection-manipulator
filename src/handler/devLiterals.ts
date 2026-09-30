@@ -6,7 +6,7 @@
  * the length of its input.
  */
 import { DevInputError, splitDevLines } from './devCommon';
-import { SQL_BACKSLASH_REASON } from './sqlSafety';
+import { sqlUnsafeCharacterReason } from './sqlSafety';
 import { writeCell } from './tableCsv';
 
 const hex2 = (code: number): string => code.toString(16).padStart(2, '0');
@@ -155,12 +155,13 @@ export const escapeRegex = (text: string): string => text.replace(/[\\^$.*+?()[\
 
 /**
  * DEV-007: `'` doubled for the inside of a standard SQL string literal (no quotes added). Text
- * with `\` is an error (see SQL_BACKSLASH_REASON), like TABLE-012 and WRAP-006: in MySQL's default
- * mode `\'` would be read as an escaped quote and the text could end the literal.
+ * with `\` or `¥` is an error (see sqlUnsafeCharacterReason), like TABLE-012 and WRAP-006: in
+ * MySQL's default mode `\'` would be read as an escaped quote and the text could end the literal.
  */
 export const escapeSql = (text: string): string => {
-  if (text.includes('\\')) {
-    throw new DevInputError(`the text contains ${SQL_BACKSLASH_REASON}`);
+  const unsafe = sqlUnsafeCharacterReason(text);
+  if (unsafe !== undefined) {
+    throw new DevInputError(`the text contains ${unsafe}`);
   }
   return text.replace(/'/g, '\'\'');
 };

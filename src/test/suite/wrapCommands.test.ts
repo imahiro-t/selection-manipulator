@@ -362,6 +362,19 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
       assert.deepStrictEqual(errors, [`The selection was not changed: line 1 contains ${REASON}`]);
     });
 
+    test('a selection with a yen sign (saved as a backslash in Shift_JIS / EUC-JP) is left unchanged with one error', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = "a\n\u00A5' OR 1=1 --";
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.deepStrictEqual(
+        [warnings, errors],
+        [[], [`The selection was not changed: line 2 contains a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)`]]
+      );
+    });
+
     test('single quotes alone are still doubled', async () => {
       const { notifier, warnings, errors } = recordingNotifier();
       const editor = await createTextEditor("'; DROP TABLE t; --");

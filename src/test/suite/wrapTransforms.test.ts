@@ -217,6 +217,24 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
       refused('a\r\n\r\nb\\\r\n', 3);
     });
 
+    test('WRAP-006 refuses a line with a yen sign (saved as a backslash in Shift_JIS / EUC-JP)', () => {
+      const reason = "a yen sign (\u00A5), which is saved as a backslash in Shift_JIS, CP932 and EUC-JP and is not safe in MySQL's default mode (the SQL is written as standard SQL)";
+      const refused = (text: string, lineNumber: number) =>
+        assert.throws(
+          () => run('quote.list.sql-in', text),
+          (error: unknown) => error instanceof Error && error.message === `line ${lineNumber} contains ${reason}`,
+          text
+        );
+      // The attack of the security review: saved as CP932, `\u00A5'` becomes `\'` and ends the literal early in MySQL.
+      refused("\u00A5' OR 1=1 --", 1);
+      refused('a\n\n\u00A5100', 3);
+      refused('a\r\nb\u00A5\r\n', 2);
+      // A backslash on an earlier line is reported first (the lines are checked in order).
+      assert.throws(() => run('quote.list.sql-in', 'x\\\n\u00A5'), /^Error: line 1 contains a backslash/);
+      // The fullwidth yen sign (U+FFE5) is not saved as 0x5C (Shift_JIS: 0x818F) and is still quoted.
+      assert.strictEqual(run('quote.list.sql-in', "\uFFE5100\nO'Neil"), "('\uFFE5100', 'O''Neil')");
+    });
+
     test('WRAP-006 checks every line before building (no partial result, even over the size limit)', () => {
       // The size check would fail too; the backslash is reported first, so nothing is built at all.
       assert.throws(() => run('quote.list.sql-in', `${'a\n'.repeat(10)}\\`, { maxAddedLength: 1 }), /line 11 contains a backslash/);

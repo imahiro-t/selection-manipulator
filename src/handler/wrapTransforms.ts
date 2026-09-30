@@ -14,7 +14,7 @@
  *   `WrapOutputTooLargeError` when the count exceeds the limit, so a small selection (or a long
  *   prefix repeated on many lines) can never blow up into hundreds of megabytes.
  */
-import { SQL_BACKSLASH_REASON } from './sqlSafety';
+import { sqlUnsafeCharacterReason } from './sqlSafety';
 
 /** The 30 commands in ROADMAP order (WRAP-001..WRAP-030). */
 export const WRAP_COMMANDS = [
@@ -312,12 +312,14 @@ const quoteList = (
 };
 
 /**
- * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012: a line with `\` is an
- * error (see SQL_BACKSLASH_REASON), since MySQL's default mode would read `\'` as an escaped quote.
+ * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012: a line with `\` (or `¥`,
+ * saved as `\` in Shift_JIS / EUC-JP) is an error (see sqlUnsafeCharacterReason), since MySQL's
+ * default mode would read `\'` as an escaped quote.
  */
 const rejectSqlBackslash = (line: string, lineNumber: number): void => {
-  if (line.includes('\\')) {
-    throw new Error(`line ${lineNumber} contains ${SQL_BACKSLASH_REASON}`);
+  const unsafe = sqlUnsafeCharacterReason(line);
+  if (unsafe !== undefined) {
+    throw new Error(`line ${lineNumber} contains ${unsafe}`);
   }
 };
 
