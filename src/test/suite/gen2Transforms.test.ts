@@ -109,6 +109,34 @@ suite('Extended Generators and Random (DATEX-016..024) Test Suite', () => {
       throwsKind(() => expand(`${ten}\n{1,2}`), GenLimitError, 'the selection expands to more than 100,000 strings');
     });
 
+    test('a long line over the limits is refused quickly, without building the terms of its ranges', () => {
+      // Each case is about 1,000,000 characters (GEN_MAX_INPUT_LENGTH). Before the fix the first
+      // one made 10^9 strings (seconds and gigabytes) before it was refused.
+      const cases: [string, string][] = [
+        ['{1..10000}'.repeat(100_000), 'line 1: the line expands to more than 10,000 strings'],
+        [`{${'{1..10000},'.repeat(90_000)}x}`, 'line 1: the line expands to more than 10,000 strings'],
+        [`{${'a,'.repeat(499_999)}}`, 'line 1: the line expands to more than 10,000 strings'],
+        [`{${'{1..2}x'.repeat(140_000)}}`, 'line 1: the line expands to more than 10,000 strings'],
+        [`{${'{1..5000},'.repeat(2)}{1..10000}${',{1..10000}'.repeat(80_000)}}`, 'line 1: the line expands to more than 10,000 strings'],
+      ];
+      for (const [line, message] of cases) {
+        const started = Date.now();
+        throwsKind(() => expand(line), GenLimitError, message);
+        const elapsed = Date.now() - started;
+        assert.ok(elapsed < 1_000, `${line.slice(0, 20)}…: ${elapsed} ms`);
+      }
+    });
+
+    test('many pieces in one line do not overflow the call stack', () => {
+      // `{…}` without a comma keeps its braces; its inside (here 900,000 characters of `{a}`) is
+      // parsed into many pieces, which were once spread into push() (RangeError).
+      const literal = `{${'{a}'.repeat(300_000)}}`;
+      assert.strictEqual(expand(literal), literal);
+      const ones = '{1..1}'.repeat(150_000);
+      assert.strictEqual(expand(ones), '1'.repeat(150_000));
+      assert.strictEqual(expand(`x{${'{1..1}'.repeat(100_000)},y}`), `x${'1'.repeat(100_000)}\nxy`);
+    });
+
     test('the length is checked against the budget before the result is built', () => {
       assert.throws(() => braceExpansion(`${'x'.repeat(1000)}{1..10000}`, '\n', 1_000_000), EncOutputTooLargeError);
       assert.strictEqual(braceExpansion('{a,b}', '\n', 3), 'a\nb');

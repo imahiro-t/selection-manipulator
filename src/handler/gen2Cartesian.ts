@@ -20,7 +20,7 @@ export const CARTESIAN_MAX_COMBINATIONS = 10_000;
 const NOT_CHANGED = 'The text was not changed: ';
 
 /** The non-blank lines of a text (line breaks LF / CRLF / CR removed; the spaces of each line kept). */
-const nonBlankLines = (text: string): string[] => text.split(/\r\n|\r|\n/).filter((line) => line !== '' && !isBlankLine(line));
+const nonBlankLines = (text: string): string[] => text.split(/\r\n|\r|\n/).filter((line) => !isBlankLine(line));
 
 /** The line break of the document: CRLF when its first line break is one, LF otherwise. */
 const documentEol = (text: string): string => {

@@ -127,6 +127,26 @@ export const parseCivilDay = (text: string): number | undefined => {
 export const splitLines = (text: string): string[] => text.split(/\r\n|\r|\n/);
 
 /**
+ * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
+ * last line) and its number (from 1). LF, CRLF and CR are recognised.
+ */
+export const forEachLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
+  let start = 0;
+  let lineNumber = 1;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code === 0x0a || code === 0x0d) {
+      const breakLength = code === 0x0d && text.charCodeAt(i + 1) === 0x0a ? 2 : 1;
+      visit(text.slice(start, i), text.slice(i, i + breakLength), lineNumber);
+      i += breakLength - 1;
+      start = i + 1;
+      lineNumber++;
+    }
+  }
+  visit(text.slice(start), '', lineNumber);
+};
+
+/**
  * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
  * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection).
  */

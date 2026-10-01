@@ -55,13 +55,16 @@ const isoWeekdayOf = (days: number): number => (weekdayOf(days) === 0 ? 7 : week
 
 const pad3 = (n: number): string => String(n).padStart(3, '0');
 
-/** `2016-07-30T23:54:10.259Z` for an instant in 0001..9999 (checked). */
-const isoOfMillis = (millis: number): string => {
+/** The instant itself when it is in the years 0001..9999 (UTC); OUT_OF_RANGE otherwise. */
+const checkedMillis = (millis: number): number => {
   if (!Number.isSafeInteger(millis) || millis < FIRST_DAY * MS_PER_DAY || millis > LAST_MILLIS) {
     throw new DateInputError(OUT_OF_RANGE);
   }
-  return new Date(millis).toISOString();
+  return millis;
 };
+
+/** `2016-07-30T23:54:10.259Z` for an instant in 0001..9999 (checked). */
+const isoOfMillis = (millis: number): string => new Date(checkedMillis(millis)).toISOString();
 
 // ---------------------------------------------------------------------------------------------
 // DATEX-001 / 002: ISO 8601 durations
@@ -271,16 +274,19 @@ export const businessDaysBetweenDays = (from: number, to: number): number => wee
 
 const WHITESPACE_PAIR = /^(\S+)[ \t]+(\S+)$/;
 
+/** `2026-10-01 2026-10-08` → the two values separated by spaces or tabs; `undefined` otherwise. */
+const splitWhitespacePair = (value: string): [string, string] | undefined => {
+  const match = WHITESPACE_PAIR.exec(value);
+  return match ? [match[1], match[2]] : undefined;
+};
+
 /**
  * DATEX-006: `2026-10-01 2026-10-08` → `5`. Two dates on one line, separated as by Difference
  * Between Two Dates (` / `, `..`, `~`, `〜`, `～`, `,`, a tab) or by spaces; only the dates are
  * used (a time part is ignored).
  */
 export const businessDaysBetween = (value: string): string => {
-  const pair = splitPair(value) ?? (() => {
-    const match = WHITESPACE_PAIR.exec(value);
-    return match ? [match[1], match[2]] as [string, string] : undefined;
-  })();
+  const pair = splitPair(value) ?? splitWhitespacePair(value);
   if (pair === undefined) {
     throw new DateInputError(`${quoteText(value)} is not two dates (write them as 2026-10-01 2026-10-08)`);
   }
@@ -299,10 +305,8 @@ export const businessDaysBetween = (value: string): string => {
  * with seconds (local mean time before about 1900) cannot be written in RFC 3339 and is an error.
  */
 export const toRfc3339Offset = (value: string, timeZone: string, cache: TimeZoneCache): string => {
-  const millis = parseInstant(value);
-  if (!Number.isFinite(millis) || Number.isNaN(new Date(millis).getTime())) {
-    throw new DateInputError(`${quoteText(value)} is out of range`);
-  }
+  const millis = checkedMillis(parseInstant(value));
+  // zonedTime refuses (with the same message) an offset that moves the instant out of 0001..9999.
   const t = zonedTime(millis, timeZone, cache);
   if (t.offsetSeconds % 60 !== 0) {
     throw new DateInputError(`the offset of ${timeZone} then (${formatOffset(t.offsetSeconds)}) has seconds, which RFC 3339 cannot write`);

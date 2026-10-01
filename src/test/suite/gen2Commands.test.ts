@@ -234,6 +234,13 @@ suite('Extended Generator and Random Commands (DATEX-016..024) Test Suite', () =
       await warnsOnly('DATEX-016', 'ok{1,2}\n{1..10001}', [], 'selection 2 of 2: line 1: a range has more than 10,000 terms', [[0, 7], [8, 18]]);
     });
 
+    test('brace expansion: a line of 100,000 ranges warns at once and changes nothing', async () => {
+      const started = Date.now();
+      await warnsOnly('DATEX-016', '{1..10000}'.repeat(100_000), [], 'line 1: the line expands to more than 10,000 strings');
+      const elapsed = Date.now() - started;
+      assert.ok(elapsed < 3_000, `${elapsed} ms`);
+    });
+
     test('multiplication table, Fibonacci and primes read from the selection', async () => {
       await warnsOnly('DATEX-017', '101', [], 'the numbers of rows and columns must be at most 100');
       await warnsOnly('DATEX-017', '3x101', [], 'the numbers of rows and columns must be at most 100');

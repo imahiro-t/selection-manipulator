@@ -6,7 +6,7 @@
  * rejects values to stay unbiased); `Math.random` is never used. Tests replace `GenRandom` with a
  * fixed sequence.
  */
-import { formatCount, GenInputError, GenOutputBuffer, GenRandom } from './genCommon';
+import { forEachLine, formatCount, GenInputError, GenOutputBuffer, GenRandom } from './genCommon';
 import { PASSPHRASE_WORDS } from './gen2Words';
 
 // ---------------------------------------------------------------------------------------------
@@ -139,15 +139,8 @@ export const shuffleWords = (random: GenRandom, text: string, budget: number): s
   // The result is as long as the selection.
   new GenOutputBuffer(budget).reserve(text.length);
   let result = '';
-  let start = 0;
-  for (let i = 0; i <= text.length; i++) {
-    const code = i < text.length ? text.charCodeAt(i) : -1;
-    if (code === 0x0a || code === 0x0d || code === -1) {
-      const breakLength = code === 0x0d && text.charCodeAt(i + 1) === 0x0a ? 2 : code === -1 ? 0 : 1;
-      result += shuffleLineWords(random, text.slice(start, i)) + text.slice(i, i + breakLength);
-      i += Math.max(breakLength - 1, 0);
-      start = i + 1;
-    }
-  }
+  forEachLine(text, (line, lineBreak) => {
+    result += shuffleLineWords(random, line) + lineBreak;
+  });
   return result;
 };
