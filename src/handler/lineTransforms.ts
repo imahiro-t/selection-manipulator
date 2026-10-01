@@ -294,12 +294,13 @@ const trimWs = (s: string): string => {
   return start === s.length ? '' : s.slice(start, trailingStart(s, isHorizontalWs));
 };
 
-const isBlankLine = (s: string): boolean => leadingLength(s, isHorizontalWs) === s.length;
+/** A line made only of `isHorizontalWs` characters (or empty); shared with LINE2 (`line2Transforms.ts`, `msel2Transforms.ts`). */
+export const isBlankLine = (s: string): boolean => leadingLength(s, isHorizontalWs) === s.length;
 
 const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
 
 /** Length of the single trailing line break of `text` (0, 1 or 2). */
-const trailingBreakLength = (text: string): number => {
+export const trailingBreakLength = (text: string): number => {
   if (text.endsWith('\r\n')) {
     return 2;
   }
@@ -323,7 +324,7 @@ export const splitSelectionLines = (text: string): string[] => {
 };
 
 /** What a line function gets besides the lines it transforms. */
-interface LineContext {
+export interface LineContext {
   options: LineOptions;
   /** Index of the first transformed line within `splitSelectionLines(text)`. */
   offset: number;
@@ -332,7 +333,7 @@ interface LineContext {
 }
 
 /** Transforms the given lines; `undefined` means "leave the selection unchanged" (LINE-032). */
-type LineFn = (lines: string[], context: LineContext) => string[] | undefined;
+export type LineFn = (lines: string[], context: LineContext) => string[] | undefined;
 
 /**
  * Splits the selection into lines, transforms them and joins them with the document's EOL.
@@ -342,7 +343,7 @@ type LineFn = (lines: string[], context: LineContext) => string[] | undefined;
  * end with a line break. The result gets the document's EOL at the end only when the
  * selection ended with a line break and the result is not empty.
  */
-const lineWiseWith = (text: string, options: LineOptions, anchored: boolean, fn: LineFn): string | undefined => {
+export const lineWiseWith = (text: string, options: LineOptions, anchored: boolean, fn: LineFn): string | undefined => {
   if (text === '') {
     return text;
   }

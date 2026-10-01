@@ -4171,6 +4171,121 @@ export const myCommands = [
     "command": "selection-manipulator.text.remove-between",
     "title": "Text - Remove Text Between Delimiters",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-range",
+    "title": "Line: Keep Lines N to M",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.drop-first-n",
+    "title": "Line: Remove First N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.drop-last-n",
+    "title": "Line: Remove Last N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.blank-every-n",
+    "title": "Line: Insert Blank Line Every N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.cut-chars",
+    "title": "Line: Cut Character Range of Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.paste-columns",
+    "title": "Line: Paste Selections Side by Side",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-keep-last",
+    "title": "Line: Remove Duplicate Lines (Keep Last)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-by-regex",
+    "title": "Line: Split into Lines by Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-natural-list",
+    "title": "Line: Join as Natural Language List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.intersect-selections",
+    "title": "Line: Lines Common to Two Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.subtract-selections",
+    "title": "Line: Lines Only in First Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.symmetric-difference",
+    "title": "Line: Lines in Only One Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.number-nonblank",
+    "title": "Line: Add Numbers to Non-blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.fold-to-columns",
+    "title": "Line: Arrange Lines into N Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-emails",
+    "title": "Selection - Select All Email Addresses",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-ips",
+    "title": "Selection - Select All IP Addresses",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-hex-colors",
+    "title": "Selection - Select All Hex Colors",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-uuids",
+    "title": "Selection - Select All UUIDs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-dates",
+    "title": "Selection - Select All ISO Dates",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-sentence",
+    "title": "Selection - Expand to Sentence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-paragraph",
+    "title": "Selection - Expand to Paragraph",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-duplicate-text",
+    "title": "Selection - Keep Only Duplicate Texts",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.join-into-first",
+    "title": "Selection - Join All Selections into First",
+    "canMultiSelection": true
   }
 ];
 

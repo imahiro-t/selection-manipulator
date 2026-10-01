@@ -1,0 +1,283 @@
+{
+  "category": "LINEX",
+  "commands": [
+    {
+      "id": "selection-manipulator.line.keep-range",
+      "candidateId": "LINEX-001",
+      "description": {
+        "en": "Keeps only lines N to M of each selection (enter `N-M`, 1 ≤ N ≤ M ≤ 1,000,000; like `sed -n 'N,Mp'`). Lines beyond the selection are ignored, so a range after the last line leaves nothing. **Line: Keep First N Lines** / **Line: Keep Last N Lines** always start at the first / last line.",
+        "ja": "各選択の N 行目から M 行目だけを残す（`N-M` を入力。1 ≤ N ≤ M ≤ 1,000,000。`sed -n 'N,Mp'` 相当）。選択の行数を超える部分は無視し、範囲がすべて最終行より後なら空になる（先頭・末尾固定は **Line: Keep First N Lines** / **Line: Keep Last N Lines**）"
+      },
+      "example": {
+        "en": "`1⏎2⏎3⏎4⏎5（2-3）` → `2⏎3`",
+        "ja": "`1⏎2⏎3⏎4⏎5（2-3）` → `2⏎3`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.drop-first-n",
+      "candidateId": "LINEX-002",
+      "description": {
+        "en": "Removes the first N lines (N is an integer from 1 to 1,000,000, default 1; N at or above the line count leaves nothing). **Line: Keep Last N Lines** keeps N lines instead.",
+        "ja": "先頭 N 行を削除する（N は 1〜1,000,000 の整数、既定値 1。N が行数以上なら空になる。末尾 N 行を残すのは **Line: Keep Last N Lines**）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c（N=1）` → `b⏎c`",
+        "ja": "`a⏎b⏎c（N=1）` → `b⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.drop-last-n",
+      "candidateId": "LINEX-003",
+      "description": {
+        "en": "Removes the last N lines (N is entered as in **Line: Remove First N Lines**).",
+        "ja": "末尾 N 行を削除する（N は **Line: Remove First N Lines** と同じ）"
+      },
+      "example": {
+        "en": "`a⏎b⏎c（N=1）` → `a⏎b`",
+        "ja": "`a⏎b⏎c（N=1）` → `a⏎b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.blank-every-n",
+      "candidateId": "LINEX-004",
+      "description": {
+        "en": "Inserts an empty line after every N lines (N is an integer from 1 to 1,000,000, default 2), but not after the last line. The added length is checked before the result is built. **Whitespace: Insert Blank Line Between Lines** is the N=1 case.",
+        "ja": "N 行ごとに空行を挿入する（N は 1〜1,000,000 の整数、既定値 2。末尾には入れない）。増える文字数は結果を作る前に確認する（全行間に入れる **Whitespace: Insert Blank Line Between Lines** は N=1 に相当）"
+      },
+      "example": {
+        "en": "`1⏎2⏎3⏎4⏎5⏎6（N=2）` → `1⏎2⏎⏎3⏎4⏎⏎5⏎6`",
+        "ja": "`1⏎2⏎3⏎4⏎5⏎6（N=2）` → `1⏎2⏎⏎3⏎4⏎⏎5⏎6`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.cut-chars",
+      "candidateId": "LINEX-005",
+      "description": {
+        "en": "Keeps only the Mth to Nth characters of each line (enter `M-N` or a single position `N`, 1 to 1,000,000; like `cut -c`). Characters are grapheme clusters, so an emoji sequence counts as one. A shorter line keeps what it has (possibly nothing).",
+        "ja": "各行の M〜N 文字目だけを残す（`M-N` または 1 か所の `N` を入力、1〜1,000,000。`cut -c` 相当）。文字は書記素クラスタ単位で数える（絵文字の連結も 1 文字）。短い行は残る部分だけ（空もありうる）になる"
+      },
+      "example": {
+        "en": "`abcdefgh（3-5）` → `cde`",
+        "ja": "`abcdefgh（3-5）` → `cde`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.paste-columns",
+      "candidateId": "LINEX-006",
+      "description": {
+        "en": "Joins line i of every non-empty selection (two or more, in document order) with a delimiter you enter (up to 100 characters; empty uses a tab), like `paste`. The result replaces the first selection; the other selections are not changed. A selection with fewer lines contributes empty strings.",
+        "ja": "2 つ以上の非空の選択（文書順）の i 行目どうしを入力した区切り文字（100 文字まで。空欄ならタブ）で連結する（`paste` 相当）。結果は 1 つ目の選択を置き換え、他の選択は変えない。行数が足りない選択は空文字として連結する"
+      },
+      "example": {
+        "en": "`[a⏎b] [1⏎2]（delimiter: empty = tab）` → `[a⇥1⏎b⇥2] [1⏎2]`",
+        "ja": "`[a⏎b] [1⏎2]（区切り: 空欄 = タブ）` → `[a⇥1⏎b⇥2] [1⏎2]`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.dedupe-keep-last",
+      "candidateId": "LINEX-007",
+      "description": {
+        "en": "Removes duplicate lines, keeping the last occurrence of each line (the relative order of the kept lines does not change). The other duplicate removals keep the first occurrence.",
+        "ja": "重複行のうち最後の出現を残して削除する（残った行の相対順は変えない。ほかの重複削除コマンドは最初の出現を残す）"
+      },
+      "example": {
+        "en": "`a⏎b⏎a` → `b⏎a`",
+        "ja": "`a⏎b⏎a` → `b⏎a`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.split-by-regex",
+      "candidateId": "LINEX-008",
+      "description": {
+        "en": "Replaces every match of the regular expression you enter (JavaScript syntax, `u` flag, case-sensitive) with a line break. To guard against ReDoS, the pattern must be 1 to 500 characters, the target is limited to 10,000,000 characters in total, matching runs in a Worker thread and is aborted after 2 seconds, and more than 1,000,000 matches stop the command. If the document is edited during matching, nothing is changed. **Text - Split Lines (Custom Delimiter)** splits at a literal string.",
+        "ja": "入力した正規表現（JavaScript 構文・`u` フラグ・大文字小文字を区別）に一致した部分を改行に置き換える。ReDoS 対策として、パターンは 1〜500 文字、対象は合計 10,000,000 文字まで、照合は Worker スレッドで行って 2 秒で打ち切り、一致が 1,000,000 件を超えたら中止する。照合中に文書が編集された場合は変更しない（文字列で区切るのは **Text - Split Lines (Custom Delimiter)**）"
+      },
+      "example": {
+        "en": "`a1b22c（\\d+）` → `a⏎b⏎c`",
+        "ja": "`a1b22c（\\d+）` → `a⏎b⏎c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.join-natural-list",
+      "candidateId": "LINEX-009",
+      "description": {
+        "en": "Joins the lines into one natural-language list with `Intl.ListFormat` (conjunction) for the locale you enter (default `en`; an empty or unsupported locale is rejected). Blank lines (empty, or only spaces, tabs or full-width spaces) are left out.",
+        "ja": "行を `Intl.ListFormat`（conjunction）で、入力したロケール（既定値 `en`。空欄・未対応のロケールは拒否）の自然言語の列挙に連結する。空白だけの行（空行・半角／全角空白・タブだけの行）は除く"
+      },
+      "example": {
+        "en": "`a⏎b⏎c（en）` → `a, b, and c`",
+        "ja": "`a⏎b⏎c（en）` → `a, b, and c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.intersect-selections",
+      "candidateId": "LINEX-010",
+      "description": {
+        "en": "Writes the lines that are in both of exactly two non-empty selections (exact match, each once, in the order of the first) into the first selection; the second selection is not changed.",
+        "ja": "ちょうど 2 つの非空の選択の両方にある行（完全一致、重複なし、1 つ目の順）を 1 つ目の選択に書き込む（2 つ目は変えない）"
+      },
+      "example": {
+        "en": "`[a⏎b⏎c] [b⏎c⏎d]` → `[b⏎c] [b⏎c⏎d]`",
+        "ja": "`[a⏎b⏎c] [b⏎c⏎d]` → `[b⏎c] [b⏎c⏎d]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.subtract-selections",
+      "candidateId": "LINEX-011",
+      "description": {
+        "en": "Writes the lines of the first of two non-empty selections that are not in the second (exact match, each once) into the first selection; the second selection is not changed.",
+        "ja": "2 つの非空の選択のうち、1 つ目にあり 2 つ目にない行（完全一致、重複なし）を 1 つ目の選択に書き込む（2 つ目は変えない）"
+      },
+      "example": {
+        "en": "`[a⏎b⏎c] [b]` → `[a⏎c] [b]`",
+        "ja": "`[a⏎b⏎c] [b]` → `[a⏎c] [b]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.symmetric-difference",
+      "candidateId": "LINEX-012",
+      "description": {
+        "en": "Writes the lines that are in only one of two non-empty selections (the first selection's lines, then the second's, each once) into the first selection; the second selection is not changed.",
+        "ja": "2 つの非空の選択のどちらか一方にしかない行（1 つ目だけの行の後に 2 つ目だけの行、重複なし）を 1 つ目の選択に書き込む（2 つ目は変えない）"
+      },
+      "example": {
+        "en": "`[a⏎b] [b⏎c]` → `[a⏎c] [b⏎c]`",
+        "ja": "`[a⏎b] [b⏎c]` → `[a⏎c] [b⏎c]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.number-nonblank",
+      "candidateId": "LINEX-013",
+      "description": {
+        "en": "Numbers only the non-blank lines as `number space line` (`1 a`, no colon or padding; **Line: Add Line Numbers** writes `1: a`). Blank lines are not numbered, keep their content and do not use up a number. Unlike `nl -b t`, a line of only spaces, tabs or full-width spaces is treated as blank and gets no number.",
+        "ja": "空行を飛ばして非空行だけに「番号 + 半角空白」で行番号を付ける（`1 a` 形式、コロン・ゼロ埋めなし。**Line: Add Line Numbers** は `1: a`）。空行は番号を付けず内容もそのままで、番号を消費しない。`nl -b t` と異なり、半角／全角空白・タブだけの行も空行として扱い番号を付けない"
+      },
+      "example": {
+        "en": "`a⏎⏎b` → `1 a⏎⏎2 b`",
+        "ja": "`a⏎⏎b` → `1 a⏎⏎2 b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.line.fold-to-columns",
+      "candidateId": "LINEX-014",
+      "description": {
+        "en": "Arranges the lines down N columns (N is 1 to 100, default 2; rows = ceil(lines / N), filled column by column, like `column -c`), each column as wide as its widest line plus two spaces, without trailing spaces. Widths are counted in code points (a full-width character counts as 1). A result over the output limit changes nothing.",
+        "ja": "行を縦方向に N 列（1〜100、既定値 2）へ並べ（行数 = ceil(行数 / N)、列ごとに上から埋める。`column -c` 相当）、各列を最も長い行の幅 + 空白 2 つに揃える（行末の空白は除く）。幅はコードポイント数で数える（全角文字も 1）。出力上限を超える場合は変更しない"
+      },
+      "example": {
+        "en": "`a⏎b⏎c⏎d（N=2）` → `a··c⏎b··d`",
+        "ja": "`a⏎b⏎c⏎d（N=2）` → `a··c⏎b··d`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.select-emails",
+      "candidateId": "LINEX-015",
+      "description": {
+        "en": "Selects every email address (the pattern of **Extract Email**, found in linear time) inside the non-empty selections; when every selection is empty (cursors), the whole document is searched. A match must lie inside one selection. At most 100,000 selections are made.",
+        "ja": "非空の選択の内側にあるメールアドレス（**Extract Email** と同じパターンを線形時間で検索）をすべて選択する。すべての選択が空（カーソルだけ）のときは文書全体を対象にする。一致は 1 つの選択の内側に収まるものだけ。選択数は 100,000 まで"
+      },
+      "example": {
+        "en": "`a x@y.jp b` → `a [x@y.jp] b`",
+        "ja": "`a x@y.jp b` → `a [x@y.jp] b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.select-ips",
+      "candidateId": "LINEX-016",
+      "description": {
+        "en": "Selects every IPv4 address (each number 0–255) and IPv6 address (validated without the `net` module; `::` and an embedded IPv4 address are allowed) inside the non-empty selections, or in the whole document when every selection is empty. Trailing dots are not selected, and an IPv4 address inside an IPv6 address is not selected separately.",
+        "ja": "非空の選択の内側（すべて空なら文書全体）の IPv4（各数値 0〜255）・IPv6（`net` モジュールを使わずに検証。`::` 省略と IPv4 埋め込み形式を含む）アドレスをすべて選択する。末尾の `.` は含めず、IPv6 内の IPv4 は別に選ばない"
+      },
+      "example": {
+        "en": "`host 10.0.0.1 ok` → `host [10.0.0.1] ok`",
+        "ja": "`host 10.0.0.1 ok` → `host [10.0.0.1] ok`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.select-hex-colors",
+      "candidateId": "LINEX-017",
+      "description": {
+        "en": "Selects every `#rgb`, `#rrggbb` or `#rrggbbaa` color not followed by a letter or digit, inside the non-empty selections or, when every selection is empty, in the whole document.",
+        "ja": "非空の選択の内側（すべて空なら文書全体）の `#rgb`／`#rrggbb`／`#rrggbbaa` 形式の色（直後が英数字でないもの）をすべて選択する"
+      },
+      "example": {
+        "en": "`color:#fff;bg:#112233` → `color:[#fff];bg:[#112233]`",
+        "ja": "`color:#fff;bg:#112233` → `color:[#fff];bg:[#112233]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.select-uuids",
+      "candidateId": "LINEX-018",
+      "description": {
+        "en": "Selects every UUID (8-4-4-4-12 hex digits not touching a letter or digit) inside the non-empty selections or, when every selection is empty, in the whole document.",
+        "ja": "非空の選択の内側（すべて空なら文書全体）の UUID（8-4-4-4-12 桁の 16 進数で、前後が英数字でないもの）をすべて選択する"
+      },
+      "example": {
+        "en": "`id=550e8400-e29b-41d4-a716-446655440000` → `id=[550e8400-e29b-41d4-a716-446655440000]`",
+        "ja": "`id=550e8400-e29b-41d4-a716-446655440000` → `id=[550e8400-e29b-41d4-a716-446655440000]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.select-dates",
+      "candidateId": "LINEX-019",
+      "description": {
+        "en": "Selects every ISO date `YYYY-MM-DD` (optionally with `T` or a space and `HH:MM[:SS[.fff]]` and a time zone) inside the non-empty selections or, when every selection is empty, in the whole document. Months and days are checked, leap years included.",
+        "ja": "非空の選択の内側（すべて空なら文書全体）の ISO 日付 `YYYY-MM-DD`（`T` または空白に続く `HH:MM[:SS[.fff]]` とタイムゾーンを任意で含む）をすべて選択する。月日はうるう年を含めて検証する"
+      },
+      "example": {
+        "en": "`from 2026-10-01 to 2026-10-31` → `from [2026-10-01] to [2026-10-31]`",
+        "ja": "`from 2026-10-01 to 2026-10-31` → `from [2026-10-01] to [2026-10-31]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.expand-to-sentence",
+      "candidateId": "LINEX-020",
+      "description": {
+        "en": "Expands each cursor to the sentence it is in, and the start / end of each selection to the start / end of its sentence (sentences end at `.`, `!` or `?` followed by a space or a line break, or at `。`, `！`, `？`). Blank lines (empty, or only spaces, tabs or full-width spaces) end a paragraph and stop the search. Surrounding spaces are not selected; overlapping results are merged. Abbreviations such as `Mr.` are not recognized.",
+        "ja": "各カーソルをそれを含む文全体に、各選択の始点・終点をそれぞれの文の先頭・末尾に広げる（文は `.!?` の後に空白・改行が来る位置と `。！？` で区切る）。空白だけの行（空行・半角／全角空白・タブだけの行）は段落の区切りで、そこで探索を止める。前後の空白は含めず、重なった範囲はまとめる（`Mr.` などの略語は扱えない）"
+      },
+      "example": {
+        "en": "`Hi. This is| a pen. Bye.` → `Hi. [This is a pen.] Bye.`",
+        "ja": "`Hi. This is| a pen. Bye.` → `Hi. [This is a pen.] Bye.`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.expand-to-paragraph",
+      "candidateId": "LINEX-021",
+      "description": {
+        "en": "Expands each cursor to its paragraph (from the start of its first line to the end of its last line; blank lines, i.e. empty or only spaces, tabs or full-width spaces, separate paragraphs), and the start / end of each selection to the start / end of its paragraph. A cursor on a blank line does not move; overlapping results are merged.",
+        "ja": "各カーソルを段落全体（最初の行の行頭から最後の行の行末まで。空白だけの行＝空行・半角／全角空白・タブだけの行で区切る）に、各選択の始点・終点をそれぞれの段落の先頭・末尾に広げる。空白だけの行の上のカーソルは動かさず、重なった範囲はまとめる"
+      },
+      "example": {
+        "en": "`p1⏎⏎a|b⏎cd⏎⏎p3` → `p1⏎⏎[ab⏎cd]⏎⏎p3`",
+        "ja": "`p1⏎⏎a|b⏎cd⏎⏎p3` → `p1⏎⏎[ab⏎cd]⏎⏎p3`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.keep-duplicate-text",
+      "candidateId": "LINEX-022",
+      "description": {
+        "en": "Keeps only the selections whose text (case-sensitive) appears in two or more selections (the reverse of **Selection - Deselect Duplicate Texts**). When there is none, only a notification is shown.",
+        "ja": "同じテキスト（大文字小文字を区別）の選択が 2 つ以上あるものだけを残す（**Selection - Deselect Duplicate Texts** の逆）。該当がなければ通知だけする"
+      },
+      "example": {
+        "en": "`[a] [b] [a]` → `[a] b [a]`",
+        "ja": "`[a] [b] [a]` → `[a] b [a]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.selection.join-into-first",
+      "candidateId": "LINEX-023",
+      "description": {
+        "en": "Joins the texts of all selections (document order) with a delimiter you enter (default `, `; up to 100 characters, and it may be empty) into the first selection and deletes the texts of the other selections, in one edit. The joined text is the only selection afterwards.",
+        "ja": "全選択のテキスト（文書順）を入力した区切り文字（既定値 `, `。100 文字まで、空でもよい）で連結して最初の選択に入れ、他の選択のテキストは削除する（1 回の編集）。実行後の選択は連結したテキストの 1 つだけになる"
+      },
+      "example": {
+        "en": "`[a] [b] [c]（delimiter: default）` → `[a, b, c]··`",
+        "ja": "`[a] [b] [c]（区切り: 既定値）` → `[a, b, c]··`",
+        "japanese": "note"
+      }
+    }
+  ]
+}

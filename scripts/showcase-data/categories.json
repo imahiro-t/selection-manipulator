@@ -126,6 +126,13 @@
     }
   },
   {
+    "id": "LINEX",
+    "name": {
+      "en": "Line & selection extensions (ranges, set operations, select patterns)",
+      "ja": "行・選択範囲操作拡張（範囲指定・集合演算・パターン選択など）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

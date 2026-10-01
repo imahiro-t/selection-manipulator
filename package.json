@@ -4291,6 +4291,121 @@
         "command": "selection-manipulator.text.remove-between",
         "title": "Text - Remove Text Between Delimiters",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-range",
+        "title": "Line: Keep Lines N to M",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.drop-first-n",
+        "title": "Line: Remove First N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.drop-last-n",
+        "title": "Line: Remove Last N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.blank-every-n",
+        "title": "Line: Insert Blank Line Every N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.cut-chars",
+        "title": "Line: Cut Character Range of Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.paste-columns",
+        "title": "Line: Paste Selections Side by Side",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-keep-last",
+        "title": "Line: Remove Duplicate Lines (Keep Last)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-by-regex",
+        "title": "Line: Split into Lines by Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-natural-list",
+        "title": "Line: Join as Natural Language List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.intersect-selections",
+        "title": "Line: Lines Common to Two Selections",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.subtract-selections",
+        "title": "Line: Lines Only in First Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.symmetric-difference",
+        "title": "Line: Lines in Only One Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.number-nonblank",
+        "title": "Line: Add Numbers to Non-blank Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.fold-to-columns",
+        "title": "Line: Arrange Lines into N Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-emails",
+        "title": "Selection - Select All Email Addresses",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-ips",
+        "title": "Selection - Select All IP Addresses",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-hex-colors",
+        "title": "Selection - Select All Hex Colors",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-uuids",
+        "title": "Selection - Select All UUIDs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-dates",
+        "title": "Selection - Select All ISO Dates",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.expand-to-sentence",
+        "title": "Selection - Expand to Sentence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.expand-to-paragraph",
+        "title": "Selection - Expand to Paragraph",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.keep-duplicate-text",
+        "title": "Selection - Keep Only Duplicate Texts",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.join-into-first",
+        "title": "Selection - Join All Selections into First",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -5586,6 +5701,62 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.line.extract-between-markers.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.drop-first-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.drop-last-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.blank-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.cut-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.paste-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-keep-last"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-by-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-natural-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.intersect-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.subtract-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.symmetric-difference"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.number-nonblank"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.fold-to-columns"
         },
         {
           "when": "editorHasSelection",
@@ -6956,6 +7127,35 @@
         },
         {
           "command": "selection-manipulator.selection.select-indentation"
+        },
+        {
+          "command": "selection-manipulator.selection.select-emails"
+        },
+        {
+          "command": "selection-manipulator.selection.select-ips"
+        },
+        {
+          "command": "selection-manipulator.selection.select-hex-colors"
+        },
+        {
+          "command": "selection-manipulator.selection.select-uuids"
+        },
+        {
+          "command": "selection-manipulator.selection.select-dates"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-sentence"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-paragraph"
+        },
+        {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.selection.keep-duplicate-text"
+        },
+        {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.selection.join-into-first"
         },
         {
           "when": "editorHasSelection",
@@ -9922,6 +10122,62 @@
         {
           "command": "selection-manipulator.line.extract-between-markers.clipboard",
           "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.line.keep-range",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.line.drop-first-n",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.line.drop-last-n",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.line.blank-every-n",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.line.cut-chars",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.line.paste-columns",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-keep-last",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.line.split-by-regex",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.line.join-natural-list",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.line.intersect-selections",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.line.subtract-selections",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.line.symmetric-difference",
+          "group": "selection-manipulator@51"
+        },
+        {
+          "command": "selection-manipulator.line.number-nonblank",
+          "group": "selection-manipulator@52"
+        },
+        {
+          "command": "selection-manipulator.line.fold-to-columns",
+          "group": "selection-manipulator@53"
         }
       ],
       "selection-manipulator.encode.submenu": [
@@ -10660,6 +10916,44 @@
         {
           "command": "selection-manipulator.selection.info",
           "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.selection.select-emails",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.selection.select-ips",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.selection.select-hex-colors",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.selection.select-uuids",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.selection.select-dates",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-sentence",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-paragraph",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.selection.keep-duplicate-text",
+          "group": "selection-manipulator@37",
+          "when": "editorHasMultipleSelections"
+        },
+        {
+          "command": "selection-manipulator.selection.join-into-first",
+          "group": "selection-manipulator@38",
+          "when": "editorHasMultipleSelections"
         }
       ],
       "selection-manipulator.text-transform.submenu": [

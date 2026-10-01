@@ -91,6 +91,7 @@ import { uniCommandHandler } from './handler/uniCommandHandler';
 import { mselCommandHandler } from './handler/mselCommandHandler';
 import { mdCommandHandler } from './handler/mdCommandHandler';
 import { text2CommandHandler } from './handler/text2CommandHandler';
+import { line2CommandHandler } from './handler/line2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1002,6 +1003,31 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.mask-keep-last', text2CommandHandler('text.mask-keep-last')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.leetspeak', text2CommandHandler('text.leetspeak')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-between', text2CommandHandler('text.remove-between')));
+
+  // Line & selection extended (LINEX-001..023, group LINE2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.keep-range', line2CommandHandler('line.keep-range')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.drop-first-n', line2CommandHandler('line.drop-first-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.drop-last-n', line2CommandHandler('line.drop-last-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.blank-every-n', line2CommandHandler('line.blank-every-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.cut-chars', line2CommandHandler('line.cut-chars')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.paste-columns', line2CommandHandler('line.paste-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.dedupe-keep-last', line2CommandHandler('line.dedupe-keep-last')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.split-by-regex', line2CommandHandler('line.split-by-regex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.join-natural-list', line2CommandHandler('line.join-natural-list')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.intersect-selections', line2CommandHandler('line.intersect-selections')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.subtract-selections', line2CommandHandler('line.subtract-selections')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.symmetric-difference', line2CommandHandler('line.symmetric-difference')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.number-nonblank', line2CommandHandler('line.number-nonblank')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.line.fold-to-columns', line2CommandHandler('line.fold-to-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-emails', mselCommandHandler('selection.select-emails')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-ips', mselCommandHandler('selection.select-ips')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-hex-colors', mselCommandHandler('selection.select-hex-colors')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-uuids', mselCommandHandler('selection.select-uuids')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.select-dates', mselCommandHandler('selection.select-dates')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-sentence', mselCommandHandler('selection.expand-to-sentence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-paragraph', mselCommandHandler('selection.expand-to-paragraph')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-duplicate-text', mselCommandHandler('selection.keep-duplicate-text')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.join-into-first', mselCommandHandler('selection.join-into-first')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));
