@@ -1,0 +1,294 @@
+{
+  "category": "DATEX",
+  "commands": [
+    {
+      "id": "selection-manipulator.date.add-iso-duration",
+      "candidateId": "DATEX-001",
+      "description": {
+        "en": "Adds the ISO 8601 duration you type (`P1DT2H`, `PT90M`, `P1Y2M`; a leading `-` subtracts; each element up to 9 digits, only seconds may have up to 3 decimals) to the date or date-time on each line. Years and months move the calendar month (a day past the month's end becomes its last day, like **Date - Add Months**), weeks and days move the calendar day, hours / minutes / seconds move the time. The written date and time are used as is (no time zone conversion) and the offset is written back. A date alone with only Y / M / W / D stays a date; otherwise the result is `YYYY-MM-DDTHH:MM:SS` (with `.sss` when not 0). A result outside 0001–9999 is an error.",
+        "ja": "各行の日付・日時に、入力した ISO 8601 期間（`P1DT2H`・`PT90M`・`P1Y2M`。先頭 `-` で減算。各要素 9 桁まで、小数は秒の 3 桁まで）を加算する。年・月は暦の月で動かし（月末を超える日はその月の末日。**Date - Add Months** と同じ）、週・日は暦日、時・分・秒は時刻を動かす。書かれた日時をそのまま使い（タイムゾーン変換なし）オフセットは書き戻す。日付だけの値に Y / M / W / D だけを加えたときは日付のまま、それ以外は `YYYY-MM-DDTHH:MM:SS`（ミリ秒が 0 でなければ `.sss` 付き）。0001〜9999 年を外れるとエラー"
+      },
+      "example": {
+        "en": "`2026-10-01T00:00Z（P1DT2H）` → `2026-10-02T02:00:00Z`",
+        "ja": "`2026-10-01T00:00Z（P1DT2H）` → `2026-10-02T02:00:00Z`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.seconds-to-iso-duration",
+      "candidateId": "DATEX-002",
+      "description": {
+        "en": "Converts a number of seconds (0 or more, a safe integer with up to 3 decimals) on each line to an ISO 8601 duration of days, hours, minutes and seconds, the reverse of **Date - ISO 8601 Duration to Human**'s input. Elements that are 0 are left out (`PT0S` for 0); years and months are never used because their length is not fixed. Opens the result in a new tab.",
+        "ja": "各行の秒数（0 以上の安全な整数、小数 3 桁まで）を日・時・分・秒の ISO 8601 期間にする（**Date - ISO 8601 Duration to Human** の入力形式への逆変換）。0 の要素は省き（0 は `PT0S`）、長さが一定でない年・月は使わない。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`5400` → `PT1H30M`",
+        "ja": "`5400` → `PT1H30M`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.start-of-month",
+      "candidateId": "DATEX-003",
+      "description": {
+        "en": "Replaces the date on each line with the first day of its month. The separator (`-` or `/`) and any time part are kept as written.",
+        "ja": "各行の日付をその月の 1 日に置き換える。区切り（`-` / `/`）と時刻部分は書かれたまま残す"
+      },
+      "example": {
+        "en": "`2026-10-15` → `2026-10-01`",
+        "ja": "`2026-10-15` → `2026-10-01`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.end-of-month",
+      "candidateId": "DATEX-004",
+      "description": {
+        "en": "Replaces the date on each line with the last day of its month (leap years included: `2024-02-10` → `2024-02-29`). The separator and any time part are kept as written.",
+        "ja": "各行の日付をその月の末日に置き換える（閏年を考慮。`2024-02-10` → `2024-02-29`）。区切りと時刻部分は書かれたまま残す"
+      },
+      "example": {
+        "en": "`2026-02-10` → `2026-02-28`",
+        "ja": "`2026-02-10` → `2026-02-28`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.add-business-days",
+      "candidateId": "DATEX-005",
+      "description": {
+        "en": "Moves the date on each line by the number of business days you type (−100,000 to 100,000; Monday to Friday, holidays are not considered). Same rule as Excel's WORKDAY: from a Saturday or Sunday, +1 is the next Monday and −1 the previous Friday; 0 leaves the date unchanged. Computed in weeks and a remainder, not day by day. The time part is kept as written.",
+        "ja": "各行の日付を、入力した営業日数（−100,000〜100,000。月〜金で、祝日は考慮しない）だけ動かす。Excel の WORKDAY と同じ規則で、土日から +1 は次の月曜、−1 は前の金曜、0 は変更なし。日ごとに数えず週数と端数で計算する。時刻部分は書かれたまま残す"
+      },
+      "example": {
+        "en": "`2026-10-02（1）` → `2026-10-05`",
+        "ja": "`2026-10-02（1）` → `2026-10-05`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.business-days-between",
+      "candidateId": "DATEX-006",
+      "description": {
+        "en": "Counts the weekdays (Monday to Friday, holidays not considered) between two dates on each line, counting the start date and not the end date; a reversed pair gives a negative number. The dates are separated as in **Date - Difference Between Two Dates** (` / `, `..`, `~`, `,`, a tab) or by spaces; a time part is ignored. Computed arithmetically (no loop over the days). Opens the result in a new tab.",
+        "ja": "各行の 2 つの日付の間の平日数（月〜金、祝日は考慮しない）を数える。開始日を含み終了日を含まない。逆順なら負数。区切りは **Date - Difference Between Two Dates** と同じ（` / `・`..`・`~`・`,`・タブ）か空白で、時刻部分は無視する。日ごとのループをせず算術で計算する。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`2026-10-01 2026-10-08` → `5`",
+        "ja": "`2026-10-01 2026-10-08` → `5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-rfc3339-offset",
+      "candidateId": "DATEX-007",
+      "description": {
+        "en": "Converts the date-time or timestamp on each line to RFC 3339 in the IANA time zone you type, with that zone's offset at that moment (`+09:00`), unlike **Date - Convert to ISO 8601**, which writes UTC `Z`. Milliseconds are written when not 0. A value without an offset is read as local time. Offsets with seconds (local mean time before about 1900) cannot be written in RFC 3339 and are an error. Uses Intl only. Opens the result in a new tab.",
+        "ja": "各行の日時・タイムスタンプを、入力した IANA タイムゾーンのその時点のオフセット付き RFC 3339（`+09:00`）にする（UTC の `Z` で書く **Date - Convert to ISO 8601** との違い）。ミリ秒は 0 でなければ書く。オフセットのない値はローカル時刻として読む。秒を含むオフセット（1900 年頃以前の地方平均時など）は RFC 3339 で書けないためエラー。Intl のみ使用。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`2026-10-01T00:00Z（Asia/Tokyo）` → `2026-10-01T09:00:00+09:00`",
+        "ja": "`2026-10-01T00:00Z（Asia/Tokyo）` → `2026-10-01T09:00:00+09:00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.iso-week-to-range",
+      "candidateId": "DATEX-008",
+      "description": {
+        "en": "Converts an ISO week `YYYY-Www` (or `YYYYWww`, `W` in either case) on each line to its Monday-to-Sunday date range, the reverse of **Date - ISO Week Number**. Week 53 is accepted only in years that have one. Opens the result in a new tab.",
+        "ja": "各行の ISO 週 `YYYY-Www`（`YYYYWww` も可、`W` の大小無視）を月曜〜日曜の日付範囲にする（**Date - ISO Week Number** の逆）。第 53 週はその年にある場合だけ有効。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`2026-W40` → `2026-09-28 – 2026-10-04`",
+        "ja": "`2026-W40` → `2026-09-28 – 2026-10-04`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.eto",
+      "candidateId": "DATEX-009",
+      "description": {
+        "en": "Converts the year on each line (1 to 9999, `年` may follow) or the year of a date to its sexagenary cycle name (eto: heavenly stem and earthly branch, 1984 = `甲子`). It is based on the calendar year; the start of spring (risshun) is not considered. Opens the result in a new tab.",
+        "ja": "各行の西暦年（1〜9999、末尾 `年` 可）または日付の年を干支（十干十二支。1984 年 = `甲子`）にする。暦年で判定し、立春は考慮しない。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`2026` → `丙午`",
+        "ja": "`2026` → `丙午`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-12h",
+      "candidateId": "DATEX-010",
+      "description": {
+        "en": "Converts the 24-hour time `H:MM` / `HH:MM[:SS]` (0:00 to 23:59) on each line to the 12-hour clock with AM / PM (`0:05` → `12:05 AM`, `12:00` → `12:00 PM`); seconds are kept.",
+        "ja": "各行の 24 時間制の時刻 `H:MM` / `HH:MM[:SS]`（0:00〜23:59）を AM / PM の 12 時間制にする（`0:05` → `12:05 AM`、`12:00` → `12:00 PM`）。秒は残す"
+      },
+      "example": {
+        "en": "`14:30` → `2:30 PM`",
+        "ja": "`14:30` → `2:30 PM`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.to-24h",
+      "candidateId": "DATEX-011",
+      "description": {
+        "en": "Converts the 12-hour time `h:MM[:SS] AM/PM` (1 to 12 o'clock, AM / PM in any case, one space or none) on each line to the 24-hour clock `HH:MM[:SS]` (`12:05 AM` → `00:05`).",
+        "ja": "各行の 12 時間制の時刻 `h:MM[:SS] AM/PM`（1〜12 時。AM / PM の大小無視、空白は 0〜1 個）を 24 時間制 `HH:MM[:SS]` にする（`12:05 AM` → `00:05`）"
+      },
+      "example": {
+        "en": "`2:30 PM` → `14:30`",
+        "ja": "`2:30 PM` → `14:30`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.snowflake-to-date",
+      "candidateId": "DATEX-012",
+      "description": {
+        "en": "Extracts the creation time from the Snowflake ID on each line, with the epoch you type (`discord` or `twitter` for Twitter / X, case ignored), as ISO 8601 with milliseconds. The ID is 1 to 20 decimal digits (checked before BigInt is used) and at most 64 bits. Only the ID is parsed; nothing is looked up. Opens the result in a new tab.",
+        "ja": "各行の Snowflake ID から、入力したエポック（`discord` か、Twitter / X なら `twitter`。大小無視）で生成日時を取り出し、ミリ秒付き ISO 8601 にする。ID は 10 進 1〜20 桁（BigInt にする前に桁数を検査）で 64 ビット以内。ID を解析するだけで通信はしない。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`175928847299117063（discord）` → `2016-04-30T11:18:25.796Z`",
+        "ja": "`175928847299117063（discord）` → `2016-04-30T11:18:25.796Z`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.ulid-to-date",
+      "candidateId": "DATEX-013",
+      "description": {
+        "en": "Extracts the time from the ULID on each line (26 Crockford Base32 characters, case ignored, the first 0 to 7; its first 10 characters are 48 bits of milliseconds) as ISO 8601. A time after 9999 is an error. Opens the result in a new tab.",
+        "ja": "各行の ULID（Crockford Base32 の 26 文字、大小無視、先頭は 0〜7。先頭 10 文字が 48 ビットのミリ秒）の時刻部分を ISO 8601 にする。9999 年を超える時刻はエラー。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`01ARZ3NDEKTSV4RRFFQ69G5FAV` → `2016-07-30T23:54:10.259Z`",
+        "ja": "`01ARZ3NDEKTSV4RRFFQ69G5FAV` → `2016-07-30T23:54:10.259Z`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.uuid-v7-to-date",
+      "candidateId": "DATEX-014",
+      "description": {
+        "en": "Extracts the time from the UUID v7 on each line (36 characters with hyphens or 32 hexadecimal digits; its first 48 bits are milliseconds) as ISO 8601. A UUID of another version or without the RFC 9562 variant is an error. Opens the result in a new tab.",
+        "ja": "各行の UUID v7（ハイフン付き 36 文字または 16 進 32 桁。先頭 48 ビットがミリ秒）の時刻部分を ISO 8601 にする。バージョンが 7 でない UUID・RFC 9562 のバリアントでない UUID はエラー。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`0190163d-8694-739b-aea5-966c26f8ad91` → `2024-06-14T10:14:09.300Z`",
+        "ja": "`0190163d-8694-739b-aea5-966c26f8ad91` → `2024-06-14T10:14:09.300Z`"
+      }
+    },
+    {
+      "id": "selection-manipulator.date.objectid-to-date",
+      "candidateId": "DATEX-015",
+      "description": {
+        "en": "Extracts the creation time from the MongoDB ObjectId on each line (24 hexadecimal digits; its first 4 bytes are seconds) as `YYYY-MM-DDTHH:MM:SSZ` (an ObjectId has no milliseconds). Opens the result in a new tab.",
+        "ja": "各行の MongoDB ObjectId（16 進 24 桁。先頭 4 バイトが秒）から生成日時を `YYYY-MM-DDTHH:MM:SSZ` で出す（ObjectId はミリ秒を持たない）。結果は新しいタブに出す"
+      },
+      "example": {
+        "en": "`507f1f77bcf86cd799439011` → `2012-10-17T21:13:27Z`",
+        "ja": "`507f1f77bcf86cd799439011` → `2012-10-17T21:13:27Z`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.brace-expansion",
+      "candidateId": "DATEX-016",
+      "description": {
+        "en": "Expands shell-style braces on each selected line into lines: `{a,b,c}`, numeric ranges `{1..3}`, `{01..10}` (zero-padded), `{1..10..2}` (step), single-letter ranges `{a..e}`, nesting, and `\\{` `\\}` `\\,` escapes. `{a}` and unclosed braces stay as written. No shell is run. The counts are computed before anything is generated: more than 10 levels of nesting, 10,000 terms in one range, 10,000 strings for one line or 100,000 for the selection warns and changes nothing. Lines without braces are kept; the expanded strings are joined with the document's line ending.",
+        "ja": "選択した各行のシェル風ブレースを展開して行を生成する（`{a,b,c}`、数値範囲 `{1..3}`・`{01..10}`（ゼロ詰め）・`{1..10..2}`（増分）、1 文字の英字範囲 `{a..e}`、入れ子、`\\{` `\\}` `\\,` のエスケープ。`{a}` や閉じない括弧は文字どおり）。シェルは実行しない。生成前に件数を計算し、入れ子 10 段・範囲 1 つ 10,000 項・1 行 10,000 件・選択全体 100,000 件を超えると警告して何も変更しない。ブレースのない行はそのまま残し、展開結果は文書の改行で連結する"
+      },
+      "example": {
+        "en": "`file{1..3}.txt` → `file1.txt⏎file2.txt⏎file3.txt`",
+        "ja": "`file{1..3}.txt` → `file1.txt⏎file2.txt⏎file3.txt`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.multiplication-table",
+      "candidateId": "DATEX-017",
+      "description": {
+        "en": "Generates an N × M multiplication table, each column right-aligned and separated by one space. The size is the selection (`N`, `NxM`, `N×M`, `N*M` or `N M`; N rows, M columns) or, for empty cursors, asked once (default `9`). N and M are 1 to 100; larger sizes warn and change nothing.",
+        "ja": "N×M の九九表を、各列を右寄せ・半角空白区切りで生成する。サイズは選択（`N`・`NxM`・`N×M`・`N*M`・`N M`。N 行 M 列）、空のカーソルには 1 回だけ尋ねる（既定 `9`）。N・M は 1〜100 で、超えると警告して何も変更しない"
+      },
+      "example": {
+        "en": "`3` → `1 2 3⏎2 4 6⏎3 6 9`",
+        "ja": "`3` → `1 2 3⏎2 4 6⏎3 6 9`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.fibonacci",
+      "candidateId": "DATEX-018",
+      "description": {
+        "en": "Generates the first N Fibonacci numbers from 0, one per line, exactly (BigInt). N is the selection or, for empty cursors, asked once (default 10); N is 1 to 1,000, and more warns and changes nothing.",
+        "ja": "フィボナッチ数列を 0 から N 項、1 行 1 項で正確に（BigInt）生成する。N は選択、空のカーソルには 1 回だけ尋ねる（既定 10）。N は 1〜1,000 で、超えると警告して何も変更しない"
+      },
+      "example": {
+        "en": "`7` → `0⏎1⏎1⏎2⏎3⏎5⏎8`",
+        "ja": "`7` → `0⏎1⏎1⏎2⏎3⏎5⏎8`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.primes",
+      "candidateId": "DATEX-019",
+      "description": {
+        "en": "Generates the prime numbers up to N, separated by spaces (sieve of Eratosthenes; the sieve of one run, at most about 1 MB, is shared by all targets). N is the selection or, for empty cursors, asked once (default 100); N is 2 to 1,000,000, and more warns and changes nothing. Only \"up to N\" is supported (not \"the first N primes\").",
+        "ja": "N 以下の素数を半角空白区切りで生成する（エラトステネスのふるい。1 回の実行のふるい（最大約 1 MB）を全対象で共有）。N は選択、空のカーソルには 1 回だけ尋ねる（既定 100）。N は 2〜1,000,000 で、超えると警告して何も変更しない。「最初の N 個」には対応しない"
+      },
+      "example": {
+        "en": "`20` → `2 3 5 7 11 13 17 19`",
+        "ja": "`20` → `2 3 5 7 11 13 17 19`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.time-sequence",
+      "candidateId": "DATEX-020",
+      "description": {
+        "en": "Generates N times from a start time, a given number of minutes apart, one per line, in the form of the start (`HH:MM` or `HH:MM:SS`). The start is the selection or, for empty cursors, asked once (default `09:00`); the interval (1 to 1,440 minutes, default 30) and N (1 to 10,000, default 3) are asked first. Past 24:00 the times wrap to 00:00 (no dates).",
+        "ja": "開始時刻から指定の分間隔で N 個の時刻を、開始時刻と同じ形式（`HH:MM` / `HH:MM:SS`）で 1 行 1 個生成する。開始時刻は選択、空のカーソルには 1 回だけ尋ねる（既定 `09:00`）。間隔（1〜1,440 分、既定 30）と N（1〜10,000、既定 3）を先に尋ねる。24:00 を過ぎると 00:00 に戻る（日付は扱わない）"
+      },
+      "example": {
+        "en": "`09:00（30, 3）` → `09:00⏎09:30⏎10:00`",
+        "ja": "`09:00（30, 3）` → `09:00⏎09:30⏎10:00`"
+      }
+    },
+    {
+      "id": "selection-manipulator.generate.cartesian-product",
+      "candidateId": "DATEX-021",
+      "description": {
+        "en": "Combines one line of each selection in every possible way (Cartesian product, in document order, the last selection varying fastest), joins the lines of a combination with the delimiter you type (empty by default, at most 100 characters) and writes the combinations one per line. Blank lines are skipped. Like **Selection - Join All Selections into First**, the result replaces the first selection and the other selections are deleted, in one edit (one undo). Needs two or more selections; more than 10,000 combinations, or a result over the output limit, is computed beforehand and warns without changing anything.",
+        "ja": "各選択の行を 1 つずつ組み合わせた全組み合わせ（直積。文書順で、最後の選択が最も速く変わる）を、入力した区切り文字（既定は空、100 文字まで）で連結し 1 行 1 組で書く。空白だけの行は使わない。**Selection - Join All Selections into First** と同じく、結果で先頭の選択を置き換え他の選択は削除する（1 回の編集で、1 回の取り消しで戻る）。2 つ以上の選択が必要。組み合わせ数が 10,000 を超える・出力上限を超える場合は事前に計算して警告し、何も変更しない"
+      },
+      "example": {
+        "en": "`a⏎b` + `1⏎2` → `a1⏎a2⏎b1⏎b2`",
+        "ja": "`a⏎b` + `1⏎2` → `a1⏎a2⏎b1⏎b2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.passphrase",
+      "candidateId": "DATEX-022",
+      "description": {
+        "en": "Generates a passphrase of N words (3 to 20, default 6) from a built-in list of 1,338 common English words written for this extension, joined with the separator you type (0 to 10 characters, default `-`). Each word is chosen with crypto.randomInt (no modulo bias), about 10.4 bits per word. Selections are replaced and empty cursors get an insertion.",
+        "ja": "拡張機能用に作成した 1,338 語の英単語リストから N 語（3〜20、既定 6）のパスフレーズを生成し、入力した区切り（0〜10 文字、既定 `-`）で連結する。各語は crypto.randomInt で選ぶ（剰余の偏りなし。1 語あたり約 10.4 ビット）。選択は置換、空のカーソルは挿入"
+      },
+      "example": {
+        "en": "`（4）` → `orbit-maple-quiet-lantern`",
+        "ja": "`（4）` → `orbit-maple-quiet-lantern`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.string-custom-charset",
+      "candidateId": "DATEX-023",
+      "description": {
+        "en": "Generates a random string of the length you type (1 to 10,000 characters, default 16) from the characters you type (spaces kept, repeats ignored, 1 to 100 distinct characters, no control characters). Each character is chosen with crypto.randomInt (rejection sampling, no bias). Selections are replaced and empty cursors get an insertion.",
+        "ja": "入力した文字集合（前後の空白も文字として保持、重複は無視、1〜100 種類、制御文字は不可）から、入力した長さ（1〜10,000 文字、既定 16）のランダム文字列を生成する。各文字は crypto.randomInt（棄却法で偏りなし）で選ぶ。選択は置換、空のカーソルは挿入"
+      },
+      "example": {
+        "en": "`（ABC123, 8）` → `B3A1CC2A`",
+        "ja": "`（ABC123, 8）` → `B3A1CC2A`"
+      }
+    },
+    {
+      "id": "selection-manipulator.random.shuffle-words",
+      "candidateId": "DATEX-024",
+      "description": {
+        "en": "Shuffles the words (runs of characters other than spaces and tabs) of each selected line with the Fisher–Yates algorithm and crypto.randomInt; each line is shuffled on its own, and the spaces, indentation and line breaks stay where they are. Lines with one word or none are kept.",
+        "ja": "選択した各行の語（空白・タブ以外の連続）の順序を、Fisher–Yates と crypto.randomInt でシャッフルする。行ごとに独立に並べ替え、空白・インデント・改行の位置は保つ。語が 1 つ以下の行はそのまま"
+      },
+      "example": {
+        "en": "`a b c d` → `c a d b`",
+        "ja": "`a b c d` → `c a d b`"
+      }
+    }
+  ]
+}

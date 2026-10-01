@@ -371,7 +371,7 @@ suite('Extended Number Commands (NUMX-001..023) Test Suite', () => {
         [`${PREFIX}unit.submenu`]: 16,
       }, '11 + 2, 34 + 15, 10 + 6');
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 969, '946 before NUM2 + 23');
+      assert.strictEqual(ids.length, 993, '946 before NUM2 + 23, then 24 of DATE2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');

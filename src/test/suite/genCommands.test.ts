@@ -596,6 +596,8 @@ suite('Generator Commands (GEN) Test Suite', () => {
         'selection-manipulator.random.uuid',
         'selection-manipulator.random.lorem-ipsum',
         ...GEN_RANDOM_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`),
+        // The DATEX random commands (group DATE2) follow at the end.
+        ...['passphrase', 'string-custom-charset', 'shuffle-words'].map((name) => `selection-manipulator.random.${name}`),
       ]);
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
@@ -605,7 +607,11 @@ suite('Generator Commands (GEN) Test Suite', () => {
       assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.generate.submenu'),
         [{ id: 'selection-manipulator.generate.submenu', label: 'Generate' }]);
       const items: { command: string; group: string }[] = contributes.menus['selection-manipulator.generate.submenu'];
-      assert.deepStrictEqual(items.map((item) => item.command), GEN_SEQUENCE_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
+      // The DATEX generators (group DATE2) follow at the end.
+      assert.deepStrictEqual(items.map((item) => item.command), [
+        ...GEN_SEQUENCE_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`),
+        ...['brace-expansion', 'multiplication-table', 'fibonacci', 'primes', 'time-sequence', 'cartesian-product'].map((name) => `selection-manipulator.generate.${name}`),
+      ]);
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
       assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.generate.submenu'),

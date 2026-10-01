@@ -96,6 +96,9 @@ import { enc2CommandHandler } from './handler/enc2CommandHandler';
 import { data2CommandHandler } from './handler/data2CommandHandler';
 import { dev2CommandHandler } from './handler/dev2CommandHandler';
 import { num2CommandHandler } from './handler/num2CommandHandler';
+import { date2CommandHandler } from './handler/date2CommandHandler';
+import { gen2CommandHandler } from './handler/gen2CommandHandler';
+import { date2MselCommandHandler } from './handler/date2MselCommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1132,6 +1135,32 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.tsubo-to-sqm', num2CommandHandler('unit.tsubo-to-sqm')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.deg-to-rad', num2CommandHandler('unit.deg-to-rad')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.rad-to-deg', num2CommandHandler('unit.rad-to-deg')));
+
+  // Date, generate and random extended (DATEX-001..024, group DATE2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.add-iso-duration', date2CommandHandler('date.add-iso-duration')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.seconds-to-iso-duration', date2CommandHandler('date.seconds-to-iso-duration')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.start-of-month', date2CommandHandler('date.start-of-month')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.end-of-month', date2CommandHandler('date.end-of-month')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.add-business-days', date2CommandHandler('date.add-business-days')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.business-days-between', date2CommandHandler('date.business-days-between')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-rfc3339-offset', date2CommandHandler('date.to-rfc3339-offset')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.iso-week-to-range', date2CommandHandler('date.iso-week-to-range')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.eto', date2CommandHandler('date.eto')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-12h', date2CommandHandler('date.to-12h')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.to-24h', date2CommandHandler('date.to-24h')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.snowflake-to-date', date2CommandHandler('date.snowflake-to-date')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.ulid-to-date', date2CommandHandler('date.ulid-to-date')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.uuid-v7-to-date', date2CommandHandler('date.uuid-v7-to-date')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.date.objectid-to-date', date2CommandHandler('date.objectid-to-date')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.brace-expansion', gen2CommandHandler('generate.brace-expansion')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.multiplication-table', gen2CommandHandler('generate.multiplication-table')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.fibonacci', gen2CommandHandler('generate.fibonacci')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.primes', gen2CommandHandler('generate.primes')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.time-sequence', gen2CommandHandler('generate.time-sequence')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.generate.cartesian-product', date2MselCommandHandler('generate.cartesian-product')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.passphrase', gen2CommandHandler('random.passphrase')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.string-custom-charset', gen2CommandHandler('random.string-custom-charset')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.shuffle-words', gen2CommandHandler('random.shuffle-words')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

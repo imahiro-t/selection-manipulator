@@ -365,7 +365,7 @@ suite('Encoding, Escaping & Hash Commands (ENCX-001..022) Test Suite', () => {
         items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, `${submenu}: ${item.command}`));
       }
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 969, '877 before ENC2 + 22, then 24 of DATA2, 23 of DEV2 and 23 of NUM2');
+      assert.strictEqual(ids.length, 993, '877 before ENC2 + 22, then 24 of DATA2, 23 of DEV2, 23 of NUM2 and 24 of DATE2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');

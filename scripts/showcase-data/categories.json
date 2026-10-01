@@ -161,6 +161,13 @@
     }
   },
   {
+    "id": "DATEX",
+    "name": {
+      "en": "Dates, generators and random extensions (ISO 8601 durations, business days, IDs to dates, brace expansion, primes, passphrases)",
+      "ja": "日付・生成・乱数拡張（ISO 8601 期間・営業日・ID から日時・ブレース展開・素数・パスフレーズ）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

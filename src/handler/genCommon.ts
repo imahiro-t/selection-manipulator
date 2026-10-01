@@ -25,6 +25,19 @@ export class GenInputError extends Error {
   }
 }
 
+/**
+ * A value exceeds a limit of a command (DATEX-016..024: a count, a size or a depth), checked
+ * before anything is generated. The handler shows it as a warning (nothing is changed). It is a
+ * `GenInputError`, so everything that accepts an input error accepts it too: `findGenPromptProblem`
+ * turns it into a sentence (an input box never throws), and it is never logged.
+ */
+export class GenLimitError extends GenInputError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'GenLimitError';
+  }
+}
+
 /** Upper limit of the length (UTF-16 code units) of one selection used as input (GEN-008 / 009 / 019). */
 export const GEN_MAX_INPUT_LENGTH = 1_000_000;
 /** Upper limit of the length of a value typed into an input box. */
@@ -240,7 +253,8 @@ export const toSentence = (message: string): string =>
 /**
  * Why a value typed into an input box cannot be used (a sentence), or `undefined`. Spaces around
  * the value are ignored (unless the rule keeps them). Used as `validateInput` and checked again
- * before running.
+ * before running. A `GenLimitError` thrown by `parse` is a `GenInputError` and becomes a sentence
+ * too (it never escapes from `validateInput`).
  */
 export const findGenPromptProblem = (value: string, rule: GenPromptRule, previous: readonly string[] = []): string | undefined => {
   if (value.length > GEN_MAX_PROMPT_LENGTH) {

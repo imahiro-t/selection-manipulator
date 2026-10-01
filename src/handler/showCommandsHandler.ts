@@ -4746,6 +4746,126 @@ export const myCommands = [
     "command": "selection-manipulator.unit.rad-to-deg",
     "title": "Unit - Radians to Degrees",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-iso-duration",
+    "title": "Date - Add ISO 8601 Duration",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.seconds-to-iso-duration",
+    "title": "Date - Seconds to ISO 8601 Duration",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.start-of-month",
+    "title": "Date - Start of Month",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.end-of-month",
+    "title": "Date - End of Month",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-business-days",
+    "title": "Date - Add Business Days",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.business-days-between",
+    "title": "Date - Count Business Days Between",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-rfc3339-offset",
+    "title": "Date - Convert to RFC 3339 with Local Offset",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.iso-week-to-range",
+    "title": "Date - ISO Week to Date Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.eto",
+    "title": "Date - Sexagenary Cycle (Eto, 干支)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-12h",
+    "title": "Date - Convert Time to 12-hour",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-24h",
+    "title": "Date - Convert Time to 24-hour",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.snowflake-to-date",
+    "title": "Date - Snowflake ID to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.ulid-to-date",
+    "title": "Date - ULID to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.uuid-v7-to-date",
+    "title": "Date - UUID v7 to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.objectid-to-date",
+    "title": "Date - MongoDB ObjectId to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.brace-expansion",
+    "title": "Generate - Brace Expansion",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.multiplication-table",
+    "title": "Generate - Multiplication Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.fibonacci",
+    "title": "Generate - Fibonacci Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.primes",
+    "title": "Generate - Prime Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.time-sequence",
+    "title": "Generate - Time Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.cartesian-product",
+    "title": "Generate - Cartesian Product of Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.passphrase",
+    "title": "Random - Passphrase",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.string-custom-charset",
+    "title": "Random - String from Custom Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.shuffle-words",
+    "title": "Random - Shuffle Words",
+    "canMultiSelection": true
   }
 ];
 

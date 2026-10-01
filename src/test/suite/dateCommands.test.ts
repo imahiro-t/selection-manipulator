@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { DATE_MAX_CRON_LINES, findDatePromptProblem, RawDateSettings } from '../../handler/dateCommon';
 import { DATE_COPIED, DATE_NOTHING_SELECTED, DateDependencies, dateCommandHandlerInternal } from '../../handler/dateCommandHandler';
 import { DATE_COMMAND_ENTRIES, DateCommandEntry } from '../../handler/dateTransforms';
+import { DATE2_COMMAND_ENTRIES } from '../../handler/date2Transforms';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { DATE_INVALID_INPUT, DATE_ROADMAP_EXAMPLES, DATE_TEST_NOW } from './dateExamples';
@@ -539,7 +540,8 @@ suite('Date Commands (DATE-001..030) Test Suite', () => {
       const existing = ['to-iso', 'to-iso.replace', 'to-iso.clipboard', 'to-locale', 'to-locale.replace', 'to-locale.clipboard',
         'to-timestamp', 'to-timestamp.replace', 'to-timestamp.clipboard', 'to-timestamp-ms', 'to-timestamp-ms.replace', 'to-timestamp-ms.clipboard',
         'era-conversion', 'era-conversion.replace'].map((name) => `selection-manipulator.date.${name}`);
-      assert.deepStrictEqual(items.map((item) => item.command), [...existing, ...DATE_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`)]);
+      // The DATEX-001..015 commands (group DATE2) follow at the end.
+      assert.deepStrictEqual(items.map((item) => item.command), [...existing, ...[...DATE_COMMAND_ENTRIES, ...DATE2_COMMAND_ENTRIES].map((entry) => `selection-manipulator.${entry.name}`)]);
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
 

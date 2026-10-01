@@ -241,4 +241,7 @@ export const mselCommandHandlerInternal = (dependencies: MselDependencies, entri
     };
   };
 
+/** The dependencies of the extension (VS Code's UI and the regex worker). */
+export const defaultMselDependencies = defaultDependencies;
+
 export const mselCommandHandler = mselCommandHandlerInternal(defaultDependencies);
