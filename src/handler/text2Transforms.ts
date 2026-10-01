@@ -329,57 +329,91 @@ export const charFrequency = (texts: readonly string[], eol: string, budget: num
   frequencyTable(countAll(texts.flatMap((text) => [...graphemes(text)])), frequencyLabel, eol, budget);
 
 /**
- * TEXTX-020: the URLs of the existing URL extraction (`http://` / `https://` and what follows up
- * to whitespace; the first character after `//` is not whitespace, `$`, `.`, `?` or `#`). Unlike
- * the extraction pattern, a URL never runs over a space. Linear: no nested quantifier.
+ * TEXTX-020: where a URL starts, as in the existing URL extraction: `http://` / `https://` and one
+ * character that is not whitespace, `$`, `.`, `?` or `#`. The rest of the URL is found by
+ * `scanUrl`, a forward loop. A fixed pattern of fixed length (no nested quantifier); its
+ * `lastIndex` is reset at the start of every `removeUrls` call.
  */
-const URL_PATTERN = /https?:\/\/[^\s$.?#]\S*/g;
+const URL_START = /https?:\/\/[^\s$.?#]/g;
 /** Characters that end a sentence or quote rather than a URL when they are its last ones. */
 const URL_TRAILING_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', "'", '"']);
-/** Closing brackets and their openers; a closer is part of the URL only when the URL opens it. */
-const URL_CLOSERS = new Map([
+/** Full-width punctuation: never part of a URL, so a URL ends where one appears. */
+const FULLWIDTH_PUNCTUATION = new Set(['。', '、', '，', '．', '！', '？', '：', '；', '｡', '､']);
+/** Punctuation that only ends a sentence: removed with a URL at the start of a line. */
+const SENTENCE_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', ...FULLWIDTH_PUNCTUATION]);
+/**
+ * Closing brackets (ASCII, full-width and quotation marks) and their openers. A closer is part of
+ * a URL only when the URL opens it; otherwise the URL ends there.
+ */
+const URL_BRACKETS = new Map([
   [')', '('],
   [']', '['],
   ['}', '{'],
   ['>', '<'],
+  ['）', '（'],
+  ['］', '［'],
+  ['｝', '｛'],
+  ['＞', '＜'],
+  ['〉', '〈'],
+  ['》', '《'],
+  ['」', '「'],
+  ['』', '『'],
+  ['】', '【'],
+  ['〕', '〔'],
+  ['〗', '〖'],
+  ['〙', '〘'],
+  ['〛', '〚'],
+  ['”', '“'],
+  ['’', '‘'],
 ]);
+const URL_OPENERS = new Set(URL_BRACKETS.values());
+/** One whitespace character (applied to a single character only). */
+const WHITESPACE = /\s/;
+
+/** Whether a character after a URL is attached to the word before it (punctuation, closers). */
+const isUrlTailChar = (char: string): boolean =>
+  URL_TRAILING_PUNCTUATION.has(char) || FULLWIDTH_PUNCTUATION.has(char) || URL_BRACKETS.has(char);
 
 /**
- * How much of a match of `URL_PATTERN` is the URL: the trailing punctuation (`.,;:!?'"`) and the
- * closing brackets that have no opener inside the URL are left out, so `(see https://a.example).`
- * keeps `).` and `https://en.wikipedia.org/wiki/Foo_(bar)` keeps its own parentheses. At least one
- * character after `//` always stays. Linear: one pass to count the brackets, one pass back.
+ * Where the URL whose first character after `//` is at `first` ends (`end`), and where the
+ * punctuation and closing brackets right after it end (`tailEnd`). The URL runs up to whitespace,
+ * full-width punctuation or a closing bracket the URL has not opened (counted per kind of bracket;
+ * the character at `first` is always part of the URL and counts as an opener when it is one); then
+ * its trailing `.,;:!?'"` are left out, keeping at least the character at `first`. Linear: each
+ * character of the URL and its tail is looked at a constant number of times.
  */
-const urlLength = (match: string): number => {
-  const unmatched = new Map<string, number>();
-  for (const [closer, opener] of URL_CLOSERS) {
-    let balance = 0;
-    for (let i = 0; i < match.length; i++) {
-      if (match[i] === closer) {
-        balance++;
-      } else if (match[i] === opener) {
-        balance--;
+const scanUrl = (text: string, first: number, depths: Map<string, number>): { end: number; tailEnd: number } => {
+  depths.clear();
+  if (URL_OPENERS.has(text[first])) {
+    depths.set(text[first], 1);
+  }
+  let scanEnd = first + 1;
+  for (; scanEnd < text.length; scanEnd++) {
+    const char = text[scanEnd];
+    if (WHITESPACE.test(char) || FULLWIDTH_PUNCTUATION.has(char)) {
+      break;
+    }
+    const opener = URL_BRACKETS.get(char);
+    if (opener !== undefined) {
+      const depth = depths.get(opener) ?? 0;
+      if (depth === 0) {
+        break;
       }
+      depths.set(opener, depth - 1);
+    } else if (URL_OPENERS.has(char)) {
+      depths.set(char, (depths.get(char) ?? 0) + 1);
     }
-    unmatched.set(closer, balance);
   }
-  const minimum = match.indexOf('//') + 3;
-  let end = match.length;
-  while (end > minimum) {
-    const last = match[end - 1];
-    if (URL_TRAILING_PUNCTUATION.has(last)) {
-      end--;
-      continue;
-    }
-    const balance = unmatched.get(last);
-    if (balance !== undefined && balance > 0) {
-      unmatched.set(last, balance - 1);
-      end--;
-      continue;
-    }
-    break;
+  let end = scanEnd;
+  while (end > first + 1 && URL_TRAILING_PUNCTUATION.has(text[end - 1])) {
+    end--;
   }
-  return end;
+  // The tail covers the punctuation left out above and the stop character, unless it is whitespace.
+  let tailEnd = end;
+  while (tailEnd < text.length && isUrlTailChar(text[tailEnd])) {
+    tailEnd++;
+  }
+  return { end, tailEnd };
 };
 
 const isBlank = (char: string): boolean => char === ' ' || char === '\t';
@@ -403,10 +437,14 @@ const trimBlanksEnd = (text: string): string => {
 };
 
 /**
- * TEXTX-020: the URLs removed. The spaces and tabs around a removed URL become one space between
- * the words on both sides, or nothing at the start or end of a line. Punctuation and closing
- * brackets that follow a URL stay, directly after the word before it (`Visit https://a.example.`
- * becomes `Visit.`). No URL is ever accessed. Linear in the length of the text.
+ * TEXTX-020: the URLs removed (see `scanUrl` for where a URL ends). The spaces and tabs around a
+ * removed URL become one space between the words on both sides, or nothing at the start or end of
+ * a line. Punctuation and closing brackets that follow a URL stay, directly after the word before
+ * it (`Visit https://a.example.` becomes `Visit.`, `foo(https://x.com)bar` becomes `foo()bar`);
+ * the blanks after them become one space, or nothing at the end of a line. At the start of a line
+ * the sentence punctuation that follows a URL is removed too (`https://x. Next` becomes `Next`),
+ * while brackets and quotation marks stay. No URL is ever accessed. Linear in the length of the
+ * text: the text after a removed URL and its tail is never scanned again.
  */
 export const removeUrls = (text: string): string => {
   const parts: string[] = [];
@@ -420,20 +458,33 @@ export const removeUrls = (text: string): string => {
       parts.pop();
     }
   };
-  /** A URL was removed and the blanks around it are not handled yet. */
+  const lastChar = (): string => {
+    const last = parts.length > 0 ? parts[parts.length - 1] : '';
+    return last.charAt(last.length - 1);
+  };
+  /** A URL was removed and the blanks after it (and after its tail) are not handled yet. */
   let pending = false;
+  /** The tail of the last removed URL was output (the next word joins it without a blank). */
+  let afterTail = false;
+  /** Blanks were dropped since the last URL or tail was removed or output. */
+  let sawBlank = false;
   const pushText = (segment: string) => {
     let piece = segment;
     if (pending) {
       piece = trimBlanksStart(piece);
+      if (piece.length < segment.length) {
+        sawBlank = true;
+      }
       if (piece === '') {
         return;
       }
       trimEnd();
-      const last = parts.length > 0 ? parts[parts.length - 1] : '';
-      const before = last.charAt(last.length - 1);
+      const before = lastChar();
       const after = piece.charAt(0);
-      if (before !== '' && before !== '\n' && before !== '\r' && after !== '\n' && after !== '\r') {
+      if (
+        before !== '' && before !== '\n' && before !== '\r' && after !== '\n' && after !== '\r' &&
+        (!afterTail || sawBlank)
+      ) {
         parts.push(' ');
       }
       pending = false;
@@ -442,25 +493,48 @@ export const removeUrls = (text: string): string => {
       parts.push(piece);
     }
   };
-  /** What followed a URL in its match (punctuation, closers): attached to the text before it. */
+  /** What followed a URL (punctuation, closers): attached to the text before it. */
   const pushTail = (tail: string) => {
+    if (tail === '') {
+      return;
+    }
     trimEnd();
-    parts.push(tail);
-    pending = false;
+    let piece = tail;
+    const before = lastChar();
+    if (before === '' || before === '\n' || before === '\r') {
+      let start = 0;
+      while (start < piece.length && SENTENCE_PUNCTUATION.has(piece[start])) {
+        start++;
+      }
+      piece = piece.slice(start);
+      if (piece === '') {
+        return;
+      }
+    }
+    parts.push(piece);
+    afterTail = true;
+    sawBlank = false;
   };
+  // Synchronous, so resetting the shared `lastIndex` here is enough (no dynamic RegExp needed).
+  const urlStart = URL_START;
+  urlStart.lastIndex = 0;
+  const depths = new Map<string, number>();
   let cursor = 0;
   let found = false;
-  for (const match of text.matchAll(URL_PATTERN)) {
+  let match: RegExpExecArray | null;
+  while ((match = urlStart.exec(text)) !== null) {
     found = true;
-    const start = match.index ?? 0;
-    const end = start + match[0].length;
+    const start = match.index;
+    const { end, tailEnd } = scanUrl(text, start + match[0].length - 1, depths);
     pushText(text.slice(cursor, start));
-    pending = true;
-    const length = urlLength(match[0]);
-    if (length < match[0].length) {
-      pushTail(match[0].slice(length));
+    if (!pending) {
+      afterTail = false;
+      sawBlank = false;
     }
-    cursor = end;
+    pending = true;
+    pushTail(text.slice(end, tailEnd));
+    cursor = tailEnd;
+    urlStart.lastIndex = tailEnd;
   }
   if (!found) {
     return text;

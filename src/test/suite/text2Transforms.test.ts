@@ -296,6 +296,67 @@ suite('Text Transforms (TEXTX-001..023) Test Suite', () => {
       removeUrls('https://a/'.concat(')'.repeat(300_000), '.'.repeat(300_000)));
       assert.ok(Date.now() - started < 2000, `${Date.now() - started} ms`);
     });
+
+    test('full-width punctuation ends a URL and stays after the word before it', () => {
+      assert.strictEqual(removeUrls('詳細は https://a.example。次へ'), '詳細は。次へ');
+      assert.strictEqual(removeUrls('a https://x.example、b'), 'a、b');
+      assert.strictEqual(removeUrls('詳細は https://example.com。続き'), '詳細は。続き');
+    });
+
+    test('full-width and quotation closers end a URL unless the URL opens them', () => {
+      assert.strictEqual(removeUrls('「https://a.example」を参照'), '「」を参照');
+      assert.strictEqual(removeUrls('（https://a.example）'), '（）');
+      assert.strictEqual(removeUrls('“https://a.example”'), '“”');
+      assert.strictEqual(removeUrls('see https://ja.wikipedia.org/wiki/東京（都） now'), 'see now');
+    });
+
+    test('an ASCII closer the URL has not opened ends it even before a word', () => {
+      assert.strictEqual(removeUrls('foo(https://x.com)bar'), 'foo()bar');
+      assert.strictEqual(removeUrls('x https://a.example/p)q r'), 'x)q r');
+    });
+
+    test('an opener right after // counts toward the brackets of the URL', () => {
+      assert.strictEqual(removeUrls('see http://[::1]:8080/x now'), 'see now');
+      assert.strictEqual(removeUrls('x https://(a) y'), 'x y');
+      assert.strictEqual(removeUrls('x https://(a)) y'), 'x) y');
+      assert.strictEqual(removeUrls('x https://「a」 y'), 'x y');
+      assert.strictEqual(removeUrls('x http://) b'), 'x b');
+    });
+
+    test('at the start of a line, sentence punctuation after a URL goes too; brackets and quotes stay', () => {
+      assert.strictEqual(removeUrls('https://x. Next'), 'Next');
+      assert.strictEqual(removeUrls('a\nhttps://x. b'), 'a\nb');
+      assert.strictEqual(removeUrls('https://x。次'), '次');
+      assert.strictEqual(removeUrls('https://x.) y'), ') y');
+      assert.strictEqual(removeUrls('https://x" y'), '" y');
+      assert.strictEqual(removeUrls('https://a https://b. c'), 'c');
+    });
+
+    test('the blanks after kept punctuation become one space, or nothing at the end of a line', () => {
+      assert.strictEqual(removeUrls('a   https://x.example.  b'), 'a. b');
+      assert.strictEqual(removeUrls('a https://x.example.  \nb'), 'a.\nb');
+      assert.strictEqual(removeUrls('a https://x.example.  '), 'a.');
+      assert.strictEqual(removeUrls('a\thttps://x.example)\t\tb'), 'a) b');
+      assert.strictEqual(removeUrls('a\nhttps://x.com\nb'), 'a\n\nb');
+    });
+
+    test('linear on long inputs through the new ways a URL ends', () => {
+      // Results on short inputs of the same shapes.
+      assert.strictEqual(removeUrls('https://a。https://a。'), '');
+      assert.strictEqual(removeUrls('https://a)https://a)'), '))');
+      assert.strictEqual(removeUrls('(https://a)b(https://a)b'), '()b()b');
+      assert.strictEqual(removeUrls('https://a.\nhttps://a.\n'), '\n\n');
+      assert.strictEqual(removeUrls('a https://x. a https://x. '), 'a. a.');
+      const started = Date.now();
+      assert.strictEqual(removeUrls('https://a。'.repeat(100_000)), '');
+      assert.strictEqual(removeUrls('https://a)'.repeat(100_000)), ')'.repeat(100_000));
+      assert.strictEqual(removeUrls('(https://a)b'.repeat(80_000)), '()b'.repeat(80_000));
+      assert.strictEqual(removeUrls('https://a.\n'.repeat(100_000)), '\n'.repeat(100_000));
+      assert.strictEqual(removeUrls(`https://${'('.repeat(500_000)}${')'.repeat(500_000)}`), '');
+      assert.strictEqual(removeUrls(`https://a${'。'.repeat(1_000_000)}`), '');
+      assert.strictEqual(removeUrls('a https://x. '.repeat(80_000)), 'a. '.repeat(80_000).trimEnd());
+      assert.ok(Date.now() - started < 2000, `${Date.now() - started} ms`);
+    });
   });
 
   suite('TEXTX-021 mask except last N', () => {
