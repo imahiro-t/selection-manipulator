@@ -1141,7 +1141,10 @@ In the examples, `·` is a space, `⇥` is a tab, `⏎` is a line break, and a v
     *   **Text - Remove URLs**: Removes the URLs and leaves one space between the words around each of them (no space at the start or end of a line): `see·https://a.example/x·now` -> `see·now`. Nothing is accessed. A URL starts with `http://` or `https://` in lower case, like **Extract URL** (`HTTPS://…`, `ftp://…` and `www.…` are not URLs here), and ends before the first of these:
         *   a space, tab, line break or other whitespace;
         *   full-width punctuation (`。` `、` `，` `．` `！` `？` `：` `；` `｡` `､`): `詳細は·https://example.com。続き` -> `詳細は。続き`;
-        *   a closing bracket that the URL does not open, ASCII (`)` `]` `}` `>`) or full-width and quotation (`）` `］` `｝` `＞` `〉` `》` `」` `』` `】` `〕` `〗` `〙` `〛` `”` `’`), even without a space after it, so the text after it stays: `foo(https://x.com)bar` -> `foo()bar`, `「https://a.example」を参照` -> `「」を参照`. A bracket that the URL opens is part of it: `see·https://en.wikipedia.org/wiki/Foo_(bar)·now` -> `see·now`.
+        *   a closing bracket that the URL does not open, ASCII (`)` `]` `}` `>`) or full-width and quotation (`）` `］` `｝` `＞` `〉` `》` `」` `』` `】` `〕` `〗` `〙` `〛` `”` `’`), even without a space after it, so the text after it stays: `foo(https://x.com)bar` -> `foo()bar`, `「https://a.example」を参照` -> `「」を参照` (a bracket that the URL opens is part of it: `see·https://en.wikipedia.org/wiki/Foo_(bar)·now` -> `see·now`).
+
+        Then:
+
         *   Punctuation at the end of a URL (`.` `,` `;` `:` `!` `?` `'` `"`) is not part of it. The punctuation and closing brackets right after a URL are kept and joined to the word before it: `Visit·https://example.com.` -> `Visit.`, `(see·https://a.com)·ok` -> `(see)·ok`. The spaces after them become one space (none at the end of a line, and none when a word follows without a space): `a···https://x.example.··b` -> `a.·b`.
         *   At the start of a line there is no word to join to, so the sentence punctuation right after the URL (`.` `,` `;` `:` `!` `?` and the full-width punctuation) is removed too, with the spaces after it; brackets and quotation marks stay: `https://x.·Next` -> `Next`, `https://x.)·y` -> `)·y`.
         *   A line that has only a URL becomes an empty line: `a⏎https://x.com⏎b` -> `a⏎⏎b`.
