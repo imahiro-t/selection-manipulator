@@ -4056,6 +4056,121 @@ export const myCommands = [
     "command": "selection-manipulator.markdown.front-matter-to-json",
     "title": "Markdown: Front Matter to JSON",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.repeat",
+    "title": "Text - Repeat Selection N Times",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.truncate",
+    "title": "Text - Truncate to N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.truncate-middle",
+    "title": "Text - Shorten in the Middle",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.pad-start",
+    "title": "Text - Pad Start to Width (Custom Character)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.pad-end",
+    "title": "Text - Pad End to Width (Custom Character)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.insert-every-n",
+    "title": "Text - Insert Separator Every N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.translate-chars",
+    "title": "Text - Translate Characters (tr)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.delete-chars",
+    "title": "Text - Delete Characters in Set",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.squeeze-chars",
+    "title": "Text - Squeeze Repeated Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-digits",
+    "title": "Text - Remove Digits",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-punctuation",
+    "title": "Text - Remove Punctuation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.keep-digits",
+    "title": "Text - Keep Digits Only",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.reverse-each-word",
+    "title": "Text - Reverse Each Word",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.sort-words",
+    "title": "Text - Sort Words in Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unique-words",
+    "title": "Text - Remove Duplicate Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.sort-characters",
+    "title": "Text - Sort Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unique-characters",
+    "title": "Text - Remove Duplicate Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.word-frequency",
+    "title": "Text - Word Frequency Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.char-frequency",
+    "title": "Text - Character Frequency Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-urls",
+    "title": "Text - Remove URLs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.mask-keep-last",
+    "title": "Text - Mask Except Last N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.leetspeak",
+    "title": "Text - Leetspeak",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-between",
+    "title": "Text - Remove Text Between Delimiters",
+    "canMultiSelection": true
   }
 ];
 

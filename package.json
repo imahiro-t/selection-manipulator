@@ -4176,6 +4176,121 @@
         "command": "selection-manipulator.markdown.front-matter-to-json",
         "title": "Markdown: Front Matter to JSON",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.repeat",
+        "title": "Text - Repeat Selection N Times",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.truncate",
+        "title": "Text - Truncate to N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.truncate-middle",
+        "title": "Text - Shorten in the Middle",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.pad-start",
+        "title": "Text - Pad Start to Width (Custom Character)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.pad-end",
+        "title": "Text - Pad End to Width (Custom Character)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.insert-every-n",
+        "title": "Text - Insert Separator Every N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.translate-chars",
+        "title": "Text - Translate Characters (tr)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.delete-chars",
+        "title": "Text - Delete Characters in Set",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.squeeze-chars",
+        "title": "Text - Squeeze Repeated Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-digits",
+        "title": "Text - Remove Digits",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-punctuation",
+        "title": "Text - Remove Punctuation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.keep-digits",
+        "title": "Text - Keep Digits Only",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.reverse-each-word",
+        "title": "Text - Reverse Each Word",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.sort-words",
+        "title": "Text - Sort Words in Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unique-words",
+        "title": "Text - Remove Duplicate Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.sort-characters",
+        "title": "Text - Sort Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unique-characters",
+        "title": "Text - Remove Duplicate Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.word-frequency",
+        "title": "Text - Word Frequency Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.char-frequency",
+        "title": "Text - Character Frequency Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-urls",
+        "title": "Text - Remove URLs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.mask-keep-last",
+        "title": "Text - Mask Except Last N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.leetspeak",
+        "title": "Text - Leetspeak",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-between",
+        "title": "Text - Remove Text Between Delimiters",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -4436,6 +4551,10 @@
       {
         "id": "selection-manipulator.selection.submenu",
         "label": "Multi Cursor"
+      },
+      {
+        "id": "selection-manipulator.text-transform.submenu",
+        "label": "Text Transform"
       }
     ],
     "menus": {
@@ -6936,6 +7055,98 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.markdown.front-matter-to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.repeat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.truncate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.truncate-middle"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.pad-start"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.pad-end"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.insert-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.translate-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.delete-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.squeeze-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-digits"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-punctuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.keep-digits"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.reverse-each-word"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.sort-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.unique-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.sort-characters"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.unique-characters"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.word-frequency"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.char-frequency"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-urls"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.mask-keep-last"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.leetspeak"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-between"
         }
       ],
       "editor/context": [
@@ -8737,6 +8948,10 @@
         {
           "submenu": "selection-manipulator.selection.submenu",
           "group": "selection-manipulator@17"
+        },
+        {
+          "submenu": "selection-manipulator.text-transform.submenu",
+          "group": "selection-manipulator@18"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -10445,6 +10660,100 @@
         {
           "command": "selection-manipulator.selection.info",
           "group": "selection-manipulator@29"
+        }
+      ],
+      "selection-manipulator.text-transform.submenu": [
+        {
+          "command": "selection-manipulator.text.repeat",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.text.truncate",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.text.truncate-middle",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.text.pad-start",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.text.pad-end",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.text.insert-every-n",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.text.translate-chars",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.text.delete-chars",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.text.squeeze-chars",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.text.remove-digits",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.text.remove-punctuation",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.text.keep-digits",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.text.reverse-each-word",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.text.sort-words",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.text.unique-words",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.text.sort-characters",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.text.unique-characters",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.text.word-frequency",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.text.char-frequency",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.text.remove-urls",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.text.mask-keep-last",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.text.leetspeak",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.text.remove-between",
+          "group": "selection-manipulator@22"
         }
       ]
     }

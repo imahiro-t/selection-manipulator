@@ -1,0 +1,288 @@
+{
+  "category": "TEXTX",
+  "commands": [
+    {
+      "id": "selection-manipulator.text.repeat",
+      "candidateId": "TEXTX-001",
+      "description": {
+        "en": "Repeats the selection N times (1 to 10,000), joined with a separator you enter (may be empty). The length of the result is checked before it is built; a result over the output limit changes nothing. **Generate - Repeat Character to Width** fills a width with one character instead.",
+        "ja": "選択テキストを N 回（1〜10,000）繰り返し、入力した区切り文字（空でもよい）で連結する。結果の長さを作る前に計算し、出力上限を超える場合は何も変更しない（1 文字を幅まで埋めるのは **Generate - Repeat Character to Width**）"
+      },
+      "example": {
+        "en": "`ab（N=3, separator: -）` → `ab-ab-ab`",
+        "ja": "`ab（N=3、区切り: -）` → `ab-ab-ab`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.truncate",
+      "candidateId": "TEXTX-002",
+      "description": {
+        "en": "Cuts each selection to at most N characters (grapheme clusters, ellipsis included): a longer text keeps its first N − 1 characters and ends with `…`. A text of N characters or fewer is not changed.",
+        "ja": "各選択を N 文字（書記素単位、`…` を含む）以内に切り詰める。長い場合は先頭 N − 1 文字の後に `…` を付ける。N 文字以下なら変更しない"
+      },
+      "example": {
+        "en": "`Hello World（N=8）` → `Hello W…`",
+        "ja": "`Hello World（N=8）` → `Hello W…`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.truncate-middle",
+      "candidateId": "TEXTX-003",
+      "description": {
+        "en": "Shortens a long text to N characters (grapheme clusters) by replacing its middle with `…`: the start keeps ceil((N − 1) / 2) characters and the end floor((N − 1) / 2). Useful for file names and paths.",
+        "ja": "長い文字列の中央を `…` で省略して N 文字（書記素単位）にする（先頭 ceil((N − 1) / 2) 文字＋`…`＋末尾 floor((N − 1) / 2) 文字。ファイル名・パス向け）"
+      },
+      "example": {
+        "en": "`very-long-file-name.txt（N=15）` → `very-lo…ame.txt`",
+        "ja": "`very-long-file-name.txt（N=15）` → `very-lo…ame.txt`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.pad-start",
+      "candidateId": "TEXTX-004",
+      "description": {
+        "en": "Adds a character you choose before each selection until it is the given width (1 to 10,000 characters, counted as grapheme clusters). A selection that is already as wide is not changed. **Zero Padding** always pads with `0`.",
+        "ja": "指定幅（1〜10,000 文字、書記素単位）になるまで、各選択の先頭を指定した 1 文字で埋める。すでに幅以上なら変更しない（0 固定で埋めるのは **Zero Padding**）"
+      },
+      "example": {
+        "en": "`42（width: 6, character: *）` → `****42`",
+        "ja": "`42（幅: 6、文字: *）` → `****42`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.pad-end",
+      "candidateId": "TEXTX-005",
+      "description": {
+        "en": "Adds a character you choose after each selection until it is the given width (1 to 10,000 characters, counted as grapheme clusters). A selection that is already as wide is not changed.",
+        "ja": "指定幅（1〜10,000 文字、書記素単位）になるまで、各選択の末尾を指定した 1 文字で埋める。すでに幅以上なら変更しない"
+      },
+      "example": {
+        "en": "`abc（width: 6, character: .）` → `abc...`",
+        "ja": "`abc（幅: 6、文字: .）` → `abc...`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.insert-every-n",
+      "candidateId": "TEXTX-006",
+      "description": {
+        "en": "Inserts a separator after every N characters (1 to 10,000, grapheme clusters), not after the last group: card numbers, keys and other long codes become readable groups. The length of the result is checked before it is built.",
+        "ja": "N 文字（1〜10,000、書記素単位）ごとに区切り文字列を挿入する（最後のグループの後には付けない。カード番号・キーのグループ化など）。結果の長さは作る前に確認する"
+      },
+      "example": {
+        "en": "`1234567890（N=4, separator: -）` → `1234-5678-90`",
+        "ja": "`1234567890（N=4、区切り: -）` → `1234-5678-90`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.translate-chars",
+      "candidateId": "TEXTX-007",
+      "description": {
+        "en": "Replaces each character of a first set with the character at the same position in a second set, like `tr`. The sets are plain characters (no ranges, no regular expressions); they must be equally long, and a character may appear only once in the first set.",
+        "ja": "`tr` と同様に、文字集合 A の各文字を同じ位置にある文字集合 B の文字に置き換える（範囲指定・正規表現なしの文字そのもの。A と B は同じ長さで、A に同じ文字は 1 回だけ）"
+      },
+      "example": {
+        "en": "`hello（A: el, B: ip）` → `hippo`",
+        "ja": "`hello（A: el, B: ip）` → `hippo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.delete-chars",
+      "candidateId": "TEXTX-008",
+      "description": {
+        "en": "Deletes every character that is in the set you enter (plain characters, not a regular expression).",
+        "ja": "入力した文字集合に含まれる文字をすべて削除する（正規表現ではなく文字そのもの）"
+      },
+      "example": {
+        "en": "`a-b_c（set: -_）` → `abc`",
+        "ja": "`a-b_c（集合: -_）` → `abc`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.squeeze-chars",
+      "candidateId": "TEXTX-009",
+      "description": {
+        "en": "Squeezes runs of the same character to one, like `tr -s`: only the characters of the set you enter, or every character when the set is empty. **Whitespace: Collapse Inline Spaces (Keep Indent)** handles spaces only.",
+        "ja": "同じ文字の連続を 1 文字に縮める（`tr -s`）。対象は入力した文字集合の文字（空ならすべての文字）（空白だけを対象にするのは **Whitespace: Collapse Inline Spaces (Keep Indent)**）"
+      },
+      "example": {
+        "en": "`a---b--c（set: -）` → `a-b-c`",
+        "ja": "`a---b--c（集合: -）` → `a-b-c`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-digits",
+      "candidateId": "TEXTX-010",
+      "description": {
+        "en": "Removes every decimal digit (Unicode Nd, including full-width and other scripts' digits).",
+        "ja": "選択内の数字（Unicode の Nd。全角数字など他の文字体系の数字を含む）をすべて削除する"
+      },
+      "example": {
+        "en": "`abc123def` → `abcdef`",
+        "ja": "`abc123def` → `abcdef`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-punctuation",
+      "candidateId": "TEXTX-011",
+      "description": {
+        "en": "Removes punctuation (Unicode category P, such as `,` `.` `!` `?` `-` `、` `。`). Symbols (category S, such as `$` `+` `=`) are kept.",
+        "ja": "句読点・約物（Unicode の P カテゴリ。`,` `.` `!` `?` `-` `、` `。` など）を削除する。記号（S カテゴリ。`$` `+` `=` など）は残す"
+      },
+      "example": {
+        "en": "`Hello, world!` → `Hello world`",
+        "ja": "`Hello, world!` → `Hello world`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.keep-digits",
+      "candidateId": "TEXTX-012",
+      "description": {
+        "en": "Keeps only the decimal digits (Unicode Nd) and removes everything else, line breaks included. **Selection - Select All Numbers** only selects numbers without changing the text.",
+        "ja": "数字（Unicode の Nd）だけを残し、改行を含むそれ以外をすべて取り除く（数値を選択するだけで置換しないのは **Selection - Select All Numbers**）"
+      },
+      "example": {
+        "en": "`TEL: 03-1234-5678` → `0312345678`",
+        "ja": "`TEL: 03-1234-5678` → `0312345678`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.reverse-each-word",
+      "candidateId": "TEXTX-013",
+      "description": {
+        "en": "Reverses the characters (grapheme clusters) of every word (run of non-whitespace) and keeps the words, spaces and line breaks in place. **Reverse Strings in Selection** reverses the whole text and **Line: Reverse Word Order in Each Line** the order of the words.",
+        "ja": "語（空白以外の連続）の並びはそのままに、各語の文字順（書記素単位）を反転する。空白・改行の位置は保つ（全体の反転は **Reverse Strings in Selection**、語順の反転は **Line: Reverse Word Order in Each Line**）"
+      },
+      "example": {
+        "en": "`hello world` → `olleh dlrow`",
+        "ja": "`hello world` → `olleh dlrow`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.sort-words",
+      "candidateId": "TEXTX-014",
+      "description": {
+        "en": "Sorts the words (runs of non-whitespace) of each selection by code point (independent of the locale) and joins them with one space; a selection of several lines becomes one line.",
+        "ja": "各選択内の語（空白以外の連続）をコードポイント順（ロケール非依存）に並べ替え、半角空白 1 つで連結する（複数行の選択は 1 行になる）"
+      },
+      "example": {
+        "en": "`pear apple fig` → `apple fig pear`",
+        "ja": "`pear apple fig` → `apple fig pear`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.unique-words",
+      "candidateId": "TEXTX-015",
+      "description": {
+        "en": "Removes repeated words (case-sensitive) from each selection, keeping the first one, and joins the words with one space.",
+        "ja": "各選択内で重複する語（大文字小文字を区別）を最初の出現だけ残して取り除き、半角空白 1 つで連結する"
+      },
+      "example": {
+        "en": "`a b a c b` → `a b c`",
+        "ja": "`a b a c b` → `a b c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.sort-characters",
+      "candidateId": "TEXTX-016",
+      "description": {
+        "en": "Sorts the characters (grapheme clusters) of each selection by code point.",
+        "ja": "各選択内の文字（書記素）をコードポイント順に並べ替える"
+      },
+      "example": {
+        "en": "`banana` → `aaabnn`",
+        "ja": "`banana` → `aaabnn`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.unique-characters",
+      "candidateId": "TEXTX-017",
+      "description": {
+        "en": "Removes repeated characters (grapheme clusters) from each selection, keeping the first one.",
+        "ja": "各選択内で重複する文字（書記素）を最初の出現だけ残して取り除く"
+      },
+      "example": {
+        "en": "`banana` → `ban`",
+        "ja": "`banana` → `ban`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.word-frequency",
+      "candidateId": "TEXTX-018",
+      "description": {
+        "en": "Counts the words (runs of non-whitespace) of all selections and opens a table of `word⇥count` lines in a new editor, the most frequent first (equal counts in the order they first appear). **Count Occurrences** counts whole lines or selections instead.",
+        "ja": "全選択の語（空白以外の連続）の出現回数を数え、`語⇥回数` の表を回数の多い順（同数は初出順）に新規エディタへ出す（行・選択単位で数えるのは **Count Occurrences**）"
+      },
+      "example": {
+        "en": "`a b a` → `a⇥2⏎b⇥1`",
+        "ja": "`a b a` → `a⇥2⏎b⇥1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.char-frequency",
+      "candidateId": "TEXTX-019",
+      "description": {
+        "en": "Counts the characters (grapheme clusters) of all selections and opens a table of `character⇥count` lines in a new editor, the most frequent first. Whitespace and invisible characters are written as `U+XXXX` so they cannot be misread.",
+        "ja": "全選択の文字（書記素）ごとの出現回数を数え、`文字⇥回数` の表を回数の多い順に新規エディタへ出す。空白・不可視文字は誤読を防ぐため `U+XXXX` で表記する"
+      },
+      "example": {
+        "en": "`banana` → `a⇥3⏎n⇥2⏎b⇥1`",
+        "ja": "`banana` → `a⇥3⏎n⇥2⏎b⇥1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-urls",
+      "candidateId": "TEXTX-020",
+      "description": {
+        "en": "Removes the `http://` and `https://` URLs (up to the next whitespace) and leaves one space between the words around each of them (none at the start or end of a line). No URL is accessed. **Extract URL** only extracts them.",
+        "ja": "選択内の http(s) URL（次の空白まで）を削除し、前後の語の間の空白を 1 つに詰める（行頭・行末では空白も除く）。URL へのアクセスは一切しない（抽出だけなら **Extract URL**）"
+      },
+      "example": {
+        "en": "`see https://a.example/x now` → `see now`",
+        "ja": "`see https://a.example/x now` → `see now`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.mask-keep-last",
+      "candidateId": "TEXTX-021",
+      "description": {
+        "en": "Replaces every character (grapheme cluster) but the last N with `*`; line breaks stay and are not counted. The original value is never shown or logged. **Text: Mask with Asterisk (*)** masks everything.",
+        "ja": "末尾 N 文字（書記素単位）以外を `*` で伏せる。改行は残し、数えない。元の値は通知・ログに出さない（全体を伏せるのは **Text: Mask with Asterisk (*)**）"
+      },
+      "example": {
+        "en": "`4111111111111111（N=4）` → `************1111`",
+        "ja": "`4111111111111111（N=4）` → `************1111`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.leetspeak",
+      "candidateId": "TEXTX-022",
+      "description": {
+        "en": "Converts letters to Leetspeak with a fixed table: a→4, e→3, i→1, o→0, s→5, t→7 (upper case too).",
+        "ja": "英字を固定表で Leet 表記にする（a→4, e→3, i→1, o→0, s→5, t→7。大文字も同様）"
+      },
+      "example": {
+        "en": "`leet speak` → `l337 5p34k`",
+        "ja": "`leet speak` → `l337 5p34k`"
+      }
+    },
+    {
+      "id": "selection-manipulator.text.remove-between",
+      "candidateId": "TEXTX-023",
+      "description": {
+        "en": "Removes every start delimiter, end delimiter and the text between them, left to right (no nesting). The delimiters are plain text, not regular expressions; a start delimiter with no end delimiter after it is kept.",
+        "ja": "入力した開始・終了区切りとその間を左から順に削除する（入れ子なし）。区切りは正規表現ではなく文字列として扱い、対応する終了区切りがない開始区切りは残す"
+      },
+      "example": {
+        "en": "`a (note) b（start: (, end: )）` → `a··b`",
+        "ja": "`a (note) b（開始: (、終了: )）` → `a··b`",
+        "japanese": "note"
+      }
+    }
+  ]
+}

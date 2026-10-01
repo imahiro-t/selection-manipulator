@@ -119,6 +119,13 @@
     }
   },
   {
+    "id": "TEXTX",
+    "name": {
+      "en": "Text transforms (repeat, truncate, pad, tr, frequency, …)",
+      "ja": "テキスト変換拡張（繰り返し・切り詰め・パディング・tr・頻度表など）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

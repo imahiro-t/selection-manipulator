@@ -90,6 +90,7 @@ import { jaCommandHandler } from './handler/jaCommandHandler';
 import { uniCommandHandler } from './handler/uniCommandHandler';
 import { mselCommandHandler } from './handler/mselCommandHandler';
 import { mdCommandHandler } from './handler/mdCommandHandler';
+import { text2CommandHandler } from './handler/text2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -976,6 +977,31 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.reference-links', mdCommandHandler('markdown.reference-links')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.details', mdCommandHandler('markdown.details')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.front-matter-to-json', mdCommandHandler('markdown.front-matter-to-json')));
+
+  // Text transforms (TEXTX-001..023, group TEXT2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.repeat', text2CommandHandler('text.repeat')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.truncate', text2CommandHandler('text.truncate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.truncate-middle', text2CommandHandler('text.truncate-middle')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.pad-start', text2CommandHandler('text.pad-start')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.pad-end', text2CommandHandler('text.pad-end')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.insert-every-n', text2CommandHandler('text.insert-every-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.translate-chars', text2CommandHandler('text.translate-chars')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.delete-chars', text2CommandHandler('text.delete-chars')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.squeeze-chars', text2CommandHandler('text.squeeze-chars')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-digits', text2CommandHandler('text.remove-digits')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-punctuation', text2CommandHandler('text.remove-punctuation')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.keep-digits', text2CommandHandler('text.keep-digits')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.reverse-each-word', text2CommandHandler('text.reverse-each-word')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.sort-words', text2CommandHandler('text.sort-words')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unique-words', text2CommandHandler('text.unique-words')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.sort-characters', text2CommandHandler('text.sort-characters')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.unique-characters', text2CommandHandler('text.unique-characters')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.word-frequency', text2CommandHandler('text.word-frequency')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.char-frequency', text2CommandHandler('text.char-frequency')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-urls', text2CommandHandler('text.remove-urls')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.mask-keep-last', text2CommandHandler('text.mask-keep-last')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.leetspeak', text2CommandHandler('text.leetspeak')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.text.remove-between', text2CommandHandler('text.remove-between')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

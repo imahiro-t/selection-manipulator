@@ -467,7 +467,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
           : { command: `${PREFIX}${entry.name}`, group: `selection-manipulator@${i}`, when }, entry.id);
       });
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
-      assert.deepStrictEqual(root[root.length - 1], { submenu: 'selection-manipulator.selection.submenu', group: 'selection-manipulator@17' });
+      assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.selection.submenu'),
+        [{ submenu: 'selection-manipulator.selection.submenu', group: 'selection-manipulator@17' }]);
       root.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
     });
   });
