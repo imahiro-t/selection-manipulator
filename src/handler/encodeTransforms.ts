@@ -223,7 +223,8 @@ export const utf8 = (text: string): Buffer => {
 
 const strictUtf8Decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
-const decodeUtf8Strict = (bytes: Uint8Array): string => {
+/** Decodes UTF-8 strictly: invalid bytes are an `EncInputError` instead of U+FFFD. Also used by the ENC2 commands. */
+export const decodeUtf8Strict = (bytes: Uint8Array): string => {
   try {
     return strictUtf8Decoder.decode(bytes);
   } catch {
@@ -231,8 +232,8 @@ const decodeUtf8Strict = (bytes: Uint8Array): string => {
   }
 };
 
-/** Removes spaces, tabs and line breaks (allowed anywhere in the input of most decoders). */
-const removeWhitespace = (text: string): string => text.replace(/[ \t\r\n]/g, '');
+/** Removes spaces, tabs and line breaks (allowed anywhere in the input of most decoders). Also used by the ENC2 commands. */
+export const removeWhitespace = (text: string): string => text.replace(/[ \t\r\n]/g, '');
 
 const isWhitespace = (char: string): boolean => /^\s$/.test(char);
 

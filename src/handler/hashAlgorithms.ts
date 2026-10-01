@@ -1,15 +1,18 @@
 /**
- * Hash and checksum algorithms implemented in plain TypeScript (HASH-003..004, 006..007, 010..013).
+ * Hash and checksum algorithms implemented in plain TypeScript (HASH-003..004, 006..007, 010..013,
+ * and ENCX-016..020 of group ENC2).
  *
  * VS Code's extension host runs on Electron, whose `node:crypto` is backed by BoringSSL and does
  * not support SHA-3, BLAKE2 or HMAC-SHA3 (`Digest method not supported` / `Invalid digest`), even
  * though the Node.js CLI (OpenSSL) does. These algorithms are therefore implemented here, without
  * any dependency, so that the result never depends on the runtime:
  *
- * - SHA3-256 / SHA3-512 (FIPS 202, Keccak-f[1600])
+ * - SHA3-256 / SHA3-384 / SHA3-512 and SHAKE256 (FIPS 202, Keccak-f[1600])
  * - BLAKE2b-512 / BLAKE2s-256 (RFC 7693, unkeyed)
- * - HMAC (RFC 2104) over any of the above, and HMAC-SHA3-256 (block size 136 bytes)
- * - CRC-32 (IEEE 802.3), Adler-32 and FNV-1a 32-bit (error detection only, not tamper-proof)
+ * - HMAC (RFC 2104) over any of the above, HMAC-SHA3-256 (block size 136 bytes) and
+ *   HMAC-SHA3-512 (block size 72 bytes)
+ * - CRC-32 (IEEE 802.3), CRC-32C (Castagnoli), CRC-16/CCITT-FALSE, Adler-32 and FNV-1a 32-bit
+ *   (error detection only, not tamper-proof)
  *
  * 64-bit words are handled as pairs of unsigned 32-bit integers (low word first) instead of
  * `BigInt`, which is much slower. Every function is O(n) in the input length and reuses its work
@@ -136,8 +139,16 @@ const wordsToBytesLE = (words: Uint32Array, length: number): Uint8Array => {
   return out;
 };
 
-/** The SHA-3 sponge (domain separation 0x06) with the given rate in bytes and an output of at most one block. */
-const sha3 = (rate: number, outputLength: number, bytes: Uint8Array): Uint8Array => {
+/** The domain separation suffix of the SHA-3 hash functions (FIPS 202 6.1). */
+const SHA3_SUFFIX = 0x06;
+/** The domain separation suffix of the SHAKE extendable-output functions (FIPS 202 6.2). */
+const SHAKE_SUFFIX = 0x1f;
+
+/**
+ * The Keccak[c] sponge with the given rate in bytes and domain separation suffix, squeezed to
+ * `outputLength` bytes (any length: one more permutation per further block of `rate` bytes).
+ */
+const keccakSponge = (rate: number, suffix: number, outputLength: number, bytes: Uint8Array): Uint8Array => {
   const state = new Uint32Array(50);
   const b = new Uint32Array(50);
   const c = new Uint32Array(10);
@@ -152,22 +163,43 @@ const sha3 = (rate: number, outputLength: number, bytes: Uint8Array): Uint8Array
   for (; bytes.length - offset >= rate; offset += rate) {
     absorb(bytes, offset);
   }
-  // The last (possibly empty) partial block with the pad10*1 padding; 0x06 and 0x80 become
-  // 0x86 when they fall on the same byte.
+  // The last (possibly empty) partial block with the suffix and the pad10*1 padding; the suffix
+  // and 0x80 are combined when they fall on the same byte (0x86 for SHA-3, 0x9F for SHAKE).
   const last = new Uint8Array(rate);
   last.set(bytes.subarray(offset));
-  last[bytes.length - offset] ^= 0x06;
+  last[bytes.length - offset] ^= suffix;
   last[rate - 1] ^= 0x80;
   absorb(last, 0);
-  return wordsToBytesLE(state, outputLength);
+  if (outputLength <= rate) {
+    return wordsToBytesLE(state, outputLength);
+  }
+  const out = new Uint8Array(outputLength);
+  for (let written = 0; written < outputLength; written += rate) {
+    if (written > 0) {
+      keccakF(state, b, c);
+    }
+    out.set(wordsToBytesLE(state, Math.min(rate, outputLength - written)), written);
+  }
+  return out;
 };
 
 /** SHA3-256 (rate 136 bytes). */
-export const sha3_256 = (bytes: Uint8Array): Uint8Array => sha3(136, 32, bytes);
+export const sha3_256 = (bytes: Uint8Array): Uint8Array => keccakSponge(136, SHA3_SUFFIX, 32, bytes);
+/** SHA3-384 (rate 104 bytes). */
+export const sha3_384 = (bytes: Uint8Array): Uint8Array => keccakSponge(104, SHA3_SUFFIX, 48, bytes);
 /** SHA3-512 (rate 72 bytes). */
-export const sha3_512 = (bytes: Uint8Array): Uint8Array => sha3(72, 64, bytes);
+export const sha3_512 = (bytes: Uint8Array): Uint8Array => keccakSponge(72, SHA3_SUFFIX, 64, bytes);
+/** SHAKE256 (rate 136 bytes) with an output of `outputLength` bytes (a non-negative integer). */
+export const shake256 = (bytes: Uint8Array, outputLength: number): Uint8Array => {
+  if (!Number.isSafeInteger(outputLength) || outputLength < 0) {
+    throw new RangeError('the SHAKE256 output length must be a non-negative integer');
+  }
+  return keccakSponge(136, SHAKE_SUFFIX, outputLength, bytes);
+};
 /** The block size (rate) of SHA3-256 in bytes, used as the HMAC block size. */
 export const SHA3_256_BLOCK_SIZE = 136;
+/** The block size (rate) of SHA3-512 in bytes, used as the HMAC block size. */
+export const SHA3_512_BLOCK_SIZE = 72;
 
 // ---------------------------------------------------------------------------
 // BLAKE2 (RFC 7693)
@@ -383,6 +415,10 @@ export const hmac = (
 export const hmacSha3_256 = (key: Uint8Array, message: Uint8Array): Uint8Array =>
   hmac(sha3_256, SHA3_256_BLOCK_SIZE, key, message);
 
+/** HMAC-SHA3-512 with the block size 72 bytes (the SHA3-512 rate, as defined by NIST and used by OpenSSL). */
+export const hmacSha3_512 = (key: Uint8Array, message: Uint8Array): Uint8Array =>
+  hmac(sha3_512, SHA3_512_BLOCK_SIZE, key, message);
+
 // ---------------------------------------------------------------------------
 // Checksums (error detection only)
 // ---------------------------------------------------------------------------
@@ -407,6 +443,50 @@ export const crc32 = (bytes: Uint8Array): number => {
     crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
   }
   return (crc ^ 0xffffffff) >>> 0;
+};
+
+/** The CRC-32C table for the reflected Castagnoli polynomial 0x82F63B78, built once. */
+const CRC32C_TABLE = ((): Uint32Array => {
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) {
+      c = c & 1 ? 0x82f63b78 ^ (c >>> 1) : c >>> 1;
+    }
+    table[n] = c;
+  }
+  return table;
+})();
+
+/** CRC-32C (Castagnoli, as used by iSCSI / SCTP / ext4) as an unsigned 32-bit integer. */
+export const crc32c = (bytes: Uint8Array): number => {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = CRC32C_TABLE[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+};
+
+/** The CRC-16 table for the polynomial 0x1021 (not reflected), built once. */
+const CRC16_CCITT_TABLE = ((): Uint16Array => {
+  const table = new Uint16Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n << 8;
+    for (let k = 0; k < 8; k++) {
+      c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xffff : (c << 1) & 0xffff;
+    }
+    table[n] = c;
+  }
+  return table;
+})();
+
+/** CRC-16/CCITT-FALSE (polynomial 0x1021, initial value 0xFFFF, not reflected, no final XOR) as an unsigned 16-bit integer. */
+export const crc16CcittFalse = (bytes: Uint8Array): number => {
+  let crc = 0xffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = ((crc << 8) & 0xffff) ^ CRC16_CCITT_TABLE[((crc >>> 8) ^ bytes[i]) & 0xff];
+  }
+  return crc;
 };
 
 const ADLER32_MOD = 65521;

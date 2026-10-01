@@ -4286,6 +4286,116 @@ export const myCommands = [
     "command": "selection-manipulator.selection.join-into-first",
     "title": "Selection - Join All Selections into First",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.encode-hex",
+    "title": "Transform - Encode - Encode Base32hex (RFC 4648 §7)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.decode-hex",
+    "title": "Transform - Encode - Decode Base32hex (RFC 4648 §7)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base45.encode",
+    "title": "Transform - Encode - Encode Base45 (RFC 9285)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base45.decode",
+    "title": "Transform - Encode - Decode Base45 (RFC 9285)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base62.encode",
+    "title": "Transform - Encode - Encode Base62",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base62.decode",
+    "title": "Transform - Encode - Decode Base62",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.uu.encode",
+    "title": "Transform - Encode - Encode uuencode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.uu.decode",
+    "title": "Transform - Encode - Decode uuencode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-all",
+    "title": "Transform - URL - Encode All Characters as Percent-encoding",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.css-identifier",
+    "title": "Escape CSS Identifier",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.ldap-filter",
+    "title": "Escape LDAP Filter Value (RFC 4515)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.ldap-dn",
+    "title": "Escape LDAP DN Value (RFC 4514)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.xpath-literal",
+    "title": "Convert to XPath String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.c-string",
+    "title": "Convert to C String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.c-unescape",
+    "title": "Unescape C / Java Style Escapes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-384",
+    "title": "Transform - Crypto - Create Hash (SHA3-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-shake256",
+    "title": "Transform - Crypto - Create Hash (SHAKE256, Output Length N)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha3-512",
+    "title": "Transform - Crypto - Create HMAC (SHA3-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc16",
+    "title": "Transform - Checksum - Checksum: CRC-16/CCITT-FALSE",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc32c",
+    "title": "Transform - Checksum - Checksum: CRC-32C (Castagnoli)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.iban",
+    "title": "Transform - Checksum - Checksum: IBAN Validate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.isbn",
+    "title": "Transform - Checksum - Checksum: ISBN-10 / ISBN-13 Validate",
+    "canMultiSelection": true
   }
 ];
 

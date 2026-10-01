@@ -42,9 +42,9 @@ const CANDIDATES = DATA_COMMANDS.filter((command) => command.candidateId !== und
 
 const EXPECTED_COUNTS = {
     CASE: 30, WS: 35, LINE: 40, SORT: 30, WRAP: 30, ENC: 40, HASH: 20, DATA: 40, TABLE: 30,
-    NUM: 40, DATE: 30, GEN: 30, JA: 35, UNI: 30, DEV: 35, MSEL: 30, MD: 25, TEXTX: 23, LINEX: 23, EXISTING: 281,
+    NUM: 40, DATE: 30, GEN: 30, JA: 35, UNI: 30, DEV: 35, MSEL: 30, MD: 25, TEXTX: 23, LINEX: 23, ENCX: 22, EXISTING: 281,
 };
-const CANDIDATE_ID_TEXT = /\b(?:CASE|WS|LINE|SORT|WRAP|ENC|HASH|DATA|TABLE|NUM|DATE|GEN|JA|UNI|DEV|MSEL|MD|TEXTX|LINEX)-\d{3}\b/;
+const CANDIDATE_ID_TEXT = /\b(?:CASE|WS|LINE|SORT|WRAP|ENC|HASH|DATA|TABLE|NUM|DATE|GEN|JA|UNI|DEV|MSEL|MD|TEXTX|LINEX|ENCX)-\d{3}\b/;
 
 const real = buildShowcase(INPUTS);
 
@@ -206,7 +206,7 @@ describe('module', () => {
 });
 
 describe('real data: files and counts', () => {
-    test('categories.json lists 20 categories in display order, each with an English and a Japanese name', () => {
+    test('categories.json lists 21 categories in display order, each with an English and a Japanese name', () => {
         assert.deepEqual(CATEGORIES.map((c) => c.id), Object.keys(EXPECTED_COUNTS));
         for (const category of CATEGORIES) {
             assert.ok(category.name.en.trim() !== '' && category.name.ja.trim() !== '', category.id);
@@ -230,12 +230,12 @@ describe('real data: files and counts', () => {
             assert.equal(FILES.get(`${id}.json`).commands.length, count, id);
             assert.equal(real.stats.counts[id], count, id);
         }
-        assert.equal(CANDIDATES.length, 596);
-        assert.equal(DATA_COMMANDS.length, 877);
-        assert.equal(COMMANDS.length, 877);
+        assert.equal(CANDIDATES.length, 618);
+        assert.equal(DATA_COMMANDS.length, 899);
+        assert.equal(COMMANDS.length, 899);
         assert.deepEqual(DATA_COMMANDS.map((c) => c.id).sort(), COMMANDS.map((c) => c.command).sort());
-        assert.equal(new Set(DATA_COMMANDS.map((c) => c.id)).size, 877);
-        assert.equal(real.stats.total, 877);
+        assert.equal(new Set(DATA_COMMANDS.map((c) => c.id)).size, 899);
+        assert.equal(real.stats.total, 899);
     });
 
     test('only the candidates have candidate IDs, in order within each category; 49 of them are derived', () => {
@@ -302,9 +302,9 @@ describe('real data: English and Japanese', () => {
         }
     });
 
-    test('all 121 examples with Japanese are classified: notes are translated, real data is kept', () => {
+    test('all 125 examples with Japanese are classified: notes are translated, real data is kept', () => {
         const withJapanese = CANDIDATES.filter((c) => JAPANESE.test(c.example.ja));
-        assert.equal(withJapanese.length, 121);
+        assert.equal(withJapanese.length, 125);
         for (const command of withJapanese) {
             const { en, ja, japanese } = command.example;
             assert.ok(japanese === 'note' || japanese === 'data', command.candidateId);
@@ -403,7 +403,7 @@ describe('real data: the page', () => {
     test('every Japanese element has lang="ja" and every English element lang="en"', () => {
         const ja = [...real.html.matchAll(/<[a-z0-9]+ [^>]*data-l="ja"[^>]*>/g)];
         const en = [...real.html.matchAll(/<[a-z0-9]+ [^>]*data-l="en"[^>]*>/g)];
-        assert.ok(ja.length > 877 && en.length > 877);
+        assert.ok(ja.length > 899 && en.length > 899);
         for (const [tag] of ja) {
             assert.ok(tag.includes('lang="ja"'), tag);
         }
@@ -474,7 +474,7 @@ describe('real data: the page', () => {
         ]);
         for (const lang of ['en', 'ja']) {
             const text = visibleText(usage, lang);
-            for (const phrase of ['877', 'Selection Manipulator', 'ext install erintheblack.selection-manipulator', 'Cmd+Shift+P', 'Ctrl+Shift+P', 'Show Selection Manipulator Commands', 'Convert to Multi Selection', '(Replace)', '(Clipboard)']) {
+            for (const phrase of ['899', 'Selection Manipulator', 'ext install erintheblack.selection-manipulator', 'Cmd+Shift+P', 'Ctrl+Shift+P', 'Show Selection Manipulator Commands', 'Convert to Multi Selection', '(Replace)', '(Clipboard)']) {
                 assert.ok(text.includes(phrase), `${lang}: ${phrase}`);
             }
         }
@@ -516,7 +516,7 @@ describe('real data: the page', () => {
 
     test('the count units come from UI_TEXT: a Japanese unit only, no empty English span', () => {
         assert.deepEqual(UI_TEXT.countUnit, { en: '', ja: '件' });
-        assert.ok(real.html.includes('<strong id="visible-count">877</strong><span data-l="ja" lang="ja"> 件</span></span>'));
+        assert.ok(real.html.includes('<strong id="visible-count">899</strong><span data-l="ja" lang="ja"> 件</span></span>'));
         assert.ok(!real.html.includes('<span data-l="en" lang="en"> </span>'));
         assert.ok(!('visibleAfter' in UI_TEXT));
     });
@@ -543,7 +543,7 @@ describe('real data: the page', () => {
             assert.doesNotMatch(match[2], /\stitle=/);
             names.set(match[1], [visibleText(match[3], 'en'), visibleText(match[3], 'ja')]);
         }
-        assert.deepEqual(names.get(''), [`All 877 commands`, `すべて 877 件`]);
+        assert.deepEqual(names.get(''), [`All 899 commands`, `すべて 899 件`]);
         for (const category of CATEGORIES) {
             const count = real.stats.counts[category.id];
             assert.deepEqual(names.get(category.id), [`${category.name.en.replace(/&/g, '&amp;')} ${count} commands`, `${category.name.ja} ${count} 件`], category.id);
@@ -563,7 +563,7 @@ describe('real data: the page', () => {
 
     test('the search box has a placeholder per language; the status and empty message exist', () => {
         assert.ok(real.html.includes('placeholder="e.g. base64" data-placeholder-en="e.g. base64" data-placeholder-ja="例: base64"'));
-        assert.match(real.html, /<span role="status">[\s\S]*?<strong id="visible-count">877<\/strong>/);
+        assert.match(real.html, /<span role="status">[\s\S]*?<strong id="visible-count">899<\/strong>/);
         assert.ok(real.html.includes('<div id="empty" class="empty" hidden>'));
         assert.ok(real.html.includes('<a class="skip" href="#main">'));
         assert.ok(real.html.includes('<main id="main" class="wrap">'));

@@ -92,6 +92,7 @@ import { mselCommandHandler } from './handler/mselCommandHandler';
 import { mdCommandHandler } from './handler/mdCommandHandler';
 import { text2CommandHandler } from './handler/text2CommandHandler';
 import { line2CommandHandler } from './handler/line2CommandHandler';
+import { enc2CommandHandler } from './handler/enc2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1028,6 +1029,30 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.expand-to-paragraph', mselCommandHandler('selection.expand-to-paragraph')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.keep-duplicate-text', mselCommandHandler('selection.keep-duplicate-text')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.selection.join-into-first', mselCommandHandler('selection.join-into-first')));
+
+  // Encoding, escaping & hashes extended (ENCX-001..022, group ENC2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base32.encode-hex', enc2CommandHandler('base32.encode-hex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base32.decode-hex', enc2CommandHandler('base32.decode-hex')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base45.encode', enc2CommandHandler('base45.encode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base45.decode', enc2CommandHandler('base45.decode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base62.encode', enc2CommandHandler('base62.encode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.base62.decode', enc2CommandHandler('base62.decode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.uu.encode', enc2CommandHandler('uu.encode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.uu.decode', enc2CommandHandler('uu.decode')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.url.encode-all', enc2CommandHandler('url.encode-all')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.css-identifier', enc2CommandHandler('escape.css-identifier')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.ldap-filter', enc2CommandHandler('escape.ldap-filter')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.ldap-dn', enc2CommandHandler('escape.ldap-dn')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.xpath-literal', enc2CommandHandler('escape.xpath-literal')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.c-string', enc2CommandHandler('escape.c-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.escape.c-unescape', enc2CommandHandler('escape.c-unescape')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha3-384', enc2CommandHandler('crypto.hash-sha3-384')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-shake256', enc2CommandHandler('crypto.hash-shake256')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hmac-sha3-512', enc2CommandHandler('crypto.hmac-sha3-512')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.crc16', enc2CommandHandler('checksum.crc16')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.crc32c', enc2CommandHandler('checksum.crc32c')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.iban', enc2CommandHandler('checksum.iban')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.isbn', enc2CommandHandler('checksum.isbn')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

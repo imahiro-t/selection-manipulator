@@ -4406,6 +4406,116 @@
         "command": "selection-manipulator.selection.join-into-first",
         "title": "Selection - Join All Selections into First",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.encode-hex",
+        "title": "Encode Base32hex (RFC 4648 §7)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.decode-hex",
+        "title": "Decode Base32hex (RFC 4648 §7)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base45.encode",
+        "title": "Encode Base45 (RFC 9285)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base45.decode",
+        "title": "Decode Base45 (RFC 9285)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base62.encode",
+        "title": "Encode Base62",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base62.decode",
+        "title": "Decode Base62",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.uu.encode",
+        "title": "Encode uuencode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.uu.decode",
+        "title": "Decode uuencode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-all",
+        "title": "Encode All Characters as Percent-encoding",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.css-identifier",
+        "title": "Escape CSS Identifier",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.ldap-filter",
+        "title": "Escape LDAP Filter Value (RFC 4515)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.ldap-dn",
+        "title": "Escape LDAP DN Value (RFC 4514)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.xpath-literal",
+        "title": "Convert to XPath String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.c-string",
+        "title": "Convert to C String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.c-unescape",
+        "title": "Unescape C / Java Style Escapes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-384",
+        "title": "Create Hash (SHA3-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-shake256",
+        "title": "Create Hash (SHAKE256, Output Length N)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha3-512",
+        "title": "Create HMAC (SHA3-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc16",
+        "title": "Checksum: CRC-16/CCITT-FALSE",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc32c",
+        "title": "Checksum: CRC-32C (Castagnoli)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.iban",
+        "title": "Checksum: IBAN Validate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.isbn",
+        "title": "Checksum: ISBN-10 / ISBN-13 Validate",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -7347,6 +7457,94 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.text.remove-between"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.encode-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.decode-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base45.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base45.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base62.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base62.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.uu.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.uu.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-all"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.css-identifier"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.ldap-filter"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.ldap-dn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.xpath-literal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.c-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.c-unescape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-shake256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha3-512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc16"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc32c"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.iban"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.isbn"
         }
       ],
       "editor/context": [
@@ -7945,6 +8143,18 @@
         {
           "command": "selection-manipulator.crypto.hash-sha256-each-line",
           "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-384",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-shake256",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha3-512",
+          "group": "selection-manipulator@25"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -8851,6 +9061,30 @@
         {
           "command": "selection-manipulator.programmatic.html-to-jsx.replace",
           "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.escape.css-identifier",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.escape.ldap-filter",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.escape.ldap-dn",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.escape.xpath-literal",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.escape.c-string",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.escape.c-unescape",
+          "group": "selection-manipulator@49"
         }
       ],
       "selection-manipulator.japanese.submenu": [
@@ -10316,6 +10550,42 @@
         {
           "command": "selection-manipulator.data-uri.encode-text",
           "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.base32.encode-hex",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.base32.decode-hex",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.base45.encode",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.base45.decode",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.base62.encode",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.base62.decode",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.uu.encode",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.uu.decode",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.url.encode-all",
+          "group": "selection-manipulator@42"
         }
       ],
       "selection-manipulator.encode.replace.submenu": [
@@ -10360,6 +10630,22 @@
         {
           "command": "selection-manipulator.checksum.luhn",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.checksum.crc16",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.checksum.crc32c",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.checksum.iban",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.checksum.isbn",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.data.submenu": [

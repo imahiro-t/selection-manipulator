@@ -133,6 +133,13 @@
     }
   },
   {
+    "id": "ENCX",
+    "name": {
+      "en": "Encoding, escaping & hashes extensions (Base45/62, uuencode, LDAP, C, SHA-3, CRC)",
+      "ja": "エンコード・エスケープ・ハッシュ拡張（Base45/62・uuencode・LDAP・C・SHA-3・CRC など）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

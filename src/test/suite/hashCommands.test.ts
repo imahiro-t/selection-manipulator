@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { HashDependencies, hashExtendedHandlerInternal } from '../../handler/hashExtendedHandler';
 import { myCommands } from '../../handler/showCommandsHandler';
+import { ENC2_COMMAND_ENTRIES } from '../../handler/enc2Transforms';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import {
   digestText,
@@ -462,16 +463,22 @@ suite('Hash Commands (HASH-001..020) Test Suite', () => {
         assert.strictEqual(count(menu, id), 1, `menu: ${id}`);
         others.forEach((other) => assert.strictEqual(count(other, id), 0, `other menu: ${id}`));
       });
-      // The existing items keep their places; the new ones follow them in ROADMAP order.
-      assert.strictEqual(cryptoMenu.length, 10 + 13);
-      assert.strictEqual(checksumMenu.length, 4);
+      // The existing items keep their places; the new ones follow them in ROADMAP order, then the
+      // ENC2 hashes (ENCX-016..018) and checksums (ENCX-019..022).
+      const enc2 = (prefix: string) => ENC2_COMMAND_ENTRIES.filter((e) => e.name.startsWith(prefix)).map((e) => `selection-manipulator.${e.name}`);
+      assert.strictEqual(cryptoMenu.length, 10 + 13 + 3);
+      assert.strictEqual(checksumMenu.length, 4 + 4);
       assert.strictEqual(replaceMenu.length, 6 + 3);
       [cryptoMenu, checksumMenu, replaceMenu].forEach((menu) =>
         menu.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command)));
-      assert.deepStrictEqual(cryptoMenu.slice(10).map((item) => item.command),
-        HASH_COMMAND_ENTRIES.filter((e) => e.output !== 'replace' && e.name.startsWith('crypto.')).map((e) => `selection-manipulator.${e.name}`));
-      assert.deepStrictEqual(checksumMenu.map((item) => item.command),
-        HASH_COMMAND_ENTRIES.filter((e) => e.name.startsWith('checksum.')).map((e) => `selection-manipulator.${e.name}`));
+      assert.deepStrictEqual(cryptoMenu.slice(10).map((item) => item.command), [
+        ...HASH_COMMAND_ENTRIES.filter((e) => e.output !== 'replace' && e.name.startsWith('crypto.')).map((e) => `selection-manipulator.${e.name}`),
+        ...enc2('crypto.'),
+      ]);
+      assert.deepStrictEqual(checksumMenu.map((item) => item.command), [
+        ...HASH_COMMAND_ENTRIES.filter((e) => e.name.startsWith('checksum.')).map((e) => `selection-manipulator.${e.name}`),
+        ...enc2('checksum.'),
+      ]);
       assert.deepStrictEqual(replaceMenu.slice(6).map((item) => item.command),
         HASH_COMMAND_ENTRIES.filter((e) => e.output === 'replace').map((e) => `selection-manipulator.${e.name}`));
       const submenus: { id: string; label: string }[] = contributes.submenus;
