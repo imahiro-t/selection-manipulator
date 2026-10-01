@@ -112,11 +112,12 @@ const inputTooLong = (): Text2InputError =>
  * made in one edit (one undo restores the text).
  */
 const run = async (textEditor: TextEditor, dependencies: Text2Dependencies, entry: Text2CommandEntry): Promise<void> => {
-  if (targetSelections(textEditor).length === 0) {
+  const initialSelections = targetSelections(textEditor);
+  if (initialSelections.length === 0) {
     void dependencies.notifier.showWarningMessage(TEXT2_NOTHING_SELECTED);
     return;
   }
-  if (totalLength(textEditor, targetSelections(textEditor)) > TEXT2_MAX_INPUT_LENGTH) {
+  if (totalLength(textEditor, initialSelections) > TEXT2_MAX_INPUT_LENGTH) {
     notifyFailure(dependencies, entry, inputTooLong());
     return;
   }

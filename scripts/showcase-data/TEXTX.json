@@ -239,8 +239,8 @@
       "id": "selection-manipulator.text.remove-urls",
       "candidateId": "TEXTX-020",
       "description": {
-        "en": "Removes the `http://` and `https://` URLs (up to the next whitespace) and leaves one space between the words around each of them (none at the start or end of a line). No URL is accessed. **Extract URL** only extracts them.",
-        "ja": "選択内の http(s) URL（次の空白まで）を削除し、前後の語の間の空白を 1 つに詰める（行頭・行末では空白も除く）。URL へのアクセスは一切しない（抽出だけなら **Extract URL**）"
+        "en": "Removes the `http://` and `https://` URLs (up to the next whitespace) and leaves one space between the words around each of them (none at the start or end of a line). Punctuation and closing brackets right after a URL (`.,;:!?'\"` and `)]}>` the URL does not open) are kept. No URL is accessed. **Extract URL** only extracts them.",
+        "ja": "選択内の http(s) URL（次の空白まで）を削除し、前後の語の間の空白を 1 つに詰める（行頭・行末では空白も除く）。URL 直後の句読点・閉じ括弧（`.,;:!?'\"` と、URL 内で開かれていない `)]}>`）は本文として残す。URL へのアクセスは一切しない（抽出だけなら **Extract URL**）"
       },
       "example": {
         "en": "`see https://a.example/x now` → `see now`",

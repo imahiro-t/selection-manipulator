@@ -263,10 +263,37 @@ suite('Text Transforms (TEXTX-001..023) Test Suite', () => {
       assert.strictEqual(removeUrls('x https://.example b'), 'x https://.example b');
     });
 
+    test('punctuation and unmatched closing brackets after a URL stay', () => {
+      assert.strictEqual(removeUrls('Visit https://example.com.'), 'Visit.');
+      assert.strictEqual(removeUrls('(see https://a.com) ok'), '(see) ok');
+      assert.strictEqual(removeUrls('<https://a.com>'), '<>');
+      assert.strictEqual(removeUrls('a https://x.example, https://y.example; b'), 'a,; b');
+      assert.strictEqual(removeUrls('say "https://a.example/x!" now'), 'say "!" now');
+      assert.strictEqual(removeUrls('[https://a.example/x] {https://b.example/y}'), '[] {}');
+      assert.strictEqual(removeUrls('ok https://a.example/x?'), 'ok?');
+    });
+
+    test('brackets opened inside the URL are part of it', () => {
+      assert.strictEqual(removeUrls('see https://en.wikipedia.org/wiki/Foo_(bar) now'), 'see now');
+      assert.strictEqual(removeUrls('(see https://en.wikipedia.org/wiki/Foo_(bar)).'), '(see).');
+      assert.strictEqual(removeUrls('a https://a.example/[x] b'), 'a b');
+      assert.strictEqual(removeUrls('a https://a.example/x.html b'), 'a b');
+      assert.strictEqual(removeUrls('x http://) b'), 'x b');
+    });
+
+    test('linear on a long run of blanks that is not at the end (no quadratic trim)', () => {
+      const started = Date.now();
+      assert.strictEqual(removeUrls(`a${' '.repeat(400_000)}b http://x/`), `a${' '.repeat(400_000)}b`);
+      assert.strictEqual(removeUrls(`a${' \t'.repeat(200_000)}b https://x/ c`), `a${' \t'.repeat(200_000)}b c`);
+      assert.strictEqual(removeUrls(`http://x/${' '.repeat(400_000)}b`), 'b');
+      assert.ok(Date.now() - started < 2000, `${Date.now() - started} ms`);
+    });
+
     test('linear on a long input without URLs and with many URLs', () => {
       const started = Date.now();
       removeUrls('http:/'.repeat(150_000));
       removeUrls('https://a '.repeat(100_000));
+      removeUrls('https://a/'.concat(')'.repeat(300_000), '.'.repeat(300_000)));
       assert.ok(Date.now() - started < 2000, `${Date.now() - started} ms`);
     });
   });

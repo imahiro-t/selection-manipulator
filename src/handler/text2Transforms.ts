@@ -12,14 +12,15 @@
  * commands (translate / delete / squeeze) and Leetspeak, which work on code points.
  *
  * Security rules (SECURITY.md): only local processing (no network, files or processes), no
- * evaluation of code (no eval, no Function constructor), no new dependency. No regular expression is built from the user's
- * input (sets and delimiters are handled with `Set` / `Map` / `indexOf`); the constant expressions
- * below are linear. Results that may grow (repeat, pad, insert every N) are measured before they
+ * evaluation of code (no eval, no Function constructor), no new dependency. No regular expression
+ * is built from the user's input (sets and delimiters are handled with `Set` / `Map` / `indexOf`);
+ * the constant expressions below are linear (no end-anchored repetition such as `[ \t]+$`, which
+ * is quadratic on a long run of blanks that is not at the end: blanks are trimmed by loops). Results that may grow (repeat, pad, insert every N) are measured before they
  * are built and refused when they exceed the output budget. Error messages never quote the
  * selected text or the values entered.
  */
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { formatCodePoint, graphemes, isEmojiGrapheme, isInvisibleCode } from './uniCommon';
+import { countGraphemes, formatCodePoint, graphemes, isEmojiGrapheme, isInvisibleCode } from './uniCommon';
 
 /** An expected failure; the message is shown to the user and never contains the selected text. */
 export class Text2InputError extends Error {
@@ -173,9 +174,11 @@ export const insertEveryN = (text: string, n: number, separator: string, budget:
   if (!Number.isInteger(n) || n < 1 || n > TEXT2_MAX_GROUP) {
     throw new Text2InputError(`the group size must be a whole number from 1 to ${TEXT2_MAX_GROUP.toLocaleString('en-US')}`);
   }
-  const all = [...graphemes(text)];
-  const groups = Math.ceil(all.length / n);
+  // Counted without building the grapheme array, so a result over the budget is refused before
+  // anything is allocated.
+  const groups = Math.ceil(countGraphemes(text) / n);
   assertText2Budget(text.length + separator.length * Math.max(0, groups - 1), budget);
+  const all = [...graphemes(text)];
   const parts: string[] = [];
   for (let i = 0; i < all.length; i += n) {
     parts.push(all.slice(i, i + n).join(''));
@@ -330,22 +333,85 @@ export const charFrequency = (texts: readonly string[], eol: string, budget: num
  * the extraction pattern, a URL never runs over a space. Linear: no nested quantifier.
  */
 const URL_PATTERN = /https?:\/\/[^\s$.?#]\S*/g;
-const LEADING_BLANKS = /^[ \t]+/;
-const TRAILING_BLANKS = /[ \t]+$/;
+/** Characters that end a sentence or quote rather than a URL when they are its last ones. */
+const URL_TRAILING_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', "'", '"']);
+/** Closing brackets and their openers; a closer is part of the URL only when the URL opens it. */
+const URL_CLOSERS = new Map([
+  [')', '('],
+  [']', '['],
+  ['}', '{'],
+  ['>', '<'],
+]);
+
+/**
+ * How much of a match of `URL_PATTERN` is the URL: the trailing punctuation (`.,;:!?'"`) and the
+ * closing brackets that have no opener inside the URL are left out, so `(see https://a.example).`
+ * keeps `).` and `https://en.wikipedia.org/wiki/Foo_(bar)` keeps its own parentheses. At least one
+ * character after `//` always stays. Linear: one pass to count the brackets, one pass back.
+ */
+const urlLength = (match: string): number => {
+  const unmatched = new Map<string, number>();
+  for (const [closer, opener] of URL_CLOSERS) {
+    let balance = 0;
+    for (let i = 0; i < match.length; i++) {
+      if (match[i] === closer) {
+        balance++;
+      } else if (match[i] === opener) {
+        balance--;
+      }
+    }
+    unmatched.set(closer, balance);
+  }
+  const minimum = match.indexOf('//') + 3;
+  let end = match.length;
+  while (end > minimum) {
+    const last = match[end - 1];
+    if (URL_TRAILING_PUNCTUATION.has(last)) {
+      end--;
+      continue;
+    }
+    const balance = unmatched.get(last);
+    if (balance !== undefined && balance > 0) {
+      unmatched.set(last, balance - 1);
+      end--;
+      continue;
+    }
+    break;
+  }
+  return end;
+};
+
+const isBlank = (char: string): boolean => char === ' ' || char === '\t';
+
+/** `text` without its leading spaces and tabs (a loop: linear). */
+const trimBlanksStart = (text: string): string => {
+  let start = 0;
+  while (start < text.length && isBlank(text[start])) {
+    start++;
+  }
+  return text.slice(start);
+};
+
+/** `text` without its trailing spaces and tabs (a backward loop: linear, unlike `/[ \t]+$/`). */
+const trimBlanksEnd = (text: string): string => {
+  let end = text.length;
+  while (end > 0 && isBlank(text[end - 1])) {
+    end--;
+  }
+  return text.slice(0, end);
+};
 
 /**
  * TEXTX-020: the URLs removed. The spaces and tabs around a removed URL become one space between
- * the words on both sides, or nothing at the start or end of a line. No URL is ever accessed.
+ * the words on both sides, or nothing at the start or end of a line. Punctuation and closing
+ * brackets that follow a URL stay, directly after the word before it (`Visit https://a.example.`
+ * becomes `Visit.`). No URL is ever accessed. Linear in the length of the text.
  */
 export const removeUrls = (text: string): string => {
-  const segments = text.split(URL_PATTERN);
-  if (segments.length === 1) {
-    return text;
-  }
   const parts: string[] = [];
   const trimEnd = () => {
     while (parts.length > 0) {
-      const trimmed = parts[parts.length - 1].replace(TRAILING_BLANKS, '');
+      const trimmed = trimBlanksEnd(parts[parts.length - 1]);
       if (trimmed !== '') {
         parts[parts.length - 1] = trimmed;
         return;
@@ -353,14 +419,12 @@ export const removeUrls = (text: string): string => {
       parts.pop();
     }
   };
+  /** A URL was removed and the blanks around it are not handled yet. */
   let pending = false;
-  segments.forEach((segment, index) => {
-    if (index > 0) {
-      pending = true;
-    }
+  const pushText = (segment: string) => {
     let piece = segment;
     if (pending) {
-      piece = piece.replace(LEADING_BLANKS, '');
+      piece = trimBlanksStart(piece);
       if (piece === '') {
         return;
       }
@@ -373,8 +437,34 @@ export const removeUrls = (text: string): string => {
       }
       pending = false;
     }
-    parts.push(piece);
-  });
+    if (piece !== '') {
+      parts.push(piece);
+    }
+  };
+  /** What followed a URL in its match (punctuation, closers): attached to the text before it. */
+  const pushTail = (tail: string) => {
+    trimEnd();
+    parts.push(tail);
+    pending = false;
+  };
+  let cursor = 0;
+  let found = false;
+  for (const match of text.matchAll(URL_PATTERN)) {
+    found = true;
+    const start = match.index ?? 0;
+    const end = start + match[0].length;
+    pushText(text.slice(cursor, start));
+    pending = true;
+    const length = urlLength(match[0]);
+    if (length < match[0].length) {
+      pushTail(match[0].slice(length));
+    }
+    cursor = end;
+  }
+  if (!found) {
+    return text;
+  }
+  pushText(text.slice(cursor));
   if (pending) {
     trimEnd();
   }
@@ -485,11 +575,7 @@ export const padCharValidator = (value: string): string | undefined => {
   if (value.length === 0 || value.length > TEXT2_MAX_PAD_CHAR_LENGTH || /[\r\n]/.test(value)) {
     return 'Enter exactly one character.';
   }
-  let count = 0;
-  for (const _ of graphemes(value)) {
-    count++;
-  }
-  return count === 1 ? undefined : 'Enter exactly one character.';
+  return countGraphemes(value) === 1 ? undefined : 'Enter exactly one character.';
 };
 
 const numberPrompt = (prompt: string, min: number, max: number, value?: string): Text2Prompt => ({
