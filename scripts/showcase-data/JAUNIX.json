@@ -83,8 +83,8 @@
       "id": "selection-manipulator.japanese.paren-reading-to-ruby",
       "candidateId": "JAUNIX-007",
       "description": {
-        "en": "Turns a reading of only kana in parentheses right after kanji into ruby notation: `漢字（かんじ）` or `漢字(かんじ)` becomes `｜漢字《かんじ》`, the base being the whole run of kanji before the parenthesis. A `｜` already before the base is kept, not doubled (`｜漢字（かんじ）` → `｜漢字《かんじ》`). Other parentheses are kept. (Added in place of the planned Remove Parenthesized Readings, which **Japanese - Remove Ruby Notation** already does.)",
-        "ja": "漢字の直後にある仮名だけの括弧書きの読みをルビ記法にする（`漢字（かんじ）`・`漢字(かんじ)` → `｜漢字《かんじ》`。親文字は括弧の直前の漢字の連続。親文字の前に `｜` が既にあれば重ねない）。ほかの括弧はそのまま（予定していた「括弧書きの読みの削除」は **Japanese - Remove Ruby Notation** が既に行うため、代わりに追加）"
+        "en": "Turns a reading of only kana in parentheses right after kanji into ruby notation: `漢字（かんじ）` or `漢字(かんじ)` becomes `｜漢字《かんじ》`, the base being the whole run of kanji before the parenthesis. A `｜` or ASCII `|` already before the base is kept as its start mark, not doubled (`｜漢字（かんじ）` → `｜漢字《かんじ》`, `|漢字(かんじ)` → `|漢字《かんじ》`). Other parentheses are kept. (Added in place of the planned Remove Parenthesized Readings, which **Japanese - Remove Ruby Notation** already does.)",
+        "ja": "漢字の直後にある仮名だけの括弧書きの読みをルビ記法にする（`漢字（かんじ）`・`漢字(かんじ)` → `｜漢字《かんじ》`。親文字は括弧の直前の漢字の連続。親文字の直前に `｜` または半角 `|` が既にあればそれを開始記号として使い、重ねない。`|漢字(かんじ)` → `|漢字《かんじ》`）。ほかの括弧はそのまま（予定していた「括弧書きの読みの削除」は **Japanese - Remove Ruby Notation** が既に行うため、代わりに追加）"
       },
       "example": {
         "en": "`漢字（かんじ）` → `｜漢字《かんじ》`",
