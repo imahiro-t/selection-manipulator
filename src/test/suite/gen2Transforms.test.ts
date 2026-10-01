@@ -3,9 +3,12 @@ import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from '../../handler/encodeT
 import { GenInputError, GenLimitError } from '../../handler/genCommon';
 import {
   braceExpansion,
+  emitSequence,
   fibonacci,
+  matchBraces,
   multiplicationTable,
   parseBoundedCount,
+  parseSequence,
   parseStartTime,
   parseTableSize,
   primeSieve,
@@ -141,6 +144,73 @@ suite('Extended Generators and Random (DATEX-016..024) Test Suite', () => {
       assert.throws(() => braceExpansion(`${'x'.repeat(1000)}{1..10000}`, '\n', 1_000_000), EncOutputTooLargeError);
       assert.strictEqual(braceExpansion('{a,b}', '\n', 3), 'a\nb');
       assert.throws(() => braceExpansion('{a,b}', '\n', 2), EncOutputTooLargeError);
+    });
+
+    test('the budget boundary counts every string, eol and line break exactly (exact length passes, one less is refused)', () => {
+      // 'x1' '\r\n' 'x2' '\r\n' 'x3' (10), the line break '\n' (1), 'by' '\r\n' 'b' (5): 16 characters.
+      const text = 'x{1..3}\nb{y,}';
+      const expected = 'x1\r\nx2\r\nx3\nby\r\nb';
+      assert.strictEqual(expected.length, 16);
+      assert.strictEqual(braceExpansion(text, '\r\n', 16), expected);
+      assert.throws(() => braceExpansion(text, '\r\n', 15), EncOutputTooLargeError);
+      // An empty string (an empty option) still has its eol counted.
+      assert.strictEqual(braceExpansion('{,a}{,b}', '\n', 7), '\nb\na\nab');
+      assert.throws(() => braceExpansion('{,a}{,b}', '\n', 6), EncOutputTooLargeError);
+    });
+
+    test('pieces of one string (ranges of one term) are folded without changing the order of the others', () => {
+      assert.strictEqual(expand('{1..1}{a,b}{2..2}{c,d}'), '1a2c\n1a2d\n1b2c\n1b2d');
+      assert.strictEqual(expand('{x{1..1}y,z{5..5}}w'), 'x1yw\nz5w');
+      assert.strictEqual(expand('{a,b{,c{1..1}}}{d{2..2},}'), 'ad2\na\nbd2\nb\nbc1d2\nbc1');
+      assert.strictEqual(expand('{a..a}{3..1}{b..b}', '\r\n'), 'a3b\r\na2b\r\na1b');
+    });
+
+    test('an empty option expands to one empty string, also nested', () => {
+      assert.strictEqual(expand('{,a}{,b}'), '\nb\na\nab');
+      assert.strictEqual(expand('{{,a},b}'), '\na\nb');
+      assert.strictEqual(expand('{,}'), '\n');
+      assert.strictEqual(expand('{,}\n{,{,}}x'), '\n\nx\nx\nx');
+    });
+
+    test('long runs of one-term pieces near the output budget are expanded quickly and correctly', () => {
+      // Example A (security review): 100 strings of 90,003 characters or less, about 9,000,000 in all.
+      // The intermediate products used to be built piece by piece (about 3 s and 300 MB on an M4).
+      const longA = '{1..100}' + 'x{1..1}'.repeat(45_000);
+      const started = Date.now();
+      const resultA = expand(longA);
+      const elapsed = Date.now() - started;
+      assert.ok(elapsed < 1_000, `example A: ${elapsed} ms`);
+      const stringsA = resultA.split('\n');
+      assert.strictEqual(stringsA.length, 100);
+      assert.strictEqual(stringsA[0], `1${'x1'.repeat(45_000)}`);
+      assert.strictEqual(stringsA[99], `100${'x1'.repeat(45_000)}`);
+      assert.strictEqual(resultA.length, 9_000_291);
+      // A smaller example B (non-functional review) with the same shape.
+      const resultB = expand(`{1..1000}${'a{1..1}'.repeat(50)}`);
+      const stringsB = resultB.split('\n');
+      assert.strictEqual(stringsB.length, 1_000);
+      assert.strictEqual(stringsB[0], `1${'a1'.repeat(50)}`);
+      assert.strictEqual(stringsB[999], `1000${'a1'.repeat(50)}`);
+      assert.strictEqual(resultB.length, 2_893 + 1_000 * 100 + 999);
+    });
+
+    test('the strings of a line are emitted one by one, not after the whole product is built', () => {
+      // Example B (non-functional review): 10,000 strings of about 1,000 characters. Building the
+      // whole product first took hundreds of milliseconds before the first string came out.
+      const line = `{1..10000}${'a{1..1}'.repeat(495)}`;
+      const { nodes } = parseSequence(line, matchBraces(line), 0, line.length, 0);
+      const stop = new Error('stop after the first string');
+      const started = Date.now();
+      assert.throws(() => emitSequence(nodes, () => {
+        throw stop;
+      }), (error: unknown) => error === stop);
+      const elapsed = Date.now() - started;
+      assert.ok(elapsed < 100, `first string after ${elapsed} ms`);
+      const strings: string[] = [];
+      emitSequence(nodes, (expanded) => strings.push(expanded));
+      assert.strictEqual(strings.length, 10_000);
+      assert.strictEqual(strings[0], `1${'a1'.repeat(495)}`);
+      assert.strictEqual(strings[9_999], `10000${'a1'.repeat(495)}`);
     });
   });
 

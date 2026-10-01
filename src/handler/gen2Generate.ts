@@ -8,7 +8,11 @@
  * parser (one linear pass to match the braces, recursion bounded by the nesting limit) whose ranges
  * stay lazy (their terms are only made after the line has been counted) and which stops as soon as
  * the count of the line passes the limit; no shell is run and no regular expression is built from
- * the text. Only `BigInt` and typed arrays are used.
+ * the text. The expansion builds no intermediate product: the pieces that expand to one string are
+ * folded into the text around them, and the combinations of the others are emitted one by one (a
+ * mixed-radix counter) and joined once per line, so that the time and memory follow the length of
+ * the result.
+ * Only `BigInt` and typed arrays are used.
  */
 import { pad2 } from './dateCommon';
 import { forEachLine, formatCount, GenInputError, GenLimitError, GenOutputBuffer, quoteText } from './genCommon';
@@ -44,9 +48,9 @@ export const BRACE_MAX_RANGE_TERMS = 10_000;
 /**
  * A piece of a parsed line: literal text, alternatives (`{a,b}`) or a range (`{1..3}`). A range is
  * lazy: it knows how many terms it has and makes the term `i` only when asked, so that nothing is
- * built for a line before the line has been counted.
+ * built for a line before the line has been counted. Exported (as a type) for the tests only.
  */
-type BraceNode =
+export type BraceNode =
   | { kind: 'text'; text: string }
   | { kind: 'alternatives'; options: BraceNode[][] }
   | { kind: 'range'; count: number; term: (i: number) => string };
@@ -105,7 +109,7 @@ const parseRange = (content: string): RangeNode | undefined => {
 };
 
 /** The braces of a line matched in one pass: the closing brace and the top-level commas of each opening brace. */
-interface BraceTable {
+export interface BraceTable {
   /** Opening brace offset → its closing brace offset (unmatched braces are not in it). */
   close: Map<number, number>;
   /** Opening brace offset → the offsets of the commas directly inside it. */
@@ -116,7 +120,8 @@ interface BraceTable {
 
 const ESCAPABLE = '{},\\';
 
-const matchBraces = (line: string): BraceTable => {
+/** Exported for the tests only (with `parseSequence`, to hand a parsed line to `emitSequence`). */
+export const matchBraces = (line: string): BraceTable => {
   const close = new Map<number, number>();
   const commas = new Map<number, number[]>();
   const escaped = new Set<number>();
@@ -150,7 +155,7 @@ const checkLineCount = (count: number): number => {
 };
 
 /** Pieces of a line and the number of strings they expand to (at most BRACE_MAX_PER_LINE). */
-interface ParsedSequence {
+export interface ParsedSequence {
   nodes: BraceNode[];
   count: number;
 }
@@ -165,8 +170,9 @@ interface ParsedSequence {
  * not more than that of the whole line: parsing stops with GenLimitError as soon as one passes
  * BRACE_MAX_PER_LINE, and alternatives with more options than that are refused before any of them
  * is parsed. The work done before a refusal is therefore bounded by the limit, not by the input.
+ * Exported for the tests only.
  */
-const parseSequence = (line: string, table: BraceTable, from: number, to: number, depth: number): ParsedSequence => {
+export const parseSequence = (line: string, table: BraceTable, from: number, to: number, depth: number): ParsedSequence => {
   const nodes: BraceNode[] = [];
   let count = 1;
   let text = '';
@@ -288,30 +294,108 @@ const sizeOfSequence = (nodes: readonly BraceNode[]): Size => {
   return { count, length };
 };
 
-const expandNode = (node: BraceNode): string[] => {
+/**
+ * Folds the pieces that expand to exactly one string (literal text, a range of one term, and
+ * recursively the options of alternatives) into the text around them, so that only the pieces with
+ * two strings or more are left between literal texts (at most log2(BRACE_MAX_PER_LINE) of them).
+ * The texts next to each other are collected and joined once. An option made only of such pieces
+ * becomes one text, an empty option (`{,a}`) no piece at all. The pieces are walked with a loop;
+ * only the nesting of the alternatives recurses (bounded by BRACE_MAX_DEPTH).
+ */
+const foldSequence = (nodes: readonly BraceNode[]): BraceNode[] => {
+  const folded: BraceNode[] = [];
+  let texts: string[] = [];
+  const flush = () => {
+    if (texts.length > 0) {
+      const text = texts.join('');
+      if (text !== '') {
+        folded.push({ kind: 'text', text });
+      }
+      texts = [];
+    }
+  };
+  for (const node of nodes) {
+    if (node.kind === 'text') {
+      texts.push(node.text);
+    } else if (node.kind === 'range' && node.count === 1) {
+      // `term` is a pure function: making the only term here instead of while expanding changes nothing.
+      texts.push(node.term(0));
+    } else if (node.kind === 'range') {
+      flush();
+      folded.push(node);
+    } else {
+      // Alternatives have two options or more, so they always expand to two strings or more.
+      flush();
+      folded.push({ kind: 'alternatives', options: node.options.map((option) => foldSequence(option)) });
+    }
+  }
+  flush();
+  return folded;
+};
+
+/** The strings of one folded piece (at most BRACE_MAX_PER_LINE of them, no longer in all than the line). */
+const piecesOf = (node: BraceNode): string[] => {
   switch (node.kind) {
     case 'text':
       return [node.text];
     case 'range':
       return Array.from({ length: node.count }, (_, i) => node.term(i));
-    default:
-      return node.options.flatMap((option) => expandSequence(option));
+    default: {
+      const pieces: string[] = [];
+      for (const option of node.options) {
+        emitFolded(option, (piece) => pieces.push(piece));
+      }
+      return pieces;
+    }
   }
 };
 
-const expandSequence = (nodes: readonly BraceNode[]): string[] => {
-  let results = [''];
-  for (const node of nodes) {
-    const pieces = expandNode(node);
-    const next: string[] = [];
-    for (const prefix of results) {
-      for (const piece of pieces) {
-        next.push(prefix + piece);
-      }
-    }
-    results = next;
+/**
+ * Emits the strings of folded pieces one by one in the order of the expansion, without building
+ * the intermediate products: the strings of each piece are made once, and a mixed-radix counter
+ * (one digit per piece, the last piece moving fastest) walks their combinations. Only the
+ * prefixes of the current combination are kept (`prefixes[j]` is its first `j` strings
+ * concatenated) and only those after the digit that moved are made again, so that the strings
+ * share their prefixes as they did when the products were built (nothing is copied until the
+ * result is joined). No piece at all (an empty option) emits one empty string.
+ */
+const emitFolded = (nodes: readonly BraceNode[], emit: (expanded: string) => void): void => {
+  const pieces = nodes.map(piecesOf);
+  const n = pieces.length;
+  const digits = pieces.map(() => 0);
+  const prefixes = [''];
+  for (let j = 0; j < n; j++) {
+    prefixes.push(prefixes[j] + pieces[j][0]);
   }
-  return results;
+  for (;;) {
+    emit(prefixes[n]);
+    // Advances the counter: the last digit first, carrying into the one before it on a wrap.
+    let k = n - 1;
+    for (; k >= 0; k--) {
+      digits[k]++;
+      if (digits[k] < pieces[k].length) {
+        break;
+      }
+      digits[k] = 0;
+    }
+    // Every digit wrapped (or there is none): every string has been emitted.
+    if (k < 0) {
+      return;
+    }
+    for (let j = k; j < n; j++) {
+      prefixes[j + 1] = prefixes[j] + pieces[j][digits[j]];
+    }
+  }
+};
+
+/**
+ * Emits the strings a parsed line (or part of one) expands to, one by one in the order of the
+ * expansion: the pieces of one string are folded into the text around them first, then the
+ * combinations of the others are walked (see `foldSequence` and `emitFolded`). Exported for the
+ * tests only (they check that the strings come out one by one); it is not part of the command.
+ */
+export const emitSequence = (nodes: readonly BraceNode[], emit: (expanded: string) => void): void => {
+  emitFolded(foldSequence(nodes), emit);
 };
 
 /**
@@ -319,7 +403,8 @@ const expandSequence = (nodes: readonly BraceNode[]): string[] => {
  * strings of one line are joined with `eol`; the line breaks of the selection are kept. Every
  * line is parsed and counted before anything is expanded: more than BRACE_MAX_PER_LINE strings
  * for one line, BRACE_MAX_PER_SELECTION for the selection, or a longer result than the budget
- * stops everything.
+ * stops everything. The strings of each line are then emitted one by one (`emitSequence`) and
+ * joined once, without building the intermediate products of the expansion.
  */
 export const braceExpansion = (text: string, eol: string, budget: number): string => {
   const parsed: { nodes: BraceNode[] | undefined; line: string; lineBreak: string; lineNumber: number }[] = [];
@@ -350,7 +435,14 @@ export const braceExpansion = (text: string, eol: string, budget: number): strin
   // The whole result is checked against the budget before it is built.
   output.reserve(length);
   for (const { nodes, line, lineBreak } of parsed) {
-    output.push(nodes === undefined ? line : expandSequence(nodes).join(eol));
+    if (nodes === undefined) {
+      output.push(line);
+    } else {
+      // Only the strings of the line itself are kept (no intermediate product), then joined once.
+      const strings: string[] = [];
+      emitSequence(nodes, (expanded) => strings.push(expanded));
+      output.push(strings.join(eol));
+    }
     output.push(lineBreak);
   }
   return output.join();
