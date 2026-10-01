@@ -1,0 +1,273 @@
+{
+  "category": "ENCX",
+  "commands": [
+    {
+      "id": "selection-manipulator.base32.encode-hex",
+      "candidateId": "ENCX-001",
+      "description": {
+        "en": "Encodes the UTF-8 bytes in Base32hex (RFC 4648 §7, the \"extended hex\" alphabet `0-9A-V`, with `=` padding). **Encode Base32** uses the standard alphabet `A-Z2-7`.",
+        "ja": "UTF-8 バイト列を Base32hex（RFC 4648 §7 の拡張 16 進アルファベット `0-9A-V`、`=` パディング付き）で符号化する（標準アルファベット `A-Z2-7` は **Encode Base32**）"
+      },
+      "example": {
+        "en": "`foo` → `CPNMU===`",
+        "ja": "`foo` → `CPNMU===`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base32.decode-hex",
+      "candidateId": "ENCX-002",
+      "description": {
+        "en": "Decodes Base32hex into UTF-8 text. Spaces, tabs and line breaks are ignored, lowercase is accepted, and the padding may be omitted; an invalid character or padding, or bytes that are not valid UTF-8, are an error.",
+        "ja": "Base32hex を復号して UTF-8 テキストにする。空白・タブ・改行は無視し、小文字も受け付け、パディングは省略できる。不正な文字・パディング・不正な UTF-8 はエラー"
+      },
+      "example": {
+        "en": "`CPNMU===` → `foo`",
+        "ja": "`CPNMU===` → `foo`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base45.encode",
+      "candidateId": "ENCX-003",
+      "description": {
+        "en": "Encodes the UTF-8 bytes in Base45 (RFC 9285, the alphabet of QR code alphanumeric mode): every 2 bytes become 3 characters, a last single byte 2.",
+        "ja": "UTF-8 バイト列を Base45（RFC 9285。QR コードの英数字モードのアルファベット）で符号化する（2 バイトごとに 3 文字、端数の 1 バイトは 2 文字）"
+      },
+      "example": {
+        "en": "`AB` → `BB8`",
+        "ja": "`AB` → `BB8`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base45.decode",
+      "candidateId": "ENCX-004",
+      "description": {
+        "en": "Decodes Base45 into UTF-8 text. The space is a Base45 character, so no space is removed; only line breaks at the start and the end of the selection are. A line break inside, a lowercase letter, a group above 65535 (or 255 for a last pair) or a length that leaves a remainder of 1 when divided by 3 is an error.",
+        "ja": "Base45 を復号して UTF-8 テキストにする。空白は Base45 の文字なので除去せず、選択の先頭と末尾の改行だけを除去する。内部の改行・英小文字・65535（末尾 2 文字は 255）を超える組・3 で割って 1 余る長さはエラー"
+      },
+      "example": {
+        "en": "`BB8` → `AB`",
+        "ja": "`BB8` → `AB`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base62.encode",
+      "candidateId": "ENCX-005",
+      "description": {
+        "en": "Encodes the UTF-8 bytes in Base62 (`0-9A-Za-z`) as one big number, like **Encode Base58**; each leading zero byte becomes one `0`. The input is limited to 10,000 UTF-8 bytes (the conversion time grows with the square of the length).",
+        "ja": "UTF-8 バイト列を 1 つの大きな数として Base62（`0-9A-Za-z`）で符号化する（**Encode Base58** と同じ方式。先頭の 0x00 バイトは 1 つずつ `0` になる）。計算量が長さの二乗になるため入力は 10,000 UTF-8 バイトまで"
+      },
+      "example": {
+        "en": "`hi` → `6x7`",
+        "ja": "`hi` → `6x7`"
+      }
+    },
+    {
+      "id": "selection-manipulator.base62.decode",
+      "candidateId": "ENCX-006",
+      "description": {
+        "en": "Decodes Base62 into UTF-8 text (spaces and line breaks are ignored, each leading `0` becomes a zero byte). The input is limited to 13,500 characters.",
+        "ja": "Base62 を復号して UTF-8 テキストにする（空白・改行は無視、先頭の `0` は 1 つずつ 0x00 バイトになる）。入力は 13,500 文字まで"
+      },
+      "example": {
+        "en": "`6x7` → `hi`",
+        "ja": "`6x7` → `hi`"
+      }
+    },
+    {
+      "id": "selection-manipulator.uu.encode",
+      "candidateId": "ENCX-007",
+      "description": {
+        "en": "Encodes the UTF-8 bytes in uuencode: a `begin 644 <name>` line, 45 bytes per line (zero is written as a backquote), a backquote line and `end`. The name (default `data`) may only use 1 to 64 letters, digits, `.`, `_` and `-`; it is only written into the header, and no file is created.",
+        "ja": "UTF-8 バイト列を uuencode 形式にする（`begin 644 <名前>` 行、1 行 45 バイト（0 はバッククォート）、バッククォートの行、`end`）。名前（既定 `data`）は英数字と `.` `_` `-` の 1〜64 文字のみで、ヘッダに書くだけでファイルは作らない"
+      },
+      "example": {
+        "en": "`Cat（file name: data）` → `` begin 644 data⏎#0V%T⏎`⏎end ``",
+        "ja": "`Cat（ファイル名: data）` → `` begin 644 data⏎#0V%T⏎`⏎end ``",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.uu.decode",
+      "candidateId": "ENCX-008",
+      "description": {
+        "en": "Decodes uuencode into UTF-8 text. The `begin` and `end` lines are skipped (their name and mode are never used and no file is created) and empty lines are ignored; every data line must have as many characters as its length character announces.",
+        "ja": "uuencode を復号して UTF-8 テキストにする。`begin` 行と `end` 行は読み飛ばし（名前・モードは使わず、ファイルも作らない）、空行は無視する。各データ行の文字数は先頭の長さ文字と一致しなければならない"
+      },
+      "example": {
+        "en": "`` begin 644 data⏎#0V%T⏎`⏎end `` → `Cat`",
+        "ja": "`` begin 644 data⏎#0V%T⏎`⏎end `` → `Cat`"
+      }
+    },
+    {
+      "id": "selection-manipulator.url.encode-all",
+      "candidateId": "ENCX-009",
+      "description": {
+        "en": "Percent-encodes every UTF-8 byte as `%XX` (uppercase), including letters and digits. **Encode URI Component** keeps the unreserved characters.",
+        "ja": "UTF-8 の全バイトを英数字も含めて `%XX`（大文字）にする（非予約文字を残すのは **Encode URI Component**）"
+      },
+      "example": {
+        "en": "`a b` → `%61%20%62`",
+        "ja": "`a b` → `%61%20%62`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.css-identifier",
+      "candidateId": "ENCX-010",
+      "description": {
+        "en": "Escapes the text as a CSS identifier with the rules of `CSS.escape` (CSSOM): NUL becomes U+FFFD; control characters, a leading digit and a digit after a leading `-` become `\\<hex> `; a lone `-` becomes `\\-`; other ASCII characters except letters, digits, `-` and `_` get a backslash.",
+        "ja": "CSSOM の `CSS.escape` と同じ規則で CSS 識別子をエスケープする（NUL は U+FFFD、制御文字・先頭の数字・先頭 `-` の直後の数字は `\\<16進> `、単独の `-` は `\\-`、英数字・`-`・`_` 以外の ASCII 記号には `\\` を付ける）"
+      },
+      "example": {
+        "en": "`1foo bar` → `\\31 foo\\ bar`",
+        "ja": "`1foo bar` → `\\31 foo\\ bar`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.ldap-filter",
+      "candidateId": "ENCX-011",
+      "description": {
+        "en": "Escapes a value for an LDAP search filter (RFC 4515): `*` `(` `)` `\\` and NUL become `\\2a` `\\28` `\\29` `\\5c` `\\00`. It only converts text and never connects to a directory.",
+        "ja": "LDAP 検索フィルタの値として `*` `(` `)` `\\` NUL を `\\2a` `\\28` `\\29` `\\5c` `\\00` にエスケープする（RFC 4515。文字列変換のみで LDAP には接続しない）"
+      },
+      "example": {
+        "en": "`a*b(c)` → `a\\2ab\\28c\\29`",
+        "ja": "`a*b(c)` → `a\\2ab\\28c\\29`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.ldap-dn",
+      "candidateId": "ENCX-012",
+      "description": {
+        "en": "Escapes an attribute value of an LDAP distinguished name (RFC 4514): `\"` `+` `,` `;` `<` `>` `\\` get a backslash, and so do a leading `#` or space and a trailing space; NUL becomes `\\00`.",
+        "ja": "LDAP 識別名の属性値としてエスケープする（RFC 4514。`\"` `+` `,` `;` `<` `>` `\\` と、先頭の `#`・空白、末尾の空白に `\\` を付け、NUL は `\\00`）"
+      },
+      "example": {
+        "en": "`Smith, John` → `Smith\\, John`",
+        "ja": "`Smith, John` → `Smith\\, John`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.xpath-literal",
+      "candidateId": "ENCX-013",
+      "description": {
+        "en": "Makes an XPath 1.0 string literal: `'…'` without apostrophes, `\"…\"` without quotation marks, otherwise `concat()` of parts in apostrophes and runs of apostrophes in quotation marks. The expression is only generated, never evaluated.",
+        "ja": "XPath 1.0 の文字列リテラルにする（`'` を含まなければ `'…'`、`\"` を含まなければ `\"…\"`、両方を含めば `'…'` と `\"'\"` を並べた `concat()`）。生成のみで評価はしない"
+      },
+      "example": {
+        "en": "`It's \"x\"` → `concat('It', \"'\", 's \"x\"')`",
+        "ja": "`It's \"x\"` → `concat('It', \"'\", 's \"x\"')`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.c-string",
+      "candidateId": "ENCX-014",
+      "description": {
+        "en": "Makes a one-line C string literal: `\\\\` `\\\"` `\\n` `\\r` `\\t`, and `\\xHH` (lowercase) for the UTF-8 bytes of other control characters and of non-ASCII characters. As C reads every hex digit after `\\x`, a hex digit that follows `\\xHH` starts a new literal (`\"\\xe3\\x81\\x82\"\"a\"`), and a `?` after a `?` is written `\\?` (no trigraph). **Unescape C / Java Style Escapes** turns the result back. **Convert to Java String Concatenation** makes Java concatenations instead.",
+        "ja": "1 行の C 文字列リテラルにする（`\\\\` `\\\"` `\\n` `\\r` `\\t`、その他の制御文字と非 ASCII 文字は UTF-8 バイトごとの `\\xHH`（小文字））。C は `\\x` の後の 16 進数字をすべて読むため、`\\xHH` の直後に 16 進数字が続くときは `\"\"` でリテラルを区切り（`\"\\xe3\\x81\\x82\"\"a\"`）、`?` の直後の `?` は `\\?` にする（トライグラフ回避）。**Unescape C / Java Style Escapes** で元に戻せる（Java の連結形式は **Convert to Java String Concatenation**）"
+      },
+      "example": {
+        "en": "`a\"b⏎` → `\"a\\\"b\\n\"`",
+        "ja": "`a\"b⏎` → `\"a\\\"b\\n\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.escape.c-unescape",
+      "candidateId": "ENCX-015",
+      "description": {
+        "en": "Turns C / Java escapes back into characters with a hand-written scanner (no `eval`): `\\a \\b \\f \\n \\r \\t \\v \\\\ \\' \\\" \\?`, octal `\\ooo` (up to 3 digits, at most `\\377`), `\\x` with any number of hex digits (at most `\\xff`), `\\uXXXX` (surrogate pairs are joined) and `\\UXXXXXXXX`; `\\x` and octal values are UTF-8 bytes. A selection that starts with `\"` and ends with an unescaped `\"` is read as a sequence of C literals (`\"a\" \"b\"` → `ab`; other text between them is an error); otherwise the whole selection is the body and `\"` stays as it is. Any other escape is an error. **Unescape** follows `JSON.parse` instead.",
+        "ja": "C / Java 形式のエスケープを手書きの走査で元の文字に戻す（eval は使わない）。`\\a \\b \\f \\n \\r \\t \\v \\\\ \\' \\\" \\?`、8 進 `\\ooo`（最大 3 桁、`\\377` まで）、桁数無制限の `\\x`（`\\xff` まで）、`\\uXXXX`（サロゲート対は結合）、`\\UXXXXXXXX` を解釈し、`\\x` と 8 進の値は UTF-8 のバイトとして扱う。`\"` で始まりエスケープされていない `\"` で終わる選択は C のリテラルの並びとして読み（`\"a\" \"b\"` → `ab`。リテラル間の他の文字はエラー）、それ以外は選択全体を本文として扱い `\"` はそのまま残す。未知のエスケープはエラー（JSON.parse 準拠は **Unescape**）"
+      },
+      "example": {
+        "en": "`a\\x41\\101` → `aAA`",
+        "ja": "`a\\x41\\101` → `aAA`"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-sha3-384",
+      "candidateId": "ENCX-016",
+      "description": {
+        "en": "Creates the SHA3-384 hash (FIPS 202, hex) of the UTF-8 bytes, with the selected text as a heading in a new editor. Computed by the extension's own TypeScript implementation, because the VS Code runtime (Electron) does not provide SHA-3.",
+        "ja": "UTF-8 バイト列の SHA3-384 ハッシュ（FIPS 202、16 進）を、選択テキストを見出しにして新しいエディタに出す。VS Code の実行環境（Electron）は SHA-3 を提供しないため、拡張機能内の TypeScript 実装で計算する"
+      },
+      "example": {
+        "en": "`abc` → `ec01498288516fc9…`",
+        "ja": "`abc` → `ec01498288516fc9…`"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hash-shake256",
+      "candidateId": "ENCX-017",
+      "description": {
+        "en": "Creates the SHAKE256 output (FIPS 202, hex) of the UTF-8 bytes with the length you enter (1 to 1,024 bytes, default 32; up to 2,048 hex digits).",
+        "ja": "UTF-8 バイト列の SHAKE256 出力（FIPS 202、16 進）を入力した長さで出す（1〜1,024 バイト、既定値 32。最大 2,048 桁）"
+      },
+      "example": {
+        "en": "`abc（N=32）` → `483366601360a877…`",
+        "ja": "`abc（N=32）` → `483366601360a877…`"
+      }
+    },
+    {
+      "id": "selection-manipulator.crypto.hmac-sha3-512",
+      "candidateId": "ENCX-018",
+      "description": {
+        "en": "Creates the HMAC-SHA3-512 (hex, 128 digits; block size 72 bytes) of the UTF-8 bytes with the key you enter. The key is typed in a password box and is never saved, logged or shown.",
+        "ja": "UTF-8 バイト列の HMAC-SHA3-512（16 進 128 桁。ブロック長 72 バイト）を入力した鍵で計算する。鍵はパスワード入力で受け、保存・ログ出力・表示はしない"
+      },
+      "example": {
+        "en": "`abc（key: k）` → `7cc7ed9b9f44d32f…`",
+        "ja": "`abc（鍵: k）` → `7cc7ed9b9f44d32f…`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.checksum.crc16",
+      "candidateId": "ENCX-019",
+      "description": {
+        "en": "Calculates the CRC-16/CCITT-FALSE (polynomial 0x1021, initial value 0xFFFF) of the UTF-8 bytes as 4 lowercase hex digits. Not for cryptographic use: it only detects accidental corruption, not tampering.",
+        "ja": "UTF-8 バイト列の CRC-16/CCITT-FALSE（多項式 0x1021、初期値 0xFFFF）を小文字 16 進 4 桁で出す。データ破損の検出用で、改ざん検出・暗号用途には使えない"
+      },
+      "example": {
+        "en": "`123456789` → `29b1`",
+        "ja": "`123456789` → `29b1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.checksum.crc32c",
+      "candidateId": "ENCX-020",
+      "description": {
+        "en": "Calculates the CRC-32C (Castagnoli, as used by iSCSI and ext4) of the UTF-8 bytes as 8 lowercase hex digits. **Checksum: CRC-32** uses the IEEE polynomial. Not for cryptographic use: it only detects accidental corruption, not tampering.",
+        "ja": "UTF-8 バイト列の CRC-32C（Castagnoli。iSCSI・ext4 などで使用）を小文字 16 進 8 桁で出す（IEEE 多項式は **Checksum: CRC-32**）。データ破損の検出用で、改ざん検出・暗号用途には使えない"
+      },
+      "example": {
+        "en": "`123456789` → `e3069283`",
+        "ja": "`123456789` → `e3069283`"
+      }
+    },
+    {
+      "id": "selection-manipulator.checksum.iban",
+      "candidateId": "ENCX-021",
+      "description": {
+        "en": "Checks the IBAN check digits (ISO 13616 mod 97) and shows `valid`, `invalid` or `not an IBAN` in a notification (several selections: one result per selection; 11 or more: the counts). Spaces are ignored; only the general structure is checked (2-letter country code, 2 check digits, 15 to 34 letters and digits), not the length of each country. The notification never contains the selected text. Not for cryptographic use: it only detects typing mistakes.",
+        "ja": "IBAN のチェックディジット（ISO 13616 の mod 97）を検証し、`valid` / `invalid` / `not an IBAN` を通知する（複数選択は選択ごと、11 件以上は件数のみ）。空白は無視し、構造は汎用の規則（英字 2 文字の国コード・数字 2 桁・英数字で全体 15〜34 文字）だけを見て国別の長さは検査しない。通知に選択テキストは含めない。入力ミスの検出用で、暗号用途には使えない"
+      },
+      "example": {
+        "en": "`GB82 WEST 1234 5698 7654 32` → `valid（notification）`",
+        "ja": "`GB82 WEST 1234 5698 7654 32` → `valid（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.checksum.isbn",
+      "candidateId": "ENCX-022",
+      "description": {
+        "en": "Checks the check digit of an ISBN-10 or ISBN-13 and shows the result in a notification, with the right check digit when it is wrong. Single spaces or hyphens between digits are allowed (`0-8044-2957-X`), `X` only as the last digit of an ISBN-10; an ISBN-13 must start with 978 or 979 (otherwise it is `not an ISBN`). Not for cryptographic use: it only detects typing mistakes.",
+        "ja": "ISBN-10／ISBN-13 のチェックディジットを検証して通知する（誤りのときは正しい桁を示す）。数字の間の 1 つの空白・ハイフンは許し（`0-8044-2957-X`）、`X` は ISBN-10 の最後の桁にだけ許す。ISBN-13 は 978 か 979 で始まらなければ `not an ISBN` になる。入力ミスの検出用で、暗号用途には使えない"
+      },
+      "example": {
+        "en": "`978-4-00-310101-8` → `valid（notification）`",
+        "ja": "`978-4-00-310101-8` → `valid（通知）`",
+        "japanese": "note"
+      }
+    }
+  ]
+}

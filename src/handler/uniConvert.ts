@@ -285,7 +285,7 @@ const ASCII_ALPHANUMERIC = /[A-Za-z0-9]/g;
 const codeOf = (ch: string): number => ch.charCodeAt(0);
 
 /** The letters (and digits, when the style has them) of the text in a mathematical style. */
-const toMathStyle = (text: string, style: MathStyle): string =>
+export const toMathStyle = (text: string, style: MathStyle): string =>
   text.replace(ASCII_ALPHANUMERIC, (ch) => {
     const code = codeOf(ch);
     let styled: number;

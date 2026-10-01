@@ -6,6 +6,7 @@ import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { findNumPromptProblem } from '../../handler/numCommon';
 import { NumDependencies, numHandlerInternal, NUM_NOTHING_SELECTED } from '../../handler/numHandler';
 import { NUM_COMMAND_ENTRIES, NumCommandEntry } from '../../handler/numTransforms';
+import { NUM2_COMMAND_ENTRIES } from '../../handler/num2Transforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { NUM_INVALID_INPUT, NUM_ROADMAP_EXAMPLES } from './numExamples';
 import { createTextEditor, undoIn } from './testUtils';
@@ -471,7 +472,7 @@ suite('Number Commands (NUM-001..040) Test Suite', () => {
       assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
     });
 
-    test('the existing items of the three submenus keep their places; the new ones follow (9 + 25 + 6)', () => {
+    test('the existing items of the three submenus keep their places; the NUM ones follow (9 + 25 + 6), then the NUMX ones', () => {
       const menus = JSON.parse(readRepoFile('package.json')).contributes.menus;
       const expected: [string, string[]][] = [
         ['selection-manipulator.calculation.submenu', ['calculation', 'calculation.date']],
@@ -481,8 +482,10 @@ suite('Number Commands (NUM-001..040) Test Suite', () => {
       ];
       for (const [menu, existing] of expected) {
         const added = NUM_COMMAND_ENTRIES.filter((entry) => menuOf(entry) === menu).map((entry) => entry.name);
+        // The NUM2 commands (NUMX-001..023) were added after the NUM ones; they are checked in num2Commands.test.ts.
         const items: { command: string; group: string }[] = menus[menu];
-        assert.deepStrictEqual(items.map((item) => item.command), [...existing, ...added].map((name) => `selection-manipulator.${name}`), menu);
+        const num2 = items.filter((item) => NUM2_COMMAND_ENTRIES.some((entry) => item.command === `selection-manipulator.${entry.name}`)).length;
+        assert.deepStrictEqual(items.slice(0, items.length - num2).map((item) => item.command), [...existing, ...added].map((name) => `selection-manipulator.${name}`), menu);
         items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       }
       assert.deepStrictEqual(NUM_COMMAND_ENTRIES.map(menuOf).reduce((counts, menu) => ({ ...counts, [menu]: (counts[menu] ?? 0) + 1 }), {} as Record<string, number>), {

@@ -14,6 +14,7 @@ import {
 } from '../../handler/uniCommandHandler';
 import { UniInputError } from '../../handler/uniCommon';
 import { UNI_COMMAND_ENTRIES, UniCommandEntry } from '../../handler/uniTransforms';
+import { UNI2_COMMAND_ENTRIES } from '../../handler/uni2Transforms';
 import { createTextEditor, undoIn } from './testUtils';
 import { UNI_ROADMAP_EXAMPLES } from './uniExamples';
 import { candidateRows } from './showcaseData';
@@ -660,12 +661,13 @@ suite('Unicode Commands (UNI-001..030) Test Suite', () => {
       assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
     });
 
-    test('the new Unicode submenu holds the commands in ROADMAP order, at @16 in the root submenu', () => {
+    test('the new Unicode submenu holds the commands in ROADMAP order (then JAUNIX-008..014), at @16 in the root submenu', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.unicode.submenu'),
         [{ id: 'selection-manipulator.unicode.submenu', label: 'Unicode' }]);
       const items: { command: string; group: string }[] = contributes.menus['selection-manipulator.unicode.submenu'];
-      assert.deepStrictEqual(items.map((item) => item.command), UNI_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`));
+      assert.deepStrictEqual(items.map((item) => item.command),
+        [...UNI_COMMAND_ENTRIES, ...UNI2_COMMAND_ENTRIES].map((entry) => `selection-manipulator.${entry.name}`));
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
       assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.unicode.submenu'),

@@ -108,7 +108,9 @@ export type MdResult =
   /** Shows an information message and changes nothing. */
   | { kind: 'info'; message: string }
   /** Changes nothing and says nothing. */
-  | { kind: 'unchanged' };
+  | { kind: 'unchanged' }
+  /** Opens `content` in a new read-only editor and changes nothing (JAUNIX-018). */
+  | { kind: 'open'; content: string };
 
 /** An input or a selection that a command cannot use (reported as a warning; nothing is changed). */
 export class MdInputError extends Error {
@@ -123,9 +125,9 @@ export const MD_LABEL_MAX_LENGTH = 1000;
 
 export const MD_NO_HEADINGS = 'No headings were found.';
 
-const UNCHANGED: MdResult = { kind: 'unchanged' };
+export const UNCHANGED: MdResult = { kind: 'unchanged' };
 
-const assertOutputLength = (length: number): void => {
+export const assertOutputLength = (length: number): void => {
   if (length > MAX_OUTPUT_LENGTH) {
     throw new MdInputError(`the result would be longer than ${formatNumber(MAX_OUTPUT_LENGTH)} characters; select less text`);
   }
@@ -172,10 +174,10 @@ export interface LineEdges {
   textOnNextLine: boolean;
 }
 
-const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false, textOnNextLine: false };
+export const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false, textOnNextLine: false };
 
 /** A command that transforms the text of every non-empty selection on its own. */
-type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[], edges: LineEdges) => string;
+export type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[], edges: LineEdges) => string;
 
 /**
  * Whether a selection `[start, end)` ends inside a line (so that a line break written after it
@@ -238,7 +240,7 @@ const indentsCodeBlock = (text: string, offset: number, floor: number): boolean 
  * indented code block; up to 3 columns stay. The changed results are counted as they are made,
  * so that the output limit stops a run before all of them are built.
  */
-const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
+export const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
   let total = 0;
   let floor = 0;
@@ -270,7 +272,7 @@ const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ te
 };
 
 /** Applies `transform` to the lines of `value` (one trailing line break kept as it is). */
-const mapLines = (value: string, eol: MdEol, transform: (lines: string[]) => string[]): string => {
+export const mapLines = (value: string, eol: MdEol, transform: (lines: string[]) => string[]): string => {
   const { lines, trailing } = splitLines(value);
   return joinLines(transform(lines), eol, trailing);
 };
@@ -536,7 +538,7 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
 // MD-004..009, 015: lists and quotes
 // ---------------------------------------------------------------------------
 
-const leadingWhitespace = (line: string): string => line.slice(0, line.length - line.trimStart().length);
+export const leadingWhitespace = (line: string): string => line.slice(0, line.length - line.trimStart().length);
 
 /** The parts of a line that the list commands rebuild: indentation, checkbox and text. */
 const listParts = (line: string): { indent: string; checkbox?: string; rest: string; item?: ListItemLine } => {
@@ -678,7 +680,7 @@ export const validateLabelInput = (value: string): string | undefined => {
 };
 
 /** The same rules inside the transforms (a second check, independent of the input box). */
-const assertValid = (validate: (value: string) => string | undefined, value: string): void => {
+export const assertValid = (validate: (value: string) => string | undefined, value: string): void => {
   const problem = validate(value);
   if (problem !== undefined) {
     throw new MdInputError(problem);
@@ -710,7 +712,7 @@ export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edg
 };
 
 /** Whether the parentheses of a URL are balanced (so that it can stay a bare link destination). */
-const balancedParentheses = (url: string): boolean => {
+export const balancedParentheses = (url: string): boolean => {
   let depth = 0;
   for (const c of url) {
     if (c === '(') {
@@ -743,7 +745,7 @@ export const toImage = (value: string, alt: string): string => {
 };
 
 /** The number of line breaks in a text of line breaks only. */
-const lineBreakCount = (breaks: string): number => (breaks.length === 0 ? 0 : lineSpans(breaks).length - 1);
+export const lineBreakCount = (breaks: string): number => (breaks.length === 0 ? 0 : lineSpans(breaks).length - 1);
 
 /**
  * MD-024: `<details><summary>…</summary>`, a blank line, the selection, a blank line,
@@ -779,7 +781,7 @@ const BARE_URL = /https?:\/\/[^\s<>`]+/g;
 const REFERENCE_DEFINITION = /^ {0,3}\[[^\]]*\]:/;
 
 /** Sorts and merges `[start, end)` ranges. */
-const mergeRanges = (ranges: [number, number][]): [number, number][] => {
+export const mergeRanges = (ranges: [number, number][]): [number, number][] => {
   ranges.sort((a, b) => a[0] - b[0]);
   const merged: [number, number][] = [];
   for (const range of ranges) {
@@ -794,7 +796,7 @@ const mergeRanges = (ranges: [number, number][]): [number, number][] => {
 };
 
 /** The ranges of `value` in fenced code blocks (whole lines) and, if asked, reference definition lines. */
-const blockProtectedRanges = (value: string, definitions: boolean): [number, number][] => {
+export const blockProtectedRanges = (value: string, definitions: boolean): [number, number][] => {
   const spans = lineSpans(value);
   const roles = fenceRoles(spans.map(({ start, end }) => value.slice(start, end)));
   const ranges: [number, number][] = [];
@@ -861,10 +863,10 @@ export const linkifyUrls: SelectionTransform = (value) => {
 
 type Alignment = 'none' | 'left' | 'center' | 'right';
 
-const DELIMITER_CELL = /^:?-+:?$/;
+export const DELIMITER_CELL = /^:?-+:?$/;
 
 /** The cells of a table row: split at `|` that is not escaped and not in a code span, trimmed. */
-const tableCells = (line: string): string[] => {
+export const tableCells = (line: string): string[] => {
   const row = line.trim();
   const spans = codeSpans(row);
   const cells: string[] = [];
@@ -903,7 +905,7 @@ const alignmentOf = (cell: string): Alignment => {
   return left && right ? 'center' : left ? 'left' : right ? 'right' : 'none';
 };
 
-const NOT_A_TABLE = 'the selection is not a Markdown table: every line needs a "|" and the second line must be the delimiter row (like |---|---|)';
+export const NOT_A_TABLE = 'the selection is not a Markdown table: every line needs a "|" and the second line must be the delimiter row (like |---|---|)';
 
 /**
  * MD-018: pads the cells to the width of their column (code points; a column with an alignment
@@ -1099,14 +1101,14 @@ const REFERENCE_LABEL = /^ {0,3}\[(\d{1,9})\]:/gm;
 /**
  * The inline links of `value` that MD-023 converts, in order: not images, not in an image (the
  * image ranges are merged and walked together with the links), not in code, and with a
- * destination.
+ * destination (also without one when `emptyDestination` is set, for JAUNIX-017).
  */
-const convertibleLinks = (value: string): InlineLink[] => {
+export const convertibleLinks = (value: string, emptyDestination = false): InlineLink[] => {
   const spans = mergeRanges([...codeSpans(value), ...blockProtectedRanges(value, false)]);
   const found = findInlineLinks(value, spans);
   const images = mergeRanges(found.filter((link) => link.image).map((link): [number, number] => [link.start, link.end]));
   // Links cannot contain links: in order of their start, they are also in order of their end.
-  const links = found.filter((link) => !link.image && link.tail.destination !== '').sort((a, b) => a.start - b.start);
+  const links = found.filter((link) => !link.image && (emptyDestination || link.tail.destination !== '')).sort((a, b) => a.start - b.start);
   let image = 0;
   return links.filter((link) => {
     while (image < images.length && images[image][1] < link.end) {
@@ -1295,12 +1297,23 @@ export interface MdContext {
   inputs: readonly string[];
 }
 
-/** One input box of a command. */
+/** One choice of a quick pick step. */
+export interface MdChoice {
+  label: string;
+  description?: string;
+  value: string;
+}
+
+/**
+ * One input box of a command, or a quick pick when it has `choices` (then `prompt` is its
+ * placeholder and `validate` must accept only the values of the choices).
+ */
 export interface MdInputStep {
   prompt: string;
   placeHolder?: string;
   value?: string;
   validate: (value: string) => string | undefined;
+  choices?: readonly MdChoice[];
 }
 
 /** The `when` clause of the commands that need a selection (all but MD-003). */

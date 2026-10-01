@@ -795,7 +795,8 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
       assert.strictEqual(submenu[i].command, id, 'the submenu is in ID order');
       assert.strictEqual(submenu[i].group, `selection-manipulator@${i}`);
     });
-    assert.strictEqual(submenu.length, 40);
+    // The 14 LINE2 commands (LINEX-001..014) follow them; see line2Commands.test.ts.
+    assert.strictEqual(submenu.length, 54);
     assert.strictEqual(
       contributes.submenus.filter((entry: { id: string }) => entry.id === 'selection-manipulator.line.submenu').length,
       1

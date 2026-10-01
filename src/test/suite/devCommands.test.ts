@@ -4,6 +4,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
+import { ENC2_COMMAND_ENTRIES } from '../../handler/enc2Transforms';
+import { DEV2_COMMAND_ENTRIES } from '../../handler/dev2Transforms';
 import { DEV_NOTHING_SELECTED, devCommandHandlerInternal, DevDependencies, DevPickItem } from '../../handler/devCommandHandler';
 import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
@@ -643,7 +645,7 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
     });
 
-    test('the Programmatic submenu keeps its existing commands first and then lists the DEV commands in ROADMAP order', () => {
+    test('the Programmatic submenu keeps its existing commands first and then lists the DEV commands in ROADMAP order, then the ENC2 escapes and the DEV2 commands', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       const items: { command: string; group: string }[] = contributes.menus['selection-manipulator.programmatic.submenu'];
       const existing = [
@@ -651,7 +653,9 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
         'hex-to-rgb', 'hex-to-rgb.replace', 'rgb-to-hex', 'rgb-to-hex.replace', 'toggle-quotes',
       ].map((name) => `${PREFIX}programmatic.${name}`);
       assert.deepStrictEqual(items.map((item) => item.command),
-        [...existing, ...DEV_COMMAND_ENTRIES.map((entry) => `${PREFIX}${entry.name}`)]);
+        [...existing, ...DEV_COMMAND_ENTRIES.map((entry) => `${PREFIX}${entry.name}`),
+          ...ENC2_COMMAND_ENTRIES.filter((entry) => entry.name.startsWith('escape.')).map((entry) => `${PREFIX}${entry.name}`),
+          ...DEV2_COMMAND_ENTRIES.map((entry) => `${PREFIX}${entry.name}`)]);
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
 

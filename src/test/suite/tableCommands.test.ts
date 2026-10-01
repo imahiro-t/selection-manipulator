@@ -7,6 +7,7 @@ import { findPromptProblem } from '../../handler/tableCsv';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { TABLE_COMMAND_ENTRIES, TableCommandEntry } from '../../handler/tableTransforms';
+import { DATA2_COMMAND_ENTRIES } from '../../handler/data2Transforms';
 import { TABLE_ROADMAP_EXAMPLES, VALID_INPUTS } from './tableExamples';
 import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
@@ -485,11 +486,14 @@ suite('Table Commands (TABLE-001..030) Test Suite', () => {
         Object.entries(contributes.menus).filter(([name]) => !name.startsWith('selection-manipulator.table.') && name !== 'commandPalette')
           .forEach(([name, items]) => assert.strictEqual(count(items as MenuItem[], id), 0, `${name}: ${id}`));
       });
-      assert.deepStrictEqual(tableMenu.map((item) => item.command),
-        TABLE_COMMAND_ENTRIES.filter((e) => e.output !== 'replace').map((e) => `selection-manipulator.${e.name}`));
+      // The five CSV commands of DATA2 (DATAX) follow the TABLE commands in the CSV / TSV submenu.
+      assert.deepStrictEqual(tableMenu.map((item) => item.command), [
+        ...TABLE_COMMAND_ENTRIES.filter((e) => e.output !== 'replace').map((e) => `selection-manipulator.${e.name}`),
+        ...DATA2_COMMAND_ENTRIES.filter((e) => e.name.startsWith('csv.')).map((e) => `selection-manipulator.${e.name}`),
+      ]);
       assert.deepStrictEqual(replaceMenu.map((item) => item.command),
         TABLE_COMMAND_ENTRIES.filter((e) => e.output === 'replace').map((e) => `selection-manipulator.${e.name}`));
-      assert.strictEqual(tableMenu.length, 25);
+      assert.strictEqual(tableMenu.length, 25 + 5);
       assert.strictEqual(replaceMenu.length, 5);
       [tableMenu, replaceMenu].forEach((menu) =>
         menu.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command)));

@@ -420,11 +420,21 @@ export const mapDateLines = (
 // Values typed into the input boxes
 // ---------------------------------------------------------------------------------------------
 
-/** How a typed value is checked. */
+/**
+ * How a typed value is checked:
+ * - `integer`: a decimal integer from `min` to `max`;
+ * - `timeZone`: an IANA time zone that `Intl` accepts;
+ * - `pattern`: a DATE-012 pattern;
+ * - `parse`: `parse` (the function the command uses to read the value) must not throw a
+ *   `DateInputError` (DATEX-001: an ISO 8601 duration);
+ * - `choice`: one of `values`, ignoring case (DATEX-012: the Snowflake epoch).
+ */
 export type DatePromptRule =
   | { kind: 'integer'; min: number; max: number }
   | { kind: 'timeZone' }
-  | { kind: 'pattern' };
+  | { kind: 'pattern' }
+  | { kind: 'parse'; parse: (value: string) => unknown }
+  | { kind: 'choice'; values: readonly string[] };
 
 const INTEGER = /^[-+]?\d{1,15}$/;
 const TIME_ZONE = /^[A-Za-z0-9_+\-/]{1,64}$/;
@@ -523,10 +533,10 @@ export const compilePattern = (pattern: string): PatternPiece[] => {
   return pieces;
 };
 
-/** Why a pattern cannot be used (a sentence for the input box), or `undefined`. */
-const findPatternProblem = (pattern: string): string | undefined => {
+/** Why `parse` refuses a value (its input error as a sentence for the input box), or `undefined`. */
+const findParseProblem = (value: string, parse: (value: string) => unknown): string | undefined => {
   try {
-    compilePattern(pattern);
+    parse(value);
     return undefined;
   } catch (error) {
     if (error instanceof DateInputError) {
@@ -553,7 +563,14 @@ export const findDatePromptProblem = (value: string, rule: DatePromptRule): stri
     if (trimmed === '') {
       return 'Enter a pattern such as yyyy/MM/dd HH:mm.';
     }
-    return findPatternProblem(trimmed);
+    return findParseProblem(trimmed, compilePattern);
+  }
+  if (rule.kind === 'parse') {
+    return findParseProblem(trimmed, rule.parse);
+  }
+  if (rule.kind === 'choice') {
+    const lower = trimmed.toLowerCase();
+    return rule.values.some((choice) => choice.toLowerCase() === lower) ? undefined : `Enter one of ${rule.values.join(', ')}.`;
   }
   const ok = INTEGER.test(trimmed) && Number(trimmed) >= rule.min && Number(trimmed) <= rule.max;
   return ok ? undefined : `Enter an integer from ${rule.min.toLocaleString('en-US')} to ${rule.max.toLocaleString('en-US')}.`;

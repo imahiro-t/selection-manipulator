@@ -13,6 +13,7 @@ import {
 } from '../../handler/jaCommandHandler';
 import { JaInputError } from '../../handler/jaCommon';
 import { JA_COMMAND_ENTRIES, JA_DERIVED_FROM, JaCommandEntry } from '../../handler/jaTransforms';
+import { JA2_COMMAND_ENTRIES } from '../../handler/ja2Transforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { JA_ROADMAP_EXAMPLES } from './jaExamples';
 import { createTextEditor, undoIn } from './testUtils';
@@ -580,12 +581,13 @@ suite('Japanese Text Commands (JA-001..035) Test Suite', () => {
       assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
     });
 
-    test('the existing items of the Japanese submenu keep their places; the new ones follow in ROADMAP order', () => {
+    test('the existing items of the Japanese submenu keep their places; the new ones follow in ROADMAP order, then JAUNIX-001..007', () => {
       const items: { command: string; group: string }[] = JSON.parse(readRepoFile('package.json')).contributes.menus['selection-manipulator.japanese.submenu'];
       const existing = ['full-to-half', 'full-to-half.replace', 'half-to-full', 'half-to-full.replace',
         'hiragana-to-katakana', 'hiragana-to-katakana.replace', 'katakana-to-hiragana', 'katakana-to-hiragana.replace']
         .map((name) => `selection-manipulator.japanese.${name}`);
-      assert.deepStrictEqual(items.map((item) => item.command), [...existing, ...JA_COMMAND_ENTRIES.map((entry) => `selection-manipulator.${entry.name}`)]);
+      assert.deepStrictEqual(items.map((item) => item.command),
+        [...existing, ...[...JA_COMMAND_ENTRIES, ...JA2_COMMAND_ENTRIES].map((entry) => `selection-manipulator.${entry.name}`)]);
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
     });
 

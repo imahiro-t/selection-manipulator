@@ -8,10 +8,10 @@
  */
 import { convertEachLine } from './devCommon';
 
-const HEX_COLOR = /^(#?)([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+export const HEX_COLOR = /^(#?)([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 /** The red, green, blue and alpha bytes of a 3, 4, 6 or 8 digit hex color. */
-const hexBytes = (digits: string): number[] => {
+export const hexBytes = (digits: string): number[] => {
   const long = digits.length <= 4 ? [...digits].map((d) => d + d).join('') : digits;
   const bytes: number[] = [];
   for (let i = 0; i < long.length; i += 2) {

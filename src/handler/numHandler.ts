@@ -1,8 +1,8 @@
 import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { assertNumInputLength, findNumPromptProblem, isBlank, NumInputError, NumNoNumbersError } from './numCommon';
-import { NUM_COMMAND_ENTRIES, NumCommandEntry, NumPrompt } from './numTransforms';
+import { assertNumInputLength, findNumPromptProblem, isBlank, NumInputError, NumLimitError, NumNoNumbersError } from './numCommon';
+import { NUM_COMMAND_ENTRIES, NumCommandEntry, NumPrompt, NumRun } from './numTransforms';
 
 /** How the handlers tell the user why nothing was changed or shown. */
 export interface NumNotifier {
@@ -19,7 +19,7 @@ export interface NumDependencies {
   showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>;
 }
 
-const defaultDependencies: NumDependencies = {
+export const defaultNumDependencies: NumDependencies = {
   notifier: window,
   openResult: (content) => openTextDocument(content),
   showInputBox: (options) => window.showInputBox(options),
@@ -43,8 +43,8 @@ const targetSelections = (textEditor: TextEditor): Selection[] =>
     .filter((selection) => !selection.isEmpty && !isBlank(textEditor.document.getText(selection)))
     .sort((a, b) => a.start.compareTo(b.start));
 
-const entryOf = (name: string): NumCommandEntry => {
-  const entry = NUM_COMMAND_ENTRIES.find((candidate) => candidate.name === name);
+const entryOf = (entries: readonly NumCommandEntry[], name: string): NumCommandEntry => {
+  const entry = entries.find((candidate) => candidate.name === name);
   if (!entry) {
     throw new Error(`Unknown NUM command: ${name}`);
   }
@@ -101,7 +101,7 @@ const notifyFailure = (dependencies: NumDependencies, prefix: string, error: unk
   }
   const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
   const message = `${prefix}${where}${reasonOf(error)}`;
-  void (error instanceof NumNoNumbersError
+  void (error instanceof NumNoNumbersError || error instanceof NumLimitError
     ? dependencies.notifier.showWarningMessage(message)
     : dependencies.notifier.showErrorMessage(message));
 };
@@ -122,6 +122,7 @@ const applyTransform = async (
   const eol = documentEol(textEditor);
   const separator = entry.output === 'new-tab' ? eol.length : 0;
   const results: { selection: Selection; text: string; result: string }[] = [];
+  const run: NumRun = { work: 0 };
   let total = 0;
   let current = 0;
   try {
@@ -130,7 +131,7 @@ const applyTransform = async (
       const text = textEditor.document.getText(selection);
       assertNumInputLength(text);
       const used = total + (index > 0 ? separator : 0);
-      const result = entry.transform(text, inputs, MAX_OUTPUT_LENGTH - used);
+      const result = entry.transform(text, inputs, MAX_OUTPUT_LENGTH - used, run);
       total = used + result.length;
       if (total > MAX_OUTPUT_LENGTH) {
         throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
@@ -172,13 +173,21 @@ const askPrompts = async (dependencies: NumDependencies, entry: NumCommandEntry)
     }
     answers.push(value.trim());
   }
+  const problem = entry.validateInputs?.(answers);
+  if (problem !== undefined) {
+    void dependencies.notifier.showWarningMessage(`${prefixOf(entry)}${problem}`);
+    return undefined;
+  }
   return answers;
 };
 
-/** The NUM-001..040 commands by command name (without `selection-manipulator.`). The dependencies can be replaced in tests. */
-export const numHandlerInternal = (dependencies: NumDependencies) =>
+/**
+ * The commands of `entries` (the NUM-001..040 commands by default) by command name (without
+ * `selection-manipulator.`). The dependencies can be replaced in tests.
+ */
+export const numHandlerInternal = (dependencies: NumDependencies, entries: readonly NumCommandEntry[] = NUM_COMMAND_ENTRIES) =>
   (name: string) => {
-    const entry = entryOf(name);
+    const entry = entryOf(entries, name);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
         if (targetSelections(textEditor).length === 0) {
@@ -203,4 +212,4 @@ export const numHandlerInternal = (dependencies: NumDependencies) =>
     };
   };
 
-export const numHandler = numHandlerInternal(defaultDependencies);
+export const numHandler = numHandlerInternal(defaultNumDependencies);

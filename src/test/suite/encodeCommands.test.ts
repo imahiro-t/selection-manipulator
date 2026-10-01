@@ -10,6 +10,7 @@ import {
   validateShiftInput,
 } from '../../handler/encodeHandler';
 import { myCommands } from '../../handler/showCommandsHandler';
+import { ENC2_COMMAND_ENTRIES } from '../../handler/enc2Transforms';
 import {
   ENC_COMMAND_ENTRIES,
   EncCommandEntry,
@@ -512,7 +513,9 @@ suite('Encode Commands (ENC-001..040) Test Suite', () => {
         const index = entry.output === 'new-tab' ? basicIndex++ : replaceIndex++;
         assert.deepStrictEqual(menu[index], { command: id, group: `selection-manipulator@${index}` }, id);
       });
-      assert.strictEqual(basicMenu.length, 34);
+      // The ENC2 encoding commands (ENCX-001..009) follow the 34 ENC commands.
+      assert.strictEqual(basicMenu.length, 34 + 9);
+      assert.deepStrictEqual(basicMenu.slice(34), ENC2_COMMAND_ENTRIES.slice(0, 9).map((entry, i) => ({ command: `selection-manipulator.${entry.name}`, group: `selection-manipulator@${34 + i}` })));
       assert.strictEqual(replaceMenu.length, 6);
       const submenus: { id: string; label: string }[] = contributes.submenus;
       assert.deepStrictEqual(submenus.filter((s) => s.id.startsWith('selection-manipulator.encode.')), [

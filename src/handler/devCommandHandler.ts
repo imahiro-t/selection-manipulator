@@ -24,7 +24,7 @@ export interface DevDependencies {
   showQuickPick: (items: DevPickItem[], options: QuickPickOptions) => Thenable<DevPickItem | undefined>;
 }
 
-const defaultDependencies: DevDependencies = {
+export const defaultDevDependencies: DevDependencies = {
   notifier: window,
   openResult: (content) => openTextDocument(content),
   showQuickPick: (items, options) => window.showQuickPick(items, options),
@@ -211,4 +211,4 @@ export const devCommandHandlerInternal = (dependencies: DevDependencies, entries
     };
   };
 
-export const devCommandHandler = devCommandHandlerInternal(defaultDependencies);
+export const devCommandHandler = devCommandHandlerInternal(defaultDevDependencies);

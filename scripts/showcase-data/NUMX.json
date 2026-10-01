@@ -1,0 +1,281 @@
+{
+  "category": "NUMX",
+  "commands": [
+    {
+      "id": "selection-manipulator.number.round-to-significant",
+      "candidateId": "NUMX-001",
+      "description": {
+        "en": "Rounds each line's number to the number of significant figures you type (1 to 21), half away from zero on the number as written in decimal, like **Number - Round** (`1.45` with 2 → `1.5`, `2.675` with 3 → `2.68`), and writes it without an exponent where JavaScript does. Unlike **Number - Round**, which counts digits after the decimal point.",
+        "ja": "各行の数値を、入力した有効数字の桁数（1〜21）に丸める（**Number - Round** と同じく 10 進で書いた値を 0 から遠い側へ四捨五入する。`1.45` を 2 桁 → `1.5`、`2.675` を 3 桁 → `2.68`。指数表記になるかは JavaScript の数値表記に従う）。小数点以下の桁数を指定する **Number - Round** と違い、有効数字で数える"
+      },
+      "example": {
+        "en": "`123456（2）` → `120000`",
+        "ja": "`123456（2）` → `120000`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.round-to-multiple",
+      "candidateId": "NUMX-002",
+      "description": {
+        "en": "Rounds each line's number to the nearest multiple of the number you type (any number except 0, decimals and negatives allowed), half away from zero. The quotient is first cleaned to 15 significant digits so that a boundary written in decimal is not missed through floating-point error (`0.15` with 0.1 → `0.2`); the result follows rule A (safe integers as is, other values to 15 significant digits).",
+        "ja": "各行の数値を、入力した数（0 以外。小数・負数も可）の最も近い倍数に丸める（0 から遠い側への四捨五入）。10 進で書いた境界を浮動小数点の誤差で誤らないよう、商を有効 15 桁に整えてから丸める（`0.15` を 0.1 で → `0.2`）。結果は安全な整数ならそのまま、それ以外は有効 15 桁"
+      },
+      "example": {
+        "en": "`17（5）` → `15`",
+        "ja": "`17（5）` → `15`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.clamp",
+      "candidateId": "NUMX-003",
+      "description": {
+        "en": "Limits each line's number to the range you type (minimum, then maximum; any numbers, the minimum must not be greater than the maximum). A number below or above the range becomes the bound; a number within the range is kept exactly as written.",
+        "ja": "各行の数値を、入力した範囲（最小値・最大値の順。任意の数値で、最小値は最大値以下）に収める。範囲より小さい・大きい値は境界値になり、範囲内の値は書かれたまま残す"
+      },
+      "example": {
+        "en": "`120⏎50⏎-5（0, 100）` → `100⏎50⏎0`",
+        "ja": "`120⏎50⏎-5（0, 100）` → `100⏎50⏎0`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-roman",
+      "candidateId": "NUMX-004",
+      "description": {
+        "en": "Converts each line's integer from 1 to 3999 (no sign, leading zeros allowed) to upper-case Roman numerals in the standard subtractive form. Other values are errors.",
+        "ja": "各行の 1〜3999 の整数（符号なし。先頭の 0 は可）を、標準形（減算表記）の大文字のローマ数字にする。それ以外の値はエラー"
+      },
+      "example": {
+        "en": "`2026` → `MMXXVI`",
+        "ja": "`2026` → `MMXXVI`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-roman",
+      "candidateId": "NUMX-005",
+      "description": {
+        "en": "Converts each line's Roman numeral (I to MMMCMXCIX, any case) to an integer. Only the standard subtractive form is accepted: `IIII`, `VX` or `IC` are errors.",
+        "ja": "各行のローマ数字（I〜MMMCMXCIX、大文字小文字を問わない）を整数にする。標準形（減算表記）のみ受け付け、`IIII`・`VX`・`IC` などはエラー"
+      },
+      "example": {
+        "en": "`MMXXVI` → `2026`",
+        "ja": "`MMXXVI` → `2026`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-english-words",
+      "candidateId": "NUMX-006",
+      "description": {
+        "en": "Converts each line's number in English words to an integer, the reverse of **Number - To English Words**: `minus`, `zero`, one to nineteen, the tens (with or without a hyphen), `hundred` and the short scales up to decillion in descending order. Case, `and` and commas are ignored; at most 100 words per line. The result is exact (no rounding).",
+        "ja": "各行の英語の数詞を整数にする（**Number - To English Words** の逆。`minus`・`zero`・one〜nineteen・十の位（ハイフンの有無は問わない）・`hundred`・decillion までの scale を降順で）。大文字小文字・`and`・カンマは無視し、1 行 100 語まで。結果は丸めない正確な整数"
+      },
+      "example": {
+        "en": "`one hundred twenty-three` → `123`",
+        "ja": "`one hundred twenty-three` → `123`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-fraction",
+      "candidateId": "NUMX-007",
+      "description": {
+        "en": "Converts each line's fraction `a/b` or mixed number `w a/b` to a decimal (a sign applies to the whole value: `-1 3/4` → `-1.75`; each integer up to 30 digits). A denominator of 0 is an error. The result is rounded to 15 significant digits (`1/3` → `0.333333333333333`). The reverse of **Number - Decimal to Fraction**.",
+        "ja": "各行の分数 `a/b` または帯分数 `w a/b` を小数にする（符号は全体に掛かる: `-1 3/4` → `-1.75`。各整数は 30 桁まで）。分母 0 はエラー。結果は有効 15 桁（`1/3` → `0.333333333333333`）。**Number - Decimal to Fraction** の逆"
+      },
+      "example": {
+        "en": "`1 3/4` → `1.75`",
+        "ja": "`1 3/4` → `1.75`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.multiply-by-n",
+      "candidateId": "NUMX-008",
+      "description": {
+        "en": "Multiplies each line's number by the number you type (any number). Floating-point error is removed (safe integers as is, other values to 15 significant digits); a result beyond the range of a double is an error.",
+        "ja": "各行の数値に入力した数（任意の数値）を掛ける。浮動小数点の誤差は除く（安全な整数ならそのまま、それ以外は有効 15 桁）。倍精度の範囲を超える結果はエラー"
+      },
+      "example": {
+        "en": "`12（1.1）` → `13.2`",
+        "ja": "`12（1.1）` → `13.2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-ieee754",
+      "candidateId": "NUMX-009",
+      "description": {
+        "en": "Writes the IEEE 754 bits of each line's number in upper-case hex with `0x`: 16 digits for a double (64) or 8 for a single (32), chosen in the input box. `-0` keeps its sign bit; a number beyond the range of a single is an error with 32.",
+        "ja": "各行の数値の IEEE 754 のビット列を `0x` 付きの大文字 16 進で書く（入力ボックスで 64（倍精度・16 桁）か 32（単精度・8 桁）を選ぶ）。`-0` は符号ビット付き。32 で単精度の範囲を超える数値はエラー"
+      },
+      "example": {
+        "en": "`1.5（64）` → `0x3FF8000000000000`",
+        "ja": "`1.5（64）` → `0x3FF8000000000000`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.from-ieee754",
+      "candidateId": "NUMX-010",
+      "description": {
+        "en": "Reads each line's IEEE 754 bits in hex (`0x` optional, any case): 16 digits as a double, 8 as a single, other lengths are errors. Writes the shortest decimal that reads back to the same value (`NaN`, `Infinity`, `-Infinity` and `-0` as such), so the result is exact rather than rounded to 15 digits.",
+        "ja": "各行の 16 進の IEEE 754 ビット列（`0x` は省略可、大文字小文字は問わない）を読む（16 桁は倍精度、8 桁は単精度、それ以外の桁数はエラー）。同じ値に戻る最短の 10 進表記で書く（`NaN`・`Infinity`・`-Infinity`・`-0` はそのまま）ので、有効 15 桁に丸めない"
+      },
+      "example": {
+        "en": "`0x3FF8000000000000` → `1.5`",
+        "ja": "`0x3FF8000000000000` → `1.5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.number.to-twos-complement",
+      "candidateId": "NUMX-011",
+      "description": {
+        "en": "Writes each line's decimal integer as two's complement upper-case hex with `0x`, zero-padded to the bit width you choose (8, 16, 32 or 64). Accepted values are −2^(w−1) to 2^w − 1 (so 255 is `0xFF` with 8 bits); others are errors.",
+        "ja": "各行の 10 進整数を、選んだビット幅（8・16・32・64）の 2 の補数として `0x` 付きの大文字 16 進でゼロ詰めして書く。受け付ける範囲は −2^(w−1)〜2^w − 1（8 ビットなら 255 は `0xFF`）で、それ以外はエラー"
+      },
+      "example": {
+        "en": "`-1（32）` → `0xFFFFFFFF`",
+        "ja": "`-1（32）` → `0xFFFFFFFF`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.gcd",
+      "candidateId": "NUMX-012",
+      "description": {
+        "en": "Opens the greatest common divisor of the integers in each selection in a new read-only editor (one line per selection; the document is not changed). Integers are number tokens as in **Math - Median**; negative values count as their absolute value, 0 is ignored by the divisor (all 0 → `0`), and a decimal is an error. Each integer up to 1,000 digits, computed exactly with BigInt.",
+        "ja": "選択範囲ごとの整数の最大公約数を新しい読み取り専用エディターに開く（1 選択範囲 1 行。文書は変更しない）。整数は **Math - Median** と同じトークン規則で読み、負数は絶対値で計算し、0 は約数に影響しない（すべて 0 なら `0`）。小数はエラー。各整数 1,000 桁まで、BigInt で正確に計算する"
+      },
+      "example": {
+        "en": "`12 18 24` → `6`",
+        "ja": "`12 18 24` → `6`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.lcm",
+      "candidateId": "NUMX-013",
+      "description": {
+        "en": "Opens the least common multiple of the integers in each selection in a new read-only editor (one line per selection). Negative values count as their absolute value and any 0 makes the result `0`. Each integer up to 1,000 digits; the calculation stops with an error as soon as the result has more than 1,000 digits.",
+        "ja": "選択範囲ごとの整数の最小公倍数を新しい読み取り専用エディターに開く（1 選択範囲 1 行）。負数は絶対値で計算し、0 を含めば `0`。各整数 1,000 桁まで。結果が 1,000 桁を超えた時点でエラーにして中止する"
+      },
+      "example": {
+        "en": "`4 6` → `12`",
+        "ja": "`4 6` → `12`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.prime-factors",
+      "candidateId": "NUMX-014",
+      "description": {
+        "en": "Replaces each line's integer from 2 to 9007199254740991 (2^53 − 1) with its prime factorization (`2^3 × 3^2 × 5`; a prime stays as it is). Uses trial division up to the square root; one run (all selections and lines together) stops with an error after 100,000,000 trial divisions, which is about three primes near 2^53.",
+        "ja": "各行の 2〜9007199254740991（2^53 − 1）の整数を素因数分解する（`2^3 × 3^2 × 5`。素数はそのまま）。平方根までの試し割りで、1 回の実行（全選択範囲・全行の合計）で試し割りが 100,000,000 回を超えるとエラーで中止する（2^53 に近い素数でおよそ 3 個分）"
+      },
+      "example": {
+        "en": "`360` → `2^3 × 3^2 × 5`",
+        "ja": "`360` → `2^3 × 3^2 × 5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.diff-consecutive",
+      "candidateId": "NUMX-015",
+      "description": {
+        "en": "Replaces each selection with the differences between its consecutive numbers (the reverse of **Math - Cumulative Sum**). Numbers are tokens as in **Math - Median**; the results are separated by line breaks (the selection's own CRLF / LF) when the selection has more than one line, otherwise by spaces. Fewer than 2 numbers is an error.",
+        "ja": "選択範囲を、隣り合う数値の差に置き換える（**Math - Cumulative Sum** の逆）。数値は **Math - Median** と同じトークン規則で読み、選択範囲に改行があれば結果をその改行（CRLF / LF）で、なければ半角スペースで区切る。数値が 2 個未満ならエラー"
+      },
+      "example": {
+        "en": "`1 4 9` → `3 5`",
+        "ja": "`1 4 9` → `3 5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.collapse-ranges",
+      "candidateId": "NUMX-016",
+      "description": {
+        "en": "Replaces each selection's integers (0 or more, separated by spaces, tabs, commas or line breaks) with ranges on one line: sorted, duplicates removed, consecutive runs written `a-b` and joined with `, `. Negative numbers, decimals and other text are errors.",
+        "ja": "選択範囲の整数（0 以上。半角スペース・タブ・カンマ・改行で区切る）を、昇順に並べて重複を除き、連続する部分を `a-b` にまとめて `, ` でつないだ 1 行に置き換える。負数・小数・その他の文字はエラー"
+      },
+      "example": {
+        "en": "`1 2 3 5 7 8` → `1-3, 5, 7-8`",
+        "ja": "`1 2 3 5 7 8` → `1-3, 5, 7-8`"
+      }
+    },
+    {
+      "id": "selection-manipulator.math.expand-ranges",
+      "candidateId": "NUMX-017",
+      "description": {
+        "en": "Replaces each selection's integers and ranges `a-b` (0 or more, a ≤ b; separated by spaces, tabs, commas or line breaks, with spaces allowed around the dash) with every integer on one line, joined with `, `, in the order written (duplicates are kept). If the ranges expand to more than 10,000 integers, nothing is changed and a warning is shown.",
+        "ja": "選択範囲の整数と範囲 `a-b`（0 以上で a ≤ b。半角スペース・タブ・カンマ・改行で区切り、ダッシュの前後の空白は可）を、書いた順にすべての整数へ展開して `, ` でつないだ 1 行に置き換える（重複も残す）。展開後が 10,000 個を超える場合は何も変えずに警告する"
+      },
+      "example": {
+        "en": "`1-3, 5` → `1, 2, 3, 5`",
+        "ja": "`1-3, 5` → `1, 2, 3, 5`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.m-to-ft",
+      "candidateId": "NUMX-018",
+      "description": {
+        "en": "Converts meters to feet (1 ft = 0.3048 m). Rounded to 4 decimal places.",
+        "ja": "メートルをフィートに変換する（1 ft = 0.3048 m。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`1` → `3.2808`",
+        "ja": "`1` → `3.2808`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.ft-to-m",
+      "candidateId": "NUMX-019",
+      "description": {
+        "en": "Converts feet to meters (1 ft = 0.3048 m). Rounded to 4 decimal places.",
+        "ja": "フィートをメートルに変換する（1 ft = 0.3048 m。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`10` → `3.048`",
+        "ja": "`10` → `3.048`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.sqm-to-tsubo",
+      "candidateId": "NUMX-020",
+      "description": {
+        "en": "Converts square meters to tsubo (the Japanese unit of floor area, 1 tsubo = 400/121 m², about 3.3058 m²). Rounded to 4 decimal places.",
+        "ja": "平方メートルを坪に変換する（1 坪 = 400/121 m²、約 3.3058 m²。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`100` → `30.25`",
+        "ja": "`100` → `30.25`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.tsubo-to-sqm",
+      "candidateId": "NUMX-021",
+      "description": {
+        "en": "Converts tsubo (the Japanese unit of floor area) to square meters (1 tsubo = 400/121 m²). Rounded to 4 decimal places.",
+        "ja": "坪を平方メートルに変換する（1 坪 = 400/121 m²。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`30.25` → `100`",
+        "ja": "`30.25` → `100`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.deg-to-rad",
+      "candidateId": "NUMX-022",
+      "description": {
+        "en": "Converts degrees to radians (× π / 180). Rounded to 4 decimal places.",
+        "ja": "度をラジアンに変換する（× π / 180。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`180` → `3.1416`",
+        "ja": "`180` → `3.1416`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unit.rad-to-deg",
+      "candidateId": "NUMX-023",
+      "description": {
+        "en": "Converts radians to degrees (× 180 / π). Rounded to 4 decimal places.",
+        "ja": "ラジアンを度に変換する（× 180 / π。小数 4 桁に丸める）"
+      },
+      "example": {
+        "en": "`3.14159265` → `180`",
+        "ja": "`3.14159265` → `180`"
+      }
+    }
+  ]
+}

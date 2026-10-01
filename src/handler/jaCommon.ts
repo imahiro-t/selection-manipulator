@@ -31,6 +31,17 @@ export class JaNoTargetError extends JaInputError {
   }
 }
 
+/**
+ * A limit of a command was exceeded (JAUNIX-001: too many lines or characters per line): shown as
+ * a warning, like the output limit, and nothing is changed. Only the JAUNIX commands throw it.
+ */
+export class JaLimitError extends JaInputError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'JaLimitError';
+  }
+}
+
 /** Upper limit of the length (UTF-16 code units) of one selection. */
 export const JA_MAX_INPUT_LENGTH = 1_000_000;
 /** Maximum number of characters of the selected text quoted in a message. */

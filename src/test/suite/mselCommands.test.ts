@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { runRegexCaptureInWorker, runRegexInWorker, runRegexSplitInWorker } from '../../handler/lineRegex';
 import { LINE_REGEX_MAX_INPUT_LENGTH } from '../../handler/lineTransforms';
 import {
+  ALL_MSEL_COMMAND_ENTRIES,
   MSEL_DOCUMENT_CHANGED,
   MSEL_TOO_MANY_SELECTIONS,
   mselCommandHandlerInternal,
@@ -17,8 +18,10 @@ import {
   MSEL_WHEN_CLAUSES,
   MselCommandEntry,
 } from '../../handler/mselTransforms';
+import { MSEL2_COMMAND_ENTRIES, MSEL2_NO_DUPLICATES } from '../../handler/msel2Transforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandNotation, MSEL_ROADMAP_EXAMPLES, parseMarked, renderMarked } from './mselExamples';
+import { MSEL2_ROADMAP_EXAMPLES } from './msel2Examples';
 import { createTextEditor, undoIn } from './testUtils';
 import { candidateRows } from './showcaseData';
 
@@ -63,13 +66,16 @@ const recorder = (answers: (string | undefined)[] = [], overrides: Partial<MselD
   return { dependencies, infos, warnings, errors, boxes };
 };
 
+/** The examples of the MSEL commands and of the LINEX-015..023 selection commands. */
+const ALL_EXAMPLES = { ...MSEL_ROADMAP_EXAMPLES, ...MSEL2_ROADMAP_EXAMPLES };
+
 const entryOf = (id: string): MselCommandEntry => {
-  const found = MSEL_COMMAND_ENTRIES.find((entry) => entry.id === id);
+  const found = ALL_MSEL_COMMAND_ENTRIES.find((entry) => entry.id === id);
   assert.ok(found, id);
   return found;
 };
 
-const run = (entry: MselCommandEntry, dependencies: MselDependencies, entries: readonly MselCommandEntry[] = MSEL_COMMAND_ENTRIES) =>
+const run = (entry: MselCommandEntry, dependencies: MselDependencies, entries: readonly MselCommandEntry[] = ALL_MSEL_COMMAND_ENTRIES) =>
   mselCommandHandlerInternal(dependencies, entries)(entry.name);
 
 /** Opens a marked text (`[…]` selection, `|` cursor, `⏎`, `·`) with its selections. */
@@ -116,8 +122,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
   teardown(closeAllEditors);
 
   suite('each command (ROADMAP example)', () => {
-    MSEL_COMMAND_ENTRIES.forEach((entry) => {
-      const example = MSEL_ROADMAP_EXAMPLES[entry.id];
+    ALL_MSEL_COMMAND_ENTRIES.forEach((entry) => {
+      const example = ALL_EXAMPLES[entry.id];
 
       test(`${entry.id} ${entry.name}: ${example.input} → ${example.expected}`, async () => {
         const { dependencies, infos, warnings, errors, boxes } = recorder(example.inputs);
@@ -150,6 +156,62 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
       }
       assert.deepStrictEqual(MSEL_COMMAND_ENTRIES.filter((entry) => entry.needsTwo).map((entry) => entry.id),
         ['MSEL-001', 'MSEL-002', 'MSEL-003', 'MSEL-004', 'MSEL-005', 'MSEL-009', 'MSEL-010', 'MSEL-025', 'MSEL-026', 'MSEL-027', 'MSEL-028']);
+    });
+
+    test('LINEX-022 / 023 need two selections (warned before the input box)', async () => {
+      for (const id of ['LINEX-022', 'LINEX-023']) {
+        const { dependencies, warnings, boxes } = recorder([', ']);
+        const editor = await open('[a] b');
+        await run(entryOf(id), dependencies)(editor);
+        assert.deepStrictEqual(warnings, [MSEL_NEED_TWO], id);
+        assert.strictEqual(boxes.length, 0, id);
+        assert.strictEqual(state(editor), '[a] b', id);
+      }
+    });
+
+    test('LINEX-022: no duplicate text only notifies', async () => {
+      const { dependencies, infos, warnings } = recorder();
+      const editor = await open('[a] [b]');
+      await run(entryOf('LINEX-022'), dependencies)(editor);
+      assert.deepStrictEqual([infos, warnings], [[MSEL2_NO_DUPLICATES], []]);
+      assert.strictEqual(state(editor), '[a] [b]');
+    });
+
+    test('LINEX-015..019: with a cursor and a non-empty selection only the inside of the selection is searched', async () => {
+      const { dependencies, warnings } = recorder();
+      const editor = await open('x@y.jp| [a z@w.jp] q@r.jp');
+      await run(entryOf('LINEX-015'), dependencies)(editor);
+      assert.deepStrictEqual(warnings, []);
+      assert.strictEqual(state(editor), 'x@y.jp a [z@w.jp] q@r.jp');
+      const second = recorder();
+      const cursorsOnly = await open('a x@y.jp| b z@w.jp|');
+      await run(entryOf('LINEX-015'), second.dependencies)(cursorsOnly);
+      assert.strictEqual(state(cursorsOnly), 'a [x@y.jp] b [z@w.jp]');
+      const third = recorder();
+      const nothingInside = await open('x@y.jp| [abc] q@r.jp');
+      await run(entryOf('LINEX-015'), third.dependencies)(nothingInside);
+      assert.deepStrictEqual(third.warnings, ['No email addresses were found in the selections.']);
+      assert.strictEqual(state(nothingInside), 'x@y.jp| [abc] q@r.jp');
+    });
+
+    test('LINEX-015..019: more than 100,000 matches warn and change nothing', async () => {
+      const { dependencies, warnings, errors } = recorder();
+      const text = Array.from({ length: MSEL_MAX_SELECTIONS + 1 }, () => '#fff').join(' ');
+      const editor = await createTextEditor(text);
+      editor.selection = new vscode.Selection(0, 0, 0, 0);
+      await run(entryOf('LINEX-017'), dependencies)(editor);
+      assert.deepStrictEqual([warnings, errors], [[MSEL_TOO_MANY_SELECTIONS], []]);
+      assert.strictEqual(editor.selections.length, 1);
+      assert.ok(editor.selection.isEmpty);
+    });
+
+    test('LINEX-023: CRLF documents and the selection after the edit', async () => {
+      const editor = await createTextEditor('a\r\nb\r\nc');
+      assert.strictEqual(editor.document.eol, vscode.EndOfLine.CRLF);
+      editor.selections = [new vscode.Selection(2, 0, 2, 1), new vscode.Selection(0, 0, 0, 1), new vscode.Selection(1, 0, 1, 1)];
+      await run(entryOf('LINEX-023'), recorder(['-']).dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'a-b-c\r\n\r\n');
+      assert.strictEqual(state(editor), '[a-b-c]\r\n\r\n');
     });
 
     test('the filters count in document order and keep the direction of the selections', async () => {
@@ -232,9 +294,12 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
 
   suite('input boxes', () => {
     test('cancelling any input box changes nothing', async () => {
-      for (const entry of MSEL_COMMAND_ENTRIES.filter((candidate) => candidate.inputs !== undefined)) {
+      // The MSEL commands and the LINEX-015..023 selection commands (LINEX-023 has a delimiter box).
+      const withInputs = ALL_MSEL_COMMAND_ENTRIES.filter((candidate) => candidate.inputs !== undefined);
+      assert.ok(withInputs.some((entry) => entry.id === 'LINEX-023'));
+      for (const entry of withInputs) {
         for (let cancelAt = 0; cancelAt < entry.inputs!.length; cancelAt++) {
-          const answers: (string | undefined)[] = [...(MSEL_ROADMAP_EXAMPLES[entry.id].inputs ?? [])];
+          const answers: (string | undefined)[] = [...(ALL_EXAMPLES[entry.id].inputs ?? [])];
           answers[cancelAt] = undefined;
           const { dependencies, infos, warnings, errors, boxes } = recorder(answers, {
             runRegex: () => assert.fail('the worker must not run'),
@@ -263,6 +328,23 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
         assert.strictEqual(state(editor), '[a],b', id);
         assert.deepStrictEqual(warnings, [], id);
       }
+    });
+
+    test('LINEX-023: the delimiter box accepts an empty delimiter', async () => {
+      const { dependencies, boxes, warnings, errors, infos } = recorder(['']);
+      const editor = await open('[a] [b] [c]');
+      await run(entryOf('LINEX-023'), dependencies)(editor);
+      assert.strictEqual(state(editor), '[abc]  ');
+      assert.deepStrictEqual([infos, warnings, errors], [[], [], []]);
+      assert.strictEqual(boxes.length, 1);
+      assert.strictEqual(boxes[0].value, ', ');
+      const validate = boxes[0].validateInput as (value: string) => string | undefined;
+      assert.strictEqual(validate(''), undefined);
+      assert.strictEqual(validate(', '), undefined);
+      assert.ok(validate('x'.repeat(101)));
+      assert.ok(validate('a\nb'));
+      await undoIn(editor);
+      assert.strictEqual(editor.document.getText(), 'a b c', 'one undo restores the text');
     });
 
     test('MSEL-021: the delimiter box starts with "," and the column box rejects 0, 1,001 and text', async () => {
@@ -406,7 +488,7 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
 
     test('extension.ts registers every command with mselCommandHandler exactly once', () => {
       const source = readRepoFile('src/extension.ts');
-      MSEL_COMMAND_ENTRIES.forEach((entry) => {
+      ALL_MSEL_COMMAND_ENTRIES.forEach((entry) => {
         const registration = `registerTextEditorCommand('${PREFIX}${entry.name}', mselCommandHandler('${entry.name}'))`;
         assert.strictEqual(source.split(registration).length - 1, 1, registration);
         assert.strictEqual(source.split(`'${PREFIX}${entry.name}'`).length - 1, 1, entry.name);
@@ -417,7 +499,7 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       type MenuItem = { command?: string; submenu?: string; group?: string; when?: string };
       const count = (items: MenuItem[], id: string) => items.filter((item) => item.command === id).length;
-      MSEL_COMMAND_ENTRIES.forEach((entry) => {
+      ALL_MSEL_COMMAND_ENTRIES.forEach((entry) => {
         const id = `${PREFIX}${entry.name}`;
         assert.deepStrictEqual(contributes.commands.filter((c: MenuItem) => c.command === id),
           [{ command: id, title: entry.title, category: 'Selection Manipulator' }], id);
@@ -444,7 +526,7 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
       assert.deepStrictEqual(ids('always'), [...range(11, 13), 'MSEL-020', 'MSEL-029', 'MSEL-030']);
     });
 
-    test('the Multi Cursor submenu holds the commands in groups A to G, at @17 in the root submenu', () => {
+    test('the Multi Cursor submenu holds the commands in groups A to G and then LINEX-015..023, at @17 in the root submenu', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       assert.deepStrictEqual(contributes.submenus.filter((s: { id: string }) => s.id === 'selection-manipulator.selection.submenu'),
         [{ id: 'selection-manipulator.selection.submenu', label: 'Multi Cursor' }]);
@@ -457,6 +539,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
         'MSEL-022', 'MSEL-023', 'MSEL-024',
         'MSEL-025', 'MSEL-026', 'MSEL-027', 'MSEL-028',
         'MSEL-029',
+        // LINE2 (LINEX-015..023), after the MSEL commands.
+        ...MSEL2_COMMAND_ENTRIES.map((entry) => entry.id),
       ];
       assert.deepStrictEqual(items.map((item) => item.command), order.map((id) => `${PREFIX}${entryOf(id).name}`));
       items.forEach((item, i) => {
@@ -467,7 +551,8 @@ suite('Multi Cursor Commands (MSEL-001..030) Test Suite', () => {
           : { command: `${PREFIX}${entry.name}`, group: `selection-manipulator@${i}`, when }, entry.id);
       });
       const root: { submenu?: string; group: string }[] = contributes.menus['selection-manipulator.submenu'];
-      assert.deepStrictEqual(root[root.length - 1], { submenu: 'selection-manipulator.selection.submenu', group: 'selection-manipulator@17' });
+      assert.deepStrictEqual(root.filter((item) => item.submenu === 'selection-manipulator.selection.submenu'),
+        [{ submenu: 'selection-manipulator.selection.submenu', group: 'selection-manipulator@17' }]);
       root.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.submenu));
     });
   });

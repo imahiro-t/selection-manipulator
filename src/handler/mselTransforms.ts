@@ -117,7 +117,7 @@ const assertDelimiter = (delimiter: string): void => {
 };
 
 /** Collects ranges and throws `MselTooManySelectionsError` as soon as there are too many. */
-class RangeCollector {
+export class RangeCollector {
   readonly ranges: MselRange[] = [];
 
   constructor(private readonly limit: number = MSEL_MAX_SELECTIONS) {}
@@ -248,14 +248,14 @@ const sameRanges = (a: readonly MselRange[], b: readonly MselRange[]): boolean =
   a.length === b.length && a.every((range, i) => range.start === b[i].start && range.end === b[i].end);
 
 /** A select result, or `unchanged` when the ranges are the same as before. */
-const selectOrUnchanged = (before: readonly MselRange[], after: MselRange[], message?: string): MselResult => {
+export const selectOrUnchanged = (before: readonly MselRange[], after: MselRange[], message?: string): MselResult => {
   if (sameRanges(before, after)) {
     return message === undefined ? { kind: 'unchanged' } : { kind: 'info', message };
   }
   return message === undefined ? { kind: 'select', ranges: after } : { kind: 'select', ranges: after, message };
 };
 
-const textOf = (text: string, range: MselRange): string => text.slice(range.start, range.end);
+export const textOf = (text: string, range: MselRange): string => text.slice(range.start, range.end);
 
 // ---------------------------------------------------------------------------
 // A: filtering the selections (MSEL-001..009)
@@ -270,7 +270,7 @@ const keepWhere = (ranges: readonly MselRange[], keep: (range: MselRange, index:
   return kept.length === ranges.length ? { kind: 'unchanged' } : { kind: 'select', ranges: kept };
 };
 
-const needTwo = (ranges: readonly MselRange[]): MselResult | undefined =>
+export const needTwo = (ranges: readonly MselRange[]): MselResult | undefined =>
   ranges.length < 2 ? { kind: 'warn', message: MSEL_NEED_TWO } : undefined;
 
 /** MSEL-001: keeps the 1st, 3rd, 5th… selection. */

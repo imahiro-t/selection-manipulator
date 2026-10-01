@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { MD_TEXT_NOT_CHANGED, mdCommandHandlerInternal, MdDependencies } from '../../handler/mdCommandHandler';
 import { MD_COMMAND_ENTRIES, MD_NO_HEADINGS, MD_WHEN_SELECTION, MdCommandEntry } from '../../handler/mdTransforms';
+import { MD2_COMMAND_ENTRIES } from '../../handler/md2Transforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { expandMd, MD_ROADMAP_EXAMPLES } from './mdExamples';
 import { createTextEditor, undoIn } from './testUtils';
@@ -37,6 +38,9 @@ const recorder = (answers: (string | undefined)[] = []) => {
       boxes.push(options);
       return Promise.resolve(queue.shift());
     },
+    // The MD-001..025 commands have no quick pick and open nothing.
+    showQuickPick: () => Promise.reject(new Error('no quick pick expected')),
+    openResult: () => Promise.reject(new Error('no editor expected')),
   };
   return { dependencies, infos, warnings, errors, boxes };
 };
@@ -444,12 +448,12 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(new Set(titles).size, titles.length, 'Show Commands titles are unique');
     });
 
-    test('the Markdown submenu: Markdown: Link at @0, then MD-001..025 in ROADMAP order; its place in the Transform submenu is unchanged', () => {
+    test('the Markdown submenu: Markdown: Link at @0, then MD-001..025 in ROADMAP order and JAUNIX-015..021; its place in the Transform submenu is unchanged', () => {
       const contributes = JSON.parse(readRepoFile('package.json')).contributes;
       const items: { command: string; group: string; when?: string }[] = contributes.menus['selection-manipulator.markdown.submenu'];
       assert.deepStrictEqual(items[0], { command: `${PREFIX}markdown.link`, group: 'selection-manipulator@0' });
-      assert.strictEqual(items.length, 26);
-      MD_COMMAND_ENTRIES.forEach((entry, i) => {
+      assert.strictEqual(items.length, 33, '1 + 25 + 7 of JAUNI2');
+      [...MD_COMMAND_ENTRIES, ...MD2_COMMAND_ENTRIES].forEach((entry, i) => {
         const command = `${PREFIX}${entry.name}`;
         assert.deepStrictEqual(items[i + 1], entry.cursor
           ? { command, group: `selection-manipulator@${i + 1}` }

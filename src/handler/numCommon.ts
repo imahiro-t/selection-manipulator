@@ -21,6 +21,17 @@ export class NumInputError extends Error {
   }
 }
 
+/**
+ * A limit on the size of a result was exceeded before the result was built (e.g. the number of
+ * integers a range expands to); reported as a warning like the output limit, nothing is changed.
+ */
+export class NumLimitError extends NumInputError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NumLimitError';
+  }
+}
+
 /** A statistics command found no number in a selection (reported as a warning, nothing shown). */
 export class NumNoNumbersError extends NumInputError {
   constructor() {
@@ -100,16 +111,24 @@ const TOKEN = /(?<![A-Za-z0-9_.+-])[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][-+]?\d+)?
 
 /** The number tokens of a selection, in order. A token out of the range of a double is an error. */
 export const extractNumbers = (text: string): number[] => {
-  assertNumInputLength(text);
   const numbers: number[] = [];
-  for (const match of text.matchAll(TOKEN)) {
-    const value = Number(match[0]);
+  for (const token of extractNumberTokens(text)) {
+    const value = Number(token);
     if (!Number.isFinite(value)) {
-      throw new NumInputError(`${quoteText(match[0])} is out of range`);
+      throw new NumInputError(`${quoteText(token)} is out of range`);
     }
     numbers.push(value);
   }
   return numbers;
+};
+
+/**
+ * The number tokens of a selection as they are written, in order (the same tokens as
+ * `extractNumbers`, for the commands that read integers exactly, e.g. with BigInt).
+ */
+export const extractNumberTokens = (text: string): string[] => {
+  assertNumInputLength(text);
+  return Array.from(text.matchAll(TOKEN), (match) => match[0]);
 };
 
 /** The basic form of a number: sign, digits with an optional decimal point, optional exponent. */
@@ -338,10 +357,15 @@ export const formatB = (value: number): string => String(roundNumber(cleanNumber
 // Values typed into the input boxes
 // ---------------------------------------------------------------------------------------------
 
-/** How a typed value is checked. */
+/**
+ * How a typed value is checked. A number has either both bounds or none (then `nonZero` can refuse
+ * 0); a choice is one of a few integers (e.g. a bit width).
+ */
 export type NumPromptRule =
   | { kind: 'integer'; min: number; max: number }
   | { kind: 'number'; min: number; max: number }
+  | { kind: 'number'; min?: undefined; max?: undefined; nonZero?: true }
+  | { kind: 'choice'; values: readonly number[] }
   | { kind: 'locale' };
 
 const INTEGER = /^[-+]?\d+$/;
@@ -374,6 +398,18 @@ export const findNumPromptProblem = (value: string, rule: NumPromptRule): string
   if (rule.kind === 'integer') {
     const ok = INTEGER.test(trimmed) && Number(trimmed) >= rule.min && Number(trimmed) <= rule.max;
     return ok ? undefined : `Enter an integer from ${rule.min} to ${rule.max}.`;
+  }
+  if (rule.kind === 'choice') {
+    const ok = INTEGER.test(trimmed) && rule.values.includes(Number(trimmed));
+    return ok ? undefined : `Enter one of ${rule.values.join(', ')}.`;
+  }
+  if (rule.min === undefined) {
+    // Any finite number (`1e400` is refused); with `nonZero`, every spelling of 0 (`-0`, `0.0`, `+0e5`) too.
+    const number = Number(trimmed);
+    if (rule.nonZero) {
+      return BASIC_NUMBER.test(trimmed) && Number.isFinite(number) && number !== 0 ? undefined : 'Enter a number other than 0.';
+    }
+    return BASIC_NUMBER.test(trimmed) && Number.isFinite(number) ? undefined : 'Enter a number.';
   }
   const ok = BASIC_NUMBER.test(trimmed) && Number(trimmed) >= rule.min && Number(trimmed) <= rule.max;
   return ok ? undefined : `Enter a number from ${rule.min} to ${rule.max}.`;

@@ -1,0 +1,300 @@
+{
+  "category": "DATAX",
+  "commands": [
+    {
+      "id": "selection-manipulator.json.sort-array",
+      "candidateId": "DATAX-001",
+      "description": {
+        "en": "Sorts a JSON array by its elements, or by the value at the key path you enter (`a.b` or `a.b[0]`, the notation of **Extract JSON Value by Path**; leave it empty to sort by the elements). Numbers by value, strings by code point (not by locale), `false` before `true`, arrays and objects by their JSON with sorted keys; mixed types are ordered number < string < boolean < array < object < null < missing (an element without the key path). The sort is stable, and the layout of the input is kept (one line stays one line). The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON 配列を要素の値、または入力したキーパス（`a.b`・`a.b[0]`。**Extract JSON Value by Path** と同じ記法。空なら要素そのもの）の値で並べ替える（数値は大小、文字列はコードポイント順（ロケール非依存）、真偽値は `false` が先、配列・オブジェクトはキーを整列した JSON 表記の順。型が混在するときは 数値 < 文字列 < 真偽値 < 配列 < オブジェクト < null < 欠落（キーパスがない要素）の順。安定ソートで、入力の書式（1 行なら 1 行）を保つ。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`[{\"n\":2},{\"n\":1}]（key path: n）` → `[{\"n\":1},{\"n\":2}]`",
+        "ja": "`[{\"n\":2},{\"n\":1}]（キーパス: n）` → `[{\"n\":1},{\"n\":2}]`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.filter-array",
+      "candidateId": "DATAX-002",
+      "description": {
+        "en": "Keeps the elements of a JSON array whose field equals the value of the `key=value` you enter (the key is a path; only equality, no expression is evaluated). The field matches when the value is JSON equal to it (object keys in any order) or when the field is a string equal to the typed text: `status=200` keeps both `200` and `\"200\"`, while `status=\"200\"` keeps only the string. The value is used exactly as typed (spaces included) and may be empty; a missing field never matches. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "`key=value` で入力したフィールドの値に一致する要素だけを残す（キーはパス。等値比較のみで式は評価しない。値が JSON として読めればその値と一致（オブジェクトのキー順は問わない）、またはフィールドが入力したテキストと同じ文字列なら一致。`status=200` は `200` と `\"200\"` の両方、`status=\"200\"` は文字列だけに一致する。値は前後の空白も含めて入力どおりに使い、空でもよい。フィールドのない要素は一致しない。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`[{\"s\":\"on\"},{\"s\":\"off\"}]（s=on）` → `[{\"s\":\"on\"}]`",
+        "ja": "`[{\"s\":\"on\"},{\"s\":\"off\"}]（s=on）` → `[{\"s\":\"on\"}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.pick-keys",
+      "candidateId": "DATAX-003",
+      "description": {
+        "en": "Keeps only the keys you enter (comma-separated, spaces around each key removed, up to 1,000) of a JSON object, or of every object of an array, in their original order. Unlike **Pluck Field from JSON Array**, which takes the value of one field, the objects are kept. Keys such as `__proto__` are ordinary keys and never change any prototype. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON オブジェクト（配列なら各要素のオブジェクト）から、入力したキー（カンマ区切り。各キーの前後の空白は除く。1,000 個まで）だけを元の順序で残す（1 つのフィールドの値を取り出す **Pluck Field from JSON Array** と違い、オブジェクトのまま残す。`__proto__` などのキーも通常のキーとして扱い、プロトタイプを変更しない。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"a\":1,\"b\":2,\"c\":3}（a,c）` → `{\"a\":1,\"c\":3}`",
+        "ja": "`{\"a\":1,\"b\":2,\"c\":3}（a,c）` → `{\"a\":1,\"c\":3}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.omit-keys",
+      "candidateId": "DATAX-004",
+      "description": {
+        "en": "Removes the keys you enter (comma-separated, up to 1,000) from a JSON object or the objects of an array: choose `Top level only` or `Recursive` (every level) in a QuickPick. Cancelling either step does nothing; keys such as `__proto__` are ordinary keys. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "入力したキー（カンマ区切り、1,000 個まで）を JSON オブジェクト（配列なら各要素）から取り除く（QuickPick で `Top level only`（最上位のみ）か `Recursive`（すべての階層）を選ぶ。どちらかのキャンセルで何もしない。`__proto__` などのキーも通常のキーとして扱う。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"a\":1,\"pw\":\"x\"}（pw, top level only）` → `{\"a\":1}`",
+        "ja": "`{\"a\":1,\"pw\":\"x\"}（pw、最上位のみ）` → `{\"a\":1}`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.rename-key",
+      "candidateId": "DATAX-005",
+      "description": {
+        "en": "Renames a key in every object at every level, keeping the key order. The input box appears twice (the old and the new name); the same name twice is an error, and an object that already has the new key is an error that names its path. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "すべての階層のオブジェクトで、指定したキーの名前を変える（キーの順序は保つ。入力ボックスを 2 回出し、旧名・新名を入力する。同じ名前はエラー。新しい名前のキーが既にあるオブジェクトは、そのパスを示してエラー。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"old\":1}（old, new）` → `{\"new\":1}`",
+        "ja": "`{\"old\":1}（old, new）` → `{\"new\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.remove-empty",
+      "candidateId": "DATAX-006",
+      "description": {
+        "en": "Removes empty strings `\"\"`, empty arrays `[]`, empty objects `{}` and null at every level; a parent that becomes empty is removed too (the top-level value itself stays). **Remove Null Values from JSON** removes only null. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "`\"\"`・`[]`・`{}`・null をすべての階層から取り除く（取り除いた結果空になった親も取り除く。最上位の値そのものは残す。null だけを取り除くのは **Remove Null Values from JSON**。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"a\":\"\",\"b\":[],\"c\":1}` → `{\"c\":1}`",
+        "ja": "`{\"a\":\"\",\"b\":[],\"c\":1}` → `{\"c\":1}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-markdown-table",
+      "candidateId": "DATAX-007",
+      "description": {
+        "en": "Converts a JSON array of objects to a Markdown table whose columns are all keys in order of first appearance. Strings are written as they are, other values as compact JSON, missing keys as empty cells. In headers and cells `\\` becomes `\\\\`, `|` becomes `\\|` and every line break becomes `<br>`, so the table structure is never broken. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "オブジェクトの配列を Markdown の表にする（列はすべてのキーを最初に現れた順に並べる。文字列はそのまま、その他の値は 1 行の JSON、キーがないセルは空。見出しとセルの `\\` は `\\\\`、`|` は `\\|`、改行は `<br>` にエスケープし、表の構造を壊さない。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`[{\"a\":1,\"b\":2}]` → `| a | b |⏎| --- | --- |⏎| 1 | 2 |`",
+        "ja": "`[{\"a\":1,\"b\":2}]` → `| a | b |⏎| --- | --- |⏎| 1 | 2 |`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.chunk-array",
+      "candidateId": "DATAX-008",
+      "description": {
+        "en": "Splits a JSON array into an array of arrays of N elements each (N from 1 to 1,000,000); the last chunk holds the rest. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON 配列を N 要素ずつの配列の配列に分ける（N は 1〜1,000,000。最後のまとまりは残りの要素。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`[1,2,3]（N=2）` → `[[1,2],[3]]`",
+        "ja": "`[1,2,3]（N=2）` → `[[1,2],[3]]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.array-to-object",
+      "candidateId": "DATAX-009",
+      "description": {
+        "en": "Converts a JSON array of objects to an object keyed by the value at the key you enter (a path such as `id` or `user.id`). The value must be a string or a number; a missing value, another type, or a key shared by two elements is an error (the second element is named). Keys such as `__proto__` are ordinary keys. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "オブジェクトの配列を、入力したキー（`id`・`user.id` などのパス）の値をキーとするオブジェクトにする（値は文字列か数値。値がない・その他の型・2 つの要素でキーが重複する場合はエラー（2 つ目の要素番号を示す）。`__proto__` などのキーも通常のキーとして扱う。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`[{\"id\":\"a\",\"v\":1}]（id）` → `{\"a\":{\"id\":\"a\",\"v\":1}}`",
+        "ja": "`[{\"id\":\"a\",\"v\":1}]（id）` → `{\"a\":{\"id\":\"a\",\"v\":1}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.object-to-entries",
+      "candidateId": "DATAX-010",
+      "description": {
+        "en": "Converts a JSON object to an array of `{\"key\": …, \"value\": …}` objects, one per key in order. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON オブジェクトを、キーごとの `{\"key\": …, \"value\": …}` の配列にする（キーの順序のまま。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"a\":1}` → `[{\"key\":\"a\",\"value\":1}]`",
+        "ja": "`{\"a\":1}` → `[{\"key\":\"a\",\"value\":1}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.set-path",
+      "candidateId": "DATAX-011",
+      "description": {
+        "en": "Replaces the value at a JSON path (the `a.b[0]` notation of **Extract JSON Value by Path**, at most 1,000 characters) with a JSON value you enter (read with JSON.parse only, never evaluated). Missing object keys on the way are created as objects; an array index must be an existing element (no sparse array is made); `$` replaces the whole value. Keys such as `__proto__` are ordinary keys. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON パス（**Extract JSON Value by Path** と同じ `a.b[0]` 記法、1,000 文字まで）の値を、入力した JSON の値に置き換える（値は JSON.parse でのみ解釈し評価しない。途中のオブジェクトのキーがなければオブジェクトとして作る。配列の添字はすでにある要素の範囲内のみで、疎配列は作らない。`$` は全体を置き換える。`__proto__` などのキーも通常のキーとして扱う。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`{\"a\":{\"b\":1}}（a.b, 2）` → `{\"a\":{\"b\":2}}`",
+        "ja": "`{\"a\":{\"b\":1}}（a.b, 2）` → `{\"a\":{\"b\":2}}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.to-flow",
+      "candidateId": "DATAX-012",
+      "description": {
+        "en": "Writes YAML again in flow style (`{a: 1, b: [x]}`), read and written with the YAML 1.2 Core schema (no type that runs code). Anchors and aliases stay references (`&ref_0` / `*ref_0`) and are never expanded; with them, \"mappings and sequences × references to them\" is limited to 300,000,000. Comments are lost and the trailing newline follows the selection. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "YAML をフロー形式（`{a: 1, b: [x]}`）で出力し直す（YAML 1.2 Core スキーマで読み書きし、コードを実行する型はない。アンカー / エイリアスは参照（`&ref_0` / `*ref_0`）のまま残し、展開しない。その場合「マッピングとシーケンスの数 × それらへの参照の数」は 300,000,000 まで。コメントは失われ、末尾の改行は選択に合わせる。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a: 1⏎b:⏎··- x` → `{a: 1, b: [x]}`",
+        "ja": "`a: 1⏎b:⏎··- x` → `{a: 1, b: [x]}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.validate",
+      "candidateId": "DATAX-013",
+      "description": {
+        "en": "Checks that the selection is valid YAML (every document, YAML 1.2 Core schema) and notifies \"Valid YAML\" or \"Invalid YAML: line L, column C: reason\" (positions in the selection; one entry per selection). Only the result is shown: aliases are never expanded and the selection is not changed.",
+        "ja": "選択範囲が正しい YAML か（すべてのドキュメント、YAML 1.2 Core スキーマ）を検査し、「Valid YAML」または「Invalid YAML: line L, column C: 理由」（選択範囲内の位置。複数選択は選択ごと）を通知する（結果を通知するだけで、エイリアスは展開しない。選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`a: 1⏎··b: 2` → `Invalid YAML: line 2, column 4（notification）`",
+        "ja": "`a: 1⏎··b: 2` → `Invalid YAML: line 2, column 4（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.yaml.multi-doc-to-json",
+      "candidateId": "DATAX-014",
+      "description": {
+        "en": "Converts YAML with several documents separated by `---` to a JSON array with one element per document (an empty document is null), read with the YAML 1.2 Core schema; at most 10,000 documents. JSON expands aliases, so the length of the result is checked before it is built: nested aliases that would exceed 10,000,000 characters are refused quickly. `.inf` / `.nan` are errors. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "`---` で区切られた複数ドキュメントの YAML を、ドキュメントごとの要素を持つ JSON 配列にする（空のドキュメントは null。YAML 1.2 Core スキーマで読み込み、10,000 ドキュメントまで。JSON ではエイリアスが展開されるため、結果を作る前に長さを見積もり、10,000,000 文字を超える入れ子のエイリアスはすぐに中止する。`.inf` / `.nan` はエラー。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a: 1⏎---⏎a: 2` → `[{\"a\":1},{\"a\":2}]`",
+        "ja": "`a: 1⏎---⏎a: 2` → `[{\"a\":1},{\"a\":2}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.toml.format",
+      "candidateId": "DATAX-015",
+      "description": {
+        "en": "Formats TOML by reading it with the parser of **Convert TOML to JSON** and writing it with the writer of **Convert JSON to TOML** (values first, `[table]` / `[[array]]` headers, a blank line before each header; inline tables may become tables). Floats stay floats (`1.0`, `1e3` becomes `1000.0`) and dates / times stay unquoted. Comments, the original key quoting and blank lines are not kept. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "TOML を **Convert TOML to JSON** のパーサで読み、**Convert JSON to TOML** の出力で書き直して整形する（値を先に、`[table]` / `[[array]]` の見出し、見出しの前に空行。インラインテーブルはテーブルになることがある。浮動小数は浮動小数のまま（`1.0`、`1e3` は `1000.0`）、日時は引用符なしのまま。コメント・キーの元の引用形式・空行は保持しない。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a=1⏎[b]⏎c=\"x\"` → `a = 1⏎⏎[b]⏎c = \"x\"`",
+        "ja": "`a=1⏎[b]⏎c=\"x\"` → `a = 1⏎⏎[b]⏎c = \"x\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.validate",
+      "candidateId": "DATAX-016",
+      "description": {
+        "en": "Checks that the selection is well-formed XML (matching tags, one root element, quoted and unique attributes, comments, CDATA, references) and notifies \"Well-formed XML\" or \"Invalid XML: line L, column C: reason\" without quoting the selection. A DOCTYPE is recognised as syntax only: external entities and entity declarations are never resolved, so only the five predefined entities and character references are accepted. Nesting is limited to 500 levels; DTD validity is not checked.",
+        "ja": "選択範囲が整形式の XML か（タグの対応・ルート要素が 1 つ・属性の引用と重複・コメント・CDATA・参照）を検査し、「Well-formed XML」または「Invalid XML: line L, column C: 理由」を選択テキストを含めずに通知する（DOCTYPE は構文として読むだけで、外部実体・実体宣言は一切解決しないため、使える実体は定義済みの 5 つと文字参照のみ。入れ子は 500 段まで。DTD による妥当性検査はしない）"
+      },
+      "example": {
+        "en": "`<a><b></a>` → `Invalid XML: line 1, column 7（notification）`",
+        "ja": "`<a><b></a>` → `Invalid XML: line 1, column 7（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.xml.list-paths",
+      "candidateId": "DATAX-017",
+      "description": {
+        "en": "Lists the paths of the leaf elements (elements without child elements) in document order, like `/root/item[2]/name`; `[n]` is added only to names that two or more siblings share, and elements with children appear only inside the paths. The XML is checked like **Validate XML (Well-formedness)** (no entity is resolved); at most 100,000 lines. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "葉要素（子要素を持たない要素）のパスを文書順に `/root/item[2]/name` の形で一覧にする（`[n]` は同名の兄弟が 2 つ以上ある名前にだけ付ける。子要素を持つ要素はパスの途中にだけ現れる。XML は **Validate XML (Well-formedness)** と同じく検査し、実体は解決しない。100,000 行まで。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`<r><i>1</i><i>2</i></r>` → `/r/i[1]⏎/r/i[2]`",
+        "ja": "`<r><i>1</i><i>2</i></r>` → `/r/i[1]⏎/r/i[2]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.reorder-columns",
+      "candidateId": "DATAX-018",
+      "description": {
+        "en": "Reorders the columns by the column numbers you enter (`3,1,2`): every column of the table exactly once. Ragged rows are padded with empty cells first. **CSV - Swap Columns** swaps two columns. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "入力した列番号の並び（`3,1,2`）で列を並べ替える（表のすべての列をちょうど 1 回ずつ指定する。不揃いな行は空セルで埋めてから並べ替える。2 列の入れ替えは **CSV - Swap Columns**。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a,b,c（3,1,2）` → `c,a,b`",
+        "ja": "`a,b,c（3,1,2）` → `c,a,b`"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.merge-columns",
+      "candidateId": "DATAX-019",
+      "description": {
+        "en": "Joins two columns (numbers or header names) with a separator you enter (up to 100 characters, may be empty) into the place of the first; the second column is removed. The header row is joined too. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "2 つの列（番号または見出し名）を、入力した区切り（100 文字まで、空も可）で連結して 1 列目の位置に置き、2 列目を取り除く（見出し行も連結する。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`山田,太郎（1, 2, separator: space）` → `山田 太郎`",
+        "ja": "`山田,太郎（1, 2, 区切り: 空白）` → `山田 太郎`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.split-column",
+      "candidateId": "DATAX-020",
+      "description": {
+        "en": "Splits one column (number or header name) at every occurrence of a delimiter you enter (plain text, not a regular expression, 1 to 100 characters) into as many columns as the row with the most parts needs; the header row too, and missing parts are empty cells. At most 1,000 columns are added. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "1 つの列（番号または見出し名）を、入力した区切り文字列（正規表現ではない 1〜100 文字）のすべての位置で、最も多く分かれる行に合わせた数の列に分ける（見出し行も分け、足りない部分は空セル。追加する列は 1,000 列まで。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`2026-10-01（column 1, -）` → `2026,10,01`",
+        "ja": "`2026-10-01（列 1, -）` → `2026,10,01`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.group-count",
+      "candidateId": "DATAX-021",
+      "description": {
+        "en": "Counts the data rows per value of a column (number or header name) and writes CSV with the header `<column name>,count` and one row per value in order of first appearance. The first row is the header. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "列（番号または見出し名）の値ごとにデータ行の数を数え、見出し `<列名>,count` と値ごとの行（最初に現れた順）の CSV にする（1 行目は見出し。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a⏎x⏎y⏎x（column 1）` → `a,count⏎x,2⏎y,1`",
+        "ja": "`a⏎x⏎y⏎x（列 1）` → `a,count⏎x,2⏎y,1`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.csv.fill-empty",
+      "candidateId": "DATAX-022",
+      "description": {
+        "en": "Fills every empty cell (also the missing cells of short rows, and in the header row) with the value you enter; the value is quoted by the CSV rules when it holds a comma, a quote or a line break. **CSV - Fill Empty Cells from Above** fills from the cell above. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "空のセル（短い行の足りないセル・見出し行も含む）を入力した値で埋める（値にカンマ・引用符・改行があれば CSV の規則で引用する。上のセルで埋めるのは **CSV - Fill Empty Cells from Above**。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`a,,c（N/A）` → `a,N/A,c`",
+        "ja": "`a,,c（N/A）` → `a,N/A,c`"
+      }
+    },
+    {
+      "id": "selection-manipulator.ltsv.to-json",
+      "candidateId": "DATAX-023",
+      "description": {
+        "en": "Converts LTSV (tab-separated `label:value` fields, one record per line; empty lines are skipped) to a JSON array of objects. Values stay strings; `\\\\`, `\\t`, `\\n` and `\\r` are unescaped (the escapes of **Convert JSON to LTSV**) and any other backslash is kept, so `C:\\path` is unchanged. A field without `:`, an empty label or a repeated label is an error; labels such as `__proto__` are ordinary keys. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "LTSV（TAB 区切りの `label:value`、1 行 1 レコード。空行は無視）を JSON のオブジェクト配列にする（値は文字列のまま。**Convert JSON to LTSV** のエスケープ `\\\\`・`\\t`・`\\n`・`\\r` を元に戻し、それ以外のバックスラッシュはそのまま残すため `C:\\path` は変わらない。`:` のないフィールド・空のラベル・ラベルの重複はエラー。`__proto__` などのラベルも通常のキーとして扱う。結果は新しい読み取り専用エディタに開く）"
+      },
+      "example": {
+        "en": "`host:a⇥status:200` → `[{\"host\":\"a\",\"status\":\"200\"}]`",
+        "ja": "`host:a⇥status:200` → `[{\"host\":\"a\",\"status\":\"200\"}]`"
+      }
+    },
+    {
+      "id": "selection-manipulator.json.to-ltsv",
+      "candidateId": "DATAX-024",
+      "description": {
+        "en": "Converts a JSON object or an array of objects to LTSV, one record per line. Strings are written as they are, other values as compact JSON; in values `\\` becomes `\\\\`, a tab `\\t`, LF `\\n` and CR `\\r`, so a record stays one line (**Convert LTSV to JSON** restores string values exactly; other values come back as their JSON text). Labels may contain only letters, digits, `_`, `.` and `-`. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JSON オブジェクトまたはオブジェクトの配列を、1 行 1 レコードの LTSV にする（文字列はそのまま、その他の値は 1 行の JSON。値の `\\` は `\\\\`、TAB は `\\t`、LF は `\\n`、CR は `\\r` にエスケープし、レコードを 1 行に保つ。**Convert LTSV to JSON** で文字列の値は元どおりに戻り、その他の値は JSON 表記の文字列で戻る。ラベルは英数字・`_`・`.`・`-` のみ）"
+      },
+      "example": {
+        "en": "`[{\"a\":\"1\"}]` → `a:1`",
+        "ja": "`[{\"a\":\"1\"}]` → `a:1`"
+      }
+    }
+  ]
+}

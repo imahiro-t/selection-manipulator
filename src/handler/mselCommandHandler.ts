@@ -17,6 +17,10 @@ import {
   MselResult,
   MselTooManySelectionsError,
 } from './mselTransforms';
+import { MSEL2_COMMAND_ENTRIES } from './msel2Transforms';
+
+/** The MSEL-001..030 commands and the LINEX-015..023 selection commands of the group LINE2. */
+export const ALL_MSEL_COMMAND_ENTRIES: readonly MselCommandEntry[] = [...MSEL_COMMAND_ENTRIES, ...MSEL2_COMMAND_ENTRIES];
 
 /** How the handlers tell the user what happened. */
 export interface MselNotifier {
@@ -166,10 +170,10 @@ const applyResult = async (textEditor: TextEditor, dependencies: MselDependencie
 };
 
 /**
- * The MSEL-001..030 commands by command name (without `selection-manipulator.`). The dependencies
- * (and, in tests, the command table) can be replaced.
+ * The MSEL-001..030 and LINEX-015..023 commands by command name (without `selection-manipulator.`).
+ * The dependencies (and, in tests, the command table) can be replaced.
  */
-export const mselCommandHandlerInternal = (dependencies: MselDependencies, entries: readonly MselCommandEntry[] = MSEL_COMMAND_ENTRIES) =>
+export const mselCommandHandlerInternal = (dependencies: MselDependencies, entries: readonly MselCommandEntry[] = ALL_MSEL_COMMAND_ENTRIES) =>
   (name: string) => {
     const entry = entries.find((candidate) => candidate.name === name);
     if (!entry) {
@@ -236,5 +240,8 @@ export const mselCommandHandlerInternal = (dependencies: MselDependencies, entri
       }
     };
   };
+
+/** The dependencies of the extension (VS Code's UI and the regex worker). */
+export const defaultMselDependencies = defaultDependencies;
 
 export const mselCommandHandler = mselCommandHandlerInternal(defaultDependencies);

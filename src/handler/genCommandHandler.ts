@@ -6,6 +6,7 @@ import {
   cryptoRandom,
   findGenPromptProblem,
   GenInputError,
+  GenLimitError,
   genPromptValue,
   GenRandom,
   isBlank,
@@ -50,8 +51,8 @@ export const GEN_NOT_CHANGED = 'The selection was not changed: ';
 const documentEol = (textEditor: TextEditor): string =>
   textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
-const entryOf = (name: string): GenCommandEntry => {
-  const entry = GEN_COMMAND_ENTRIES.find((candidate) => candidate.name === name);
+const entryOf = (name: string, entries: readonly GenCommandEntry[]): GenCommandEntry => {
+  const entry = entries.find((candidate) => candidate.name === name);
   if (!entry) {
     throw new Error(`Unknown GEN command: ${name}`);
   }
@@ -155,6 +156,11 @@ const notifyFailure = (dependencies: GenDependencies, entry: GenCommandEntry, er
   }
   if (cause instanceof EncOutputTooLargeError) {
     void dependencies.notifier.showWarningMessage(`${GEN_NOT_CHANGED}${cause.message}. Use fewer cursors or a smaller amount.`);
+    return;
+  }
+  // A limit (DATEX-016..024): a warning, checked before the error below (GenLimitError is a GenInputError).
+  if (cause instanceof GenLimitError) {
+    void dependencies.notifier.showWarningMessage(`${GEN_NOT_CHANGED}${where}${cause.message}`);
     return;
   }
   void dependencies.notifier.showErrorMessage(`${GEN_NOT_CHANGED}${where}${reasonOf(cause)}`);
@@ -261,11 +267,11 @@ const needsEmptyPrompts = (entry: GenCommandEntry, targets: readonly Target[]): 
 /**
  * The GEN commands by command name (without `selection-manipulator.`). Nothing is edited unless
  * the text of every target was generated; then all targets are written in one edit. The
- * dependencies can be replaced in tests.
+ * dependencies can be replaced in tests; another command table (DATEX-016..024) can be given.
  */
-export const genCommandHandlerInternal = (dependencies: GenDependencies) =>
+export const genCommandHandlerInternal = (dependencies: GenDependencies, entries: readonly GenCommandEntry[] = GEN_COMMAND_ENTRIES) =>
   (name: string) => {
-    const entry = entryOf(name);
+    const entry = entryOf(name, entries);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
         const first = targetsOrNotify(textEditor, dependencies, entry);
@@ -309,5 +315,8 @@ export const genCommandHandlerInternal = (dependencies: GenDependencies) =>
       }
     };
   };
+
+/** The dependencies of the extension (VS Code's UI, crypto and the clock). */
+export const defaultGenDependencies = defaultDependencies;
 
 export const genCommandHandler = genCommandHandlerInternal(defaultDependencies);

@@ -4056,6 +4056,921 @@ export const myCommands = [
     "command": "selection-manipulator.markdown.front-matter-to-json",
     "title": "Markdown: Front Matter to JSON",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.repeat",
+    "title": "Text - Repeat Selection N Times",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.truncate",
+    "title": "Text - Truncate to N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.truncate-middle",
+    "title": "Text - Shorten in the Middle",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.pad-start",
+    "title": "Text - Pad Start to Width (Custom Character)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.pad-end",
+    "title": "Text - Pad End to Width (Custom Character)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.insert-every-n",
+    "title": "Text - Insert Separator Every N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.translate-chars",
+    "title": "Text - Translate Characters (tr)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.delete-chars",
+    "title": "Text - Delete Characters in Set",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.squeeze-chars",
+    "title": "Text - Squeeze Repeated Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-digits",
+    "title": "Text - Remove Digits",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-punctuation",
+    "title": "Text - Remove Punctuation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.keep-digits",
+    "title": "Text - Keep Digits Only",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.reverse-each-word",
+    "title": "Text - Reverse Each Word",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.sort-words",
+    "title": "Text - Sort Words in Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unique-words",
+    "title": "Text - Remove Duplicate Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.sort-characters",
+    "title": "Text - Sort Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.unique-characters",
+    "title": "Text - Remove Duplicate Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.word-frequency",
+    "title": "Text - Word Frequency Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.char-frequency",
+    "title": "Text - Character Frequency Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-urls",
+    "title": "Text - Remove URLs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.mask-keep-last",
+    "title": "Text - Mask Except Last N Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.leetspeak",
+    "title": "Text - Leetspeak",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.text.remove-between",
+    "title": "Text - Remove Text Between Delimiters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.keep-range",
+    "title": "Line: Keep Lines N to M",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.drop-first-n",
+    "title": "Line: Remove First N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.drop-last-n",
+    "title": "Line: Remove Last N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.blank-every-n",
+    "title": "Line: Insert Blank Line Every N Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.cut-chars",
+    "title": "Line: Cut Character Range of Each Line",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.paste-columns",
+    "title": "Line: Paste Selections Side by Side",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.dedupe-keep-last",
+    "title": "Line: Remove Duplicate Lines (Keep Last)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.split-by-regex",
+    "title": "Line: Split into Lines by Regex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.join-natural-list",
+    "title": "Line: Join as Natural Language List",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.intersect-selections",
+    "title": "Line: Lines Common to Two Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.subtract-selections",
+    "title": "Line: Lines Only in First Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.symmetric-difference",
+    "title": "Line: Lines in Only One Selection",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.number-nonblank",
+    "title": "Line: Add Numbers to Non-blank Lines",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.line.fold-to-columns",
+    "title": "Line: Arrange Lines into N Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-emails",
+    "title": "Selection - Select All Email Addresses",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-ips",
+    "title": "Selection - Select All IP Addresses",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-hex-colors",
+    "title": "Selection - Select All Hex Colors",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-uuids",
+    "title": "Selection - Select All UUIDs",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.select-dates",
+    "title": "Selection - Select All ISO Dates",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-sentence",
+    "title": "Selection - Expand to Sentence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.expand-to-paragraph",
+    "title": "Selection - Expand to Paragraph",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.keep-duplicate-text",
+    "title": "Selection - Keep Only Duplicate Texts",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.selection.join-into-first",
+    "title": "Selection - Join All Selections into First",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.encode-hex",
+    "title": "Transform - Encode - Encode Base32hex (RFC 4648 §7)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base32.decode-hex",
+    "title": "Transform - Encode - Decode Base32hex (RFC 4648 §7)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base45.encode",
+    "title": "Transform - Encode - Encode Base45 (RFC 9285)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base45.decode",
+    "title": "Transform - Encode - Decode Base45 (RFC 9285)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base62.encode",
+    "title": "Transform - Encode - Encode Base62",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.base62.decode",
+    "title": "Transform - Encode - Decode Base62",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.uu.encode",
+    "title": "Transform - Encode - Encode uuencode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.uu.decode",
+    "title": "Transform - Encode - Decode uuencode",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.url.encode-all",
+    "title": "Transform - URL - Encode All Characters as Percent-encoding",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.css-identifier",
+    "title": "Escape CSS Identifier",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.ldap-filter",
+    "title": "Escape LDAP Filter Value (RFC 4515)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.ldap-dn",
+    "title": "Escape LDAP DN Value (RFC 4514)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.xpath-literal",
+    "title": "Convert to XPath String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.c-string",
+    "title": "Convert to C String Literal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.escape.c-unescape",
+    "title": "Unescape C / Java Style Escapes",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-sha3-384",
+    "title": "Transform - Crypto - Create Hash (SHA3-384)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hash-shake256",
+    "title": "Transform - Crypto - Create Hash (SHAKE256, Output Length N)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.crypto.hmac-sha3-512",
+    "title": "Transform - Crypto - Create HMAC (SHA3-512)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc16",
+    "title": "Transform - Checksum - Checksum: CRC-16/CCITT-FALSE",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.crc32c",
+    "title": "Transform - Checksum - Checksum: CRC-32C (Castagnoli)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.iban",
+    "title": "Transform - Checksum - Checksum: IBAN Validate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.checksum.isbn",
+    "title": "Transform - Checksum - Checksum: ISBN-10 / ISBN-13 Validate",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-array",
+    "title": "Transform - Data Format - Sort JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.filter-array",
+    "title": "Transform - Data Format - Filter JSON Array by Field Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.pick-keys",
+    "title": "Transform - Data Format - Pick Keys from JSON Object",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.omit-keys",
+    "title": "Transform - Data Format - Omit Keys from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.rename-key",
+    "title": "Transform - Data Format - Rename JSON Key",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.remove-empty",
+    "title": "Transform - Data Format - Remove Empty Values from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-markdown-table",
+    "title": "Transform - Data Format - Convert JSON Array to Markdown Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.chunk-array",
+    "title": "Transform - Data Format - Split JSON Array into Chunks",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.array-to-object",
+    "title": "Transform - Data Format - Convert JSON Array to Object by Key",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.object-to-entries",
+    "title": "Transform - Data Format - Convert JSON Object to Key-Value Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.set-path",
+    "title": "Transform - Data Format - Set JSON Value at Path",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.to-flow",
+    "title": "Transform - Data Format - Convert YAML to Flow Style",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.validate",
+    "title": "Transform - Data Format - Validate YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.multi-doc-to-json",
+    "title": "Transform - Data Format - Convert Multi-document YAML to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.format",
+    "title": "Transform - Data Format - Format TOML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.validate",
+    "title": "Transform - Data Format - Validate XML (Well-formedness)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.list-paths",
+    "title": "Transform - Data Format - List XML Element Paths",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.reorder-columns",
+    "title": "Transform - CSV - Reorder Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.merge-columns",
+    "title": "Transform - CSV - Merge Two Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.split-column",
+    "title": "Transform - CSV - Split Column by Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.group-count",
+    "title": "Transform - CSV - Count Rows by Column Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.fill-empty",
+    "title": "Transform - CSV - Fill Empty Cells with Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ltsv.to-json",
+    "title": "Transform - Data Format - Convert LTSV to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-ltsv",
+    "title": "Transform - Data Format - Convert JSON to LTSV",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-rust-struct",
+    "title": "Convert JSON to Rust Struct (serde)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+    "title": "Convert JSON to Kotlin Data Class",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-csharp-class",
+    "title": "Convert JSON to C# Class",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-zod",
+    "title": "Convert JSON to Zod Schema",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-swift-codable",
+    "title": "Convert JSON to Swift Codable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+    "title": "Lowercase SQL Keywords",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-to-oklch",
+    "title": "Convert Hex Color to OKLCH",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.color-contrast-ratio",
+    "title": "Show WCAG Contrast Ratio",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.color-invert",
+    "title": "Invert Hex Color",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-sort-properties",
+    "title": "Sort CSS Declarations",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-to-js-object",
+    "title": "Convert CSS Declarations to JS Style Object",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.js-object-to-css",
+    "title": "Convert JS Style Object to CSS Declarations",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.remove-comments-js",
+    "title": "Remove JS / TS Comments",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+    "title": "Convert to C# Verbatim String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-rust-raw-string",
+    "title": "Convert to Rust Raw String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-heredoc",
+    "title": "Convert to Shell Here-document",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.http-status-describe",
+    "title": "Describe HTTP Status Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.mime-type-lookup",
+    "title": "Look Up MIME Type by Extension",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.uuid-normalize",
+    "title": "Normalize UUID Format",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.cidr-info",
+    "title": "Show CIDR Range Information",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ipv6-expand",
+    "title": "Expand IPv6 Address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ipv6-compress",
+    "title": "Compress IPv6 Address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ip-to-integer",
+    "title": "Convert IPv4 to Integer and Back",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round-to-significant",
+    "title": "Replace - Number - Round to Significant Figures",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round-to-multiple",
+    "title": "Replace - Number - Round to Nearest Multiple",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.clamp",
+    "title": "Replace - Number - Clamp to Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-roman",
+    "title": "Replace - Number - To Roman Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-roman",
+    "title": "Replace - Number - From Roman Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-english-words",
+    "title": "Replace - Number - From English Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-fraction",
+    "title": "Replace - Number - Fraction to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.multiply-by-n",
+    "title": "Replace - Number - Multiply by N",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-ieee754",
+    "title": "Replace - Number - To IEEE 754 Bits",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-ieee754",
+    "title": "Replace - Number - From IEEE 754 Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-twos-complement",
+    "title": "Replace - Number - To Two's Complement Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.gcd",
+    "title": "Math - Greatest Common Divisor",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.lcm",
+    "title": "Math - Least Common Multiple",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.prime-factors",
+    "title": "Math - Prime Factorization",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.diff-consecutive",
+    "title": "Math - Differences Between Consecutive Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.collapse-ranges",
+    "title": "Math - Collapse Integers to Ranges",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.expand-ranges",
+    "title": "Math - Expand Ranges to Integers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.m-to-ft",
+    "title": "Unit - m to ft",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.ft-to-m",
+    "title": "Unit - ft to m",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.sqm-to-tsubo",
+    "title": "Unit - m² to Tsubo (坪)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.tsubo-to-sqm",
+    "title": "Unit - Tsubo (坪) to m²",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.deg-to-rad",
+    "title": "Unit - Degrees to Radians",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.rad-to-deg",
+    "title": "Unit - Radians to Degrees",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-iso-duration",
+    "title": "Date - Add ISO 8601 Duration",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.seconds-to-iso-duration",
+    "title": "Date - Seconds to ISO 8601 Duration",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.start-of-month",
+    "title": "Date - Start of Month",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.end-of-month",
+    "title": "Date - End of Month",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.add-business-days",
+    "title": "Date - Add Business Days",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.business-days-between",
+    "title": "Date - Count Business Days Between",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-rfc3339-offset",
+    "title": "Date - Convert to RFC 3339 with Local Offset",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.iso-week-to-range",
+    "title": "Date - ISO Week to Date Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.eto",
+    "title": "Date - Sexagenary Cycle (Eto, 干支)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-12h",
+    "title": "Date - Convert Time to 12-hour",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.to-24h",
+    "title": "Date - Convert Time to 24-hour",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.snowflake-to-date",
+    "title": "Date - Snowflake ID to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.ulid-to-date",
+    "title": "Date - ULID to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.uuid-v7-to-date",
+    "title": "Date - UUID v7 to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.date.objectid-to-date",
+    "title": "Date - MongoDB ObjectId to Date",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.brace-expansion",
+    "title": "Generate - Brace Expansion",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.multiplication-table",
+    "title": "Generate - Multiplication Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.fibonacci",
+    "title": "Generate - Fibonacci Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.primes",
+    "title": "Generate - Prime Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.time-sequence",
+    "title": "Generate - Time Sequence",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.generate.cartesian-product",
+    "title": "Generate - Cartesian Product of Selections",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.passphrase",
+    "title": "Random - Passphrase",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.string-custom-charset",
+    "title": "Random - String from Custom Characters",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.random.shuffle-words",
+    "title": "Random - Shuffle Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.vertical-text",
+    "title": "Japanese - Convert to Vertical Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.gojuon-row",
+    "title": "Japanese - Gojuon Row (Index Heading)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.normalize-for-search",
+    "title": "Japanese - Normalize for Search",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.man-oku-notation",
+    "title": "Japanese - Number to Man/Oku Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.corporate-number-validate",
+    "title": "Japanese - Validate Corporate Number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.decompose-dakuten",
+    "title": "Japanese - Decompose Dakuten",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+    "title": "Japanese - Parenthesized Reading to Ruby Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-script",
+    "title": "Unicode - Mathematical Script",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-fraktur",
+    "title": "Unicode - Mathematical Fraktur",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-double-struck",
+    "title": "Unicode - Mathematical Double-struck",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-small-caps",
+    "title": "Unicode - Small Capitals",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape-python",
+    "title": "Escape Unicode (Python \\U00XXXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.to-regional-indicators",
+    "title": "Unicode - Country Code to Flag Emoji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.from-regional-indicators",
+    "title": "Unicode - Flag Emoji to Country Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.table-sort-by-column",
+    "title": "Markdown: Sort Table by Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.table-transpose",
+    "title": "Markdown: Transpose Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.unlink",
+    "title": "Markdown: Remove Links (Keep Text)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.extract-links",
+    "title": "Markdown: Extract Links",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.reference-to-inline",
+    "title": "Markdown: Reference Links to Inline Links",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.github-alert",
+    "title": "Markdown: GitHub Alert Block",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.kbd",
+    "title": "Markdown: Keyboard Key (<kbd>)",
+    "canMultiSelection": true
   }
 ];
 

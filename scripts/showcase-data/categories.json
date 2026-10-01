@@ -119,6 +119,62 @@
     }
   },
   {
+    "id": "TEXTX",
+    "name": {
+      "en": "Text transforms (repeat, truncate, pad, tr, frequency, …)",
+      "ja": "テキスト変換拡張（繰り返し・切り詰め・パディング・tr・頻度表など）"
+    }
+  },
+  {
+    "id": "LINEX",
+    "name": {
+      "en": "Line & selection extensions (ranges, set operations, select patterns)",
+      "ja": "行・選択範囲操作拡張（範囲指定・集合演算・パターン選択など）"
+    }
+  },
+  {
+    "id": "ENCX",
+    "name": {
+      "en": "Encoding, escaping & hashes extensions (Base45/62, uuencode, LDAP, C, SHA-3, CRC)",
+      "ja": "エンコード・エスケープ・ハッシュ拡張（Base45/62・uuencode・LDAP・C・SHA-3・CRC など）"
+    }
+  },
+  {
+    "id": "DATAX",
+    "name": {
+      "en": "Data formats extensions (JSON arrays and keys, YAML, TOML, XML, CSV columns, LTSV)",
+      "ja": "データ形式拡張（JSON 配列・キー操作／YAML／TOML／XML／CSV 列操作／LTSV）"
+    }
+  },
+  {
+    "id": "DEVX",
+    "name": {
+      "en": "Developer tools extensions (JSON to Rust / Kotlin / C# / Swift / Zod, colors, CSS, literals, HTTP / MIME, UUID, IPv6 / CIDR)",
+      "ja": "プログラミング支援拡張（JSON→Rust/Kotlin/C#/Swift/Zod・色・CSS・リテラル・HTTP/MIME・UUID・IPv6/CIDR）"
+    }
+  },
+  {
+    "id": "NUMX",
+    "name": {
+      "en": "Numbers and math extensions (significant figures, Roman numerals, IEEE 754, GCD / LCM, prime factors, ranges, m / ft, tsubo, radians)",
+      "ja": "数値・計算・単位拡張（有効数字・ローマ数字・IEEE 754・最大公約数／最小公倍数・素因数分解・範囲表記・m/ft・坪・ラジアン）"
+    }
+  },
+  {
+    "id": "DATEX",
+    "name": {
+      "en": "Dates, generators and random extensions (ISO 8601 durations, business days, IDs to dates, brace expansion, primes, passphrases)",
+      "ja": "日付・生成・乱数拡張（ISO 8601 期間・営業日・ID から日時・ブレース展開・素数・パスフレーズ）"
+    }
+  },
+  {
+    "id": "JAUNIX",
+    "name": {
+      "en": "Japanese, Unicode & Markdown extensions (vertical text, gojuon rows, man / oku, corporate numbers, math styles, flags, Python escapes, table sort / transpose, links, GitHub alerts, kbd)",
+      "ja": "日本語・Unicode・Markdown拡張（縦書き・五十音の行・万／億表記・法人番号・数学用字体・国旗・Python エスケープ・表の並べ替え／転置・リンク・GitHub アラート・kbd）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

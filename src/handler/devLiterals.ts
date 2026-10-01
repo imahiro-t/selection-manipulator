@@ -46,6 +46,12 @@ const escapeJsSingleQuoted = (text: string): string =>
  */
 export const toJsString = (text: string): string => `'${escapeJsSingleQuoted(text)}'`;
 
+/** An ASCII JavaScript identifier (a property key that needs no quotes). */
+const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
+/** A property key of an object literal: the key itself when it is an identifier, otherwise {@link toJsString}. */
+export const toJsPropertyKey = (key: string): string => (JS_IDENTIFIER.test(key) ? key : toJsString(key));
+
 // ---------------------------------------------------------------------------------------------
 // DEV-002 Python string (like repr of a str)
 // ---------------------------------------------------------------------------------------------

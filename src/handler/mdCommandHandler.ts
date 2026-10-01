@@ -1,5 +1,6 @@
-import { EndOfLine, InputBoxOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
-import { MD_COMMAND_ENTRIES, MdCommandEntry, MdInputError, MdRange, MdResult } from './mdTransforms';
+import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { openTextDocument } from '../common';
+import { MD_COMMAND_ENTRIES, MdChoice, MdCommandEntry, MdInputError, MdRange, MdResult } from './mdTransforms';
 
 /** How the handlers tell the user what happened. */
 export interface MdNotifier {
@@ -8,16 +9,30 @@ export interface MdNotifier {
   showErrorMessage(message: string): Thenable<unknown>;
 }
 
+/** A quick pick item that carries the value of its MdChoice. */
+export interface MdPickItem extends QuickPickItem {
+  value: string;
+}
+
 /** What the handlers need from VS Code; replaced in tests. */
 export interface MdDependencies {
   notifier: MdNotifier;
   showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>;
+  /** Asks for one of the choices of a step (`undefined` = cancelled). */
+  showQuickPick: (items: MdPickItem[], options: QuickPickOptions) => Thenable<MdPickItem | undefined>;
+  /** Opens a result in a new read-only editor. */
+  openResult: (content: string) => Thenable<unknown>;
 }
 
-const defaultDependencies: MdDependencies = {
+export const defaultMdDependencies: MdDependencies = {
   notifier: window,
   showInputBox: (options) => window.showInputBox(options),
+  showQuickPick: (items, options) => window.showQuickPick(items, options),
+  openResult: (content) => openTextDocument(content),
 };
+
+const pickItems = (choices: readonly MdChoice[]): MdPickItem[] =>
+  choices.map(({ label, description, value }) => (description === undefined ? { label, value } : { label, description, value }));
 
 export const MD_TEXT_NOT_CHANGED = 'The text was not changed: ';
 
@@ -67,12 +82,22 @@ const setSelections = (textEditor: TextEditor, ranges: readonly MdRange[]): void
 };
 
 /**
- * Asks for every value of the command. Returns `undefined` when the user cancels or
- * (defensively, despite `validateInput`) enters an invalid value.
+ * Asks for every value of the command (input boxes and quick picks, in order). Returns
+ * `undefined` when the user cancels or (defensively, despite `validateInput` and the fixed
+ * choices) gives an invalid value.
  */
 const askInputs = async (dependencies: MdDependencies, entry: MdCommandEntry): Promise<string[] | undefined> => {
   const values: string[] = [];
   for (const step of entry.inputs ?? []) {
+    if (step.choices !== undefined) {
+      const picked = await dependencies.showQuickPick(pickItems(step.choices), { placeHolder: step.prompt, ignoreFocusOut: true });
+      // Checked again in case something that was not offered comes back anyway.
+      if (picked === undefined || !step.choices.some((choice) => choice.value === picked.value) || step.validate(picked.value) !== undefined) {
+        return undefined;
+      }
+      values.push(picked.value);
+      continue;
+    }
     const value = await dependencies.showInputBox({
       prompt: step.prompt,
       placeHolder: step.placeHolder,
@@ -95,6 +120,9 @@ const applyResult = async (textEditor: TextEditor, dependencies: MdDependencies,
       return;
     case 'info':
       void dependencies.notifier.showInformationMessage(result.message);
+      return;
+    case 'open':
+      await dependencies.openResult(result.content);
       return;
     case 'edit': {
       const document = textEditor.document;
@@ -155,4 +183,4 @@ export const mdCommandHandlerInternal = (dependencies: MdDependencies, entries: 
     };
   };
 
-export const mdCommandHandler = mdCommandHandlerInternal(defaultDependencies);
+export const mdCommandHandler = mdCommandHandlerInternal(defaultMdDependencies);

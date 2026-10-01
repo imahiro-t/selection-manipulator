@@ -80,8 +80,8 @@ const targetSelections = (textEditor: TextEditor): Selection[] =>
     .filter((selection) => !selection.isEmpty && !isBlank(textEditor.document.getText(selection)))
     .sort((a, b) => a.start.compareTo(b.start));
 
-const entryOf = (name: string): DateCommandEntry => {
-  const entry = DATE_COMMAND_ENTRIES.find((candidate) => candidate.name === name);
+const entryOf = (name: string, entries: readonly DateCommandEntry[]): DateCommandEntry => {
+  const entry = entries.find((candidate) => candidate.name === name);
   if (!entry) {
     throw new Error(`Unknown DATE command: ${name}`);
   }
@@ -278,10 +278,13 @@ const askPrompts = async (dependencies: DateDependencies, entry: DateCommandEntr
   return answers;
 };
 
-/** The DATE-001..030 commands by command name (without `selection-manipulator.`). The dependencies can be replaced in tests. */
-export const dateCommandHandlerInternal = (dependencies: DateDependencies) =>
+/**
+ * The DATE-001..030 commands by command name (without `selection-manipulator.`). The dependencies
+ * can be replaced in tests; another command table (DATEX-001..015) can be given instead.
+ */
+export const dateCommandHandlerInternal = (dependencies: DateDependencies, entries: readonly DateCommandEntry[] = DATE_COMMAND_ENTRIES) =>
   (name: string) => {
-    const entry = entryOf(name);
+    const entry = entryOf(name, entries);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
         if (targetSelections(textEditor).length === 0) {
@@ -313,5 +316,8 @@ export const dateCommandHandlerInternal = (dependencies: DateDependencies) =>
       }
     };
   };
+
+/** The dependencies of the extension (VS Code's UI, the settings and the clock). */
+export const defaultDateDependencies = defaultDependencies;
 
 export const dateCommandHandler = dateCommandHandlerInternal(defaultDependencies);

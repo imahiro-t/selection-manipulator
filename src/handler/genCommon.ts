@@ -25,6 +25,19 @@ export class GenInputError extends Error {
   }
 }
 
+/**
+ * A value exceeds a limit of a command (DATEX-016..024: a count, a size or a depth), checked
+ * before anything is generated. The handler shows it as a warning (nothing is changed). It is a
+ * `GenInputError`, so everything that accepts an input error accepts it too: `findGenPromptProblem`
+ * turns it into a sentence (an input box never throws), and it is never logged.
+ */
+export class GenLimitError extends GenInputError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'GenLimitError';
+  }
+}
+
 /** Upper limit of the length (UTF-16 code units) of one selection used as input (GEN-008 / 009 / 019). */
 export const GEN_MAX_INPUT_LENGTH = 1_000_000;
 /** Upper limit of the length of a value typed into an input box. */
@@ -112,6 +125,26 @@ export const parseCivilDay = (text: string): number | undefined => {
 
 /** The lines of a text (split at `\r\n`, `\n` or `\r`; the line breaks are dropped). */
 export const splitLines = (text: string): string[] => text.split(/\r\n|\r|\n/);
+
+/**
+ * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
+ * last line) and its number (from 1). LF, CRLF and CR are recognised.
+ */
+export const forEachLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
+  let start = 0;
+  let lineNumber = 1;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code === 0x0a || code === 0x0d) {
+      const breakLength = code === 0x0d && text.charCodeAt(i + 1) === 0x0a ? 2 : 1;
+      visit(text.slice(start, i), text.slice(i, i + breakLength), lineNumber);
+      i += breakLength - 1;
+      start = i + 1;
+      lineNumber++;
+    }
+  }
+  visit(text.slice(start), '', lineNumber);
+};
 
 /**
  * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
@@ -240,7 +273,8 @@ export const toSentence = (message: string): string =>
 /**
  * Why a value typed into an input box cannot be used (a sentence), or `undefined`. Spaces around
  * the value are ignored (unless the rule keeps them). Used as `validateInput` and checked again
- * before running.
+ * before running. A `GenLimitError` thrown by `parse` is a `GenInputError` and becomes a sentence
+ * too (it never escapes from `validateInput`).
  */
 export const findGenPromptProblem = (value: string, rule: GenPromptRule, previous: readonly string[] = []): string | undefined => {
   if (value.length > GEN_MAX_PROMPT_LENGTH) {

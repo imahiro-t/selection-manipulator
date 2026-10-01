@@ -223,7 +223,8 @@ export const utf8 = (text: string): Buffer => {
 
 const strictUtf8Decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
-const decodeUtf8Strict = (bytes: Uint8Array): string => {
+/** Decodes UTF-8 strictly: invalid bytes are an `EncInputError` instead of U+FFFD. Also used by the ENC2 commands. */
+export const decodeUtf8Strict = (bytes: Uint8Array): string => {
   try {
     return strictUtf8Decoder.decode(bytes);
   } catch {
@@ -231,8 +232,11 @@ const decodeUtf8Strict = (bytes: Uint8Array): string => {
   }
 };
 
-/** Removes spaces, tabs and line breaks (allowed anywhere in the input of most decoders). */
-const removeWhitespace = (text: string): string => text.replace(/[ \t\r\n]/g, '');
+/** Removes spaces, tabs and line breaks (allowed anywhere in the input of most decoders). Also used by the ENC2 commands. */
+export const removeWhitespace = (text: string): string => text.replace(/[ \t\r\n]/g, '');
+
+/** Whether `code` is one of the characters `removeWhitespace` removes (space, tab, CR, LF). */
+export const isRemovableWhitespace = (code: number): boolean => code === 0x20 || code === 0x09 || code === 0x0d || code === 0x0a;
 
 const isWhitespace = (char: string): boolean => /^\s$/.test(char);
 
@@ -287,17 +291,18 @@ const decodeBase64Strict = (text: string, kind: 'base64' | 'base64url'): Buffer 
   return bytes;
 };
 
-const isUpper = (code: number): boolean => code >= 0x41 && code <= 0x5a;
-const isLower = (code: number): boolean => code >= 0x61 && code <= 0x7a;
+export const isAsciiDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
+export const isAsciiUpper = (code: number): boolean => code >= 0x41 && code <= 0x5a;
+export const isAsciiLower = (code: number): boolean => code >= 0x61 && code <= 0x7a;
 
 /** Maps every ASCII letter with `map(indexInAlphabet)`; other characters stay as they are. */
 const mapAsciiLetters = (text: string, map: (index: number) => number): string => {
   let result = '';
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
-    if (isUpper(code)) {
+    if (isAsciiUpper(code)) {
       result += String.fromCharCode(0x41 + map(code - 0x41));
-    } else if (isLower(code)) {
+    } else if (isAsciiLower(code)) {
       result += String.fromCharCode(0x61 + map(code - 0x61));
     } else {
       result += text[i];
@@ -500,7 +505,7 @@ const base32Decode = (text: string): string => {
   for (let i = 0; i < body.length; i++) {
     const code = body.charCodeAt(i);
     // ASCII-only case folding (the character set was validated above).
-    const upper = isLower(code) ? code - 0x20 : code;
+    const upper = isAsciiLower(code) ? code - 0x20 : code;
     buffer = ((buffer << 5) | BASE32_ALPHABET.indexOf(String.fromCharCode(upper))) & 0xfff;
     bits += 5;
     if (bits >= 8) {
@@ -851,7 +856,7 @@ const gunzipBase64 = (text: string): string => {
 // ---------------------------------------------------------------------------
 
 const isFormSafe = (byte: number): boolean =>
-  (byte >= 0x30 && byte <= 0x39) || isUpper(byte) || isLower(byte)
+  isAsciiDigit(byte) || isAsciiUpper(byte) || isAsciiLower(byte)
   || byte === 0x2a || byte === 0x2d || byte === 0x2e || byte === 0x5f;
 
 const formEncode = (text: string): string => {
@@ -938,9 +943,9 @@ const natoLine = (line: string): string => {
     }
     inSpace = false;
     const code = char.charCodeAt(0);
-    if (char.length === 1 && isUpper(code)) {
+    if (char.length === 1 && isAsciiUpper(code)) {
       tokens.push(NATO_LETTERS[code - 0x41]);
-    } else if (char.length === 1 && isLower(code)) {
+    } else if (char.length === 1 && isAsciiLower(code)) {
       tokens.push(NATO_LETTERS[code - 0x61]);
     } else if (char.length === 1 && code >= 0x30 && code <= 0x39) {
       tokens.push(NATO_DIGITS[code - 0x30]);

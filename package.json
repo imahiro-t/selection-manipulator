@@ -1,7 +1,7 @@
 {
   "name": "selection-manipulator",
   "displayName": "Selection Manipulator",
-  "description": "The ultimate text processing toolkit for VS Code. Over 800 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS), Japanese text conversion, and ASCII art.",
+  "description": "The ultimate text processing toolkit for VS Code. Over 1,000 tools: extract, sort, unique, JSON/XML format, case conversion, encryption (AES), hashing (SHA/MD5), base64, network tools (DNS), Japanese text conversion, and ASCII art.",
   "version": "0.1.1",
   "publisher": "erintheblack",
   "author": {
@@ -4176,6 +4176,921 @@
         "command": "selection-manipulator.markdown.front-matter-to-json",
         "title": "Markdown: Front Matter to JSON",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.repeat",
+        "title": "Text - Repeat Selection N Times",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.truncate",
+        "title": "Text - Truncate to N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.truncate-middle",
+        "title": "Text - Shorten in the Middle",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.pad-start",
+        "title": "Text - Pad Start to Width (Custom Character)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.pad-end",
+        "title": "Text - Pad End to Width (Custom Character)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.insert-every-n",
+        "title": "Text - Insert Separator Every N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.translate-chars",
+        "title": "Text - Translate Characters (tr)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.delete-chars",
+        "title": "Text - Delete Characters in Set",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.squeeze-chars",
+        "title": "Text - Squeeze Repeated Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-digits",
+        "title": "Text - Remove Digits",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-punctuation",
+        "title": "Text - Remove Punctuation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.keep-digits",
+        "title": "Text - Keep Digits Only",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.reverse-each-word",
+        "title": "Text - Reverse Each Word",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.sort-words",
+        "title": "Text - Sort Words in Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unique-words",
+        "title": "Text - Remove Duplicate Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.sort-characters",
+        "title": "Text - Sort Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.unique-characters",
+        "title": "Text - Remove Duplicate Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.word-frequency",
+        "title": "Text - Word Frequency Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.char-frequency",
+        "title": "Text - Character Frequency Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-urls",
+        "title": "Text - Remove URLs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.mask-keep-last",
+        "title": "Text - Mask Except Last N Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.leetspeak",
+        "title": "Text - Leetspeak",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.text.remove-between",
+        "title": "Text - Remove Text Between Delimiters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.keep-range",
+        "title": "Line: Keep Lines N to M",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.drop-first-n",
+        "title": "Line: Remove First N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.drop-last-n",
+        "title": "Line: Remove Last N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.blank-every-n",
+        "title": "Line: Insert Blank Line Every N Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.cut-chars",
+        "title": "Line: Cut Character Range of Each Line",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.paste-columns",
+        "title": "Line: Paste Selections Side by Side",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.dedupe-keep-last",
+        "title": "Line: Remove Duplicate Lines (Keep Last)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.split-by-regex",
+        "title": "Line: Split into Lines by Regex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.join-natural-list",
+        "title": "Line: Join as Natural Language List",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.intersect-selections",
+        "title": "Line: Lines Common to Two Selections",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.subtract-selections",
+        "title": "Line: Lines Only in First Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.symmetric-difference",
+        "title": "Line: Lines in Only One Selection",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.number-nonblank",
+        "title": "Line: Add Numbers to Non-blank Lines",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.line.fold-to-columns",
+        "title": "Line: Arrange Lines into N Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-emails",
+        "title": "Selection - Select All Email Addresses",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-ips",
+        "title": "Selection - Select All IP Addresses",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-hex-colors",
+        "title": "Selection - Select All Hex Colors",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-uuids",
+        "title": "Selection - Select All UUIDs",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.select-dates",
+        "title": "Selection - Select All ISO Dates",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.expand-to-sentence",
+        "title": "Selection - Expand to Sentence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.expand-to-paragraph",
+        "title": "Selection - Expand to Paragraph",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.keep-duplicate-text",
+        "title": "Selection - Keep Only Duplicate Texts",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.selection.join-into-first",
+        "title": "Selection - Join All Selections into First",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.encode-hex",
+        "title": "Encode Base32hex (RFC 4648 §7)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base32.decode-hex",
+        "title": "Decode Base32hex (RFC 4648 §7)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base45.encode",
+        "title": "Encode Base45 (RFC 9285)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base45.decode",
+        "title": "Decode Base45 (RFC 9285)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base62.encode",
+        "title": "Encode Base62",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.base62.decode",
+        "title": "Decode Base62",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.uu.encode",
+        "title": "Encode uuencode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.uu.decode",
+        "title": "Decode uuencode",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.url.encode-all",
+        "title": "Encode All Characters as Percent-encoding",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.css-identifier",
+        "title": "Escape CSS Identifier",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.ldap-filter",
+        "title": "Escape LDAP Filter Value (RFC 4515)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.ldap-dn",
+        "title": "Escape LDAP DN Value (RFC 4514)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.xpath-literal",
+        "title": "Convert to XPath String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.c-string",
+        "title": "Convert to C String Literal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.escape.c-unescape",
+        "title": "Unescape C / Java Style Escapes",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-sha3-384",
+        "title": "Create Hash (SHA3-384)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hash-shake256",
+        "title": "Create Hash (SHAKE256, Output Length N)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.crypto.hmac-sha3-512",
+        "title": "Create HMAC (SHA3-512)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc16",
+        "title": "Checksum: CRC-16/CCITT-FALSE",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.crc32c",
+        "title": "Checksum: CRC-32C (Castagnoli)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.iban",
+        "title": "Checksum: IBAN Validate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.checksum.isbn",
+        "title": "Checksum: ISBN-10 / ISBN-13 Validate",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-array",
+        "title": "Sort JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.filter-array",
+        "title": "Filter JSON Array by Field Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.pick-keys",
+        "title": "Pick Keys from JSON Object",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.omit-keys",
+        "title": "Omit Keys from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.rename-key",
+        "title": "Rename JSON Key",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.remove-empty",
+        "title": "Remove Empty Values from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-markdown-table",
+        "title": "Convert JSON Array to Markdown Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.chunk-array",
+        "title": "Split JSON Array into Chunks",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.array-to-object",
+        "title": "Convert JSON Array to Object by Key",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.object-to-entries",
+        "title": "Convert JSON Object to Key-Value Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.set-path",
+        "title": "Set JSON Value at Path",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.to-flow",
+        "title": "Convert YAML to Flow Style",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.validate",
+        "title": "Validate YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.multi-doc-to-json",
+        "title": "Convert Multi-document YAML to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.format",
+        "title": "Format TOML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.validate",
+        "title": "Validate XML (Well-formedness)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.list-paths",
+        "title": "List XML Element Paths",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.reorder-columns",
+        "title": "CSV - Reorder Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.merge-columns",
+        "title": "CSV - Merge Two Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.split-column",
+        "title": "CSV - Split Column by Delimiter",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.group-count",
+        "title": "CSV - Count Rows by Column Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.fill-empty",
+        "title": "CSV - Fill Empty Cells with Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ltsv.to-json",
+        "title": "Convert LTSV to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-ltsv",
+        "title": "Convert JSON to LTSV",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-rust-struct",
+        "title": "Convert JSON to Rust Struct (serde)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+        "title": "Convert JSON to Kotlin Data Class",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-csharp-class",
+        "title": "Convert JSON to C# Class",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-zod",
+        "title": "Convert JSON to Zod Schema",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-swift-codable",
+        "title": "Convert JSON to Swift Codable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+        "title": "Lowercase SQL Keywords",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hex-to-oklch",
+        "title": "Convert Hex Color to OKLCH",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.color-contrast-ratio",
+        "title": "Show WCAG Contrast Ratio",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.color-invert",
+        "title": "Invert Hex Color",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-sort-properties",
+        "title": "Sort CSS Declarations",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-to-js-object",
+        "title": "Convert CSS Declarations to JS Style Object",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.js-object-to-css",
+        "title": "Convert JS Style Object to CSS Declarations",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.remove-comments-js",
+        "title": "Remove JS / TS Comments",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+        "title": "Convert to C# Verbatim String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-rust-raw-string",
+        "title": "Convert to Rust Raw String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-heredoc",
+        "title": "Convert to Shell Here-document",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.http-status-describe",
+        "title": "Describe HTTP Status Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.mime-type-lookup",
+        "title": "Look Up MIME Type by Extension",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.uuid-normalize",
+        "title": "Normalize UUID Format",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.cidr-info",
+        "title": "Show CIDR Range Information",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ipv6-expand",
+        "title": "Expand IPv6 Address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ipv6-compress",
+        "title": "Compress IPv6 Address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ip-to-integer",
+        "title": "Convert IPv4 to Integer and Back",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round-to-significant",
+        "title": "Number - Round to Significant Figures",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round-to-multiple",
+        "title": "Number - Round to Nearest Multiple",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.clamp",
+        "title": "Number - Clamp to Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-roman",
+        "title": "Number - To Roman Numeral",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-roman",
+        "title": "Number - From Roman Numeral",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-english-words",
+        "title": "Number - From English Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-fraction",
+        "title": "Number - Fraction to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.multiply-by-n",
+        "title": "Number - Multiply by N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-ieee754",
+        "title": "Number - To IEEE 754 Bits",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-ieee754",
+        "title": "Number - From IEEE 754 Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-twos-complement",
+        "title": "Number - To Two's Complement Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.gcd",
+        "title": "Math - Greatest Common Divisor",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.lcm",
+        "title": "Math - Least Common Multiple",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.prime-factors",
+        "title": "Math - Prime Factorization",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.diff-consecutive",
+        "title": "Math - Differences Between Consecutive Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.collapse-ranges",
+        "title": "Math - Collapse Integers to Ranges",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.expand-ranges",
+        "title": "Math - Expand Ranges to Integers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.m-to-ft",
+        "title": "Unit: m to ft",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.ft-to-m",
+        "title": "Unit: ft to m",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.sqm-to-tsubo",
+        "title": "Unit: m² to Tsubo (坪)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.tsubo-to-sqm",
+        "title": "Unit: Tsubo (坪) to m²",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.deg-to-rad",
+        "title": "Unit: Degrees to Radians",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.rad-to-deg",
+        "title": "Unit: Radians to Degrees",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.add-iso-duration",
+        "title": "Date - Add ISO 8601 Duration",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.seconds-to-iso-duration",
+        "title": "Date - Seconds to ISO 8601 Duration",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.start-of-month",
+        "title": "Date - Start of Month",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.end-of-month",
+        "title": "Date - End of Month",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.add-business-days",
+        "title": "Date - Add Business Days",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.business-days-between",
+        "title": "Date - Count Business Days Between",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-rfc3339-offset",
+        "title": "Date - Convert to RFC 3339 with Local Offset",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.iso-week-to-range",
+        "title": "Date - ISO Week to Date Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.eto",
+        "title": "Date - Sexagenary Cycle (Eto, 干支)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-12h",
+        "title": "Date - Convert Time to 12-hour",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.to-24h",
+        "title": "Date - Convert Time to 24-hour",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.snowflake-to-date",
+        "title": "Date - Snowflake ID to Date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.ulid-to-date",
+        "title": "Date - ULID to Date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.uuid-v7-to-date",
+        "title": "Date - UUID v7 to Date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.date.objectid-to-date",
+        "title": "Date - MongoDB ObjectId to Date",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.brace-expansion",
+        "title": "Generate - Brace Expansion",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.multiplication-table",
+        "title": "Generate - Multiplication Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.fibonacci",
+        "title": "Generate - Fibonacci Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.primes",
+        "title": "Generate - Prime Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.time-sequence",
+        "title": "Generate - Time Sequence",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.generate.cartesian-product",
+        "title": "Generate - Cartesian Product of Selections",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.passphrase",
+        "title": "Random - Passphrase",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.string-custom-charset",
+        "title": "Random - String from Custom Characters",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.random.shuffle-words",
+        "title": "Random - Shuffle Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.vertical-text",
+        "title": "Japanese - Convert to Vertical Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.gojuon-row",
+        "title": "Japanese - Gojuon Row (Index Heading)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.normalize-for-search",
+        "title": "Japanese - Normalize for Search",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.man-oku-notation",
+        "title": "Japanese - Number to Man/Oku Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.corporate-number-validate",
+        "title": "Japanese - Validate Corporate Number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.decompose-dakuten",
+        "title": "Japanese - Decompose Dakuten",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+        "title": "Japanese - Parenthesized Reading to Ruby Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-script",
+        "title": "Unicode - Mathematical Script",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-fraktur",
+        "title": "Unicode - Mathematical Fraktur",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-double-struck",
+        "title": "Unicode - Mathematical Double-struck",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-small-caps",
+        "title": "Unicode - Small Capitals",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape-python",
+        "title": "Escape Unicode (Python \\U00XXXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.to-regional-indicators",
+        "title": "Unicode - Country Code to Flag Emoji",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.from-regional-indicators",
+        "title": "Unicode - Flag Emoji to Country Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.table-sort-by-column",
+        "title": "Markdown: Sort Table by Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.table-transpose",
+        "title": "Markdown: Transpose Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.unlink",
+        "title": "Markdown: Remove Links (Keep Text)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.extract-links",
+        "title": "Markdown: Extract Links",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.reference-to-inline",
+        "title": "Markdown: Reference Links to Inline Links",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.github-alert",
+        "title": "Markdown: GitHub Alert Block",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.kbd",
+        "title": "Markdown: Keyboard Key (<kbd>)",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -4436,6 +5351,10 @@
       {
         "id": "selection-manipulator.selection.submenu",
         "label": "Multi Cursor"
+      },
+      {
+        "id": "selection-manipulator.text-transform.submenu",
+        "label": "Text Transform"
       }
     ],
     "menus": {
@@ -5467,6 +6386,62 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.line.extract-between-markers.clipboard"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.keep-range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.drop-first-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.drop-last-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.blank-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.cut-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.paste-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.dedupe-keep-last"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.split-by-regex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.join-natural-list"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.intersect-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.subtract-selections"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.symmetric-difference"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.number-nonblank"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.line.fold-to-columns"
         },
         {
           "when": "editorHasSelection",
@@ -6839,6 +7814,35 @@
           "command": "selection-manipulator.selection.select-indentation"
         },
         {
+          "command": "selection-manipulator.selection.select-emails"
+        },
+        {
+          "command": "selection-manipulator.selection.select-ips"
+        },
+        {
+          "command": "selection-manipulator.selection.select-hex-colors"
+        },
+        {
+          "command": "selection-manipulator.selection.select-uuids"
+        },
+        {
+          "command": "selection-manipulator.selection.select-dates"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-sentence"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-paragraph"
+        },
+        {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.selection.keep-duplicate-text"
+        },
+        {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.selection.join-into-first"
+        },
+        {
           "when": "editorHasSelection",
           "command": "selection-manipulator.markdown.heading-increase"
         },
@@ -6936,6 +7940,622 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.markdown.front-matter-to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.repeat"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.truncate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.truncate-middle"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.pad-start"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.pad-end"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.insert-every-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.translate-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.delete-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.squeeze-chars"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-digits"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-punctuation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.keep-digits"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.reverse-each-word"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.sort-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.unique-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.sort-characters"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.unique-characters"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.word-frequency"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.char-frequency"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-urls"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.mask-keep-last"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.leetspeak"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.text.remove-between"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.encode-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base32.decode-hex"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base45.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base45.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base62.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.base62.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.uu.encode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.uu.decode"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.url.encode-all"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.css-identifier"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.ldap-filter"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.ldap-dn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.xpath-literal"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.c-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.escape.c-unescape"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-sha3-384"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hash-shake256"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.crypto.hmac-sha3-512"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc16"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.crc32c"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.iban"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.checksum.isbn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.filter-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.pick-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.omit-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.rename-key"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.remove-empty"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-markdown-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.chunk-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.array-to-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.object-to-entries"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.set-path"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.to-flow"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.multi-doc-to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.xml.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.xml.list-paths"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.reorder-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.merge-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.split-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.group-count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.fill-empty"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ltsv.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-ltsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-rust-struct"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-kotlin-data-class"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-csharp-class"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-zod"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-swift-codable"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-lowercase-keywords"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.hex-to-oklch"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.color-contrast-ratio"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.color-invert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-sort-properties"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-to-js-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.js-object-to-css"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.remove-comments-js"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-csharp-verbatim-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-rust-raw-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-heredoc"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.http-status-describe"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.mime-type-lookup"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.uuid-normalize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.cidr-info"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ipv6-expand"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ipv6-compress"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ip-to-integer"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round-to-significant"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round-to-multiple"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.clamp"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-roman"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-roman"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-english-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-fraction"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.multiply-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-ieee754"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-ieee754"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-twos-complement"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.gcd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.lcm"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.prime-factors"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.diff-consecutive"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.collapse-ranges"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.expand-ranges"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.m-to-ft"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.ft-to-m"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.sqm-to-tsubo"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.tsubo-to-sqm"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.deg-to-rad"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.rad-to-deg"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.add-iso-duration"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.seconds-to-iso-duration"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.start-of-month"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.end-of-month"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.add-business-days"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.business-days-between"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-rfc3339-offset"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.iso-week-to-range"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.eto"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-12h"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.to-24h"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.snowflake-to-date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.ulid-to-date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.uuid-v7-to-date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.date.objectid-to-date"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.generate.brace-expansion"
+        },
+        {
+          "when": "editorHasMultipleSelections",
+          "command": "selection-manipulator.generate.cartesian-product"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.random.shuffle-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.vertical-text"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.gojuon-row"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.normalize-for-search"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.man-oku-notation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.corporate-number-validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.decompose-dakuten"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.paren-reading-to-ruby"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-script"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-fraktur"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-double-struck"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-small-caps"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape-python"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.to-regional-indicators"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.from-regional-indicators"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.table-sort-by-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.table-transpose"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.unlink"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.extract-links"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.reference-to-inline"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.github-alert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.kbd"
         }
       ],
       "editor/context": [
@@ -7534,6 +9154,18 @@
         {
           "command": "selection-manipulator.crypto.hash-sha256-each-line",
           "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-sha3-384",
+          "group": "selection-manipulator@23"
+        },
+        {
+          "command": "selection-manipulator.crypto.hash-shake256",
+          "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.crypto.hmac-sha3-512",
+          "group": "selection-manipulator@25"
         }
       ],
       "selection-manipulator.har.submenu": [
@@ -7925,6 +9557,66 @@
         {
           "command": "selection-manipulator.number.to-fraction",
           "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.number.round-to-significant",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.number.round-to-multiple",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.number.clamp",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.number.to-roman",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.number.from-roman",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.number.from-english-words",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.number.from-fraction",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.number.multiply-by-n",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.number.to-ieee754",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.number.from-ieee754",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.number.to-twos-complement",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.math.prime-factors",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.math.diff-consecutive",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.math.collapse-ranges",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.math.expand-ranges",
+          "group": "selection-manipulator@48"
         }
       ],
       "selection-manipulator.json.replace.submenu": [
@@ -8120,6 +9812,14 @@
         {
           "command": "selection-manipulator.math.summary",
           "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.math.gcd",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.math.lcm",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.regex.submenu": [
@@ -8216,6 +9916,18 @@
         {
           "command": "selection-manipulator.random.dice",
           "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.random.passphrase",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.random.string-custom-charset",
+          "group": "selection-manipulator@22"
+        },
+        {
+          "command": "selection-manipulator.random.shuffle-words",
+          "group": "selection-manipulator@23"
         }
       ],
       "selection-manipulator.generate.submenu": [
@@ -8262,6 +9974,30 @@
         {
           "command": "selection-manipulator.generate.ipv4-sequence",
           "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.generate.brace-expansion",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.generate.multiplication-table",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.generate.fibonacci",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.generate.primes",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.generate.time-sequence",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.generate.cartesian-product",
+          "group": "selection-manipulator@16"
         }
       ],
       "selection-manipulator.programmatic.submenu": [
@@ -8440,6 +10176,122 @@
         {
           "command": "selection-manipulator.programmatic.html-to-jsx.replace",
           "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.escape.css-identifier",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.escape.ldap-filter",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.escape.ldap-dn",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.escape.xpath-literal",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.escape.c-string",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.escape.c-unescape",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-rust-struct",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+          "group": "selection-manipulator@51"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-csharp-class",
+          "group": "selection-manipulator@52"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-zod",
+          "group": "selection-manipulator@53"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-swift-codable",
+          "group": "selection-manipulator@54"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+          "group": "selection-manipulator@55"
+        },
+        {
+          "command": "selection-manipulator.programmatic.hex-to-oklch",
+          "group": "selection-manipulator@56"
+        },
+        {
+          "command": "selection-manipulator.programmatic.color-contrast-ratio",
+          "group": "selection-manipulator@57"
+        },
+        {
+          "command": "selection-manipulator.programmatic.color-invert",
+          "group": "selection-manipulator@58"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-sort-properties",
+          "group": "selection-manipulator@59"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-to-js-object",
+          "group": "selection-manipulator@60"
+        },
+        {
+          "command": "selection-manipulator.programmatic.js-object-to-css",
+          "group": "selection-manipulator@61"
+        },
+        {
+          "command": "selection-manipulator.programmatic.remove-comments-js",
+          "group": "selection-manipulator@62"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+          "group": "selection-manipulator@63"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-rust-raw-string",
+          "group": "selection-manipulator@64"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-heredoc",
+          "group": "selection-manipulator@65"
+        },
+        {
+          "command": "selection-manipulator.programmatic.http-status-describe",
+          "group": "selection-manipulator@66"
+        },
+        {
+          "command": "selection-manipulator.programmatic.mime-type-lookup",
+          "group": "selection-manipulator@67"
+        },
+        {
+          "command": "selection-manipulator.programmatic.uuid-normalize",
+          "group": "selection-manipulator@68"
+        },
+        {
+          "command": "selection-manipulator.programmatic.cidr-info",
+          "group": "selection-manipulator@69"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ipv6-expand",
+          "group": "selection-manipulator@70"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ipv6-compress",
+          "group": "selection-manipulator@71"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ip-to-integer",
+          "group": "selection-manipulator@72"
         }
       ],
       "selection-manipulator.japanese.submenu": [
@@ -8614,6 +10466,34 @@
         {
           "command": "selection-manipulator.japanese.space-between-ja-en.replace",
           "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.japanese.vertical-text",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.japanese.gojuon-row",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.japanese.normalize-for-search",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.japanese.man-oku-notation",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.japanese.corporate-number-validate",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.japanese.decompose-dakuten",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+          "group": "selection-manipulator@49"
         }
       ],
       "selection-manipulator.text.submenu": [
@@ -8737,6 +10617,10 @@
         {
           "submenu": "selection-manipulator.selection.submenu",
           "group": "selection-manipulator@17"
+        },
+        {
+          "submenu": "selection-manipulator.text-transform.submenu",
+          "group": "selection-manipulator@18"
         }
       ],
       "selection-manipulator.ascii.submenu": [
@@ -9055,6 +10939,30 @@
         {
           "command": "selection-manipulator.unit.inch-to-cm",
           "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.unit.m-to-ft",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.unit.ft-to-m",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.unit.sqm-to-tsubo",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.unit.tsubo-to-sqm",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.unit.deg-to-rad",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.unit.rad-to-deg",
+          "group": "selection-manipulator@15"
         }
       ],
       "selection-manipulator.markdown.submenu": [
@@ -9184,6 +11092,41 @@
         {
           "command": "selection-manipulator.markdown.front-matter-to-json",
           "group": "selection-manipulator@25",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.table-sort-by-column",
+          "group": "selection-manipulator@26",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.table-transpose",
+          "group": "selection-manipulator@27",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.unlink",
+          "group": "selection-manipulator@28",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.extract-links",
+          "group": "selection-manipulator@29",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.reference-to-inline",
+          "group": "selection-manipulator@30",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.github-alert",
+          "group": "selection-manipulator@31",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.kbd",
+          "group": "selection-manipulator@32",
           "when": "editorHasSelection"
         }
       ],
@@ -9377,6 +11320,66 @@
         {
           "command": "selection-manipulator.date.from-compact.replace",
           "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.date.add-iso-duration",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.date.seconds-to-iso-duration",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.date.start-of-month",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.date.end-of-month",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.date.add-business-days",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.date.business-days-between",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.date.to-rfc3339-offset",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.date.iso-week-to-range",
+          "group": "selection-manipulator@51"
+        },
+        {
+          "command": "selection-manipulator.date.eto",
+          "group": "selection-manipulator@52"
+        },
+        {
+          "command": "selection-manipulator.date.to-12h",
+          "group": "selection-manipulator@53"
+        },
+        {
+          "command": "selection-manipulator.date.to-24h",
+          "group": "selection-manipulator@54"
+        },
+        {
+          "command": "selection-manipulator.date.snowflake-to-date",
+          "group": "selection-manipulator@55"
+        },
+        {
+          "command": "selection-manipulator.date.ulid-to-date",
+          "group": "selection-manipulator@56"
+        },
+        {
+          "command": "selection-manipulator.date.uuid-v7-to-date",
+          "group": "selection-manipulator@57"
+        },
+        {
+          "command": "selection-manipulator.date.objectid-to-date",
+          "group": "selection-manipulator@58"
         }
       ],
       "selection-manipulator.morse.submenu": [
@@ -9707,6 +11710,62 @@
         {
           "command": "selection-manipulator.line.extract-between-markers.clipboard",
           "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.line.keep-range",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.line.drop-first-n",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.line.drop-last-n",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.line.blank-every-n",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.line.cut-chars",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.line.paste-columns",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.line.dedupe-keep-last",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.line.split-by-regex",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.line.join-natural-list",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.line.intersect-selections",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.line.subtract-selections",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.line.symmetric-difference",
+          "group": "selection-manipulator@51"
+        },
+        {
+          "command": "selection-manipulator.line.number-nonblank",
+          "group": "selection-manipulator@52"
+        },
+        {
+          "command": "selection-manipulator.line.fold-to-columns",
+          "group": "selection-manipulator@53"
         }
       ],
       "selection-manipulator.encode.submenu": [
@@ -9845,6 +11904,42 @@
         {
           "command": "selection-manipulator.data-uri.encode-text",
           "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.base32.encode-hex",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.base32.decode-hex",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.base45.encode",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.base45.decode",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.base62.encode",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.base62.decode",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.uu.encode",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.uu.decode",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.url.encode-all",
+          "group": "selection-manipulator@42"
         }
       ],
       "selection-manipulator.encode.replace.submenu": [
@@ -9889,6 +11984,22 @@
         {
           "command": "selection-manipulator.checksum.luhn",
           "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.checksum.crc16",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.checksum.crc32c",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.checksum.iban",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.checksum.isbn",
+          "group": "selection-manipulator@7"
         }
       ],
       "selection-manipulator.data.submenu": [
@@ -10023,6 +12134,82 @@
         {
           "command": "selection-manipulator.json.parse-nested",
           "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.json.sort-array",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.json.filter-array",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.json.pick-keys",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.json.omit-keys",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.json.rename-key",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.json.remove-empty",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.json.to-markdown-table",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.json.chunk-array",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.json.array-to-object",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.json.object-to-entries",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.json.set-path",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.yaml.to-flow",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.yaml.validate",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.yaml.multi-doc-to-json",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.toml.format",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.xml.validate",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.xml.list-paths",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.ltsv.to-json",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.json.to-ltsv",
+          "group": "selection-manipulator@51"
         }
       ],
       "selection-manipulator.data.replace.submenu": [
@@ -10155,6 +12342,26 @@
         {
           "command": "selection-manipulator.csv.to-records",
           "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.csv.reorder-columns",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.csv.merge-columns",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.csv.split-column",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.csv.group-count",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.csv.fill-empty",
+          "group": "selection-manipulator@29"
         }
       ],
       "selection-manipulator.table.replace.submenu": [
@@ -10299,6 +12506,34 @@
         {
           "command": "selection-manipulator.unicode.transliterate-cyrillic",
           "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-script",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-fraktur",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-double-struck",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-small-caps",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape-python",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.unicode.to-regional-indicators",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.unicode.from-regional-indicators",
+          "group": "selection-manipulator@36"
         }
       ],
       "selection-manipulator.selection.submenu": [
@@ -10445,6 +12680,138 @@
         {
           "command": "selection-manipulator.selection.info",
           "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.selection.select-emails",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.selection.select-ips",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.selection.select-hex-colors",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.selection.select-uuids",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.selection.select-dates",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-sentence",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.selection.expand-to-paragraph",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.selection.keep-duplicate-text",
+          "group": "selection-manipulator@37",
+          "when": "editorHasMultipleSelections"
+        },
+        {
+          "command": "selection-manipulator.selection.join-into-first",
+          "group": "selection-manipulator@38",
+          "when": "editorHasMultipleSelections"
+        }
+      ],
+      "selection-manipulator.text-transform.submenu": [
+        {
+          "command": "selection-manipulator.text.repeat",
+          "group": "selection-manipulator@0"
+        },
+        {
+          "command": "selection-manipulator.text.truncate",
+          "group": "selection-manipulator@1"
+        },
+        {
+          "command": "selection-manipulator.text.truncate-middle",
+          "group": "selection-manipulator@2"
+        },
+        {
+          "command": "selection-manipulator.text.pad-start",
+          "group": "selection-manipulator@3"
+        },
+        {
+          "command": "selection-manipulator.text.pad-end",
+          "group": "selection-manipulator@4"
+        },
+        {
+          "command": "selection-manipulator.text.insert-every-n",
+          "group": "selection-manipulator@5"
+        },
+        {
+          "command": "selection-manipulator.text.translate-chars",
+          "group": "selection-manipulator@6"
+        },
+        {
+          "command": "selection-manipulator.text.delete-chars",
+          "group": "selection-manipulator@7"
+        },
+        {
+          "command": "selection-manipulator.text.squeeze-chars",
+          "group": "selection-manipulator@8"
+        },
+        {
+          "command": "selection-manipulator.text.remove-digits",
+          "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.text.remove-punctuation",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.text.keep-digits",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.text.reverse-each-word",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.text.sort-words",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.text.unique-words",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.text.sort-characters",
+          "group": "selection-manipulator@15"
+        },
+        {
+          "command": "selection-manipulator.text.unique-characters",
+          "group": "selection-manipulator@16"
+        },
+        {
+          "command": "selection-manipulator.text.word-frequency",
+          "group": "selection-manipulator@17"
+        },
+        {
+          "command": "selection-manipulator.text.char-frequency",
+          "group": "selection-manipulator@18"
+        },
+        {
+          "command": "selection-manipulator.text.remove-urls",
+          "group": "selection-manipulator@19"
+        },
+        {
+          "command": "selection-manipulator.text.mask-keep-last",
+          "group": "selection-manipulator@20"
+        },
+        {
+          "command": "selection-manipulator.text.leetspeak",
+          "group": "selection-manipulator@21"
+        },
+        {
+          "command": "selection-manipulator.text.remove-between",
+          "group": "selection-manipulator@22"
         }
       ]
     }
