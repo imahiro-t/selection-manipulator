@@ -15,9 +15,10 @@
  * evaluation of code (no eval, no Function constructor), no new dependency. No regular expression
  * is built from the user's input (sets and delimiters are handled with `Set` / `Map` / `indexOf`);
  * the constant expressions below are linear (no end-anchored repetition such as `[ \t]+$`, which
- * is quadratic on a long run of blanks that is not at the end: blanks are trimmed by loops). Results that may grow (repeat, pad, insert every N) are measured before they
- * are built and refused when they exceed the output budget. Error messages never quote the
- * selected text or the values entered.
+ * is quadratic on a long run of blanks that is not at the end: blanks are trimmed by loops).
+ * Results that may grow (repeat, pad, insert every N) are measured before they are built and
+ * refused when they exceed the output budget. Error messages never quote the selected text or the
+ * values entered.
  */
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import { countGraphemes, formatCodePoint, graphemes, isEmojiGrapheme, isInvisibleCode } from './uniCommon';
