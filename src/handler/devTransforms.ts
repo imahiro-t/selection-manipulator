@@ -82,7 +82,7 @@ export interface DevCommandEntry {
  * A transform of the whole text with the context and the output budget. The input limit is
  * checked here, and the length of the result is counted against the budget.
  */
-const withBudget = (convert: (value: string, context: DevContext, budget: number) => string): DevTransform =>
+export const withBudget = (convert: (value: string, context: DevContext, budget: number) => string): DevTransform =>
   (value, context, budget) => {
     assertDevInputLength(value);
     const result = convert(value, context, budget);
@@ -91,12 +91,12 @@ const withBudget = (convert: (value: string, context: DevContext, budget: number
   };
 
 /** A transform of the whole text (line breaks kept). */
-const text = (convert: (value: string) => string): DevTransform => withBudget((value) => convert(value));
+export const text = (convert: (value: string) => string): DevTransform => withBudget((value) => convert(value));
 
 const PREFIX = 'programmatic.';
 
 /** A base command: its result opens in a new editor. */
-interface BaseCommand {
+export interface BaseCommand {
   id: string;
   name: string;
   title: string;
@@ -105,7 +105,7 @@ interface BaseCommand {
   quickPick?: DevQuickPick;
 }
 
-const base = (command: BaseCommand): DevCommandEntry => ({ ...command, name: `${PREFIX}${command.name}`, output: 'new-tab' });
+export const base = (command: BaseCommand): DevCommandEntry => ({ ...command, name: `${PREFIX}${command.name}`, output: 'new-tab' });
 
 /** The `(Replace)` variant `id` of a base command: the same transform, in place of the selection. */
 const replaceOf = (id: string, of: DevCommandEntry): DevCommandEntry => ({

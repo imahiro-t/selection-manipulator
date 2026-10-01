@@ -4636,6 +4636,121 @@
         "command": "selection-manipulator.json.to-ltsv",
         "title": "Convert JSON to LTSV",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-rust-struct",
+        "title": "Convert JSON to Rust Struct (serde)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+        "title": "Convert JSON to Kotlin Data Class",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-csharp-class",
+        "title": "Convert JSON to C# Class",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-zod",
+        "title": "Convert JSON to Zod Schema",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.json-to-swift-codable",
+        "title": "Convert JSON to Swift Codable",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+        "title": "Lowercase SQL Keywords",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.hex-to-oklch",
+        "title": "Convert Hex Color to OKLCH",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.color-contrast-ratio",
+        "title": "Show WCAG Contrast Ratio",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.color-invert",
+        "title": "Invert Hex Color",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-sort-properties",
+        "title": "Sort CSS Declarations",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.css-to-js-object",
+        "title": "Convert CSS Declarations to JS Style Object",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.js-object-to-css",
+        "title": "Convert JS Style Object to CSS Declarations",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.remove-comments-js",
+        "title": "Remove JS / TS Comments",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+        "title": "Convert to C# Verbatim String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-rust-raw-string",
+        "title": "Convert to Rust Raw String",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.to-heredoc",
+        "title": "Convert to Shell Here-document",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.http-status-describe",
+        "title": "Describe HTTP Status Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.mime-type-lookup",
+        "title": "Look Up MIME Type by Extension",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.uuid-normalize",
+        "title": "Normalize UUID Format",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.cidr-info",
+        "title": "Show CIDR Range Information",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ipv6-expand",
+        "title": "Expand IPv6 Address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ipv6-compress",
+        "title": "Compress IPv6 Address",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.programmatic.ip-to-integer",
+        "title": "Convert IPv4 to Integer and Back",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -7761,6 +7876,98 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.json.to-ltsv"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-rust-struct"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-kotlin-data-class"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-csharp-class"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-zod"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.json-to-swift-codable"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.sql-lowercase-keywords"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.hex-to-oklch"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.color-contrast-ratio"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.color-invert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-sort-properties"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.css-to-js-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.js-object-to-css"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.remove-comments-js"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-csharp-verbatim-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-rust-raw-string"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.to-heredoc"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.http-status-describe"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.mime-type-lookup"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.uuid-normalize"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.cidr-info"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ipv6-expand"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ipv6-compress"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.programmatic.ip-to-integer"
         }
       ],
       "editor/context": [
@@ -9301,6 +9508,98 @@
         {
           "command": "selection-manipulator.escape.c-unescape",
           "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-rust-struct",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+          "group": "selection-manipulator@51"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-csharp-class",
+          "group": "selection-manipulator@52"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-zod",
+          "group": "selection-manipulator@53"
+        },
+        {
+          "command": "selection-manipulator.programmatic.json-to-swift-codable",
+          "group": "selection-manipulator@54"
+        },
+        {
+          "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+          "group": "selection-manipulator@55"
+        },
+        {
+          "command": "selection-manipulator.programmatic.hex-to-oklch",
+          "group": "selection-manipulator@56"
+        },
+        {
+          "command": "selection-manipulator.programmatic.color-contrast-ratio",
+          "group": "selection-manipulator@57"
+        },
+        {
+          "command": "selection-manipulator.programmatic.color-invert",
+          "group": "selection-manipulator@58"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-sort-properties",
+          "group": "selection-manipulator@59"
+        },
+        {
+          "command": "selection-manipulator.programmatic.css-to-js-object",
+          "group": "selection-manipulator@60"
+        },
+        {
+          "command": "selection-manipulator.programmatic.js-object-to-css",
+          "group": "selection-manipulator@61"
+        },
+        {
+          "command": "selection-manipulator.programmatic.remove-comments-js",
+          "group": "selection-manipulator@62"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+          "group": "selection-manipulator@63"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-rust-raw-string",
+          "group": "selection-manipulator@64"
+        },
+        {
+          "command": "selection-manipulator.programmatic.to-heredoc",
+          "group": "selection-manipulator@65"
+        },
+        {
+          "command": "selection-manipulator.programmatic.http-status-describe",
+          "group": "selection-manipulator@66"
+        },
+        {
+          "command": "selection-manipulator.programmatic.mime-type-lookup",
+          "group": "selection-manipulator@67"
+        },
+        {
+          "command": "selection-manipulator.programmatic.uuid-normalize",
+          "group": "selection-manipulator@68"
+        },
+        {
+          "command": "selection-manipulator.programmatic.cidr-info",
+          "group": "selection-manipulator@69"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ipv6-expand",
+          "group": "selection-manipulator@70"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ipv6-compress",
+          "group": "selection-manipulator@71"
+        },
+        {
+          "command": "selection-manipulator.programmatic.ip-to-integer",
+          "group": "selection-manipulator@72"
         }
       ],
       "selection-manipulator.japanese.submenu": [

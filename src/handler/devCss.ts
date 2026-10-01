@@ -7,12 +7,12 @@
  */
 import { DEV_MAX_NESTING, DevInputError, DevOutputBuffer } from './devCommon';
 
-type CssTokenType = 'ws' | 'comment' | 'string' | 'url' | 'word' | '{' | '}' | ';' | ':' | ',' | '(' | ')' | '[' | ']';
+export type CssTokenType = 'ws' | 'comment' | 'string' | 'url' | 'word' | '{' | '}' | ';' | ':' | ',' | '(' | ')' | '[' | ']';
 
 /** What a run of tokens between `{` `}` `;` is. */
-type SegmentKind = 'prelude' | 'decl' | 'statement';
+export type SegmentKind = 'prelude' | 'decl' | 'statement';
 
-interface CssToken {
+export interface CssToken {
   type: CssTokenType;
   text: string;
   /** The kind of segment the token belongs to (set by `classify`). */
@@ -28,7 +28,7 @@ const PUNCTUATION = new Set(['{', '}', ';', ':', ',', '(', ')', '[', ']']);
 const isSpace = (ch: string): boolean => ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' || ch === '\f';
 
 /** Splits CSS into tokens (linear). Unclosed strings, comments and `url(` are errors. */
-const tokenizeCss = (text: string): CssToken[] => {
+export const tokenizeCss = (text: string): CssToken[] => {
   const tokens: CssToken[] = [];
   let i = 0;
   const push = (type: CssTokenType, end: number) => {
@@ -175,7 +175,8 @@ const classify = (tokens: CssToken[]): void => {
   }
 };
 
-const parse = (text: string): CssToken[] => {
+/** Tokenizes and classifies CSS (also used by DEVX-010; DEVX-011..012 use the tokenizer alone). */
+export const parseCss = (text: string): CssToken[] => {
   const tokens = tokenizeCss(text);
   classify(tokens);
   return tokens;
@@ -244,7 +245,7 @@ const removeComments = (tokens: readonly CssToken[]): CssToken[] => {
  */
 export const cssMinify = (text: string, budget: number): string => {
   const tokens: CssToken[] = [];
-  for (const token of removeComments(parse(text))) {
+  for (const token of removeComments(parseCss(text))) {
     if (token.type === 'ws') {
       if (tokens.length === 0 || tokens[tokens.length - 1].type === 'ws') {
         continue;
@@ -373,7 +374,7 @@ export const cssFormat = (text: string, eol: string, budget: number): string => 
     out.push(' '.repeat(indent) + content);
   };
   // Iterative rendering: a stack of [items, next index, indent].
-  const stack: { items: CssItem[]; index: number; indent: number }[] = [{ items: buildTree(parse(text)), index: 0, indent: 0 }];
+  const stack: { items: CssItem[]; index: number; indent: number }[] = [{ items: buildTree(parseCss(text)), index: 0, indent: 0 }];
   while (stack.length > 0) {
     const frame = stack[stack.length - 1];
     if (frame.index >= frame.items.length) {

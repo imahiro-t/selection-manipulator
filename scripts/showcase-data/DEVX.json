@@ -1,0 +1,281 @@
+{
+  "category": "DEVX",
+  "commands": [
+    {
+      "id": "selection-manipulator.programmatic.json-to-rust-struct",
+      "candidateId": "DEVX-001",
+      "description": {
+        "en": "Generates Rust structs for serde from sample JSON (an object, or an array of objects whose elements are merged), after `use serde::{Deserialize, Serialize};`. Fields are snake_case with `#[serde(rename = \"…\")]` when that differs from the key (the key is an escaped Rust string), keywords become raw identifiers (`r#type`), `null` or a key missing from some objects makes `Option<…>`, integers are `i64`, decimals `f64`, and values of different types `serde_json::Value` (which needs the serde_json crate). Structs and fields are not `pub`; nothing is compiled. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON（オブジェクト、またはオブジェクトの配列。配列の要素は統合する）から serde 用の Rust 構造体を生成する（先頭に `use serde::{Deserialize, Serialize};`。フィールドは snake_case で、キーと異なれば `#[serde(rename = \"…\")]`（キーは Rust 文字列としてエスケープ）、予約語は `r#type` のような raw 識別子。`null` や一部にないキーは `Option<…>`、整数は `i64`、小数は `f64`、型の混在は `serde_json::Value`（serde_json クレートが必要）。構造体・フィールドに `pub` は付けない。コンパイル・実行はしない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{\"userId\":1}` → `use serde::{Deserialize, Serialize};⏎⏎#[derive(Serialize, Deserialize)]⏎struct Root {⏎····#[serde(rename = \"userId\")]⏎····user_id: i64,⏎}`",
+        "ja": "`{\"userId\":1}` → `use serde::{Deserialize, Serialize};⏎⏎#[derive(Serialize, Deserialize)]⏎struct Root {⏎····#[serde(rename = \"userId\")]⏎····user_id: i64,⏎}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+      "candidateId": "DEVX-002",
+      "description": {
+        "en": "Generates Kotlin data classes for kotlinx.serialization from sample JSON, after the imports they need. Every class is `@Serializable`; properties are camelCase with `@SerialName(\"…\")` when that differs from the key (the key is an escaped Kotlin string, `$` included), keywords are written in backquotes, `null` makes `T?` and a key missing from some objects `T? = null`; integers are `Long`, decimals `Double`, values of different types `JsonElement`. An object without keys becomes a plain `class`. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON から kotlinx.serialization 用の Kotlin data class を生成する（必要な import を先頭に書き、すべてのクラスに `@Serializable` を付ける。プロパティは camelCase で、キーと異なれば `@SerialName(\"…\")`（キーは `$` も含めて Kotlin 文字列としてエスケープ）、予約語はバッククォートで囲む。`null` は `T?`、一部にないキーは `T? = null`、整数は `Long`、小数は `Double`、型の混在は `JsonElement`。キーのないオブジェクトは通常の `class`。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{\"name\":\"a\"}` → `import kotlinx.serialization.Serializable⏎⏎@Serializable⏎data class Root(val name: String)`",
+        "ja": "`{\"name\":\"a\"}` → `import kotlinx.serialization.Serializable⏎⏎@Serializable⏎data class Root(val name: String)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-csharp-class",
+      "candidateId": "DEVX-003",
+      "description": {
+        "en": "Generates C# classes for System.Text.Json from sample JSON, after the usings they need. Properties are PascalCase (a trailing `_` when that is the class name) and every one has `[JsonPropertyName(\"…\")]` with the original key, so the class round-trips with the default options and with JsonSerializerDefaults.Web alike; `null` or a key missing from some objects makes `T?`, integers are `long`, decimals `double`, arrays `List<T>`, values of different types `JsonElement`. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON から System.Text.Json 用の C# クラスを生成する（必要な using を先頭に書く。プロパティは PascalCase（クラス名と同じになるときは末尾に `_`）で、すべてに元のキーの `[JsonPropertyName(\"…\")]` を付けるので、既定の設定でも JsonSerializerDefaults.Web でも往復できる。`null` や一部にないキーは `T?`、整数は `long`、小数は `double`、配列は `List<T>`、型の混在は `JsonElement`。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{\"age\":3}` → `using System.Text.Json.Serialization;⏎⏎public class Root⏎{⏎····[JsonPropertyName(\"age\")]⏎····public long Age { get; set; }⏎}`",
+        "ja": "`{\"age\":3}` → `using System.Text.Json.Serialization;⏎⏎public class Root⏎{⏎····[JsonPropertyName(\"age\")]⏎····public long Age { get; set; }⏎}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-zod",
+      "candidateId": "DEVX-004",
+      "description": {
+        "en": "Generates a Zod schema expression from sample JSON: `z.object({ … })` with nested objects in place, `z.number()` for numbers, `z.array(z.unknown())` for an empty array, `z.union([…])` for values of different types, `.nullable()` for `null` and `.optional()` for a key missing from some objects. Keys that are not identifiers are quoted (`__proto__` is written as a computed key). An object that does not fit in 80 characters is written over several lines. Only the expression is written: add `import { z } from 'zod'` yourself (zod is not a dependency of this extension). The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON から Zod スキーマの式を生成する（入れ子のオブジェクトもその場に書いた `z.object({ … })`。数値は `z.number()`、空配列は `z.array(z.unknown())`、型の混在は `z.union([…])`、`null` は `.nullable()`、一部にないキーは `.optional()`。識別子でないキーは引用し、`__proto__` は計算プロパティ名で書く。80 文字に収まらないオブジェクトは複数行にする。式だけを出力するので `import { z } from 'zod'` は利用者が付ける（zod はこの拡張の依存ではない）。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{\"a\":1}` → `z.object({ a: z.number() })`",
+        "ja": "`{\"a\":1}` → `z.object({ a: z.number() })`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.json-to-swift-codable",
+      "candidateId": "DEVX-005",
+      "description": {
+        "en": "Generates Swift structs that conform to Codable from sample JSON. Properties are camelCase (keywords in backquotes); when one differs from its key, a `CodingKeys` enum lists every property. `null` or a key missing from some objects makes `T?`; integers are `Int`, decimals `Double`, arrays `[T]`. Values of different types, a key that is only `null` and empty arrays are errors, because the standard library has no Codable type for any JSON value. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON から Codable に準拠した Swift の構造体を生成する（プロパティは camelCase（予約語はバッククォート）。キーと異なるプロパティがあれば、すべてのプロパティを並べた `CodingKeys` を書く。`null` や一部にないキーは `T?`、整数は `Int`、小数は `Double`、配列は `[T]`。型の混在・`null` だけのキー・空配列は、標準ライブラリに任意の JSON 値を表す Codable 型がないためエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{\"id\":1}` → `struct Root: Codable {⏎····let id: Int⏎}`",
+        "ja": "`{\"id\":1}` → `struct Root: Codable {⏎····let id: Int⏎}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.sql-lowercase-keywords",
+      "candidateId": "DEVX-006",
+      "description": {
+        "en": "Writes the SQL keywords in lowercase (the keywords that **Uppercase SQL Keywords** uppercases); strings, quoted identifiers and comments are not changed. The SQL is never run. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "SQL のキーワードを小文字にする（**Uppercase SQL Keywords** が大文字にするのと同じキーワード。文字列・引用符付き識別子・コメントは変更しない。SQL は実行しない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`SELECT * FROM t` → `select * from t`",
+        "ja": "`SELECT * FROM t` → `select * from t`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.hex-to-oklch",
+      "candidateId": "DEVX-007",
+      "description": {
+        "en": "Converts each line's hex color (`#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`; the `#` is optional) to CSS `oklch(L% C H)` (with ` / a` for an alpha), using the OKLab matrices of CSS Color 4. L has at most one decimal, C three and H two (trailing zeros dropped); a gray has the chroma and hue 0. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の 16 進カラー（`#rgb`・`#rgba`・`#rrggbb`・`#rrggbbaa`。`#` は省略可）を CSS の `oklch(L% C H)`（アルファ付きは ` / a`）に変換する（CSS Color 4 の OKLab 行列を使う。L は小数 1 桁、C は 3 桁、H は 2 桁まで（末尾のゼロは省く）。無彩色は彩度・色相とも 0。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`#ff0000` → `oklch(62.8% 0.258 29.23)`",
+        "ja": "`#ff0000` → `oklch(62.8% 0.258 29.23)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.color-contrast-ratio",
+      "candidateId": "DEVX-008",
+      "description": {
+        "en": "Shows the WCAG 2.x contrast ratio of the two colors on each line (`#000000 #ffffff` or `#000, #fff`; 3 or 6 digits, no alpha) and its level: AAA (7 or more), AA (4.5 or more), AA Large (3 or more, large text only) or Fail. The ratio is judged as computed and shown cut to two decimals. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の 2 色（`#000000 #ffffff` または `#000, #fff`。3 桁か 6 桁、アルファなし）の WCAG 2.x コントラスト比と判定を出す（判定は AAA（7 以上）、AA（4.5 以上）、AA Large（3 以上、大きい文字のみ）、Fail。判定は計算値そのもので行い、表示は小数 2 桁で切り捨てる。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`#000000 #ffffff` → `21:1 (AAA)`",
+        "ja": "`#000000 #ffffff` → `21:1 (AAA)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.color-invert",
+      "candidateId": "DEVX-009",
+      "description": {
+        "en": "Inverts each line's hex color: red, green and blue each become 255 minus their value. The number of digits, the `#` (or its absence) and the alpha are kept; the result is uppercase only when the input has uppercase letters and no lowercase ones. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の 16 進カラーを反転する（赤・緑・青をそれぞれ 255 から引いた値にする。桁数・`#` の有無・アルファはそのまま。入力に大文字があり小文字がないときだけ結果も大文字。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`#112233` → `#eeddcc`",
+        "ja": "`#112233` → `#eeddcc`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.css-sort-properties",
+      "candidateId": "DEVX-010",
+      "description": {
+        "en": "Sorts the declarations in each CSS block (or a selected declaration list without braces) by property name (lowercase, code point order, stable). Only the declarations move: the spaces, line breaks and `;` around them stay, so the layout is kept, and a comment right before a declaration moves with it. Nested rules (`@media`, CSS nesting) are sorted on their own, and declarations never move across them; strings, comments and `url(…)` are not changed. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "CSS の各ブロック（波括弧のない宣言の並びの選択も可）の中で宣言をプロパティ名順（小文字化したコードポイント順、安定ソート）に並べ替える（動くのは宣言だけで、周りの空白・改行・`;` は元の位置に残るので書式を保つ。宣言の直前のコメントは宣言と一緒に動く。入れ子のルール（`@media`・CSS ネスティング）はその中で並べ替え、宣言がそれをまたいで動くことはない。文字列・コメント・`url(…)` は変更しない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{color:red;align-items:center}` → `{align-items:center;color:red}`",
+        "ja": "`{color:red;align-items:center}` → `{align-items:center;color:red}`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.css-to-js-object",
+      "candidateId": "DEVX-011",
+      "description": {
+        "en": "Converts CSS declarations (`prop: value;`, the outer braces optional) to a React style object on one line. Properties become camelCase (`-webkit-x` → `WebkitX`, `-ms-x` → `msX`), custom properties (`--x`) quoted keys; every value becomes an escaped JavaScript string literal (never evaluated), `!important` included. Comments are dropped; a nested block is an error. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "CSS の宣言（`prop: value;`。外側の波括弧は任意）を 1 行の React の style オブジェクトにする（プロパティは camelCase（`-webkit-x` → `WebkitX`、`-ms-x` → `msX`）、カスタムプロパティ（`--x`）は引用したキー。値はすべてエスケープした JavaScript の文字列リテラルにし、評価しない（`!important` も値に含める）。コメントは除き、入れ子のブロックはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`font-size: 12px; color: red` → `{ fontSize: '12px', color: 'red' }`",
+        "ja": "`font-size: 12px; color: red` → `{ fontSize: '12px', color: 'red' }`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.js-object-to-css",
+      "candidateId": "DEVX-012",
+      "description": {
+        "en": "Converts a flat JavaScript style object (read by a literal parser, never evaluated) to CSS declarations, one per line. Keys become kebab-case (`WebkitX` → `-webkit-x`, `msX` → `-ms-x`; `--x` and kebab-case keys stay); numbers are written as they are, without a unit. Nested objects, arrays, booleans, null and values that would break a declaration (`;`, braces, line breaks, comment markers, unclosed strings or brackets) are errors. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "フラットな JavaScript の style オブジェクト（リテラルのパーサで読み、評価しない）を 1 行 1 宣言の CSS にする（キーは kebab-case（`WebkitX` → `-webkit-x`、`msX` → `-ms-x`。`--x` と kebab-case のキーはそのまま）。数値は単位を付けずそのまま書く。入れ子のオブジェクト・配列・真偽値・null と、宣言を壊す値（`;`・波括弧・改行・コメント記号・閉じていない文字列や括弧）はエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{ fontSize: '12px' }` → `font-size: 12px;`",
+        "ja": "`{ fontSize: '12px' }` → `font-size: 12px;`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.remove-comments-js",
+      "candidateId": "DEVX-013",
+      "description": {
+        "en": "Removes `//` and `/* */` comments from JavaScript / TypeScript without touching strings, template literals or regular expressions; a leading hashbang (`#!`) is kept. A block comment that spans lines keeps its line breaks, so automatic semicolon insertion reads the code as before. A line that had a comment and holds only spaces afterwards is removed; lines that were empty before stay. A `//` inside JSX text may be taken for a comment. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JavaScript / TypeScript の `//` と `/* */` のコメントを削除する（文字列・テンプレートリテラル・正規表現は変更しない。先頭の hashbang（`#!`）は残す。複数行にわたるブロックコメントは改行だけを残すので、自動セミコロン挿入の解釈は変わらない。コメントがあって空白だけになった行は削除し、元から空だった行は残す。JSX のテキスト中の `//` はコメントと誤認することがある。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`a(); // x⏎/* y */b();` → `a();·⏎b();`",
+        "ja": "`a(); // x⏎/* y */b();` → `a();·⏎b();`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+      "candidateId": "DEVX-014",
+      "description": {
+        "en": "Converts the text to a C# verbatim string `@\"…\"`: every `\"` is doubled and everything else, line breaks included, stays as it is. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "テキストを C# の逐語的文字列 `@\"…\"` にする（`\"` は `\"\"` に重ね、改行を含むその他の文字はそのまま。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`a\"b` → `@\"a\"\"b\"`",
+        "ja": "`a\"b` → `@\"a\"\"b\"`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.to-rust-raw-string",
+      "candidateId": "DEVX-015",
+      "description": {
+        "en": "Converts the text to a Rust raw string `r#\"…\"#` with the fewest `#` that do not appear after a `\"` in the text (`r\"…\"` when it has no `\"`). Needing more than 255 `#`, or a carriage return without a line feed, is an error. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "テキストを Rust の raw string `r#\"…\"#` にする（`#` の数は本文中の `\"` の後に現れない最小の数。`\"` がなければ `r\"…\"`。255 個を超える `#` が必要なときと、LF を伴わない CR があるときはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`a\"#b` → `r##\"a\"#b\"##`",
+        "ja": "`a\"#b` → `r##\"a\"#b\"##`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.to-heredoc",
+      "candidateId": "DEVX-016",
+      "description": {
+        "en": "Wraps the text in a shell here-document `cat <<'EOF'` … `EOF`. The delimiter is quoted, so nothing in the text is expanded, and it is a word no line of the text equals (`EOF`, else `EOF_1`, `EOF_2`, …). The result always has LF line breaks (CR LF becomes LF; a lone CR is an error). Nothing is run. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "テキストをシェルのヒアドキュメント `cat <<'EOF'` … `EOF` で囲む（終端語はクオートするので本文は展開されない。終端語は本文のどの行とも一致しない語（`EOF`、使われていれば `EOF_1`、`EOF_2`…）。結果の改行は常に LF（CR LF は LF にし、単独の CR はエラー）。実行はしない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`echo $X` → `cat <<'EOF'⏎echo $X⏎EOF`",
+        "ja": "`echo $X` → `cat <<'EOF'⏎echo $X⏎EOF`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.http-status-describe",
+      "candidateId": "DEVX-017",
+      "description": {
+        "en": "Adds the reason phrase to each line's HTTP status code from a fixed table in the extension (not Node.js): the codes with a reason phrase in the IANA registry (as RFC 9110 writes them, e.g. `413 Content Too Large`) and the customary `418 I'm a teapot`. Unused or unassigned codes such as 306 or 509 are errors. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の HTTP ステータスコードに理由句を付ける（拡張内の固定表を使い Node.js は使わない。対象は IANA の登録簿で理由句が割り当てられたコード（表記は RFC 9110 など現行のもの。例 `413 Content Too Large`）と慣用の `418 I'm a teapot`。306 や 509 などの未使用・未割り当てのコードはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`404` → `404 Not Found`",
+        "ja": "`404` → `404 Not Found`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.mime-type-lookup",
+      "candidateId": "DEVX-018",
+      "description": {
+        "en": "Looks up the MIME type of each line's extension, file name or path (the part after the last `/` or `\\`, then after its last `.`) in a fixed table of about 100 common types, ignoring case. The file itself is never accessed; an unknown extension is an error. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の拡張子・ファイル名・パス（最後の `/` か `\\` の後の、最後の `.` より後ろ）から MIME タイプを引く（よく使われる約 100 種の固定表。大文字小文字は区別しない。ファイルにはアクセスしない。未知の拡張子はエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`report.pdf` → `application/pdf`",
+        "ja": "`report.pdf` → `application/pdf`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.uuid-normalize",
+      "candidateId": "DEVX-019",
+      "description": {
+        "en": "Normalizes each line's UUID to the lowercase, hyphenated `8-4-4-4-12` form. Braces, a `urn:uuid:` prefix, no hyphens or hyphens in the standard places and any case are accepted; hyphens in other places are an error. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の UUID を小文字・ハイフン付きの `8-4-4-4-12` 形式にそろえる（波括弧・`urn:uuid:` 付き・ハイフンなし・標準位置のハイフンを大文字小文字問わず受け付ける。それ以外の位置のハイフンはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`{550E8400E29B41D4A716446655440000}` → `550e8400-e29b-41d4-a716-446655440000`",
+        "ja": "`{550E8400E29B41D4A716446655440000}` → `550e8400-e29b-41d4-a716-446655440000`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.cidr-info",
+      "candidateId": "DEVX-020",
+      "description": {
+        "en": "Shows the network, broadcast, first and last host and the number of hosts of each line's IPv4 CIDR block (a /31 has two hosts and no broadcast, a /32 one host), or the network, last address and number of addresses of an IPv6 block. Host bits may be set. The range is only computed, never listed, and nothing is sent anywhere. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の IPv4 の CIDR からネットワーク・ブロードキャスト・最初と最後のホスト・ホスト数を出す（/31 はブロードキャストなしの 2 ホスト、/32 は 1 ホスト）。IPv6 はネットワーク・最後のアドレス・アドレス数（ホスト部が 0 でなくてもよい。範囲は計算するだけで列挙せず、通信もしない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`192.168.1.0/24` → `network 192.168.1.0 / broadcast 192.168.1.255 / first 192.168.1.1 / last 192.168.1.254 / hosts 254`",
+        "ja": "`192.168.1.0/24` → `network 192.168.1.0 / broadcast 192.168.1.255 / first 192.168.1.1 / last 192.168.1.254 / hosts 254`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.ipv6-expand",
+      "candidateId": "DEVX-021",
+      "description": {
+        "en": "Expands each line's IPv6 address to eight groups of four lowercase hex digits; an embedded IPv4 address becomes hex too, and a zone ID (`%eth0`) and prefix length (`/64`) are kept. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の IPv6 アドレスを 4 桁の小文字 16 進 8 グループの省略なし表記にする（埋め込みの IPv4 アドレスも 16 進にし、ゾーン ID（`%eth0`）とプレフィックス長（`/64`）はそのまま残す。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`2001:db8::1` → `2001:0db8:0000:0000:0000:0000:0000:0001`",
+        "ja": "`2001:db8::1` → `2001:0db8:0000:0000:0000:0000:0000:0001`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.ipv6-compress",
+      "candidateId": "DEVX-022",
+      "description": {
+        "en": "Compresses each line's IPv6 address as RFC 5952 recommends: lowercase, leading zeros dropped and the longest run of two or more zero groups (the first of equal runs) as `::`. Only hex is written (an embedded IPv4 address too); a zone ID and prefix length are kept. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の IPv6 アドレスを RFC 5952 の推奨形式に短縮する（小文字にし、先頭のゼロを省き、2 グループ以上続く最長のゼロ（同じ長さなら先のもの）を `::` にする。出力は 16 進のみ（埋め込みの IPv4 アドレスも 16 進）。ゾーン ID とプレフィックス長はそのまま残す。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`2001:0db8:0000:0000:0000:0000:0000:0001` → `2001:db8::1`",
+        "ja": "`2001:0db8:0000:0000:0000:0000:0000:0001` → `2001:db8::1`"
+      }
+    },
+    {
+      "id": "selection-manipulator.programmatic.ip-to-integer",
+      "candidateId": "DEVX-023",
+      "description": {
+        "en": "Converts each line between a dotted IPv4 address and its unsigned 32-bit integer (0 to 4294967295), recognizing the direction line by line. Octets with leading zeros (octal in some tools) and values out of range are errors. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "各行の IPv4 アドレスと符号なし 32 ビット整数（0〜4294967295）を相互に変換する（向きは行ごとに判別する。先頭にゼロのあるオクテット（ツールによっては 8 進数）と範囲外の値はエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+      },
+      "example": {
+        "en": "`192.168.0.1` → `3232235521`",
+        "ja": "`192.168.0.1` → `3232235521`"
+      }
+    }
+  ]
+}

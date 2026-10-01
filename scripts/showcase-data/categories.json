@@ -147,6 +147,13 @@
     }
   },
   {
+    "id": "DEVX",
+    "name": {
+      "en": "Developer tools extensions (JSON to Rust / Kotlin / C# / Swift / Zod, colors, CSS, literals, HTTP / MIME, UUID, IPv6 / CIDR)",
+      "ja": "プログラミング支援拡張（JSON→Rust/Kotlin/C#/Swift/Zod・色・CSS・リテラル・HTTP/MIME・UUID・IPv6/CIDR）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

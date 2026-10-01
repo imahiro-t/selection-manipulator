@@ -320,6 +320,16 @@ export const sqlUppercaseKeywords = (text: string): string => {
   return tokens.map((token, i) => keywords[i] ?? token.text).join('');
 };
 
+/**
+ * DEVX-006: the keywords outside strings, quoted identifiers and comments in lowercase (the same
+ * keywords DEV-017 uppercases); nothing else changes. The SQL is only rewritten, never run.
+ */
+export const sqlLowercaseKeywords = (text: string): string => {
+  const tokens = tokenizeSql(text);
+  const keywords = keywordsOf(tokens);
+  return tokens.map((token, i) => keywords[i]?.toLowerCase() ?? token.text).join('');
+};
+
 // ---------------------------------------------------------------------------------------------
 // DEV-016 Minify
 // ---------------------------------------------------------------------------------------------

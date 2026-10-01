@@ -94,6 +94,7 @@ import { text2CommandHandler } from './handler/text2CommandHandler';
 import { line2CommandHandler } from './handler/line2CommandHandler';
 import { enc2CommandHandler } from './handler/enc2CommandHandler';
 import { data2CommandHandler } from './handler/data2CommandHandler';
+import { dev2CommandHandler } from './handler/dev2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1080,6 +1081,31 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.fill-empty', data2CommandHandler('csv.fill-empty')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ltsv.to-json', data2CommandHandler('ltsv.to-json')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-ltsv', data2CommandHandler('json.to-ltsv')));
+
+  // Developer extended (DEVX-001..023, group DEV2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-rust-struct', dev2CommandHandler('programmatic.json-to-rust-struct')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-kotlin-data-class', dev2CommandHandler('programmatic.json-to-kotlin-data-class')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-csharp-class', dev2CommandHandler('programmatic.json-to-csharp-class')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-zod', dev2CommandHandler('programmatic.json-to-zod')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.json-to-swift-codable', dev2CommandHandler('programmatic.json-to-swift-codable')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.sql-lowercase-keywords', dev2CommandHandler('programmatic.sql-lowercase-keywords')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.hex-to-oklch', dev2CommandHandler('programmatic.hex-to-oklch')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.color-contrast-ratio', dev2CommandHandler('programmatic.color-contrast-ratio')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.color-invert', dev2CommandHandler('programmatic.color-invert')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-sort-properties', dev2CommandHandler('programmatic.css-sort-properties')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.css-to-js-object', dev2CommandHandler('programmatic.css-to-js-object')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.js-object-to-css', dev2CommandHandler('programmatic.js-object-to-css')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.remove-comments-js', dev2CommandHandler('programmatic.remove-comments-js')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-csharp-verbatim-string', dev2CommandHandler('programmatic.to-csharp-verbatim-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-rust-raw-string', dev2CommandHandler('programmatic.to-rust-raw-string')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.to-heredoc', dev2CommandHandler('programmatic.to-heredoc')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.http-status-describe', dev2CommandHandler('programmatic.http-status-describe')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.mime-type-lookup', dev2CommandHandler('programmatic.mime-type-lookup')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.uuid-normalize', dev2CommandHandler('programmatic.uuid-normalize')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.cidr-info', dev2CommandHandler('programmatic.cidr-info')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ipv6-expand', dev2CommandHandler('programmatic.ipv6-expand')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ipv6-compress', dev2CommandHandler('programmatic.ipv6-compress')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ip-to-integer', dev2CommandHandler('programmatic.ip-to-integer')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

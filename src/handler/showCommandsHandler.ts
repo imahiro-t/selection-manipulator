@@ -4516,6 +4516,121 @@ export const myCommands = [
     "command": "selection-manipulator.json.to-ltsv",
     "title": "Transform - Data Format - Convert JSON to LTSV",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-rust-struct",
+    "title": "Convert JSON to Rust Struct (serde)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-kotlin-data-class",
+    "title": "Convert JSON to Kotlin Data Class",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-csharp-class",
+    "title": "Convert JSON to C# Class",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-zod",
+    "title": "Convert JSON to Zod Schema",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.json-to-swift-codable",
+    "title": "Convert JSON to Swift Codable",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.sql-lowercase-keywords",
+    "title": "Lowercase SQL Keywords",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.hex-to-oklch",
+    "title": "Convert Hex Color to OKLCH",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.color-contrast-ratio",
+    "title": "Show WCAG Contrast Ratio",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.color-invert",
+    "title": "Invert Hex Color",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-sort-properties",
+    "title": "Sort CSS Declarations",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.css-to-js-object",
+    "title": "Convert CSS Declarations to JS Style Object",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.js-object-to-css",
+    "title": "Convert JS Style Object to CSS Declarations",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.remove-comments-js",
+    "title": "Remove JS / TS Comments",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-csharp-verbatim-string",
+    "title": "Convert to C# Verbatim String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-rust-raw-string",
+    "title": "Convert to Rust Raw String",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.to-heredoc",
+    "title": "Convert to Shell Here-document",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.http-status-describe",
+    "title": "Describe HTTP Status Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.mime-type-lookup",
+    "title": "Look Up MIME Type by Extension",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.uuid-normalize",
+    "title": "Normalize UUID Format",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.cidr-info",
+    "title": "Show CIDR Range Information",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ipv6-expand",
+    "title": "Expand IPv6 Address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ipv6-compress",
+    "title": "Compress IPv6 Address",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.programmatic.ip-to-integer",
+    "title": "Convert IPv4 to Integer and Back",
+    "canMultiSelection": true
   }
 ];
 

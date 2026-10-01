@@ -10,6 +10,7 @@ import {
   UU_FILE_NAME_PROMPT,
 } from '../../handler/enc2CommandHandler';
 import { BASE62_MAX_ENCODE_BYTES, ENC2_COMMAND_ENTRIES, Enc2CommandEntry } from '../../handler/enc2Transforms';
+import { DEV2_COMMAND_ENTRIES } from '../../handler/dev2Transforms';
 import { KEY_EMPTY_MESSAGE } from '../../handler/hashTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { ENC2_EXAMPLES, expandEnc2 } from './enc2Examples';
@@ -358,11 +359,13 @@ suite('Encoding, Escaping & Hash Commands (ENCX-001..022) Test Suite', () => {
       for (const submenu of new Set(ENC2_COMMAND_ENTRIES.map(submenuOf))) {
         const items: MenuItem[] = contributes.menus[submenu];
         const added = ENC2_COMMAND_ENTRIES.filter((entry) => submenuOf(entry) === submenu).map((entry) => `${PREFIX}${entry.name}`);
-        assert.deepStrictEqual(items.slice(-added.length).map((item) => item.command), added, `${submenu}: at the end, in order`);
+        // The DEV2 commands were added to the Programmatic submenu after the ENC2 escapes.
+        const after = submenu === 'selection-manipulator.programmatic.submenu' ? DEV2_COMMAND_ENTRIES.length : 0;
+        assert.deepStrictEqual(items.slice(-added.length - after, items.length - after).map((item) => item.command), added, `${submenu}: at the end, in order`);
         items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, `${submenu}: ${item.command}`));
       }
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 923, '877 before ENC2 + 22, then 24 of DATA2');
+      assert.strictEqual(ids.length, 946, '877 before ENC2 + 22, then 24 of DATA2 and 23 of DEV2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');

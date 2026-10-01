@@ -15,10 +15,10 @@ import { toJsString, toPythonString } from './devLiterals';
 // Inference
 // ---------------------------------------------------------------------------------------------
 
-type Kind = 'string' | 'int' | 'float' | 'bool' | 'null' | 'array' | 'object';
+export type Kind = 'string' | 'int' | 'float' | 'bool' | 'null' | 'array' | 'object';
 
 /** Everything seen at one place of the sample (the union of the values found there). */
-interface Shape {
+export interface Shape {
   kinds: Set<Kind>;
   /** The merged elements of the arrays seen here (undefined when every array was empty). */
   element?: Shape;
@@ -26,13 +26,13 @@ interface Shape {
   object?: ObjectShape;
 }
 
-interface FieldShape {
+export interface FieldShape {
   shape: Shape;
   /** In how many of the merged objects the key was present. */
   count: number;
 }
 
-interface ObjectShape {
+export interface ObjectShape {
   /** The fields in the order in which their keys first appeared. */
   fields: Map<string, FieldShape>;
   /** How many objects were merged. */
@@ -89,7 +89,7 @@ const mergeValue = (shape: Shape, value: unknown, depth: number): void => {
 };
 
 /** The object shape of the root: an object, or the merged objects of an array of objects. */
-const inferRoot = (text: string): ObjectShape => {
+export const inferRoot = (text: string): ObjectShape => {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -121,12 +121,12 @@ const inferRoot = (text: string): ObjectShape => {
 /** The words of a key: ASCII letter / digit runs, split again at camelCase and acronym bounds. */
 const WORD = /[A-Z]+(?![a-z])|[A-Z]?[a-z]+|[0-9]+/g;
 
-const wordsOf = (key: string): string[] => key.match(WORD) ?? [];
+export const wordsOf = (key: string): string[] => key.match(WORD) ?? [];
 
-const capitalize = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+export const capitalize = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 
 /** `user_id` → `UserId`, `HTTPServer` → `HttpServer` (TypeScript and Python type names). */
-const pascalCase = (key: string): string => wordsOf(key).map(capitalize).join('');
+export const pascalCase = (key: string): string => wordsOf(key).map(capitalize).join('');
 
 /** The common Go initialisms (as golint writes them). */
 const GO_INITIALISMS = new Set([
@@ -140,7 +140,7 @@ const goCase = (key: string): string =>
   wordsOf(key).map((word) => (GO_INITIALISMS.has(word.toUpperCase()) ? word.toUpperCase() : capitalize(word))).join('');
 
 /** A name that can start an identifier: `fallback` when empty, `fallback` + name before a digit. */
-const identifierOf = (name: string, fallback: string): string => {
+export const identifierOf = (name: string, fallback: string): string => {
   if (name === '') {
     return fallback;
   }
@@ -148,7 +148,7 @@ const identifierOf = (name: string, fallback: string): string => {
 };
 
 /** Hands out unique names: `Name`, `Name2`, `Name3`, … (linear overall). */
-class NamePool {
+export class NamePool {
   private readonly used: Set<string>;
   private readonly next = new Map<string, number>();
 
@@ -175,7 +175,7 @@ class NamePool {
  * The object shapes in breadth-first order (the root first) with unique type names: a nested
  * object is named after its key.
  */
-const nameTypes = (root: ObjectShape, nameOf: (key: string) => string, reserved: Iterable<string>): { order: ObjectShape[]; names: Map<ObjectShape, string> } => {
+export const nameTypes = (root: ObjectShape, nameOf: (key: string) => string, reserved: Iterable<string>): { order: ObjectShape[]; names: Map<ObjectShape, string> } => {
   const pool = new NamePool(reserved);
   const names = new Map<ObjectShape, string>();
   const order: ObjectShape[] = [];
@@ -196,10 +196,10 @@ const nameTypes = (root: ObjectShape, nameOf: (key: string) => string, reserved:
   return { order, names };
 };
 
-const isOptional = (object: ObjectShape, field: FieldShape): boolean => field.count < object.count;
+export const isOptional = (object: ObjectShape, field: FieldShape): boolean => field.count < object.count;
 
 /** Writes the lines of a result to the budgeted buffer, joined with `eol`. */
-class LineWriter {
+export class LineWriter {
   private readonly buffer: DevOutputBuffer;
   private first = true;
 
