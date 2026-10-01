@@ -37,7 +37,8 @@ const outOfRange = (): NumInputError => new NumInputError('the result is out of 
  * NUMX-001: rounds to `digits` significant figures (1-21), half away from zero on the decimal form
  * of the value, as NUM-011 `number.round` does (`123456` with 2 → `120000`, `1.45` with 2 → `1.5`,
  * `-1.45` with 2 → `-1.5`). The double's binary value is not rounded (`toPrecision` would give
- * `1.4` there, as 1.45 is held as 1.4499999999999999556).
+ * `1.4` there, as 1.45 is held as 1.4499999999999999556). A result beyond the largest double
+ * (`1.7976931348623157e308` with 1 → 2e308) is out of range.
  */
 export const roundToSignificant = (value: string, digits: number): string => {
   const { sign, integer, fraction } = plainDecimalOf(parseBasicNumber(value));
@@ -60,6 +61,9 @@ export const roundToSignificant = (value: string, digits: number): string => {
     rounded = shiftDecimal(whole.integer, '', -decimals);
   }
   const result = Number(joinDecimal(sign, rounded.integer, rounded.fraction));
+  if (!Number.isFinite(result)) {
+    throw outOfRange();
+  }
   return String(result === 0 ? 0 : result);
 };
 

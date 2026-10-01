@@ -102,6 +102,22 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
     test('not a number is an error with the line number', () => {
       throwsInput(() => run('NUMX-001', '1\nx', ['2']), 'line 2: "x" is not a number');
     });
+
+    test('a result beyond the largest double is out of range', () => {
+      for (const value of ['1.7976931348623157e308', '-1.7976931348623157e308']) {
+        for (const digits of [1, 2, 16]) {
+          throwsInput(() => roundToSignificant(value, digits), 'the result is out of range');
+        }
+      }
+      throwsInput(() => run('NUMX-001', '1\n1.7976931348623157e308', ['1']), 'line 2: the result is out of range');
+    });
+
+    test('values next to the largest double that stay within it are rounded as before', () => {
+      assert.strictEqual(roundToSignificant('1.7976931348623157e308', 17), '1.7976931348623157e+308');
+      assert.strictEqual(roundToSignificant('-1.7976931348623157e308', 17), '-1.7976931348623157e+308');
+      assert.strictEqual(roundToSignificant('1.7e308', 2), '1.7e+308');
+      assert.strictEqual(run('NUMX-001', '1.7976931348623157e308', ['17']), '1.7976931348623157e+308');
+    });
   });
 
   suite('NUMX-002 round-to-multiple', () => {
