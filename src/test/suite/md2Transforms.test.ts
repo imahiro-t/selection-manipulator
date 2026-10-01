@@ -235,5 +235,25 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
         '<kbd>&lt;script&gt;alert(1)&lt;/script&gt;</kbd>+<kbd>&quot;&amp;&#39;</kbd>');
       assert.strictEqual(toKbd('</kbd><b>x</b>', '\n'), '<kbd>&lt;/kbd&gt;&lt;b&gt;x&lt;/b&gt;</kbd>');
     });
+
+    test('a long line is read in linear time (the key is not trimmed at every character)', () => {
+      const within = (label: string, fn: () => void): void => {
+        const start = Date.now();
+        fn();
+        const elapsed = Date.now() - start;
+        assert.ok(elapsed < 2000, `${label} took ${elapsed}ms`);
+      };
+      const n = 1_000_000;
+      within('one key without +', () => assert.strictEqual(toKbd('a'.repeat(n), '\n'), `<kbd>${'a'.repeat(n)}</kbd>`));
+      within('one key with spaces', () => assert.strictEqual(toKbd('a '.repeat(n / 2), '\n'), `<kbd>${'a '.repeat(n / 2).trimEnd()}</kbd> `));
+      within('only +', () => assert.strictEqual(toKbd('+'.repeat(n), '\n'), '<kbd>+</kbd>+'.repeat(n / 2)));
+      within('+ and spaces', () => assert.ok(toKbd('+ '.repeat(n / 2), '\n').startsWith('<kbd>+</kbd>+<kbd>+</kbd>')));
+    });
+
+    test('whitespace other than spaces and tabs counts as trim() counts it', () => {
+      assert.strictEqual(toKbd('Ctrl+\u3000+', '\n'), '<kbd>Ctrl</kbd>+<kbd>+</kbd>');
+      assert.strictEqual(toKbd('+\u3000b', '\n'), '<kbd>+</kbd>+<kbd>b</kbd>');
+      assert.strictEqual(toKbd('a+\u00a0', '\n'), '<kbd>a</kbd>+\u00a0');
+    });
   });
 });

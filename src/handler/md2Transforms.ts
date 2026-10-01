@@ -531,6 +531,11 @@ export const toGithubAlert = (value: string, eol: MdEol, type: string, edges: Li
  * that key is the `+` alone, so a name written right after it is the next key (`a++b` →
  * `<kbd>a</kbd>+<kbd>+</kbd>+<kbd>b</kbd>`). The spaces around a key name are dropped and a name with spaces inside (`Page Up`) is one key.
  * Every key name is HTML-escaped, so no tag can be written through it.
+ *
+ * Linear in the length of the line: instead of trimming the key read so far at every character,
+ * the loop counts its non-whitespace characters (whitespace as `String.prototype.trim` sees it,
+ * which is what `\s` matches) and remembers the first one, and trims a key only once, when it is
+ * pushed.
  */
 const kbdLine = (line: string): string => {
   const [before, core, after] = splitEdges(line);
@@ -539,23 +544,41 @@ const kbdLine = (line: string): string => {
   }
   const keys: string[] = [];
   let key = '';
+  // The number of non-whitespace characters of `key` (0, 1 or 2 = "more than one") and the first of them.
+  let solid = 0;
+  let firstSolid = '';
+  const append = (c: string): void => {
+    key += c;
+    if (solid < 2 && !/\s/.test(c)) {
+      if (solid === 0) {
+        firstSolid = c;
+      }
+      solid += 1;
+    }
+  };
+  const reset = (): void => {
+    key = '';
+    solid = 0;
+    firstSolid = '';
+  };
   let dangling = false;
   for (const c of core) {
-    if (c === '+' && key.trim() !== '') {
+    if (c === '+' && solid > 0) {
       keys.push(key.trim());
-      key = '';
+      reset();
       dangling = true;
-    } else if (key.trim() === '+' && !isSpaceOrTab(c)) {
+    } else if (solid === 1 && firstSolid === '+' && !isSpaceOrTab(c)) {
       // The `+` key, then a name without a `+` between them.
       keys.push('+');
-      key = c;
+      reset();
+      append(c);
       dangling = false;
     } else {
-      key += c;
+      append(c);
       dangling = dangling && isSpaceOrTab(c);
     }
   }
-  if (key.trim() !== '') {
+  if (solid > 0) {
     keys.push(key.trim());
     dangling = false;
   }
