@@ -53,8 +53,8 @@
       "id": "selection-manipulator.programmatic.json-to-swift-codable",
       "candidateId": "DEVX-005",
       "description": {
-        "en": "Generates Swift structs that conform to Codable from sample JSON. Properties are camelCase (keywords in backquotes); when one differs from its key, a `CodingKeys` enum lists every property. `null` or a key missing from some objects makes `T?`; integers are `Int`, decimals `Double`, arrays `[T]`. Values of different types, a key that is only `null` and empty arrays are errors, because the standard library has no Codable type for any JSON value. The result opens in a new read-only editor; the selection is not changed.",
-        "ja": "サンプル JSON から Codable に準拠した Swift の構造体を生成する（プロパティは camelCase（予約語はバッククォート）。キーと異なるプロパティがあれば、すべてのプロパティを並べた `CodingKeys` を書く。`null` や一部にないキーは `T?`、整数は `Int`、小数は `Double`、配列は `[T]`。型の混在・`null` だけのキー・空配列は、標準ライブラリに任意の JSON 値を表す Codable 型がないためエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+        "en": "Generates Swift structs that conform to Codable from sample JSON. Properties are camelCase (keywords in backquotes, `self` and `init` with a trailing `_`); when one differs from its key, a `CodingKeys` enum lists every property. `null` or a key missing from some objects makes `T?`; integers are `Int`, decimals `Double`, arrays `[T]`. Values of different types, a key that is only `null` and empty arrays are errors, because the standard library has no Codable type for any JSON value. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "サンプル JSON から Codable に準拠した Swift の構造体を生成する（プロパティは camelCase（予約語はバッククォート、`self` と `init` は末尾に `_`）。キーと異なるプロパティがあれば、すべてのプロパティを並べた `CodingKeys` を書く。`null` や一部にないキーは `T?`、整数は `Int`、小数は `Double`、配列は `[T]`。型の混在・`null` だけのキー・空配列は、標準ライブラリに任意の JSON 値を表す Codable 型がないためエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
       },
       "example": {
         "en": "`{\"id\":1}` → `struct Root: Codable {⏎····let id: Int⏎}`",
@@ -113,8 +113,8 @@
       "id": "selection-manipulator.programmatic.css-sort-properties",
       "candidateId": "DEVX-010",
       "description": {
-        "en": "Sorts the declarations in each CSS block (or a selected declaration list without braces) by property name (lowercase, code point order, stable). Only the declarations move: the spaces, line breaks and `;` around them stay, so the layout is kept, and a comment right before a declaration moves with it. Nested rules (`@media`, CSS nesting) are sorted on their own, and declarations never move across them; strings, comments and `url(…)` are not changed. The result opens in a new read-only editor; the selection is not changed.",
-        "ja": "CSS の各ブロック（波括弧のない宣言の並びの選択も可）の中で宣言をプロパティ名順（小文字化したコードポイント順、安定ソート）に並べ替える（動くのは宣言だけで、周りの空白・改行・`;` は元の位置に残るので書式を保つ。宣言の直前のコメントは宣言と一緒に動く。入れ子のルール（`@media`・CSS ネスティング）はその中で並べ替え、宣言がそれをまたいで動くことはない。文字列・コメント・`url(…)` は変更しない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+        "en": "Sorts the declarations in each CSS block (or a selected declaration list without braces) by property name (lowercase, code point order, stable). Only the declarations move: the spaces, line breaks and `;` around them stay, so the layout is kept; a comment right before a declaration, or after its `;` at the end of the same line, moves with it. Nested rules (`@media`, CSS nesting) are sorted on their own, and declarations never move across them; strings, comments and `url(…)` are not changed. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "CSS の各ブロック（波括弧のない宣言の並びの選択も可）の中で宣言をプロパティ名順（小文字化したコードポイント順、安定ソート）に並べ替える（動くのは宣言だけで、周りの空白・改行・`;` は元の位置に残るので書式を保つ。宣言の直前のコメントと、`;` の後ろの同じ行の末尾のコメントは宣言と一緒に動く。入れ子のルール（`@media`・CSS ネスティング）はその中で並べ替え、宣言がそれをまたいで動くことはない。文字列・コメント・`url(…)` は変更しない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
       },
       "example": {
         "en": "`{color:red;align-items:center}` → `{align-items:center;color:red}`",
@@ -125,8 +125,8 @@
       "id": "selection-manipulator.programmatic.css-to-js-object",
       "candidateId": "DEVX-011",
       "description": {
-        "en": "Converts CSS declarations (`prop: value;`, the outer braces optional) to a React style object on one line. Properties become camelCase (`-webkit-x` → `WebkitX`, `-ms-x` → `msX`), custom properties (`--x`) quoted keys; every value becomes an escaped JavaScript string literal (never evaluated), `!important` included. Comments are dropped; a nested block is an error. The result opens in a new read-only editor; the selection is not changed.",
-        "ja": "CSS の宣言（`prop: value;`。外側の波括弧は任意）を 1 行の React の style オブジェクトにする（プロパティは camelCase（`-webkit-x` → `WebkitX`、`-ms-x` → `msX`）、カスタムプロパティ（`--x`）は引用したキー。値はすべてエスケープした JavaScript の文字列リテラルにし、評価しない（`!important` も値に含める）。コメントは除き、入れ子のブロックはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+        "en": "Converts CSS declarations (`prop: value;`, the outer braces optional) to a React style object on one line. Properties become camelCase (`-webkit-x` → `WebkitX`, `-ms-x` → `msX`), custom properties (`--x`) quoted keys; every value becomes an escaped JavaScript string literal (never evaluated), `!important` included. A property written twice becomes one key with the last value. Comments are dropped; a nested block is an error. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "CSS の宣言（`prop: value;`。外側の波括弧は任意）を 1 行の React の style オブジェクトにする（プロパティは camelCase（`-webkit-x` → `WebkitX`、`-ms-x` → `msX`）、カスタムプロパティ（`--x`）は引用したキー。値はすべてエスケープした JavaScript の文字列リテラルにし、評価しない（`!important` も値に含める）。同じプロパティが 2 回あれば後の値の 1 つのキーにする。コメントは除き、入れ子のブロックはエラー。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
       },
       "example": {
         "en": "`font-size: 12px; color: red` → `{ fontSize: '12px', color: 'red' }`",
@@ -149,12 +149,12 @@
       "id": "selection-manipulator.programmatic.remove-comments-js",
       "candidateId": "DEVX-013",
       "description": {
-        "en": "Removes `//` and `/* */` comments from JavaScript / TypeScript without touching strings, template literals or regular expressions; a leading hashbang (`#!`) is kept. A block comment that spans lines keeps its line breaks, so automatic semicolon insertion reads the code as before. A line that had a comment and holds only spaces afterwards is removed; lines that were empty before stay. A `//` inside JSX text may be taken for a comment. The result opens in a new read-only editor; the selection is not changed.",
-        "ja": "JavaScript / TypeScript の `//` と `/* */` のコメントを削除する（文字列・テンプレートリテラル・正規表現は変更しない。先頭の hashbang（`#!`）は残す。複数行にわたるブロックコメントは改行だけを残すので、自動セミコロン挿入の解釈は変わらない。コメントがあって空白だけになった行は削除し、元から空だった行は残す。JSX のテキスト中の `//` はコメントと誤認することがある。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+        "en": "Removes `//` and `/* */` comments from JavaScript / TypeScript without touching strings, template literals or regular expressions; a leading hashbang (`#!`) is kept. A block comment that spans lines keeps its line breaks, so automatic semicolon insertion reads the code as before. A line that had a comment and holds only spaces afterwards is removed, and the spaces left at the end of a line after a removed comment are dropped; lines that were empty before stay. A `//` inside JSX text may be taken for a comment. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "JavaScript / TypeScript の `//` と `/* */` のコメントを削除する（文字列・テンプレートリテラル・正規表現は変更しない。先頭の hashbang（`#!`）は残す。複数行にわたるブロックコメントは改行だけを残すので、自動セミコロン挿入の解釈は変わらない。コメントがあって空白だけになった行は削除し、コメントを除いた後の行末の空白も除く。元から空だった行は残す。JSX のテキスト中の `//` はコメントと誤認することがある。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
       },
       "example": {
-        "en": "`a(); // x⏎/* y */b();` → `a();·⏎b();`",
-        "ja": "`a(); // x⏎/* y */b();` → `a();·⏎b();`"
+        "en": "`a(); // x⏎/* y */b();` → `a();⏎b();`",
+        "ja": "`a(); // x⏎/* y */b();` → `a();⏎b();`"
       }
     },
     {
@@ -185,8 +185,8 @@
       "id": "selection-manipulator.programmatic.to-heredoc",
       "candidateId": "DEVX-016",
       "description": {
-        "en": "Wraps the text in a shell here-document `cat <<'EOF'` … `EOF`. The delimiter is quoted, so nothing in the text is expanded, and it is a word no line of the text equals (`EOF`, else `EOF_1`, `EOF_2`, …). The result always has LF line breaks (CR LF becomes LF; a lone CR is an error). Nothing is run. The result opens in a new read-only editor; the selection is not changed.",
-        "ja": "テキストをシェルのヒアドキュメント `cat <<'EOF'` … `EOF` で囲む（終端語はクオートするので本文は展開されない。終端語は本文のどの行とも一致しない語（`EOF`、使われていれば `EOF_1`、`EOF_2`…）。結果の改行は常に LF（CR LF は LF にし、単独の CR はエラー）。実行はしない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
+        "en": "Wraps the text in a shell here-document `cat <<'EOF'` … `EOF`. The delimiter is quoted, so nothing in the text is expanded, and it is a word no line of the text equals (`EOF`, else `EOF_1`, `EOF_2`, …). The result always has LF line breaks (CR LF becomes LF; a lone CR is an error); an empty text gives an empty here-document. Nothing is run. The result opens in a new read-only editor; the selection is not changed.",
+        "ja": "テキストをシェルのヒアドキュメント `cat <<'EOF'` … `EOF` で囲む（終端語はクオートするので本文は展開されない。終端語は本文のどの行とも一致しない語（`EOF`、使われていれば `EOF_1`、`EOF_2`…）。結果の改行は常に LF（CR LF は LF にし、単独の CR はエラー）。空のテキストは本文のないヒアドキュメントにする。実行はしない。結果は新しい読み取り専用エディタに開き、選択範囲は変更しない）"
       },
       "example": {
         "en": "`echo $X` → `cat <<'EOF'⏎echo $X⏎EOF`",

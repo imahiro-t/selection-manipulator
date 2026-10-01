@@ -194,6 +194,43 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assert.strictEqual(jsonToZod('{"a":[1,{"b":1}]}', '\n', BUDGET), 'z.object({ a: z.array(z.union([z.number(), z.object({ b: z.number() })])) })');
     });
 
+    test('Zod: nested multi-line objects, arrays and unions keep their prefixes, suffixes and indentation', () => {
+      const long = 'x'.repeat(70);
+      const json = `[{"list":[{"${long}":1,"b":"y"}],"u":[1,{"${long}":true}],"o":{"p":{"${long}":null}}},{"u":null}]`;
+      assert.strictEqual(jsonToZod(json, '\n', BUDGET), lines(
+        'z.object({',
+        '  list: z.array(z.object({',
+        `    ${long}: z.number(),`,
+        '    b: z.string(),',
+        '  })).optional(),',
+        '  u: z.array(z.union([',
+        '    z.number(),',
+        '    z.object({',
+        `      ${long}: z.boolean(),`,
+        '    }),',
+        '  ])).nullable(),',
+        '  o: z.object({',
+        '    p: z.object({',
+        `      ${long}: z.null(),`,
+        '    }),',
+        '  }).optional(),',
+        '})',
+      ));
+    });
+
+    test('Zod: the output limit is checked line by line, so a deep and wide input fails fast', () => {
+      // About 1 MB of input: 199 nested objects and 90,000 keys at the bottom. The schema would be
+      // far over the output limit (each bottom line is indented by about 400 spaces).
+      const keys = Array.from({ length: 90_000 }, (_, i) => `"k${i}":1`).join(',');
+      const json = `${'{"a":'.repeat(199)}{${keys}}${'}'.repeat(199)}`;
+      assert.ok(json.length < DEV_MAX_INPUT_LENGTH);
+      const started = Date.now();
+      assert.throws(() => jsonToZod(json, '\n', BUDGET), EncOutputTooLargeError);
+      assert.ok(Date.now() - started < 1500, `took ${Date.now() - started} ms`);
+      // A small budget stops at the first line that does not fit.
+      assert.throws(() => jsonToZod('{"a":{"b":{"c":"' + 'x'.repeat(100) + '"}}}', '\n', 30), EncOutputTooLargeError);
+    });
+
     test('Swift: CodingKeys list every property when a name changes; keywords in backquotes; optional', () => {
       assert.strictEqual(jsonToSwiftCodable('[{"user_id":1,"default":"x","o":{"a":true}},{"user_id":2,"default":"y"}]', '\n', BUDGET), lines(
         'struct Root: Codable {',
@@ -214,6 +251,24 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       ));
       assert.ok(!jsonToSwiftCodable('{"a":1,"b":[1.5]}', '\n', BUDGET).includes('CodingKeys'));
       assert.ok(jsonToSwiftCodable('{"a\\"b":1}', '\n', BUDGET).includes('case aB = "a\\"b"'));
+    });
+
+    test('Swift: self and init get a trailing _ (backquotes would not make them readable), mapped back by CodingKeys', () => {
+      assert.strictEqual(jsonToSwiftCodable('{"self":1,"init":"x","Self":true,"self_":2}', '\n', BUDGET), lines(
+        'struct Root: Codable {',
+        '    let self_: Int',
+        '    let init_: String',
+        '    let self_2: Bool',
+        '    let self_3: Int',
+        '',
+        '    enum CodingKeys: String, CodingKey {',
+        '        case self_ = "self"',
+        '        case init_ = "init"',
+        '        case self_2 = "Self"',
+        '        case self_3 = "self_"',
+        '    }',
+        '}',
+      ));
     });
 
     test('Swift: values of different types, null alone and empty arrays are errors (nothing is guessed)', () => {
@@ -306,6 +361,33 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assertInputError(() => cssSortProperties('a{b:1', BUDGET), /a \{ is not closed/);
     });
 
+    test('sort: a comment after the ; at the end of the same line stays with its declaration', () => {
+      assert.strictEqual(cssSortProperties('{\n  b: 1; /* about b */\n  a: 2;\n}', BUDGET), '{\n  a: 2;\n  b: 1; /* about b */\n}');
+      assert.strictEqual(cssSortProperties(lines(
+        'p {',
+        '  z: 1; /* z1 */ /* z2 */',
+        '  /* before y */',
+        '  y: 2;   /* y */',
+        '  x: 3; /* x',
+        '     more */',
+        '}',
+      ), BUDGET), lines(
+        'p {',
+        '  x: 3; /* x',
+        '     more */',
+        '  /* before y */',
+        '  y: 2;   /* y */',
+        '  z: 1; /* z1 */ /* z2 */',
+        '}',
+      ));
+      // The last declaration has no ;: the comment goes before the spaces of its new place.
+      assert.strictEqual(cssSortProperties('{ b: 1; /* about b */\n a: 2 }', BUDGET), '{ a: 2;\n b: 1 /* about b */ }');
+      assert.strictEqual(cssSortProperties('{c:1; /* c */}', BUDGET), '{c:1; /* c */}');
+      assert.strictEqual(cssSortProperties('b: 1; /* b */\r\na: 2; /* a */', BUDGET), 'a: 2; /* a */\r\nb: 1; /* b */');
+      // Code after the comment on the same line: the comment comes before that declaration and moves with it.
+      assert.strictEqual(cssSortProperties('a{z:1; /* z */ y:2}', BUDGET), 'a{/* z */ y:2; z:1}');
+    });
+
     test('CSS to style object: camelCase, vendor prefixes, custom properties and escaped values (never evaluated)', () => {
       assert.strictEqual(cssToJsObject('{ -webkit-transition: a; -ms-transform: b; --main-color: #fff; FONT-SIZE: 1px }', BUDGET),
         '{ WebkitTransition: \'a\', msTransform: \'b\', \'--main-color\': \'#fff\', fontSize: \'1px\' }');
@@ -317,6 +399,13 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assertInputError(() => cssToJsObject('color red', BUDGET), /not a declaration/);
       assertInputError(() => cssToJsObject('col$r: red', BUDGET), /not a CSS property name/);
       assertInputError(() => cssToJsObject(';;', BUDGET), /no declarations/);
+    });
+
+    test('CSS to style object: a property written twice is one key with the last value, in the first place', () => {
+      assert.strictEqual(cssToJsObject('color: red; margin: 0; COLOR: blue; --x: 1; --x: 2', BUDGET),
+        '{ color: \'blue\', margin: \'0\', \'--x\': \'2\' }');
+      assert.strictEqual(cssToJsObject('--X: 1; --x: 2', BUDGET), '{ \'--X\': \'1\', \'--x\': \'2\' }', 'custom properties are case-sensitive');
+      assert.strictEqual(cssToJsObject('a: 1; a: 2', 16), '{ a: \'2\' }', 'the budget counts the result, not the replaced values');
     });
 
     test('style object to CSS: kebab-case, numbers without units, EOL; values that would break a declaration are refused', () => {
@@ -348,22 +437,31 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
 
     test('strings, regular expressions and template literals are never changed', () => {
       const code = 'const s = "// a /* b */"; const r = /\\/\\/*x/g; const t = `\n\n// c\n/* d */`; // e';
-      assert.strictEqual(remove(code), 'const s = "// a /* b */"; const r = /\\/\\/*x/g; const t = `\n\n// c\n/* d */`; ');
+      assert.strictEqual(remove(code), 'const s = "// a /* b */"; const r = /\\/\\/*x/g; const t = `\n\n// c\n/* d */`;');
+    });
+
+    test('the spaces left at the end of a line after a removed comment are dropped; other spaces stay', () => {
+      assert.strictEqual(remove('a = 1; // x'), 'a = 1;');
+      assert.strictEqual(remove('a = 1;   /* x */  \nb = 2; /* y */ // z\r\nc = 3;'), 'a = 1;\nb = 2;\r\nc = 3;');
+      assert.strictEqual(remove('x = a /* c */ - b;  '), 'x = a  - b;  ', 'spaces before code and spaces of a line whose comment is not last stay');
+      assert.strictEqual(remove('  f(); /* a\n  b */  g();'), '  f();\n  g();');
+      assert.strictEqual(remove('const s = "a  "; // x'), 'const s = "a  ";', 'spaces inside a string are code');
     });
 
     test('a block comment with line breaks keeps them, so ASI reads the code as before', () => {
-      assert.strictEqual(remove('return /*\n*/ x'), 'return \n x');
-      assert.strictEqual(remove('a /*\n*/ ++b'), 'a \n ++b');
-      assert.strictEqual(remove('x /*\n*/ (y)'), 'x \n (y)');
-      assert.strictEqual(remove('return /*\r\n\r\n*/ x'), 'return \r\n x', 'the lines left with only spaces in between go, one line break stays');
-      assert.strictEqual(remove('a /* \u2028 */ b'), 'a \u2028 b');
-      assert.strictEqual(remove('a /*\r*/ b'), 'a \r b');
-      assert.strictEqual(remove('foo /*\n*/\n++b'), 'foo \n++b');
+      assert.strictEqual(remove('return /*\n*/ x'), 'return\n x');
+      assert.strictEqual(remove('a /*\n*/ ++b'), 'a\n ++b');
+      assert.strictEqual(remove('x /*\n*/ (y)'), 'x\n (y)');
+      assert.strictEqual(remove('return /*\r\n\r\n*/ x'), 'return\r\n x', 'the lines left with only spaces in between go, one line break stays');
+      assert.strictEqual(remove('a /* \u2028 */ b'), 'a\u2028 b');
+      assert.strictEqual(remove('a /*\r*/ b'), 'a\r b');
+      assert.strictEqual(remove('foo /*\n*/\n++b'), 'foo\n++b');
     });
 
     test('only lines that had a comment and are blank afterwards are removed; empty lines stay', () => {
       const code = lines('a();', '', '  // only a comment', '/**', ' * doc', ' */', 'b(); // after code', '   ', 'c(/* x */);', '\t/* y */  ', 'd();');
-      assert.strictEqual(remove(code), lines('a();', '', 'b(); ', '   ', 'c();', 'd();'));
+      assert.strictEqual(remove(code), lines('a();', '', 'b();', '   ', 'c();', 'd();'));
+      assert.strictEqual(remove('a();\n\u3000\u00a0\ufeff/* only spaces of every kind around it */\u2003\nb();'), 'a();\nb();');
     });
 
     test('a removed comment between code that would join becomes one space', () => {
@@ -411,6 +509,8 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assert.strictEqual(toHeredoc(' EOF\nEOF \n', BUDGET), 'cat <<\'EOF\'\n EOF\nEOF \nEOF');
       assertInputError(() => toHeredoc('a\rb', BUDGET), /carriage return/);
       assert.throws(() => toHeredoc('abc', 10), EncOutputTooLargeError);
+      assert.strictEqual(toHeredoc('', BUDGET), 'cat <<\'EOF\'\nEOF', 'an empty text has no body line');
+      assert.strictEqual(toHeredoc('\n', BUDGET), 'cat <<\'EOF\'\n\nEOF', 'one empty line stays one empty line');
     });
   });
 

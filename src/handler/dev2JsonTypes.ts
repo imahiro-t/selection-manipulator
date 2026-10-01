@@ -22,7 +22,7 @@ import {
   Shape,
   wordsOf,
 } from './devJsonTypes';
-import { toJsString } from './devLiterals';
+import { toJsPropertyKey } from './devLiterals';
 
 // ---------------------------------------------------------------------------------------------
 // Shared: resolved types, names and string literals
@@ -76,14 +76,14 @@ const fieldIdentifier = (name: string, fallback: string): string => {
 
 const hex = (code: number, width: number): string => code.toString(16).toUpperCase().padStart(width, '0');
 
-/** A lone (unpaired) surrogate, which a UTF-8 source file cannot hold. */
-const LONE_SURROGATE = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
-
 /**
  * Characters escaped in every string literal: `\`, `"`, `$`, the controls (C0, DEL, C1),
- * U+2028 / U+2029 and lone surrogates. Valid surrogate pairs (emoji) stay as they are.
+ * U+2028 / U+2029 and lone (unpaired) surrogates, which a UTF-8 source file cannot hold. Valid
+ * surrogate pairs (emoji) stay as they are.
  */
 const STRING_SPECIAL = /[\\"$\u0000-\u001f\u007f-\u009f\u2028\u2029]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
+
+const isSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xdfff;
 
 interface StringStyle {
   /** Whether `$` starts a template in the language (Kotlin). */
@@ -97,9 +97,6 @@ interface StringStyle {
 
 /** A double-quoted string literal of the target language (no interpolation, no raw controls). */
 const quoteString = (text: string, style: StringStyle): string => {
-  if (!style.utf16 && LONE_SURROGATE.test(text)) {
-    throw new DevInputError(`the key ${quoteText(text)} holds a lone surrogate, which a ${style.language} string cannot hold`);
-  }
   const body = text.replace(STRING_SPECIAL, (ch) => {
     switch (ch) {
       case '\\':
@@ -123,6 +120,10 @@ const quoteString = (text: string, style: StringStyle): string => {
         break;
     }
     const code = ch.charCodeAt(0);
+    if (!style.utf16 && isSurrogate(code)) {
+      // STRING_SPECIAL only matches a surrogate that is not part of a pair.
+      throw new DevInputError(`the key ${quoteText(text)} holds a lone surrogate, which a ${style.language} string cannot hold`);
+    }
     return style.utf16 ? `\\u${hex(code, 4)}` : `\\u{${hex(code, 1)}}`;
   });
   return `"${body}"`;
@@ -410,64 +411,95 @@ export const jsonToCSharpClass = (text: string, eol: string, budget: number): st
 // DEVX-004 Zod
 // ---------------------------------------------------------------------------------------------
 
-/** One schema: written on one line, or over several lines (an object that does not fit). */
-type ZodText = string | string[];
-
 const ZOD_LINE_WIDTH = 80;
-const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 /**
  * The key of an object literal. `__proto__: …` (quoted or not) would set the prototype of the
  * object literal instead of making a property, so that key is computed: `['__proto__']: …`.
  */
-const zodKey = (key: string): string => {
-  if (key === '__proto__') {
-    return `['__proto__']`;
-  }
-  return JS_IDENTIFIER.test(key) ? key : toJsString(key);
-};
+const zodKey = (key: string): string => (key === '__proto__' ? `['__proto__']` : toJsPropertyKey(key));
 
-const isMultiLine = (schema: ZodText): schema is string[] => Array.isArray(schema);
-
-/** `prefix` + schema + `suffix` (a multi-line schema gets them on its first and last lines). */
-const wrapZod = (prefix: string, schema: ZodText, suffix: string): ZodText => {
-  if (!isMultiLine(schema)) {
-    return `${prefix}${schema}${suffix}`;
-  }
-  return [`${prefix}${schema[0]}`, ...schema.slice(1, -1), `${schema[schema.length - 1]}${suffix}`];
-};
-
-const zodObject = (object: ObjectShape, depth: number): ZodText => {
+const checkZodDepth = (depth: number): void => {
   if (depth > DEV_MAX_NESTING) {
     throw new DevInputError(`the JSON is nested deeper than ${DEV_MAX_NESTING} levels`);
   }
-  const entries = [...object.fields].map(([key, field]) => {
-    let schema = zodSchema(field.shape, depth + 1);
-    if (isOptional(object, field)) {
-      schema = wrapZod('', schema, '.optional()');
-    }
-    return wrapZod(`${zodKey(key)}: `, schema, '');
-  });
-  if (entries.length === 0) {
-    return 'z.object({})';
-  }
-  if (entries.every((entry) => !isMultiLine(entry))) {
-    const line = `z.object({ ${entries.join(', ')} })`;
-    if (line.length <= ZOD_LINE_WIDTH) {
-      return line;
-    }
-  }
-  const lines = ['z.object({'];
-  for (const entry of entries) {
-    const entryLines = isMultiLine(entry) ? entry : [entry];
-    entryLines.forEach((line, i) => lines.push(`  ${line}${i === entryLines.length - 1 ? ',' : ''}`));
-  }
-  lines.push('})');
-  return lines;
 };
 
-const zodSchema = (shape: Shape, depth: number): ZodText => {
-  const parts: ZodText[] = [];
+/**
+ * The one-line forms of the schemas, or `null` for a schema written over several lines. An object
+ * is one line when all of its fields are and the line fits in 80 characters; a union or an array
+ * is one line when all of its parts are. Each result is remembered, so every shape is looked at a
+ * bounded number of times, and an object stops reading its fields as soon as the line is too long:
+ * no multi-line text is ever built here.
+ */
+class ZodInline {
+  private readonly objects = new Map<ObjectShape, string | null>();
+  private readonly schemas = new Map<Shape, string | null>();
+
+  object(object: ObjectShape, depth: number): string | null {
+    let line = this.objects.get(object);
+    if (line === undefined) {
+      line = this.objectLine(object, depth);
+      this.objects.set(object, line);
+    }
+    return line;
+  }
+
+  schema(shape: Shape, depth: number): string | null {
+    let line = this.schemas.get(shape);
+    if (line === undefined) {
+      line = this.schemaLine(shape, depth);
+      this.schemas.set(shape, line);
+    }
+    return line;
+  }
+
+  private objectLine(object: ObjectShape, depth: number): string | null {
+    checkZodDepth(depth);
+    if (object.fields.size === 0) {
+      return 'z.object({})';
+    }
+    let line = 'z.object({';
+    let separator = ' ';
+    for (const [key, field] of object.fields) {
+      const schema = this.schema(field.shape, depth + 1);
+      if (schema === null) {
+        return null;
+      }
+      line += `${separator}${zodKey(key)}: ${schema}${isOptional(object, field) ? '.optional()' : ''}`;
+      if (line.length + ' })'.length > ZOD_LINE_WIDTH) {
+        return null;
+      }
+      separator = ', ';
+    }
+    return `${line} })`;
+  }
+
+  private schemaLine(shape: Shape, depth: number): string | null {
+    const parts: string[] = [];
+    for (const part of zodParts(shape)) {
+      const line = typeof part === 'string' ? part
+        : part.kind === 'object' ? this.object(part.object, depth)
+          : part.element === undefined ? 'z.array(z.unknown())' : wrapLine('z.array(', this.schema(part.element, depth + 1), ')');
+      if (line === null) {
+        return null;
+      }
+      parts.push(line);
+    }
+    const schema = parts.length === 0 ? 'z.null()' : parts.length === 1 ? parts[0] : `z.union([${parts.join(', ')}])`;
+    return parts.length > 0 && shape.kinds.has('null') ? `${schema}.nullable()` : schema;
+  }
+}
+
+const wrapLine = (prefix: string, line: string | null, suffix: string): string | null =>
+  (line === null ? null : `${prefix}${line}${suffix}`);
+
+/** A part of a schema: a fixed one-line schema, an object or an array (whose element may be unknown). */
+type ZodPart = string | { kind: 'object'; object: ObjectShape } | { kind: 'array'; element: Shape | undefined };
+
+/** The parts of the union a shape is (one part: no union), in a fixed order. */
+const zodParts = (shape: Shape): ZodPart[] => {
+  const parts: ZodPart[] = [];
   if (shape.kinds.has('string')) {
     parts.push('z.string()');
   }
@@ -478,31 +510,86 @@ const zodSchema = (shape: Shape, depth: number): ZodText => {
     parts.push('z.boolean()');
   }
   if (shape.object !== undefined) {
-    parts.push(zodObject(shape.object, depth));
+    parts.push({ kind: 'object', object: shape.object });
   }
   if (shape.kinds.has('array')) {
-    parts.push(wrapZod('z.array(', shape.element === undefined ? 'z.unknown()' : zodSchema(shape.element, depth + 1), ')'));
+    parts.push({ kind: 'array', element: shape.element });
   }
-  const nullable = shape.kinds.has('null');
-  if (parts.length === 0) {
-    return 'z.null()';
-  }
-  let schema: ZodText;
-  if (parts.length === 1) {
-    schema = parts[0];
-  } else if (parts.every((part) => !isMultiLine(part))) {
-    schema = `z.union([${parts.join(', ')}])`;
-  } else {
-    const lines = ['z.union(['];
-    for (const part of parts) {
-      const partLines = isMultiLine(part) ? part : [part];
-      partLines.forEach((line, i) => lines.push(`  ${line}${i === partLines.length - 1 ? ',' : ''}`));
-    }
-    lines.push('])');
-    schema = lines;
-  }
-  return nullable ? wrapZod('', schema, '.nullable()') : schema;
+  return parts;
 };
+
+/**
+ * Writes the schemas top-down, each line straight into the output buffer with its indentation, so
+ * the output limit is checked line by line and no line is ever built twice. `prefix` goes before
+ * the first line of a schema and `suffix` after its last line.
+ */
+class ZodWriter {
+  private readonly inline = new ZodInline();
+  private readonly out: DevOutputBuffer;
+  private first = true;
+
+  constructor(private readonly eol: string, budget: number) {
+    this.out = new DevOutputBuffer(budget);
+  }
+
+  private line(indent: number, text: string): void {
+    if (!this.first) {
+      this.out.push(this.eol);
+    }
+    this.first = false;
+    this.out.push(' '.repeat(indent));
+    this.out.push(text);
+  }
+
+  object(object: ObjectShape, depth: number, indent: number, prefix: string, suffix: string): void {
+    const line = this.inline.object(object, depth);
+    if (line !== null) {
+      this.line(indent, `${prefix}${line}${suffix}`);
+      return;
+    }
+    checkZodDepth(depth);
+    this.line(indent, `${prefix}z.object({`);
+    for (const [key, field] of object.fields) {
+      this.schema(field.shape, depth + 1, indent + 2, `${zodKey(key)}: `, `${isOptional(object, field) ? '.optional()' : ''},`);
+    }
+    this.line(indent, `})${suffix}`);
+  }
+
+  schema(shape: Shape, depth: number, indent: number, prefix: string, suffix: string): void {
+    const line = this.inline.schema(shape, depth);
+    if (line !== null) {
+      this.line(indent, `${prefix}${line}${suffix}`);
+      return;
+    }
+    const parts = zodParts(shape);
+    const nullable = shape.kinds.has('null') ? '.nullable()' : '';
+    if (parts.length === 1) {
+      this.part(parts[0], depth, indent, prefix, `${nullable}${suffix}`);
+      return;
+    }
+    this.line(indent, `${prefix}z.union([`);
+    for (const part of parts) {
+      this.part(part, depth, indent + 2, '', ',');
+    }
+    this.line(indent, `])${nullable}${suffix}`);
+  }
+
+  private part(part: ZodPart, depth: number, indent: number, prefix: string, suffix: string): void {
+    if (typeof part === 'string') {
+      this.line(indent, `${prefix}${part}${suffix}`);
+    } else if (part.kind === 'object') {
+      this.object(part.object, depth, indent, prefix, suffix);
+    } else if (part.element === undefined) {
+      this.line(indent, `${prefix}z.array(z.unknown())${suffix}`);
+    } else {
+      this.schema(part.element, depth + 1, indent, `${prefix}z.array(`, `)${suffix}`);
+    }
+  }
+
+  join(): string {
+    return this.out.join();
+  }
+}
 
 /**
  * DEVX-004: a Zod schema expression (`z.object({ … })`) for the object (or the merged objects of an
@@ -510,18 +597,13 @@ const zodSchema = (shape: Shape, depth: number): ZodText => {
  * types `z.union([…])`, `null` adds `.nullable()` and a key missing from some objects
  * `.optional()`. Nested objects are written in place; an object that does not fit in 80
  * characters is written over several lines (two-space indentation). Only the expression is
- * written: no `import`, and zod is not a dependency of this extension.
+ * written: no `import`, and zod is not a dependency of this extension. The output limit is
+ * checked as each line is written, so an input whose schema is too long fails early.
  */
 export const jsonToZod = (text: string, eol: string, budget: number): string => {
-  const schema = zodObject(inferRoot(text), 1);
-  const out = new DevOutputBuffer(budget);
-  (isMultiLine(schema) ? schema : [schema]).forEach((line, i) => {
-    if (i > 0) {
-      out.push(eol);
-    }
-    out.push(line);
-  });
-  return out.join();
+  const writer = new ZodWriter(eol, budget);
+  writer.object(inferRoot(text), 1, 0, '', '');
+  return writer.join();
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -570,8 +652,21 @@ const swiftType = (type: Resolved | undefined, names: Map<ObjectShape, string>, 
 const swiftName = (identifier: string): string => (SWIFT_KEYWORDS.has(identifier) ? `\`${identifier}\`` : identifier);
 
 /**
+ * Property names that backquotes do not make usable: `x.self` is the value itself and `x.init` the
+ * initializer, so the property could not be read. They get a trailing `_` (`self_`), and the
+ * CodingKeys enum maps them back to the key, as Rust does with `self_`.
+ */
+const SWIFT_NOT_ESCAPED = new Set(['self', 'init']);
+
+const swiftFieldName = (key: string): string => {
+  const name = fieldIdentifier(camelCase(key), 'field');
+  return SWIFT_NOT_ESCAPED.has(name) ? `${name}_` : name;
+};
+
+/**
  * DEVX-005: Swift structs that conform to Codable (`Root` first, then the nested types; Foundation
- * needs no import for them). Properties are camelCase; when one differs from its key, a
+ * needs no import for them). Properties are camelCase (keywords in backquotes, `self` and `init`
+ * with a trailing `_`); when one differs from its key, a
  * `CodingKeys` enum lists every property. `null` or a key missing from some objects makes `T?`.
  * Values of different types, `null` alone and empty arrays are errors: the standard library has no
  * Codable type for any JSON value.
@@ -580,7 +675,7 @@ export const jsonToSwiftCodable = (text: string, eol: string, budget: number): s
   const { order, names } = nameTypes(inferRoot(text), pascalCase, SWIFT_RESERVED_TYPES);
   const blocks = order.map((object) => {
     const lines = [`struct ${names.get(object)!}: Codable {`];
-    const fields = fieldNames(object, (key) => fieldIdentifier(camelCase(key), 'field'), ['CodingKeys']);
+    const fields = fieldNames(object, swiftFieldName, ['CodingKeys']);
     for (const [key, field] of object.fields) {
       let type = swiftType(resolve(field.shape), names, key);
       if (isOptional(object, field) && !type.endsWith('?')) {

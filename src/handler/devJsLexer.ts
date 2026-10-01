@@ -43,7 +43,8 @@ const REGEX_AFTER_WORDS = new Set([
   'else', 'yield', 'await',
 ]);
 
-const isLineTerminator = (code: number): boolean => code === 0x0a || code === 0x0d || code === 0x2028 || code === 0x2029;
+/** LF, CR, U+2028 and U+2029: the line terminators of JavaScript. */
+export const isLineTerminator = (code: number): boolean => code === 0x0a || code === 0x0d || code === 0x2028 || code === 0x2029;
 
 const isSpace = (code: number): boolean =>
   code === 0x20 || code === 0x09 || code === 0x0b || code === 0x0c || code === 0xa0 || code === 0xfeff

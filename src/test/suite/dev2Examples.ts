@@ -27,7 +27,7 @@ export const DEV2_EXAMPLES: Record<string, Dev2Example> = {
   'DEVX-010': { input: '{color:red;align-items:center}', expected: '{align-items:center;color:red}' },
   'DEVX-011': { input: 'font-size: 12px; color: red', expected: '{ fontSize: \'12px\', color: \'red\' }' },
   'DEVX-012': { input: '{ fontSize: \'12px\' }', expected: 'font-size: 12px;' },
-  'DEVX-013': { input: 'a(); // x\n/* y */b();', expected: 'a(); \nb();' },
+  'DEVX-013': { input: 'a(); // x\n/* y */b();', expected: 'a();\nb();' },
   'DEVX-014': { input: 'a"b', expected: '@"a""b"' },
   'DEVX-015': { input: 'a"#b', expected: 'r##"a"#b"##' },
   'DEVX-016': { input: 'echo $X', expected: 'cat <<\'EOF\'\necho $X\nEOF' },

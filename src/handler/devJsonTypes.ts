@@ -9,7 +9,7 @@
  * counted against the output budget.
  */
 import { DEV_MAX_NESTING, DevInputError, DevOutputBuffer } from './devCommon';
-import { toJsString, toPythonString } from './devLiterals';
+import { toJsPropertyKey, toPythonString } from './devLiterals';
 
 // ---------------------------------------------------------------------------------------------
 // Inference
@@ -230,8 +230,6 @@ const TS_RESERVED = [
   'Partial', 'Pick', 'Promise', 'Readonly', 'Record', 'RegExp', 'Required', 'Set', 'String', 'Symbol',
 ];
 
-const TS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
-
 const tsType = (shape: Shape, names: Map<ObjectShape, string>): string => {
   const parts: string[] = [];
   if (shape.kinds.has('string')) {
@@ -274,7 +272,7 @@ export const jsonToTypeScript = (text: string, eol: string, budget: number): str
     }
     out.line(`interface ${names.get(object)!} {`);
     for (const [key, field] of object.fields) {
-      const name = TS_IDENTIFIER.test(key) ? key : toJsString(key);
+      const name = toJsPropertyKey(key);
       out.line(`  ${name}${isOptional(object, field) ? '?' : ''}: ${tsType(field.shape, names)};`);
     }
     out.line('}');

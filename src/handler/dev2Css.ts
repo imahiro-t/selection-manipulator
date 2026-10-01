@@ -11,7 +11,7 @@ import { DataInputError } from './dataCommon';
 import { parseJsonLike } from './dataParsers';
 import { assertWithinBudget, DevInputError, DevOutputBuffer, quoteText } from './devCommon';
 import { CssToken, parseCss, tokenizeCss } from './devCss';
-import { toJsString } from './devLiterals';
+import { toJsPropertyKey, toJsString } from './devLiterals';
 
 // ---------------------------------------------------------------------------------------------
 // DEVX-010 Sort declarations
@@ -22,14 +22,44 @@ const isInsignificant = (token: CssToken): boolean => token.type === 'ws' || tok
 const isTerminator = (token: CssToken): boolean =>
   token.depth === 0 && (token.type === '{' || token.type === '}' || token.type === ';');
 
-/** One declaration of a run: its body moves, the frame (spaces around it and the `;`) stays. */
+/**
+ * One declaration of a run: its body (and the comment after its `;` on the same line) moves, the
+ * frame (spaces around it and the `;`) stays.
+ */
 interface Declaration {
   lead: string;
   body: string;
   trail: string;
   terminator: string;
+  /** The spaces and comments after the `;` up to the end of the line (`' /* about b *\/'`), or `''`. */
+  note: string;
   key: string;
 }
+
+const LINE_BREAK = /[\n\r\f]/;
+
+/**
+ * How many tokens at the start of a segment are a comment that ends the line of the declaration
+ * before it (`b: 1; /* about b *\/⏎`): spaces without a line break and comments, up to the last
+ * comment, when a line break or the end of the segment follows them. 0 when there is no such
+ * comment, or when code follows on the same line (`/* z *\/ y: 2` belongs to `y`).
+ */
+const sameLineNoteLength = (segment: readonly CssToken[]): number => {
+  let length = 0;
+  for (let k = 0; k < segment.length; k++) {
+    const token = segment[k];
+    if (token.type === 'comment') {
+      length = k + 1;
+    } else if (token.type !== 'ws') {
+      return 0;
+    } else if (LINE_BREAK.test(token.text)) {
+      return length;
+    }
+  }
+  return length;
+};
+
+const joinTokens = (part: readonly CssToken[]): string => part.map((token) => token.text).join('');
 
 /** The property name of a declaration (before its first `:`, comments left out), in lower case. */
 const propertyKey = (tokens: readonly CssToken[]): string => {
@@ -51,7 +81,8 @@ const compareKeys = (a: Declaration, b: Declaration): number => (a.key < b.key ?
  * DEVX-010: the declarations of every block (and of a selected declaration list without braces)
  * sorted by property name (lower case, code point order, stable). Only the declarations move: the
  * spaces and line breaks around each one and the `;` stay where they were, so the layout is kept.
- * A comment right before a declaration moves with it. A nested rule (`@media`, CSS nesting) or an
+ * A comment right before a declaration moves with it, and so does a comment after its `;` at the
+ * end of the same line (`b: 1; /* about b *\/`). A nested rule (`@media`, CSS nesting) or an
  * at-rule statement ends a run: declarations are never moved across it. Strings, comments and
  * `url(…)` are copied as they are.
  */
@@ -61,7 +92,11 @@ export const cssSortProperties = (text: string, budget: number): string => {
   let run: Declaration[] = [];
   const flush = () => {
     const sorted = [...run].sort(compareKeys);
-    run.forEach((frame, i) => out.push(frame.lead + sorted[i].body + frame.trail + frame.terminator));
+    run.forEach((frame, i) => {
+      const { body, note } = sorted[i];
+      // A slot without `;` (the last declaration of a block) gets the comment before its spaces.
+      out.push(frame.terminator === '' ? frame.lead + body + note + frame.trail : frame.lead + body + frame.trail + frame.terminator + note);
+    });
     run = [];
   };
   let start = 0;
@@ -69,7 +104,13 @@ export const cssSortProperties = (text: string, budget: number): string => {
     if (i < tokens.length && !isTerminator(tokens[i])) {
       continue;
     }
-    const segment = tokens.slice(start, i);
+    let segment = tokens.slice(start, i);
+    const previous = run.length > 0 ? run[run.length - 1] : undefined;
+    if (previous !== undefined && previous.terminator === ';') {
+      const noteLength = sameLineNoteLength(segment);
+      previous.note = joinTokens(segment.slice(0, noteLength));
+      segment = segment.slice(noteLength);
+    }
     const terminator = i < tokens.length ? tokens[i].text : '';
     const first = segment.findIndex((token) => !isInsignificant(token));
     if (first >= 0 && segment[first].segment === 'decl') {
@@ -81,12 +122,12 @@ export const cssSortProperties = (text: string, budget: number): string => {
       while (isSpaceToken(segment[bodyEnd - 1])) {
         bodyEnd--;
       }
-      const join = (part: readonly CssToken[]) => part.map((token) => token.text).join('');
       run.push({
-        lead: join(segment.slice(0, bodyStart)),
-        body: join(segment.slice(bodyStart, bodyEnd)),
-        trail: join(segment.slice(bodyEnd)),
+        lead: joinTokens(segment.slice(0, bodyStart)),
+        body: joinTokens(segment.slice(bodyStart, bodyEnd)),
+        trail: joinTokens(segment.slice(bodyEnd)),
         terminator: terminator === ';' ? ';' : '',
+        note: '',
         key: propertyKey(segment.slice(first)),
       });
       if (terminator !== ';') {
@@ -95,7 +136,7 @@ export const cssSortProperties = (text: string, budget: number): string => {
       }
     } else {
       flush();
-      out.push(segment.map((token) => token.text).join('') + terminator);
+      out.push(joinTokens(segment) + terminator);
     }
     start = i + 1;
   }
@@ -111,7 +152,6 @@ export const cssSortProperties = (text: string, budget: number): string => {
 
 const CSS_PROPERTY = /^-?[A-Za-z][A-Za-z0-9-]*$/;
 const CUSTOM_PROPERTY = /^--[A-Za-z0-9_-]+$/;
-const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 /** `font-size` → `fontSize`, `-webkit-transition` → `WebkitTransition`, `-ms-transform` → `msTransform` (as React names them). */
 const camelProperty = (property: string): string => {
@@ -143,8 +183,9 @@ const valueText = (tokens: readonly CssToken[]): string => {
  * DEVX-011: CSS declarations (`prop: value;`, the outer `{ }` optional) → a React style object on
  * one line: `{ fontSize: '12px', color: 'red' }`. Properties are camelCase (vendor prefixes as
  * React writes them), custom properties (`--x`) are quoted keys; every value is a JavaScript
- * string literal (escaped, never evaluated), `!important` included. Comments are dropped; a nested
- * block is an error.
+ * string literal (escaped, never evaluated), `!important` included. A property written twice is
+ * one key with the last value (in the place of the first). Comments are dropped; a nested block is
+ * an error.
  */
 export const cssToJsObject = (text: string, budget: number): string => {
   let source = text.trim();
@@ -172,7 +213,8 @@ export const cssToJsObject = (text: string, budget: number): string => {
     }
   }
   declarations.push(current);
-  const entries: string[] = [];
+  // A property written twice keeps its first place and its last value, as in the object literal.
+  const entries = new Map<string, string>();
   let length = 4;
   for (const declaration of declarations) {
     if (declaration.every(isInsignificant)) {
@@ -190,19 +232,20 @@ export const cssToJsObject = (text: string, budget: number): string => {
       key = toJsString(property);
     } else if (CSS_PROPERTY.test(property)) {
       const camel = camelProperty(property);
-      key = JS_IDENTIFIER.test(camel) ? camel : toJsString(camel);
+      key = toJsPropertyKey(camel);
     } else {
       throw new DevInputError(`${quoteText(property)} is not a CSS property name`);
     }
     const entry = `${key}: ${toJsString(value)}`;
-    length += entry.length + 2;
+    const replaced = entries.get(key);
+    length += entry.length + (replaced === undefined ? 2 : -replaced.length);
     assertWithinBudget(length, budget);
-    entries.push(entry);
+    entries.set(key, entry);
   }
-  if (entries.length === 0) {
+  if (entries.size === 0) {
     throw new DevInputError('the selection has no declarations');
   }
-  const result = `{ ${entries.join(', ')} }`;
+  const result = `{ ${[...entries.values()].join(', ')} }`;
   assertWithinBudget(result.length, budget);
   return result;
 };

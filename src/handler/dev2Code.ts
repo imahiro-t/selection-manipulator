@@ -7,26 +7,24 @@
  * text: nothing is compiled, evaluated or run in a shell. Every function is linear in its input.
  */
 import { assertWithinBudget, DevInputError, DevOutputBuffer } from './devCommon';
-import { JsToken, tokenizeJs } from './devJsLexer';
+import { isLineTerminator, JsToken, tokenizeJs } from './devJsLexer';
 
 // ---------------------------------------------------------------------------------------------
 // DEVX-013 Remove comments
 // ---------------------------------------------------------------------------------------------
 
-const isLineTerminatorCode = (code: number): boolean => code === 0x0a || code === 0x0d || code === 0x2028 || code === 0x2029;
-
-/** Spaces as the lexer counts them (a line made only of these is blank). */
-const BLANK_LINE = /^[\t\v\f    -   　﻿]*$/;
-
 /** Punctuators after which, or before which, a removed comment needs no space. */
 const OPENERS = new Set(['(', '[', '{', ',', ';']);
 const CLOSERS = new Set([')', ']', '}', ',', ';']);
 
-/** One line of the result: what is kept of it, whether a comment (or part of one) was on it, and its line break. */
-interface OutputLine {
+/** The line being written: what is kept so far and where its code ends. */
+interface OpenLine {
   text: string;
   hadComment: boolean;
-  lineBreak: string;
+  /** The length of `text` up to the end of its last code token (0: no code on the line yet). */
+  codeEnd: number;
+  /** A comment was removed after the last code token: the spaces left after that code are dropped. */
+  commentLast: boolean;
 }
 
 /** The line breaks in the text of a block comment, each as it is written (CR LF as one). */
@@ -34,7 +32,7 @@ const lineBreaksOf = (text: string): string[] => {
   const breaks: string[] = [];
   for (let i = 0; i < text.length; i++) {
     const code = text.charCodeAt(i);
-    if (!isLineTerminatorCode(code)) {
+    if (!isLineTerminator(code)) {
       continue;
     }
     if (code === 0x0d && text.charCodeAt(i + 1) === 0x0a) {
@@ -69,13 +67,14 @@ const needsSpace = (before: JsToken | undefined, after: JsToken | undefined): bo
  * A comment between two code tokens that would join becomes one space. A line that had a comment
  * and holds only spaces afterwards is removed with its line break; lines that were empty before
  * are kept. When the last line (without a line break) is removed, the line break before it stays.
+ * The spaces left at the end of a line after a removed comment are dropped (`a = 1; // x` → `a = 1;`).
  */
 export const removeJsComments = (text: string, budget: number): string => {
   let hashbang = '';
   let source = text;
   if (text.startsWith('#!')) {
     let end = 2;
-    while (end < text.length && !isLineTerminatorCode(text.charCodeAt(end))) {
+    while (end < text.length && !isLineTerminator(text.charCodeAt(end))) {
       end++;
     }
     hashbang = text.slice(0, end);
@@ -91,14 +90,18 @@ export const removeJsComments = (text: string, budget: number): string => {
       following = tokens[i];
     }
   }
-  const lines: OutputLine[] = [];
-  let line: OutputLine = { text: hashbang, hadComment: false, lineBreak: '' };
+  const out = new DevOutputBuffer(budget);
+  let line: OpenLine = { text: hashbang, hadComment: false, codeEnd: hashbang.length, commentLast: false };
   // The last code token written on the current line (undefined after a space or at its start).
   let lastCode: JsToken | undefined;
   const endLine = (lineBreak: string) => {
-    line.lineBreak = lineBreak;
-    lines.push(line);
-    line = { text: '', hadComment: false, lineBreak: '' };
+    if (!line.hadComment) {
+      out.push(line.text + lineBreak);
+    } else if (line.codeEnd > 0) {
+      out.push((line.commentLast ? line.text.slice(0, line.codeEnd) : line.text) + lineBreak);
+    }
+    // A line that had a comment and holds no code afterwards is removed with its line break.
+    line = { text: '', hadComment: false, codeEnd: 0, commentLast: false };
     lastCode = undefined;
   };
   tokens.forEach((token, i) => {
@@ -108,10 +111,17 @@ export const removeJsComments = (text: string, budget: number): string => {
     }
     if (token.kind !== 'comment') {
       line.text += token.text;
-      lastCode = token.kind === 'space' ? undefined : token;
+      if (token.kind === 'space') {
+        lastCode = undefined;
+      } else {
+        lastCode = token;
+        line.codeEnd = line.text.length;
+        line.commentLast = false;
+      }
       return;
     }
     line.hadComment = true;
+    line.commentLast = true;
     const breaks = token.text.startsWith('/*') ? lineBreaksOf(token.text) : [];
     if (breaks.length === 0) {
       const after = nextCode[i];
@@ -124,16 +134,10 @@ export const removeJsComments = (text: string, budget: number): string => {
     for (const lineBreak of breaks) {
       endLine(lineBreak);
       line.hadComment = true;
+      line.commentLast = true;
     }
   });
-  lines.push(line);
-  const out = new DevOutputBuffer(budget);
-  for (const { text: kept, hadComment, lineBreak } of lines) {
-    if (hadComment && BLANK_LINE.test(kept)) {
-      continue;
-    }
-    out.push(kept + lineBreak);
-  }
+  endLine('');
   return out.join();
 };
 
@@ -195,7 +199,8 @@ export const toRustRawString = (text: string): string => {
  * delimiter. The delimiter is quoted, so nothing in the text is expanded, and it is a word that no
  * line of the text equals (`EOF`, else `EOF_1`, `EOF_2`, …). The result has LF line breaks (a
  * shell would read a CR as part of the line): CR LF becomes LF and a lone CR is an error. A line
- * break is added after the text when it does not end with one. Nothing is run.
+ * break is added after the text when it does not end with one; an empty text gives an empty
+ * here-document (no line between the two). Nothing is run.
  */
 export const toHeredoc = (text: string, budget: number): string => {
   if (hasLoneCr(text)) {
@@ -208,7 +213,8 @@ export const toHeredoc = (text: string, budget: number): string => {
   for (let n = 1; lines.has(delimiter); n++) {
     delimiter = `EOF_${n}`;
   }
-  const result = `cat <<'${delimiter}'\n${body}${body.endsWith('\n') ? '' : '\n'}${delimiter}`;
+  const lineBreak = body === '' || body.endsWith('\n') ? '' : '\n';
+  const result = `cat <<'${delimiter}'\n${body}${lineBreak}${delimiter}`;
   assertWithinBudget(result.length, budget);
   return result;
 };
