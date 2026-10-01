@@ -69,7 +69,7 @@ const gcdOf = (a: bigint, b: bigint): bigint => {
 };
 
 /** NUMX-012: the greatest common divisor of the integers (absolute values; gcd(0, a) = |a|, all 0 → 0). */
-export const greatestCommonDivisor = (text: string, budget: number): string => {
+export const greatestCommonDivisor = (text: string): string => {
   let result = 0n;
   for (const n of integersOf(text)) {
     if (result === 1n) {
@@ -77,30 +77,30 @@ export const greatestCommonDivisor = (text: string, budget: number): string => {
     }
     result = gcdOf(result, n);
   }
-  const output = new NumOutputBuffer(budget);
-  output.push(result.toString());
-  return output.join();
+  return result.toString();
 };
 
 const LCM_LIMIT = 10n ** BigInt(NUM2_MAX_LCM_DIGITS);
 
 /** NUMX-013: the least common multiple of the integers (absolute values; any 0 → 0), at most NUM2_MAX_LCM_DIGITS digits. */
-export const leastCommonMultiple = (text: string, budget: number): string => {
+export const leastCommonMultiple = (text: string): string => {
   const integers = integersOf(text);
-  let result = 1n;
   if (integers.some((n) => n === 0n)) {
-    result = 0n;
-  } else {
-    for (const n of integers) {
-      result = result / gcdOf(result, n) * n;
-      if (result >= LCM_LIMIT) {
-        throw new NumInputError(`the result has more than ${NUM2_MAX_LCM_DIGITS.toLocaleString('en-US')} digits`);
-      }
+    return '0';
+  }
+  let result = 1n;
+  for (const n of integers) {
+    // A divisor of the result so far (often the case with many small integers) changes nothing:
+    // skip the gcd, division and multiplication of a large result.
+    if (result % n === 0n) {
+      continue;
+    }
+    result = result / gcdOf(result, n) * n;
+    if (result >= LCM_LIMIT) {
+      throw new NumInputError(`the result has more than ${NUM2_MAX_LCM_DIGITS.toLocaleString('en-US')} digits`);
     }
   }
-  const output = new NumOutputBuffer(budget);
-  output.push(result.toString());
-  return output.join();
+  return result.toString();
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -210,14 +210,17 @@ const safeIntegerOf = (digits: string, item: string): number => {
   return n;
 };
 
-/** The item that starts at `start`: everything up to the next separator (for messages). */
-const itemAt = (text: string, start: number): string => {
-  let end = start;
+/** The end of the item that goes on at `from`: the index of the next separator (or the end of the text). */
+const itemEnd = (text: string, from: number): number => {
+  let end = from;
   while (end < text.length && !isSeparator(text.charCodeAt(end))) {
     end++;
   }
-  return text.slice(start, end);
+  return end;
 };
+
+/** The item that starts at `start`: everything up to the next separator (for messages). */
+const itemAt = (text: string, start: number): string => text.slice(start, itemEnd(text, start));
 
 /** NUMX-016: integers ≥ 0 separated by spaces, tabs, commas or line breaks, sorted, unique, as ranges (`1 2 3 5 7 8` → `1-3, 5, 7-8`). */
 export const collapseRanges = (text: string, budget: number): string => {
@@ -266,7 +269,18 @@ export const expandRanges = (text: string, budget: number): string => {
   const ranges: [number, number][] = [];
   let total = 0;
   let i = 0;
-  const notARange = (start: number): NumInputError => new NumInputError(`${quoteText(itemAt(text, start))} is not an integer or a range such as 1-3`);
+  /**
+   * The item from `start` up to the next separator at or after `at`, where the reading failed: a
+   * range with spaces around its dash (`1 - x`, `1 -`, `1 - 3x`) is quoted whole, not just `1`.
+   */
+  const notARange = (start: number, at: number): NumInputError => {
+    let end = itemEnd(text, at);
+    // Trailing spaces / tabs (`1 - ` before a comma) are left out with a loop, not a regular expression.
+    while (end > start && isSpaceOrTab(text.charCodeAt(end - 1))) {
+      end--;
+    }
+    return new NumInputError(`${quoteText(text.slice(start, end))} is not an integer or a range such as 1-3`);
+  };
   const readDigits = (): string => {
     const start = i;
     while (i < text.length && isDigit(text.charCodeAt(i))) {
@@ -281,7 +295,7 @@ export const expandRanges = (text: string, budget: number): string => {
     }
     const itemStart = i;
     if (!isDigit(text.charCodeAt(i))) {
-      throw notARange(itemStart);
+      throw notARange(itemStart, i);
     }
     const first = readDigits();
     let j = i;
@@ -295,7 +309,7 @@ export const expandRanges = (text: string, budget: number): string => {
         i++;
       }
       if (i >= text.length || !isDigit(text.charCodeAt(i))) {
-        throw notARange(itemStart);
+        throw notARange(itemStart, i);
       }
       const last = readDigits();
       const item = text.slice(itemStart, i);
@@ -308,7 +322,7 @@ export const expandRanges = (text: string, budget: number): string => {
       range = [n, n];
     }
     if (i < text.length && !isSeparator(text.charCodeAt(i))) {
-      throw notARange(itemStart);
+      throw notARange(itemStart, i);
     }
     total += range[1] - range[0] + 1;
     if (total > NUM2_MAX_EXPANDED) {

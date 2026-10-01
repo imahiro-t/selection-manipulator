@@ -178,7 +178,7 @@ const standardDeviations = (numbers: readonly number[]): string => {
 };
 
 /** A statistics transform: one result line per selection. */
-const statistic = (compute: (text: string, inputs: readonly string[]) => string): NumTransform => (text, inputs, budget) => {
+export const statistic = (compute: (text: string, inputs: readonly string[]) => string): NumTransform => (text, inputs, budget) => {
   const output = new NumOutputBuffer(budget);
   output.push(compute(text, inputs));
   return output.join();
@@ -286,7 +286,8 @@ const formatLocale: NumTransform = (text, inputs, budget) => {
 /** NUM-027: the floating-point error removed (rule A) before writing the exponent form. */
 const toScientific = perLine((value) => cleanNumber(parseBasicNumber(value)).toExponential());
 
-const plain = (convert: (value: string) => string): NumTransform => perLine((value) => convert(value));
+/** A conversion of each line on its own (the value without its surrounding spaces). */
+export const plain = (convert: (value: string) => string): NumTransform => perLine((value) => convert(value));
 
 const baseRule: NumPromptRule = { kind: 'integer', min: 2, max: 36 };
 
@@ -294,8 +295,10 @@ const baseRule: NumPromptRule = { kind: 'integer', min: 2, max: 36 };
 // The command table, in ROADMAP order
 // ---------------------------------------------------------------------------------------------
 
-const entry = (id: string, name: string, title: string, output: NumOutput, transform: NumTransform, prompts: NumPrompt[] = []): NumCommandEntry =>
-  ({ id, name, title, output, prompts, transform });
+/** One row of a command table (`validateInputs` only when the typed values must be checked together). */
+export const entry = (id: string, name: string, title: string, output: NumOutput, transform: NumTransform,
+  prompts: NumPrompt[] = [], validateInputs?: NumCommandEntry['validateInputs']): NumCommandEntry =>
+  ({ id, name, title, output, prompts, transform, ...(validateInputs ? { validateInputs } : {}) });
 
 export const NUM_COMMAND_ENTRIES: readonly NumCommandEntry[] = [
   entry('NUM-001', 'math.median', 'Math - Median', 'new-tab', median),

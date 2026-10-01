@@ -5,8 +5,8 @@
       "id": "selection-manipulator.number.round-to-significant",
       "candidateId": "NUMX-001",
       "description": {
-        "en": "Rounds each line's number to the number of significant figures you type (1 to 21), half away from zero as `toPrecision` does, and writes it without an exponent where JavaScript does. Unlike **Number - Round**, which counts digits after the decimal point.",
-        "ja": "各行の数値を、入力した有効数字の桁数（1〜21）に丸める（`toPrecision` と同じく 0 から遠い側への四捨五入。指数表記になるかは JavaScript の数値表記に従う）。小数点以下の桁数を指定する **Number - Round** と違い、有効数字で数える"
+        "en": "Rounds each line's number to the number of significant figures you type (1 to 21), half away from zero on the number as written in decimal, like **Number - Round** (`1.45` with 2 → `1.5`, `2.675` with 3 → `2.68`), and writes it without an exponent where JavaScript does. Unlike **Number - Round**, which counts digits after the decimal point.",
+        "ja": "各行の数値を、入力した有効数字の桁数（1〜21）に丸める（**Number - Round** と同じく 10 進で書いた値を 0 から遠い側へ四捨五入する。`1.45` を 2 桁 → `1.5`、`2.675` を 3 桁 → `2.68`。指数表記になるかは JavaScript の数値表記に従う）。小数点以下の桁数を指定する **Number - Round** と違い、有効数字で数える"
       },
       "example": {
         "en": "`123456（2）` → `120000`",

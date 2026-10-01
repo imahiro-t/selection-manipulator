@@ -9,14 +9,20 @@
  * input can make a conversion slow. Only local processing (`Math`, `BigInt`, `DataView`).
  */
 import {
+  allZeros,
   cleanNumber,
   formatA,
+  joinDecimal,
   NumInputError,
   NUM_MAX_EXACT_DIGITS,
   parseBasicNumber,
+  plainDecimalOf,
   quoteText,
+  roundDecimalDigits,
+  shiftDecimal,
   trimLeadingZeros,
 } from './numCommon';
+import { DECIMAL_INTEGER, ONES, SCALES, TENS } from './numConvert';
 
 /** NUMX-006: upper limit of the words of a number in English words. */
 export const NUM2_MAX_WORDS = 100;
@@ -27,10 +33,34 @@ const outOfRange = (): NumInputError => new NumInputError('the result is out of 
 // NUMX-001..003: rounding and clamping (the typed values are already checked by the handler)
 // ---------------------------------------------------------------------------------------------
 
-/** NUMX-001: rounds to `digits` significant figures (1-21) (`123456` with 2 → `120000`). */
+/**
+ * NUMX-001: rounds to `digits` significant figures (1-21), half away from zero on the decimal form
+ * of the value, as NUM-011 `number.round` does (`123456` with 2 → `120000`, `1.45` with 2 → `1.5`,
+ * `-1.45` with 2 → `-1.5`). The double's binary value is not rounded (`toPrecision` would give
+ * `1.4` there, as 1.45 is held as 1.4499999999999999556).
+ */
 export const roundToSignificant = (value: string, digits: number): string => {
-  const rounded = Number(parseBasicNumber(value).toPrecision(digits));
-  return String(rounded === 0 ? 0 : rounded);
+  const { sign, integer, fraction } = plainDecimalOf(parseBasicNumber(value));
+  const all = integer + fraction;
+  if (allZeros(all)) {
+    return '0';
+  }
+  let leading = 0;
+  while (all.charCodeAt(leading) === 0x30) {
+    leading++;
+  }
+  // Digits kept after the point (negative: the rounding is left of the point).
+  const decimals = leading + digits - integer.length;
+  let rounded: { integer: string; fraction: string };
+  if (decimals >= 0) {
+    rounded = roundDecimalDigits(integer, fraction, decimals);
+  } else {
+    const shifted = shiftDecimal(integer, fraction, decimals);
+    const whole = roundDecimalDigits(shifted.integer, shifted.fraction, 0);
+    rounded = shiftDecimal(whole.integer, '', -decimals);
+  }
+  const result = Number(joinDecimal(sign, rounded.integer, rounded.fraction));
+  return String(result === 0 ? 0 : result);
 };
 
 /**
@@ -119,13 +149,10 @@ export const fromRoman = (value: string): string => {
 // NUMX-006: English number words (the reverse of NUM-032 `number.to-words-en`)
 // ---------------------------------------------------------------------------------------------
 
-const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
-  'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-const SCALES = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
-  'septillion', 'octillion', 'nonillion', 'decillion'];
+/** Only `a`-`z`: the text is lower-cased first, and any other letter is not a number word. */
+const isLowerAsciiLetter = (code: number): boolean => code >= 0x61 && code <= 0x7a;
 
-const isLetter = (code: number): boolean => (code >= 0x61 && code <= 0x7a);
+const notWords = (value: string): NumInputError => new NumInputError(`${quoteText(value)} is not a number in English words`);
 
 /**
  * The words of a number in lower case. Words are runs of ASCII letters; spaces, tabs and commas
@@ -134,14 +161,13 @@ const isLetter = (code: number): boolean => (code >= 0x61 && code <= 0x7a);
  */
 const englishWords = (value: string): string[] => {
   const text = value.toLowerCase();
-  const notWords = (): NumInputError => new NumInputError(`${quoteText(value)} is not a number in English words`);
   const words: string[] = [];
   let i = 0;
   while (i < text.length) {
     const code = text.charCodeAt(i);
-    if (isLetter(code)) {
+    if (isLowerAsciiLetter(code)) {
       const start = i;
-      while (i < text.length && isLetter(text.charCodeAt(i))) {
+      while (i < text.length && isLowerAsciiLetter(text.charCodeAt(i))) {
         i++;
       }
       words.push(text.slice(start, i));
@@ -150,10 +176,10 @@ const englishWords = (value: string): string[] => {
       }
     } else if (code === 0x20 || code === 0x09 || code === 0x2c) {
       i++;
-    } else if (code === 0x2d && i > 0 && isLetter(text.charCodeAt(i - 1)) && i + 1 < text.length && isLetter(text.charCodeAt(i + 1))) {
+    } else if (code === 0x2d && i > 0 && isLowerAsciiLetter(text.charCodeAt(i - 1)) && i + 1 < text.length && isLowerAsciiLetter(text.charCodeAt(i + 1))) {
       i++;
     } else {
-      throw notWords();
+      throw notWords(value);
     }
   }
   return words;
@@ -166,7 +192,6 @@ const englishWords = (value: string): string[] => {
  * group of 1-999 before it. Case is ignored, `and` and commas are ignored. The result is exact (BigInt).
  */
 export const fromEnglishWords = (value: string): string => {
-  const notWords = (): NumInputError => new NumInputError(`${quoteText(value)} is not a number in English words`);
   const words = englishWords(value).filter((word) => word !== 'and');
   let i = 0;
   const negative = words[0] === 'minus';
@@ -177,7 +202,7 @@ export const fromEnglishWords = (value: string): string => {
     return '0';
   }
   if (i >= words.length) {
-    throw notWords();
+    throw notWords(value);
   }
   let total = 0n;
   let lastScale = SCALES.length;
@@ -205,12 +230,12 @@ export const fromEnglishWords = (value: string): string => {
       }
     }
     if (group === 0) {
-      throw notWords();
+      throw notWords(value);
     }
     const scale = i < words.length ? SCALES.indexOf(words[i]) : -1;
     if (scale >= 1) {
       if (scale >= lastScale) {
-        throw notWords();
+        throw notWords(value);
       }
       lastScale = scale;
       total += BigInt(group) * 1000n ** BigInt(scale);
@@ -218,7 +243,7 @@ export const fromEnglishWords = (value: string): string => {
     } else {
       // A group without a scale (the units) must be the last.
       if (i < words.length) {
-        throw notWords();
+        throw notWords(value);
       }
       total += BigInt(group);
     }
@@ -314,7 +339,6 @@ export const fromIeee754 = (value: string): string => {
 // NUMX-011: two's complement
 // ---------------------------------------------------------------------------------------------
 
-const DECIMAL_INTEGER = /^([-+]?)(\d+)$/;
 /** The digits of 2^64 − 1, the largest value of any accepted width. */
 const MAX_TWOS_COMPLEMENT_DIGITS = 20;
 

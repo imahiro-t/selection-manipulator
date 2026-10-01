@@ -77,6 +77,28 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
       assert.strictEqual(roundToSignificant('1.5', 21), '1.5');
     });
 
+    test('a half written in decimal rounds away from zero (the decimal form, not the binary value)', () => {
+      assert.strictEqual(roundToSignificant('1.45', 2), '1.5');
+      assert.strictEqual(roundToSignificant('-1.45', 2), '-1.5');
+      assert.strictEqual(roundToSignificant('2.675', 3), '2.68');
+      assert.strictEqual(roundToSignificant('1.005', 3), '1.01');
+      assert.strictEqual(roundToSignificant('8.345', 3), '8.35');
+      assert.strictEqual(roundToSignificant('0.000145', 2), '0.00015');
+      assert.strictEqual(roundToSignificant('1.44', 2), '1.4');
+    });
+
+    test('rounding left of the point, carries and exponent input', () => {
+      assert.strictEqual(roundToSignificant('125', 2), '130');
+      assert.strictEqual(roundToSignificant('-125', 2), '-130');
+      assert.strictEqual(roundToSignificant('999.5', 3), '1000');
+      assert.strictEqual(roundToSignificant('95', 1), '100');
+      assert.strictEqual(roundToSignificant('1.45e3', 2), '1500');
+      assert.strictEqual(roundToSignificant('1.45e-7', 2), '1.5e-7');
+      assert.strictEqual(roundToSignificant('0.0004', 1), '0.0004');
+      assert.strictEqual(roundToSignificant('-0.0', 1), '0');
+      assert.strictEqual(roundToSignificant('12345678901234567890123', 3), '1.23e+22');
+    });
+
     test('not a number is an error with the line number', () => {
       throwsInput(() => run('NUMX-001', '1\nx', ['2']), 'line 2: "x" is not a number');
     });
@@ -279,37 +301,37 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
 
   suite('NUMX-012 / 013 gcd and lcm', () => {
     test('gcd: negatives, zeros and one integer', () => {
-      assert.strictEqual(greatestCommonDivisor('12 18 24', BUDGET), '6');
-      assert.strictEqual(greatestCommonDivisor('-12 18', BUDGET), '6');
-      assert.strictEqual(greatestCommonDivisor('0 0', BUDGET), '0');
-      assert.strictEqual(greatestCommonDivisor('0 5', BUDGET), '5');
-      assert.strictEqual(greatestCommonDivisor('-7', BUDGET), '7');
-      assert.strictEqual(greatestCommonDivisor('7 11 x 1000', BUDGET), '1');
-      assert.strictEqual(greatestCommonDivisor(`${'9'.repeat(1000)} ${'3'.repeat(1000)}`, BUDGET), '3'.repeat(1000));
+      assert.strictEqual(greatestCommonDivisor('12 18 24'), '6');
+      assert.strictEqual(greatestCommonDivisor('-12 18'), '6');
+      assert.strictEqual(greatestCommonDivisor('0 0'), '0');
+      assert.strictEqual(greatestCommonDivisor('0 5'), '5');
+      assert.strictEqual(greatestCommonDivisor('-7'), '7');
+      assert.strictEqual(greatestCommonDivisor('7 11 x 1000'), '1');
+      assert.strictEqual(greatestCommonDivisor(`${'9'.repeat(1000)} ${'3'.repeat(1000)}`), '3'.repeat(1000));
     });
 
     test('lcm: negatives, zeros and one integer', () => {
-      assert.strictEqual(leastCommonMultiple('4 6', BUDGET), '12');
-      assert.strictEqual(leastCommonMultiple('-4 6', BUDGET), '12');
-      assert.strictEqual(leastCommonMultiple('0 0', BUDGET), '0');
-      assert.strictEqual(leastCommonMultiple('0 5', BUDGET), '0');
-      assert.strictEqual(leastCommonMultiple('-7', BUDGET), '7');
-      assert.strictEqual(leastCommonMultiple('2 3 4 5 6 7 8 9 10', BUDGET), '2520');
+      assert.strictEqual(leastCommonMultiple('4 6'), '12');
+      assert.strictEqual(leastCommonMultiple('-4 6'), '12');
+      assert.strictEqual(leastCommonMultiple('0 0'), '0');
+      assert.strictEqual(leastCommonMultiple('0 5'), '0');
+      assert.strictEqual(leastCommonMultiple('-7'), '7');
+      assert.strictEqual(leastCommonMultiple('2 3 4 5 6 7 8 9 10'), '2520');
     });
 
     test('decimals, too many digits and no integers', () => {
-      throwsInput(() => greatestCommonDivisor('1.5 3', BUDGET), '"1.5" is not an integer');
-      throwsInput(() => leastCommonMultiple('2 1e3', BUDGET), '"1e3" is not an integer');
-      throwsInput(() => greatestCommonDivisor(`1${'0'.repeat(1000)}`, BUDGET), 'the number has more than 1,000 digits');
-      assert.strictEqual(greatestCommonDivisor(`${'0'.repeat(5)}${'1'.repeat(1000)}`, BUDGET), '1'.repeat(1000));
-      throwsInput(() => greatestCommonDivisor('abc', BUDGET), 'no numbers found', NumNoNumbersError);
-      throwsInput(() => leastCommonMultiple('', BUDGET), 'no numbers found', NumNoNumbersError);
+      throwsInput(() => greatestCommonDivisor('1.5 3'), '"1.5" is not an integer');
+      throwsInput(() => leastCommonMultiple('2 1e3'), '"1e3" is not an integer');
+      throwsInput(() => greatestCommonDivisor(`1${'0'.repeat(1000)}`), 'the number has more than 1,000 digits');
+      assert.strictEqual(greatestCommonDivisor(`${'0'.repeat(5)}${'1'.repeat(1000)}`), '1'.repeat(1000));
+      throwsInput(() => greatestCommonDivisor('abc'), 'no numbers found', NumNoNumbersError);
+      throwsInput(() => leastCommonMultiple(''), 'no numbers found', NumNoNumbersError);
     });
 
     test('△ the lcm stops as soon as it has more than 1,000 digits', () => {
       assert.strictEqual(NUM2_MAX_LCM_DIGITS, 1_000);
       // 999 nines and 1 + 999 zeros are coprime: the lcm has 1,999 digits.
-      throwsInput(() => leastCommonMultiple(`${'9'.repeat(999)} 1${'0'.repeat(999)}`, BUDGET), 'the result has more than 1,000 digits');
+      throwsInput(() => leastCommonMultiple(`${'9'.repeat(999)} 1${'0'.repeat(999)}`), 'the result has more than 1,000 digits');
       // The product of the first primes grows past 1,000 digits after a few hundred of them.
       const primes: number[] = [];
       for (let n = 2; primes.length < 2_000; n++) {
@@ -317,8 +339,10 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
           primes.push(n);
         }
       }
-      throwsInput(() => leastCommonMultiple(primes.join(' '), BUDGET), 'the result has more than 1,000 digits');
-      assert.strictEqual(leastCommonMultiple(`${'9'.repeat(1000)} 3`, BUDGET), '9'.repeat(1000));
+      throwsInput(() => leastCommonMultiple(primes.join(' ')), 'the result has more than 1,000 digits');
+      assert.strictEqual(leastCommonMultiple(`${'9'.repeat(1000)} 3`), '9'.repeat(1000));
+      // Many divisors of a large result keep it as it is (each is skipped without a division).
+      assert.strictEqual(leastCommonMultiple(`${'9'.repeat(999)}${' 3 9 111 999'.repeat(1000)}`), '9'.repeat(999));
     });
   });
 
@@ -414,7 +438,9 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
     });
 
     test('expand: malformed items are errors', () => {
-      for (const [value, item] of [['-3', '-3'], ['1-', '1-'], ['1--3', '1--3'], ['1-3-5', '1-3-5'], ['1\n-3', '-3'], ['1-\n3', '1-'], ['a', 'a'], ['1.5', '1.5'], ['2 x', 'x']]) {
+      for (const [value, item] of [['-3', '-3'], ['1-', '1-'], ['1--3', '1--3'], ['1-3-5', '1-3-5'], ['1\n-3', '-3'], ['1-\n3', '1-'], ['a', 'a'], ['1.5', '1.5'], ['2 x', 'x'],
+        // A range with spaces around its dash is quoted whole, not just the integer before the dash.
+        ['1 - x', '1 - x'], ['1 -', '1 -'], ['1 - ', '1 -'], ['1 - , 3', '1 -'], ['1 - 3x', '1 - 3x'], ['2, 1\t-\tx', '1\t-\tx']]) {
         throwsInput(() => expandRanges(value, BUDGET), `${JSON.stringify(item)} is not an integer or a range such as 1-3`);
       }
       throwsInput(() => expandRanges('3-1', BUDGET), '"3-1" starts after it ends');

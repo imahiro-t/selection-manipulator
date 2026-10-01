@@ -25,10 +25,7 @@ import {
 } from './num2Convert';
 import { collapseRanges, differences, expandRanges, greatestCommonDivisor, leastCommonMultiple, primeFactors } from './num2Math';
 import { formatB, mapLines, NumPromptRule } from './numCommon';
-import { numeric, NumCommandEntry, NumOutput, NumPrompt, NumTransform, perLine } from './numTransforms';
-
-/** A conversion of each line on its own (the value without its surrounding spaces). */
-const plain = (convert: (value: string) => string): NumTransform => perLine((value) => convert(value));
+import { entry, numeric, NumCommandEntry, NumTransform, perLine, plain, statistic } from './numTransforms';
 
 /** A transform of the whole selection (one result per selection). */
 const whole = (convert: (text: string, budget: number) => string): NumTransform => (text, _inputs, budget) => convert(text, budget);
@@ -38,10 +35,6 @@ const factorize: NumTransform = (text, _inputs, budget, run = { work: 0 }) =>
   mapLines(text, budget, (value) => primeFactors(value, run));
 
 const anyNumber: NumPromptRule = { kind: 'number' };
-
-const entry = (id: string, name: string, title: string, output: NumOutput, transform: NumTransform,
-  prompts: NumPrompt[] = [], validateInputs?: NumCommandEntry['validateInputs']): NumCommandEntry =>
-  ({ id, name, title, output, prompts, transform, ...(validateInputs ? { validateInputs } : {}) });
 
 /** The commands in the order of the showcase data (scripts/showcase-data/NUMX.json). */
 export const NUM2_COMMAND_ENTRIES: readonly NumCommandEntry[] = [
@@ -75,8 +68,8 @@ export const NUM2_COMMAND_ENTRIES: readonly NumCommandEntry[] = [
     perLine((value, inputs) => toTwosComplement(value, Number(inputs[0]) as 8 | 16 | 32 | 64)), [
       { prompt: 'Bit width (8, 16, 32 or 64)', placeHolder: '32', rule: { kind: 'choice', values: [8, 16, 32, 64] } },
     ]),
-  entry('NUMX-012', 'math.gcd', 'Math - Greatest Common Divisor', 'new-tab', whole(greatestCommonDivisor)),
-  entry('NUMX-013', 'math.lcm', 'Math - Least Common Multiple', 'new-tab', whole(leastCommonMultiple)),
+  entry('NUMX-012', 'math.gcd', 'Math - Greatest Common Divisor', 'new-tab', statistic(greatestCommonDivisor)),
+  entry('NUMX-013', 'math.lcm', 'Math - Least Common Multiple', 'new-tab', statistic(leastCommonMultiple)),
   entry('NUMX-014', 'math.prime-factors', 'Math - Prime Factorization', 'replace', factorize),
   entry('NUMX-015', 'math.diff-consecutive', 'Math - Differences Between Consecutive Numbers', 'replace', whole(differences)),
   entry('NUMX-016', 'math.collapse-ranges', 'Math - Collapse Integers to Ranges', 'replace', whole(collapseRanges)),

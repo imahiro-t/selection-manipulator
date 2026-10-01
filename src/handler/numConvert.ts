@@ -137,7 +137,8 @@ export const toPercent = (value: string): string => {
 // NUM-020..026: bases
 // ---------------------------------------------------------------------------------------------
 
-const DECIMAL_INTEGER = /^([-+]?)(\d+)$/;
+/** A decimal integer; groups: sign, digits (also read by NUMX-011 in num2Convert.ts). */
+export const DECIMAL_INTEGER = /^([-+]?)(\d+)$/;
 
 const withSign = (negative: boolean, magnitude: bigint, text: string): string =>
   negative && magnitude !== 0n ? `-${text}` : text;
@@ -270,10 +271,11 @@ export const humanToBytes = (value: string): string => {
 // NUM-032 / 033: English
 // ---------------------------------------------------------------------------------------------
 
-const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+/** The words of NUM-032, shared with its reverse NUMX-006 (num2Convert.ts) so that both read the same table. */
+export const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
   'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-const SCALES = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
+export const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+export const SCALES = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion',
   'septillion', 'octillion', 'nonillion', 'decillion'];
 
 /** 1..999 in words (`one hundred twenty-three`). */
