@@ -94,7 +94,7 @@ export const NODE_CRYPTO_ALGORITHMS: readonly string[] = ['sha224', 'sha384', 's
 // Digests
 // ---------------------------------------------------------------------------
 
-const toHex = (bytes: Uint8Array): string => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex');
+export const toHex = (bytes: Uint8Array): string => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex');
 const toBase64 = (bytes: Uint8Array): string => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('base64');
 
 /** The digest of `bytes`. */
@@ -342,6 +342,41 @@ export const luhnCheck = (text: string): LuhnResult => {
   return { verdict: sum % 10 === 0 ? 'valid' : 'invalid' };
 };
 
+/** How `formatVerdictMessage` words the results of one kind of validation. */
+export interface VerdictMessageFormat<R extends { verdict: string }> {
+  /** The prefix of the 2+ selection forms (`Luhn`, `IBAN`, `ISBN`). */
+  label: string;
+  /** With more selections than this, only the counts are given. */
+  listLimit: number;
+  /** The whole message for a single selection (it may give a reason). */
+  single: (result: R) => string;
+  /** One result in the numbered list of 2..listLimit selections (no reasons). */
+  word: (result: R) => string;
+  /** The verdicts counted with 11+ selections, in order, with their words (zero counts included). */
+  counts: readonly (readonly [R['verdict'], string])[];
+}
+
+/**
+ * The common shape of the validation notifications (Luhn, IBAN, ISBN): the message of `single`
+ * for 1 selection, `<label>: #1 <word>, #2 <word>` for 2..listLimit selections and
+ * `<label>: N selections: <count> <word>, ...` for more.
+ */
+export const formatVerdictMessage = <R extends { verdict: string }>(
+  results: readonly R[],
+  format: VerdictMessageFormat<R>,
+): string => {
+  if (results.length === 1) {
+    return format.single(results[0]);
+  }
+  if (results.length <= format.listLimit) {
+    return `${format.label}: ${results.map((result, i) => `#${i + 1} ${format.word(result)}`).join(', ')}`;
+  }
+  const counts = format.counts.map(
+    ([verdict, word]) => `${results.filter((result) => result.verdict === verdict).length} ${word}`,
+  );
+  return `${format.label}: ${results.length} selections: ${counts.join(', ')}`;
+};
+
 /** With more selections than this, the Luhn notification only gives the counts. */
 export const LUHN_LIST_LIMIT = 10;
 
@@ -354,19 +389,18 @@ const luhnWord = (result: LuhnResult): string => (result.verdict === 'not-a-numb
  * - 2..10 selections: `Luhn: #1 valid, #2 invalid, #3 not a number` (no reasons);
  * - 11 or more: `Luhn: 12 selections: 5 valid, 4 invalid, 3 not a number` (zero counts included).
  */
-export const formatLuhnMessage = (results: readonly LuhnResult[]): string => {
-  if (results.length === 1) {
-    const [result] = results;
-    if (result.verdict !== 'not-a-number') {
-      return `Luhn: ${result.verdict}`;
-    }
-    return result.reason === 'too-short'
-      ? 'Luhn: not a number (at least 2 digits are required)'
-      : 'Luhn: not a number (only digits, spaces and hyphens are allowed)';
-  }
-  if (results.length <= LUHN_LIST_LIMIT) {
-    return `Luhn: ${results.map((result, i) => `#${i + 1} ${luhnWord(result)}`).join(', ')}`;
-  }
-  const count = (verdict: LuhnResult['verdict']) => results.filter((result) => result.verdict === verdict).length;
-  return `Luhn: ${results.length} selections: ${count('valid')} valid, ${count('invalid')} invalid, ${count('not-a-number')} not a number`;
-};
+export const formatLuhnMessage = (results: readonly LuhnResult[]): string =>
+  formatVerdictMessage(results, {
+    label: 'Luhn',
+    listLimit: LUHN_LIST_LIMIT,
+    single: (result) => {
+      if (result.verdict !== 'not-a-number') {
+        return `Luhn: ${result.verdict}`;
+      }
+      return result.reason === 'too-short'
+        ? 'Luhn: not a number (at least 2 digits are required)'
+        : 'Luhn: not a number (only digits, spaces and hyphens are allowed)';
+    },
+    word: luhnWord,
+    counts: [['valid', 'valid'], ['invalid', 'invalid'], ['not-a-number', 'not a number']],
+  });

@@ -17,7 +17,18 @@
  *   handler can refuse a selection before building a huge string; the handler also checks the
  *   actual lengths against `MAX_OUTPUT_LENGTH`.
  */
-import { decodeUtf8Strict, EncInputError, findLoneSurrogate, quoteForMessage, removeWhitespace, utf8 } from './encodeTransforms';
+import {
+  decodeUtf8Strict,
+  EncInputError,
+  findLoneSurrogate,
+  isAsciiDigit,
+  isAsciiLower,
+  isAsciiUpper,
+  isRemovableWhitespace,
+  quoteForMessage,
+  removeWhitespace,
+  utf8,
+} from './encodeTransforms';
 
 /** What a command does with its results. */
 export type Enc2Kind =
@@ -128,12 +139,9 @@ const UU_LINE_BYTES = 45;
 
 const describeLength = (value: number): string => value.toLocaleString('en-US');
 
-const isDigitCode = (code: number): boolean => code >= 0x30 && code <= 0x39;
-const isUpperCode = (code: number): boolean => code >= 0x41 && code <= 0x5a;
-const isLowerCode = (code: number): boolean => code >= 0x61 && code <= 0x7a;
 const isHexCode = (code: number): boolean =>
-  isDigitCode(code) || (code >= 0x41 && code <= 0x46) || (code >= 0x61 && code <= 0x66);
-const hexValue = (code: number): number => (isDigitCode(code) ? code - 0x30 : (code | 0x20) - 0x61 + 10);
+  isAsciiDigit(code) || (code >= 0x41 && code <= 0x46) || (code >= 0x61 && code <= 0x66);
+const hexValue = (code: number): number => (isAsciiDigit(code) ? code - 0x30 : (code | 0x20) - 0x61 + 10);
 
 const hex2 = (byte: number): string => byte.toString(16).padStart(2, '0');
 const hex2Upper = (byte: number): string => byte.toString(16).toUpperCase().padStart(2, '0');
@@ -142,6 +150,25 @@ const hex2Upper = (byte: number): string => byte.toString(16).toUpperCase().padS
 const describeChar = (text: string, index: number): string => {
   const code = text.codePointAt(index) ?? 0;
   return `${quoteForMessage(String.fromCodePoint(code))} at position ${index + 1}`;
+};
+
+/**
+ * The index in `text` of the character at `compactIndex` in `removeWhitespace(text)`, so that an
+ * error message gives the position in the selection itself, whitespace included. Only called on
+ * the error path.
+ */
+const indexBeforeWhitespaceRemoval = (text: string, compactIndex: number): number => {
+  let remaining = compactIndex;
+  for (let i = 0; i < text.length; i++) {
+    if (isRemovableWhitespace(text.charCodeAt(i))) {
+      continue;
+    }
+    if (remaining === 0) {
+      return i;
+    }
+    remaining--;
+  }
+  return text.length;
 };
 
 // ---------------------------------------------------------------------------
@@ -173,7 +200,7 @@ const base32HexEncode = (text: string): string => {
 
 /** The value of a Base32hex digit (`0`-`9`, `A`-`V`, `a`-`v`), or -1. */
 const base32HexValue = (code: number): number => {
-  if (isDigitCode(code)) {
+  if (isAsciiDigit(code)) {
     return code - 0x30;
   }
   if (code >= 0x41 && code <= 0x56) {
@@ -193,7 +220,7 @@ const base32HexDecode = (text: string): string => {
   }
   for (let i = 0; i < body; i++) {
     if (base32HexValue(compact.charCodeAt(i)) < 0) {
-      throw new EncInputError(`${describeChar(compact, i)} is not a Base32hex character`);
+      throw new EncInputError(`${describeChar(text, indexBeforeWhitespaceRemoval(text, i))} is not a Base32hex character`);
     }
   }
   const padding = compact.length - body;
@@ -267,7 +294,7 @@ const base45Decode = (text: string): string => {
     }
     const value = code < 0x80 ? BASE45_ALPHABET.indexOf(body[i]) : -1;
     if (value < 0) {
-      throw new EncInputError(`invalid Base45 character ${describeChar(body, i)}`);
+      throw new EncInputError(`invalid Base45 character ${describeChar(text, start + i)}`);
     }
     values[i] = value;
   }
@@ -305,13 +332,13 @@ const BASE62_LIMB_DIGITS = 5;
 const BASE62_LIMB = 62 ** BASE62_LIMB_DIGITS;
 
 const base62Value = (code: number): number => {
-  if (isDigitCode(code)) {
+  if (isAsciiDigit(code)) {
     return code - 0x30;
   }
-  if (isUpperCode(code)) {
+  if (isAsciiUpper(code)) {
     return code - 0x41 + 10;
   }
-  if (isLowerCode(code)) {
+  if (isAsciiLower(code)) {
     return code - 0x61 + 36;
   }
   return -1;
@@ -364,7 +391,7 @@ const base62Decode = (text: string): string => {
   }
   for (let i = 0; i < compact.length; i++) {
     if (base62Value(compact.charCodeAt(i)) < 0) {
-      throw new EncInputError(`${describeChar(compact, i)} is not a Base62 character`);
+      throw new EncInputError(`${describeChar(text, indexBeforeWhitespaceRemoval(text, i))} is not a Base62 character`);
     }
   }
   let zeros = 0;
@@ -408,7 +435,7 @@ export const findUuFileNameProblem = (name: string): string | undefined => {
   }
   for (let i = 0; i < name.length; i++) {
     const code = name.charCodeAt(i);
-    if (!(isDigitCode(code) || isUpperCode(code) || isLowerCode(code) || code === 0x2e || code === 0x5f || code === 0x2d)) {
+    if (!(isAsciiDigit(code) || isAsciiUpper(code) || isAsciiLower(code) || code === 0x2e || code === 0x5f || code === 0x2d)) {
       return message;
     }
   }
@@ -536,14 +563,14 @@ const cssEscape = (text: string): string => {
   for (const char of text) {
     const code = char.codePointAt(0) ?? 0;
     if (code === 0) {
-      result += '�';
+      result += '\uFFFD';
     } else if ((code >= 0x01 && code <= 0x1f) || code === 0x7f
-      || (index === 0 && isDigitCode(code))
-      || (index === 1 && isDigitCode(code) && firstCode === 0x2d)) {
+      || (index === 0 && isAsciiDigit(code))
+      || (index === 1 && isAsciiDigit(code) && firstCode === 0x2d)) {
       result += `\\${code.toString(16)} `;
     } else if (index === 0 && code === 0x2d && text.length === 1) {
       result += '\\-';
-    } else if (code >= 0x80 || code === 0x2d || code === 0x5f || isDigitCode(code) || isUpperCode(code) || isLowerCode(code)) {
+    } else if (code >= 0x80 || code === 0x2d || code === 0x5f || isAsciiDigit(code) || isAsciiUpper(code) || isAsciiLower(code)) {
       result += char;
     } else {
       result += `\\${char}`;

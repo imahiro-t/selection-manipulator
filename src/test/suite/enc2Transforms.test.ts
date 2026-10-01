@@ -56,6 +56,9 @@ suite('ENC2 Encoding and Escaping Transforms (ENCX-001..015) Test Suite', () => 
       assert.strictEqual(run('base32.decode-hex', 'CPNM U===\n'), 'foo');
       fails('base32.decode-hex', 'CPNMW===', '"W" at position 5 is not a Base32hex character');
       fails('base32.decode-hex', 'MZXW6===', '"Z" at position 2 is not a Base32hex character');
+      // The position counts the whitespace of the selection too.
+      fails('base32.decode-hex', 'CP NM U!==', '"!" at position 8 is not a Base32hex character');
+      fails('base32.decode-hex', '\r\n\tCPNMU\n===A', '"=" at position 10 is not a Base32hex character');
       fails('base32.decode-hex', 'CPNMU==', 'the padding (=) is invalid');
       fails('base32.decode-hex', 'C', 'the length of the encoded text is invalid');
       fails('base32.decode-hex', 'CP', 'the last character has non-zero unused bits');
@@ -95,6 +98,9 @@ suite('ENC2 Encoding and Escaping Transforms (ENCX-001..015) Test Suite', () => 
       fails('base45.decode', 'GGW', 'the 3-character group at position 1 exceeds 65535');
       fails('base45.decode', 'BB8GGW', 'the 3-character group at position 4 exceeds 65535');
       fails('base45.decode', '\nGGW', 'the 3-character group at position 2 exceeds 65535');
+      // The position counts the removed leading line breaks too, as the 3-character group error does.
+      fails('base45.decode', '\n\nBBa', 'invalid Base45 character "a" at position 5');
+      fails('base45.decode', '\r\nBB8 a\r\n', 'invalid Base45 character "a" at position 7');
       fails('base45.decode', '::', 'the last 2-character group exceeds 255');
       fails('base45.decode', 'BB8A', 'the length must not leave a remainder of 1 when divided by 3');
       fails('base45.decode', 'FGW', 'the decoded bytes are not valid UTF-8 text');
@@ -123,6 +129,9 @@ suite('ENC2 Encoding and Escaping Transforms (ENCX-001..015) Test Suite', () => 
 
     test('invalid characters and bytes are errors', () => {
       fails('base62.decode', '6x-7', '"-" at position 3 is not a Base62 character');
+      // The position counts the whitespace of the selection too.
+      fails('base62.decode', '6x 7!', '"!" at position 5 is not a Base62 character');
+      fails('base62.decode', '\n\t6x\r\n 7😀', '"😀" at position 9 is not a Base62 character');
       fails('base62.decode', '2A', 'the decoded bytes are not valid UTF-8 text');
       fails('base62.encode', 'a\udc00', /lone surrogate/);
     });

@@ -13,10 +13,10 @@
  *   a lone surrogate is an error (`EncInputError`) instead of silently becoming U+FFFD.
  * - The validators never put the selected text into their result (an IBAN is an account number).
  */
-import { utf8 } from './encodeTransforms';
+import { isAsciiDigit, isAsciiLower, isAsciiUpper, utf8 } from './encodeTransforms';
 import { crc16CcittFalse, crc32c, hmacSha3_512, sha3_384, shake256 } from './hashAlgorithms';
+import { formatVerdictMessage, toHex } from './hashTransforms';
 
-const toHex = (bytes: Uint8Array): string => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('hex');
 
 /** ENCX-017: the largest SHAKE256 output length in bytes (2,048 hexadecimal digits). */
 export const SHAKE256_MAX_OUTPUT_BYTES = 1024;
@@ -71,9 +71,6 @@ export const crc32cText = (text: string): string => crc32c(utf8(text)).toString(
 export const IBAN_LIST_LIMIT = 10;
 export const ISBN_LIST_LIMIT = 10;
 
-const isDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
-const isUpper = (code: number): boolean => code >= 0x41 && code <= 0x5a;
-const isLower = (code: number): boolean => code >= 0x61 && code <= 0x7a;
 
 // ---------------------------------------------------------------------------
 // ENCX-021: IBAN
@@ -105,9 +102,9 @@ export const ibanCheck = (text: string): IbanResult => {
     if (code === 0x20) {
       continue;
     }
-    if (isDigit(code) || isUpper(code)) {
+    if (isAsciiDigit(code) || isAsciiUpper(code)) {
       codes.push(code);
-    } else if (isLower(code)) {
+    } else if (isAsciiLower(code)) {
       codes.push(code - 0x20);
     } else {
       return { verdict: 'not-an-iban', reason: 'invalid-character' };
@@ -119,14 +116,14 @@ export const ibanCheck = (text: string): IbanResult => {
   if (codes.length < IBAN_MIN_LENGTH) {
     return { verdict: 'not-an-iban', reason: 'wrong-length' };
   }
-  if (!isUpper(codes[0]) || !isUpper(codes[1]) || !isDigit(codes[2]) || !isDigit(codes[3])) {
+  if (!isAsciiUpper(codes[0]) || !isAsciiUpper(codes[1]) || !isAsciiDigit(codes[2]) || !isAsciiDigit(codes[3])) {
     return { verdict: 'not-an-iban', reason: 'wrong-structure' };
   }
   // The first four characters are moved to the end; letters count as 10 (A) to 35 (Z).
   let remainder = 0;
   for (let i = 0; i < codes.length; i++) {
     const code = codes[(i + 4) % codes.length];
-    remainder = isDigit(code) ? (remainder * 10 + (code - 0x30)) % 97 : (remainder * 100 + (code - 0x41 + 10)) % 97;
+    remainder = isAsciiDigit(code) ? (remainder * 10 + (code - 0x30)) % 97 : (remainder * 100 + (code - 0x41 + 10)) % 97;
   }
   return { verdict: remainder === 1 ? 'valid' : 'invalid' };
 };
@@ -146,17 +143,15 @@ const ibanWord = (result: IbanResult): string => (result.verdict === 'not-an-iba
  * - 2..10 selections: `IBAN: #1 valid, #2 invalid, #3 not an IBAN` (no reasons);
  * - 11 or more: `IBAN: 12 selections: 5 valid, 4 invalid, 3 not an IBAN` (zero counts included).
  */
-export const formatIbanMessage = (results: readonly IbanResult[]): string => {
-  if (results.length === 1) {
-    const [result] = results;
-    return result.verdict === 'not-an-iban' ? `IBAN: not an IBAN (${IBAN_REASONS[result.reason]})` : `IBAN: ${result.verdict}`;
-  }
-  if (results.length <= IBAN_LIST_LIMIT) {
-    return `IBAN: ${results.map((result, i) => `#${i + 1} ${ibanWord(result)}`).join(', ')}`;
-  }
-  const count = (verdict: IbanResult['verdict']) => results.filter((result) => result.verdict === verdict).length;
-  return `IBAN: ${results.length} selections: ${count('valid')} valid, ${count('invalid')} invalid, ${count('not-an-iban')} not an IBAN`;
-};
+export const formatIbanMessage = (results: readonly IbanResult[]): string =>
+  formatVerdictMessage(results, {
+    label: 'IBAN',
+    listLimit: IBAN_LIST_LIMIT,
+    single: (result) =>
+      result.verdict === 'not-an-iban' ? `IBAN: not an IBAN (${IBAN_REASONS[result.reason]})` : `IBAN: ${result.verdict}`,
+    word: ibanWord,
+    counts: [['valid', 'valid'], ['invalid', 'invalid'], ['not-an-iban', 'not an IBAN']],
+  });
 
 // ---------------------------------------------------------------------------
 // ENCX-022: ISBN-10 / ISBN-13
@@ -189,7 +184,7 @@ export const isbnCheck = (text: string): IsbnResult => {
   let previousIsDigit = false;
   for (let i = 0; i < trimmed.length; i++) {
     const code = trimmed.charCodeAt(i);
-    if (isDigit(code)) {
+    if (isAsciiDigit(code)) {
       digits.push(code - 0x30);
       previousIsDigit = true;
     } else if (code === 0x58 || code === 0x78) {
@@ -260,21 +255,20 @@ const isbnWord = (result: IsbnResult): string => {
  * - 2..10 selections: `ISBN: #1 valid, #2 invalid (should be 8), #3 not an ISBN` (no reasons);
  * - 11 or more: `ISBN: 12 selections: 5 valid, 4 invalid, 3 not an ISBN` (zero counts included).
  */
-export const formatIsbnMessage = (results: readonly IsbnResult[]): string => {
-  if (results.length === 1) {
-    const [result] = results;
-    switch (result.verdict) {
-      case 'valid':
-        return `${result.kind}: valid`;
-      case 'invalid':
-        return `${result.kind}: invalid (the check digit should be ${result.expected})`;
-      case 'not-an-isbn':
-        return `ISBN: not an ISBN (${ISBN_REASONS[result.reason]})`;
-    }
-  }
-  if (results.length <= ISBN_LIST_LIMIT) {
-    return `ISBN: ${results.map((result, i) => `#${i + 1} ${isbnWord(result)}`).join(', ')}`;
-  }
-  const count = (verdict: IsbnResult['verdict']) => results.filter((result) => result.verdict === verdict).length;
-  return `ISBN: ${results.length} selections: ${count('valid')} valid, ${count('invalid')} invalid, ${count('not-an-isbn')} not an ISBN`;
-};
+export const formatIsbnMessage = (results: readonly IsbnResult[]): string =>
+  formatVerdictMessage(results, {
+    label: 'ISBN',
+    listLimit: ISBN_LIST_LIMIT,
+    single: (result) => {
+      switch (result.verdict) {
+        case 'valid':
+          return `${result.kind}: valid`;
+        case 'invalid':
+          return `${result.kind}: invalid (the check digit should be ${result.expected})`;
+        case 'not-an-isbn':
+          return `ISBN: not an ISBN (${ISBN_REASONS[result.reason]})`;
+      }
+    },
+    word: isbnWord,
+    counts: [['valid', 'valid'], ['invalid', 'invalid'], ['not-an-isbn', 'not an ISBN']],
+  });
