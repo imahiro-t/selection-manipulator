@@ -9,7 +9,7 @@
  * columns) and the output are limited, and the commands that make the text grow (DATAX-020 / 022)
  * check their limits before building it; counts are kept in a `Map` (no prototype involved).
  */
-import { CountLimitError } from './dataCommon';
+import { CountLimitError, MAX_OUTPUT_LENGTH } from './dataCommon';
 import {
   assertTableInputLength,
   columnCount,
@@ -25,7 +25,6 @@ import {
   writeCell,
   writeDelimited,
 } from './tableCsv';
-import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
 /** DATAX-020: upper limit of the number of columns added by splitting. */
 export const SPLIT_MAX_ADDED_COLUMNS = 1_000;
