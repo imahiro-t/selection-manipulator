@@ -305,8 +305,13 @@ export const businessDaysBetween = (value: string): string => {
  * with seconds (local mean time before about 1900) cannot be written in RFC 3339 and is an error.
  */
 export const toRfc3339Offset = (value: string, timeZone: string, cache: TimeZoneCache): string => {
-  const millis = checkedMillis(parseInstant(value));
-  // zonedTime refuses (with the same message) an offset that moves the instant out of 0001..9999.
+  const millis = parseInstant(value);
+  // Only an instant a Date cannot hold (beyond ±8.64e15 ms) is refused here: the years 0001..9999
+  // are checked by zonedTime on the time in the zone (with the same message), so an input whose
+  // UTC year is outside them but whose zoned time is inside is accepted.
+  if (!Number.isFinite(millis) || Number.isNaN(new Date(millis).getTime())) {
+    throw new DateInputError(OUT_OF_RANGE);
+  }
   const t = zonedTime(millis, timeZone, cache);
   if (t.offsetSeconds % 60 !== 0) {
     throw new DateInputError(`the offset of ${timeZone} then (${formatOffset(t.offsetSeconds)}) has seconds, which RFC 3339 cannot write`);

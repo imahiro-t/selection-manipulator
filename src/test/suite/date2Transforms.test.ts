@@ -197,6 +197,19 @@ suite('Extended Date Conversions (DATEX-001..015) Test Suite', () => {
       throwsInput(() => toRfc3339Offset('1880-01-01T00:00Z', 'Asia/Tokyo', new Map()),
         'the offset of Asia/Tokyo then (+09:18:59) has seconds, which RFC 3339 cannot write');
     });
+
+    test('the years 0001..9999 are judged on the time in the zone, not on the input instant in UTC', () => {
+      const cache = new Map();
+      // The input instant is in 10000 / 0000 (UTC) but the converted time is in range.
+      assert.strictEqual(toRfc3339Offset('9999-12-31T23:30-01:00', 'America/New_York', cache), '9999-12-31T19:30:00-05:00');
+      assert.strictEqual(toRfc3339Offset('0001-01-01T05:00+14:00', 'Etc/GMT-14', cache), '0001-01-01T05:00:00+14:00');
+      // The edges in UTC itself.
+      assert.strictEqual(toRfc3339Offset('9999-12-31T23:59:59.999Z', 'UTC', cache), '9999-12-31T23:59:59.999+00:00');
+      assert.strictEqual(toRfc3339Offset('0001-01-01T00:00Z', 'UTC', cache), '0001-01-01T00:00:00+00:00');
+      // The input instant is in range but the converted time is not.
+      throwsInput(() => toRfc3339Offset('9999-12-31T23:30Z', 'Asia/Tokyo', cache), 'the result is outside the years 0001 to 9999');
+      throwsInput(() => toRfc3339Offset('0001-01-01T05:00Z', 'Etc/GMT+12', cache), 'the result is outside the years 0001 to 9999');
+    });
   });
 
   suite('DATEX-008 iso-week-to-range', () => {
