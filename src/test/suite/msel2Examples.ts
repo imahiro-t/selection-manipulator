@@ -15,5 +15,5 @@ export const MSEL2_ROADMAP_EXAMPLES: Record<string, MselExample> = {
   'LINEX-020': { input: 'Hi. This is| a pen. Bye.', expected: 'Hi. [This is a pen.] Bye.' },
   'LINEX-021': { input: 'p1⏎⏎a|b⏎cd⏎⏎p3', expected: 'p1⏎⏎[ab⏎cd]⏎⏎p3' },
   'LINEX-022': { input: '[a] [b] [a]', expected: '[a] b [a]' },
-  'LINEX-023': { input: '[a] [b] [c]', note: '区切り: 既定値', inputs: [', '], expected: '[a, b, c]··' },
+  'LINEX-023': { input: '[a]·[b]·[c]', note: '区切り: 既定値', inputs: [', '], expected: '[a,·b,·c]··' },
 };
