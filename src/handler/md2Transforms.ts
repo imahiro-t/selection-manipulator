@@ -168,7 +168,7 @@ export const MD_NO_LINKS = 'No links or images were found in the selection.';
 
 /**
  * JAUNIX-018: the inline links and images of the selections (in document order, outside code) as
- * `text<TAB>url` lines in a new editor (`[a](u1) ![b](u2)` → `a⏎u1` / `b⏎u2` with tabs). A link
+ * `text<TAB>url` lines in a new editor (`[a](u1) ![b](u2)` → `a\tu1⏎b\tu2`, `\t` being a tab). A link
  * text is written as it is (a linked image keeps its `![…](…)`); tabs and line breaks become a
  * space. The URLs are only copied, never opened.
  */
@@ -485,9 +485,7 @@ export const referenceToInline = (text: string, ranges: readonly MdRange[]): MdR
 // JAUNIX-020: GitHub alert
 // ---------------------------------------------------------------------------
 
-/** JAUNIX-020: the alert types of GitHub, the only values written into the block. */
-export const GITHUB_ALERT_TYPES: readonly string[] = ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'];
-
+/** JAUNIX-020: the alert types of GitHub offered in the quick pick. */
 export const GITHUB_ALERT_CHOICES: readonly MdChoice[] = [
   { label: 'NOTE', description: 'Useful information', value: 'NOTE' },
   { label: 'TIP', description: 'Helpful advice', value: 'TIP' },
@@ -495,6 +493,9 @@ export const GITHUB_ALERT_CHOICES: readonly MdChoice[] = [
   { label: 'WARNING', description: 'Urgent information that needs attention', value: 'WARNING' },
   { label: 'CAUTION', description: 'Risks or negative outcomes', value: 'CAUTION' },
 ];
+
+/** JAUNIX-020: the only values written into the block (the values of GITHUB_ALERT_CHOICES). */
+export const GITHUB_ALERT_TYPES: readonly string[] = GITHUB_ALERT_CHOICES.map((choice) => choice.value);
 
 export const validateAlertType = (value: string): string | undefined =>
   (GITHUB_ALERT_TYPES.includes(value) ? undefined : `Choose one of ${GITHUB_ALERT_TYPES.join(', ')}`);
@@ -526,8 +527,9 @@ export const toGithubAlert = (value: string, eol: MdEol, type: string, edges: Li
 
 /**
  * One line of key names separated by `+` as `<kbd>` elements (`Ctrl+C` →
- * `<kbd>Ctrl</kbd>+<kbd>C</kbd>`). A `+` where a key name is expected is the `+` key (`Ctrl++`),
- * the spaces around a key name are dropped and a name with spaces inside (`Page Up`) is one key.
+ * `<kbd>Ctrl</kbd>+<kbd>C</kbd>`). A `+` where a key name is expected is the `+` key (`Ctrl++`);
+ * that key is the `+` alone, so a name written right after it is the next key (`a++b` →
+ * `<kbd>a</kbd>+<kbd>+</kbd>+<kbd>b</kbd>`). The spaces around a key name are dropped and a name with spaces inside (`Page Up`) is one key.
  * Every key name is HTML-escaped, so no tag can be written through it.
  */
 const kbdLine = (line: string): string => {
@@ -543,6 +545,11 @@ const kbdLine = (line: string): string => {
       keys.push(key.trim());
       key = '';
       dangling = true;
+    } else if (key.trim() === '+' && !isSpaceOrTab(c)) {
+      // The `+` key, then a name without a `+` between them.
+      keys.push('+');
+      key = c;
+      dangling = false;
     } else {
       key += c;
       dangling = dangling && isSpaceOrTab(c);

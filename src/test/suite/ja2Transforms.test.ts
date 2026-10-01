@@ -109,6 +109,12 @@ suite('Extended Japanese Conversions (JAUNIX-001..007) Test Suite', () => {
       assert.strictEqual(normalizeForSearch('ヵヶヷ'), 'ゕゖヷ');
       assert.strictEqual(normalizeForSearch('漢字-かな'), '漢字-かな');
     });
+
+    test('an ASCII - or ~ right after kana becomes ー too (judged after NFKC, unlike JA-017)', () => {
+      assert.strictEqual(normalizeForSearch('コード-A1'), 'こーどーa1');
+      assert.strictEqual(normalizeForSearch('すご~い'), 'すごーい');
+      assert.strictEqual(normalizeForSearch('コード－Ａ１'), normalizeForSearch('コード-A1'));
+    });
   });
 
   suite('JAUNIX-004 man / oku notation', () => {
@@ -120,6 +126,19 @@ suite('Extended Japanese Conversions (JAUNIX-001..007) Test Suite', () => {
       ];
       for (const [value, expected] of cases) {
         assert.strictEqual(manOkuNotation(value), expected, value);
+      }
+    });
+
+    test('the sign and the comma may be full-width too', () => {
+      const cases: [string, string][] = [
+        ['－１２３', '-123'], ['＋５', '5'], ['１，２３４', '1234'], ['－１，２３４，５６７', '-123万4567'],
+        ['12，345', '1万2345'], ['＋１０００００', '10万'],
+      ];
+      for (const [value, expected] of cases) {
+        assert.strictEqual(manOkuNotation(value), expected, value);
+      }
+      for (const value of ['１，２３', '－－１', '１．５']) {
+        assert.throws(() => manOkuNotation(value), JaInputError, value);
       }
     });
 
@@ -140,7 +159,21 @@ suite('Extended Japanese Conversions (JAUNIX-001..007) Test Suite', () => {
       assert.deepStrictEqual(corporateNumberCheck('8000012050002'), { verdict: 'invalid' });
       assert.deepStrictEqual(corporateNumberCheck('700001205000'), { verdict: 'not-a-corporate-number', reason: 'wrong-length' });
       assert.deepStrictEqual(corporateNumberCheck('7000O12050002'), { verdict: 'not-a-corporate-number', reason: 'invalid-character' });
-      assert.deepStrictEqual(corporateNumberCheck('７000012050002'), { verdict: 'not-a-corporate-number', reason: 'invalid-character' });
+    });
+
+    test('full-width digits and full-width or Unicode hyphens are accepted', () => {
+      assert.deepStrictEqual(corporateNumberCheck('７００００１２０５０００２'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('７000012050002'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('7－0000－1205－0002'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('７－００００－１２０５－０００２'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('7‐0000‑1205−0002'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('７　００００１２０５０００２'), { verdict: 'valid' });
+      assert.deepStrictEqual(corporateNumberCheck('８００００１２０５０００２'), { verdict: 'invalid' });
+      assert.deepStrictEqual(corporateNumberCheck('７００００１２０５０００'), { verdict: 'not-a-corporate-number', reason: 'wrong-length' });
+      for (const value of ['７００００１２０５０００Ｏ', '7ー0000ー1205ー0002', '7_000012050002']) {
+        assert.deepStrictEqual(corporateNumberCheck(value), { verdict: 'not-a-corporate-number', reason: 'invalid-character' }, value);
+      }
+      assert.strictEqual(corporateNumberMessage(['７００００１２０５０００２']), 'Corporate number: valid');
     });
 
     test('a check digit of 9 (remainder 0) and every first digit', () => {
@@ -186,6 +219,14 @@ suite('Extended Japanese Conversions (JAUNIX-001..007) Test Suite', () => {
       assert.strictEqual(parenReadingToRuby('漢字（かんじ）'), '｜漢字《かんじ》');
       assert.strictEqual(parenReadingToRuby('この日本語(にほんご)と東京（トウキョウ）'), 'この｜日本語《にほんご》と｜東京《トウキョウ》');
       assert.strictEqual(parenReadingToRuby('𠮷野家（よしのや）'), '｜𠮷野家《よしのや》');
+    });
+
+    test('a ｜ (or |) already before the base is not doubled', () => {
+      assert.strictEqual(parenReadingToRuby('｜漢字（かんじ）'), '｜漢字《かんじ》');
+      assert.strictEqual(parenReadingToRuby('|漢字(かんじ)'), '|漢字《かんじ》');
+      assert.strictEqual(parenReadingToRuby('この｜日本語（にほんご）と東京（とうきょう）'), 'この｜日本語《にほんご》と｜東京《とうきょう》');
+      assert.strictEqual(parenReadingToRuby('｜漢字（かんじ）｜漢字（かんじ）'), '｜漢字《かんじ》｜漢字《かんじ》');
+      assert.strictEqual(parenReadingToRuby('｜かな漢字（かんじ）'), '｜かな｜漢字《かんじ》');
     });
 
     test('other parentheses stay', () => {

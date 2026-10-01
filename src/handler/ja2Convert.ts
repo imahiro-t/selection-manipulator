@@ -22,6 +22,9 @@ import {
 } from './jaCommon';
 import { formatVerdictMessage } from './hashTransforms';
 
+/** Hiragana or katakana (full-width or half-width). */
+const isKana = (ch: string): boolean => isHiragana(ch) || isKatakana(ch);
+
 // ---------------------------------------------------------------------------------------------
 // JAUNIX-001 Vertical text
 // ---------------------------------------------------------------------------------------------
@@ -146,7 +149,7 @@ const asHiragana = (ch: string): string | undefined => {
 
 /**
  * JAUNIX-002: the gojuon row of the first kana of a line and a tab before the line
- * (`さとう` → `さ行⏎さとう` with a tab). Katakana and half-width katakana count like hiragana;
+ * (`さとう` → `さ行\tさとう`, `\t` being a tab). Katakana and half-width katakana count like hiragana;
  * voiced, semi-voiced and small kana belong to the row of their plain kana (`が` → か行, `ぱ` → は行,
  * `ゃ` → や行, `ゔ` → あ行), and `ん` to わ行. A line that does not start with kana is an error.
  */
@@ -172,7 +175,11 @@ const LONG_VOWEL_LIKE: ReadonlySet<string> = new Set(['ー', '-', '‐', '‒', 
 /**
  * JAUNIX-003: one search key from the text: NFKC, katakana (U+30A1..30F6) to hiragana, lower case,
  * and the dashes and tildes right after kana (or after a mark already made `ー`) to `ー`
- * (`ｶﾞｲﾄﾞＡＢＣ` → `がいどabc`, `ラ－メン` → `らーめん`).
+ * (`ｶﾞｲﾄﾞＡＢＣ` → `がいどabc`, `ラ－メン` → `らーめん`). The dashes are judged after NFKC, where the
+ * full-width `－` / `～` have become the ASCII `-` / `~`, so an ASCII `-` or `~` right after kana
+ * becomes `ー` as well (`コード-A1` → `こーどーa1`); this differs from Normalize Hyphens and Long
+ * Vowel Marks (JA-017), which keeps the ASCII hyphen. A search key is only compared with keys
+ * made the same way.
  */
 export const normalizeForSearch = (text: string): string => {
   const out: string[] = [];
@@ -184,7 +191,7 @@ export const normalizeForSearch = (text: string): string => {
       next = 'ー';
     }
     out.push(next);
-    afterKana = next === 'ー' ? afterKana : isHiragana(next) || isKatakana(next);
+    afterKana = next === 'ー' ? afterKana : isKana(next);
   }
   return out.join('');
 };
@@ -200,22 +207,24 @@ const LARGE_UNITS: readonly string[] = ['', '万', '億', '兆', '京'];
 
 const SIGNED_INTEGER = /^([+\-−]?)([0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)$/;
 
-const toAsciiDigits = (value: string): string => {
+/** Full-width digits (U+FF10..FF19) and full-width `＋` `，` `－` (U+FF0B..FF0D) as ASCII. */
+const toAsciiNumber = (value: string): string => {
   let out = '';
   for (const ch of value) {
     const code = ch.charCodeAt(0);
-    out += code >= 0xFF10 && code <= 0xFF19 ? String.fromCharCode(code - 0xFF10 + 0x30) : ch;
+    const fullWidth = (code >= 0xFF10 && code <= 0xFF19) || (code >= 0xFF0B && code <= 0xFF0D);
+    out += fullWidth ? String.fromCharCode(code - 0xFEE0) : ch;
   }
   return out;
 };
 
 /**
  * JAUNIX-004: an integer (ASCII or full-width digits, an optional sign, optional `,` every three
- * digits) in units of 万 / 億 / 兆 / 京 (`123456789` → `1億2345万6789`, `100010000` → `1億1万`,
+ * digits; the sign and the comma may be full-width too: `－１，２３４`) in units of 万 / 億 / 兆 / 京 (`123456789` → `1億2345万6789`, `100010000` → `1億1万`,
  * `0` → `0`). The digits are counted before the number is read; more than 10^20 - 1 is an error.
  */
 export const manOkuNotation = (value: string): string => {
-  const match = SIGNED_INTEGER.exec(toAsciiDigits(value));
+  const match = SIGNED_INTEGER.exec(toAsciiNumber(value));
   if (match === null) {
     throw new JaInputError(`${quoteText(value)} is not an integer`);
   }
@@ -253,23 +262,34 @@ export type CorporateNumberResult =
 /** With more selections than this, the notification only gives the counts (as for IBAN). */
 export const CORPORATE_NUMBER_LIST_LIMIT = 10;
 const CORPORATE_NUMBER_DIGITS = 13;
+/**
+ * Whitespace and the hyphens written between the digit groups: `-`, full-width `－` (U+FF0D),
+ * `‐` (U+2010), `‑` (U+2011) and `−` (U+2212).
+ */
+const CORPORATE_NUMBER_IGNORED: ReadonlySet<string> = new Set([
+  ' ', '\t', '\r', '\n', '\u3000', '-', '\uFF0D', '\u2010', '\u2011', '\u2212',
+]);
 
 /**
  * JAUNIX-005: checks the check digit of a 13-digit Japanese corporate number (the first digit is
  * 9 - (Σ of the other digits × 1 or 2, alternating from the last digit with 1) mod 9).
- * Whitespace and hyphens are ignored. This only detects typing mistakes; nothing is looked up.
+ * Full-width digits count like ASCII digits; whitespace and hyphens (ASCII or full-width) are
+ * ignored (`７－００００－１２０５－０００２`). This only detects typing mistakes; nothing is looked up.
  */
 export const corporateNumberCheck = (text: string): CorporateNumberResult => {
   const digits: number[] = [];
   for (const ch of text) {
-    if (ch === '-' || ch === ' ' || ch === '\t' || ch === '\r' || ch === '\n' || ch === '　') {
+    if (CORPORATE_NUMBER_IGNORED.has(ch)) {
       continue;
     }
     const code = ch.charCodeAt(0);
-    if (ch.length !== 1 || code < 0x30 || code > 0x39) {
+    if (ch.length === 1 && code >= 0x30 && code <= 0x39) {
+      digits.push(code - 0x30);
+    } else if (code >= 0xFF10 && code <= 0xFF19) {
+      digits.push(code - 0xFF10);
+    } else {
       return { verdict: 'not-a-corporate-number', reason: 'invalid-character' };
     }
-    digits.push(code - 0x30);
   }
   if (digits.length !== CORPORATE_NUMBER_DIGITS) {
     return { verdict: 'not-a-corporate-number', reason: 'wrong-length' };
@@ -314,7 +334,11 @@ export const corporateNumberMessage = (texts: readonly string[]): string =>
 /** JAUNIX-006: the marks to write: combining (U+3099 / U+309A) or spacing (゛ U+309B / ゜ U+309C). */
 export type DakutenStyle = 'combining' | 'spacing';
 
-const SPACING_MARKS: ReadonlyMap<string, string> = new Map([['゙', '゛'], ['゚', '゜']]);
+/** Combining voiced / semi-voiced sound mark → its spacing form (゛ / ゜). */
+const SPACING_MARKS: ReadonlyMap<string, string> = new Map([
+  ['\u3099', '\u309B'], // combining dakuten → ゛
+  ['\u309A', '\u309C'], // combining handakuten → ゜
+]);
 
 /**
  * JAUNIX-006: the inverse of Compose Dakuten: every full-width kana with a voiced or semi-voiced
@@ -324,7 +348,7 @@ const SPACING_MARKS: ReadonlyMap<string, string> = new Map([['゙', '゛'], ['�
 export const decomposeDakuten = (text: string, style: DakutenStyle): string => {
   let out = '';
   for (const ch of text) {
-    if ((isHiragana(ch) || isKatakana(ch)) && ch.codePointAt(0)! < 0xFF00) {
+    if (isKana(ch) && ch.codePointAt(0)! < 0xFF00) {
       const decomposed = ch.normalize('NFD');
       const mark = decomposed.length === 2 ? SPACING_MARKS.get(decomposed[1]) : undefined;
       if (mark !== undefined) {
@@ -341,7 +365,8 @@ export const decomposeDakuten = (text: string, style: DakutenStyle): string => {
 // JAUNIX-007 Parenthesized reading to ruby notation
 // ---------------------------------------------------------------------------------------------
 
-const isKana = (ch: string): boolean => isHiragana(ch) || isKatakana(ch);
+/** The marks that start the base of ruby notation. */
+const RUBY_BASE_MARKS: ReadonlySet<string | undefined> = new Set(['｜', '|']);
 
 /** `（` → `）`, `(` → `)`. */
 const CLOSING: ReadonlyMap<string, string> = new Map([['（', '）'], ['(', ')']]);
@@ -349,7 +374,8 @@ const CLOSING: ReadonlyMap<string, string> = new Map([['（', '）'], ['(', ')']
 /**
  * JAUNIX-007: a reading of only kana in parentheses right after a run of kanji becomes ruby
  * notation (`漢字（かんじ）` → `｜漢字《かんじ》`, also with `(…)`); the base is the whole run of
- * kanji before the parenthesis. Everything else is kept. Each character is read at most twice.
+ * kanji before the parenthesis. A `｜` (or `|`) already before the base is kept as its start mark
+ * (`｜漢字（かんじ）` → `｜漢字《かんじ》`). Everything else is kept. Each character is read at most twice.
  */
 export const parenReadingToRuby = (text: string): string => {
   const chars = [...text];
@@ -365,9 +391,11 @@ export const parenReadingToRuby = (text: string): string => {
         j++;
       }
       if (j > i + 1 && chars[j] === closing) {
-        // The kanji of the base were written one by one: take them back.
+        // The kanji of the base were written one by one: take them back. A `｜` (or `|`) already
+        // right before the base is its start mark, so no second one is added.
         out.length -= i - kanjiStart;
-        out.push(`｜${chars.slice(kanjiStart, i).join('')}《${chars.slice(i + 1, j).join('')}》`);
+        const mark = RUBY_BASE_MARKS.has(chars[kanjiStart - 1]) ? '' : '｜';
+        out.push(`${mark}${chars.slice(kanjiStart, i).join('')}《${chars.slice(i + 1, j).join('')}》`);
         kanjiStart = -1;
         i = j + 1;
         continue;

@@ -31,8 +31,8 @@
       "id": "selection-manipulator.japanese.normalize-for-search",
       "candidateId": "JAUNIX-003",
       "description": {
-        "en": "Makes a search key in one step: NFKC, katakana to hiragana, lower case, and the dashes and tildes right after kana (`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` and the like) to the long vowel mark `ー`. Unlike running the separate conversions one after another, the dashes are judged after the width and the kana are unified.",
-        "ja": "NFKC・カタカナ→ひらがな・小文字化と、仮名の直後のダッシュ・チルダ類（`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` など）の長音符 `ー` への統一を 1 回で行い、検索キー用に正規化する（個別の変換を順に使う場合と違い、幅とかなを揃えた後でダッシュを判定する）"
+        "en": "Makes a search key in one step: NFKC, katakana to hiragana, lower case, and the dashes and tildes right after kana (`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` and the like) to the long vowel mark `ー`. Unlike running the separate conversions one after another, the dashes are judged after the width and the kana are unified, so an ASCII `-` or `~` right after kana becomes `ー` too (`コード-A1` → `こーどーa1`), unlike **Japanese - Normalize Hyphens and Long Vowel Marks**.",
+        "ja": "NFKC・カタカナ→ひらがな・小文字化と、仮名の直後のダッシュ・チルダ類（`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` など）の長音符 `ー` への統一を 1 回で行い、検索キー用に正規化する（個別の変換を順に使う場合と違い、幅とかなを揃えた後でダッシュを判定するため、仮名の直後の半角 `-` `~` も `ー` になる（`コード-A1` → `こーどーa1`）。**Japanese - Normalize Hyphens and Long Vowel Marks** とはこの点が異なる）"
       },
       "example": {
         "en": "`ｶﾞｲﾄﾞＡＢＣ` → `がいどabc`",
@@ -44,8 +44,8 @@
       "id": "selection-manipulator.japanese.man-oku-notation",
       "candidateId": "JAUNIX-004",
       "description": {
-        "en": "Writes the integer on each line with the units `万`, `億`, `兆` and `京` (Arabic digits kept, unlike **Japanese - Number to Kanji Numeral**). A sign, full-width digits and `,` every three digits are accepted; zero groups are left out. The digits are counted before the number is read: an absolute value above 10^20 - 1 or a line that is not an integer is an error.",
-        "ja": "各行の整数を万・億・兆・京の単位で書く（数字はアラビア数字のまま。**Japanese - Number to Kanji Numeral** は漢数字）。符号・全角数字・3 桁ごとの `,` を受け付け、0 の位取りは省く。桁数を数えてから読み、絶対値が 10^20 - 1 を超える行や整数でない行はエラー"
+        "en": "Writes the integer on each line with the units `万`, `億`, `兆` and `京` (Arabic digits kept, unlike **Japanese - Number to Kanji Numeral**). A sign, full-width digits and `,` every three digits are accepted (the sign and the comma may be full-width too: `－１，２３４`); zero groups are left out. The digits are counted before the number is read: an absolute value above 10^20 - 1 or a line that is not an integer is an error.",
+        "ja": "各行の整数を万・億・兆・京の単位で書く（数字はアラビア数字のまま。**Japanese - Number to Kanji Numeral** は漢数字）。符号・全角数字・3 桁ごとの `,` を受け付け（符号とカンマは全角の `＋` `－` `，` も可）、0 の位取りは省く。桁数を数えてから読み、絶対値が 10^20 - 1 を超える行や整数でない行はエラー"
       },
       "example": {
         "en": "`123456789` → `1億2345万6789`",
@@ -57,8 +57,8 @@
       "id": "selection-manipulator.japanese.corporate-number-validate",
       "candidateId": "JAUNIX-005",
       "description": {
-        "en": "Checks the check digit of a 13-digit Japanese corporate number (the first digit) and shows `valid`, `invalid` or `not a corporate number` in a notification; spaces and hyphens are ignored. With several selections each one is listed, and with more than 10 only the counts are shown; the notification never contains the selected text. The check digit only catches typing mistakes (it is not cryptographic) and nothing is looked up online.",
-        "ja": "13 桁の法人番号のチェックデジット（先頭の 1 桁）を検証し、`valid`・`invalid`・`not a corporate number` を通知する（空白・ハイフンは無視。複数選択は選択ごと、11 件以上は件数のみ。通知に選択テキストは含めない）。チェックデジットは入力ミス検出用で暗号用途ではなく、外部への照会もしない"
+        "en": "Checks the check digit of a 13-digit Japanese corporate number (the first digit) and shows `valid`, `invalid` or `not a corporate number` in a notification; full-width digits are accepted and spaces and hyphens (also full-width `－`) are ignored. With several selections each one is listed, and with more than 10 only the counts are shown; the notification never contains the selected text. The check digit only catches typing mistakes (it is not cryptographic) and nothing is looked up online.",
+        "ja": "13 桁の法人番号のチェックデジット（先頭の 1 桁）を検証し、`valid`・`invalid`・`not a corporate number` を通知する（全角数字も可。空白・ハイフン（全角 `－` も）は無視。複数選択は選択ごと、11 件以上は件数のみ。通知に選択テキストは含めない）。チェックデジットは入力ミス検出用で暗号用途ではなく、外部への照会もしない"
       },
       "example": {
         "en": "`7000012050002` → `Corporate number: valid（notification）`",
@@ -83,8 +83,8 @@
       "id": "selection-manipulator.japanese.paren-reading-to-ruby",
       "candidateId": "JAUNIX-007",
       "description": {
-        "en": "Turns a reading of only kana in parentheses right after kanji into ruby notation: `漢字（かんじ）` or `漢字(かんじ)` becomes `｜漢字《かんじ》`, the base being the whole run of kanji before the parenthesis. Other parentheses are kept. (Added in place of the planned Remove Parenthesized Readings, which **Japanese - Remove Ruby Notation** already does.)",
-        "ja": "漢字の直後にある仮名だけの括弧書きの読みをルビ記法にする（`漢字（かんじ）`・`漢字(かんじ)` → `｜漢字《かんじ》`。親文字は括弧の直前の漢字の連続）。ほかの括弧はそのまま（予定していた「括弧書きの読みの削除」は **Japanese - Remove Ruby Notation** が既に行うため、代わりに追加）"
+        "en": "Turns a reading of only kana in parentheses right after kanji into ruby notation: `漢字（かんじ）` or `漢字(かんじ)` becomes `｜漢字《かんじ》`, the base being the whole run of kanji before the parenthesis. A `｜` already before the base is kept, not doubled (`｜漢字（かんじ）` → `｜漢字《かんじ》`). Other parentheses are kept. (Added in place of the planned Remove Parenthesized Readings, which **Japanese - Remove Ruby Notation** already does.)",
+        "ja": "漢字の直後にある仮名だけの括弧書きの読みをルビ記法にする（`漢字（かんじ）`・`漢字(かんじ)` → `｜漢字《かんじ》`。親文字は括弧の直前の漢字の連続。親文字の前に `｜` が既にあれば重ねない）。ほかの括弧はそのまま（予定していた「括弧書きの読みの削除」は **Japanese - Remove Ruby Notation** が既に行うため、代わりに追加）"
       },
       "example": {
         "en": "`漢字（かんじ）` → `｜漢字《かんじ》`",
@@ -253,8 +253,8 @@
       "id": "selection-manipulator.markdown.kbd",
       "candidateId": "JAUNIX-021",
       "description": {
-        "en": "Wraps each key of a shortcut such as `Ctrl+C` in `<kbd>` tags on every line: keys are separated by `+`, a `+` where a key is expected is the plus key (`Ctrl++`), spaces around a key are dropped and a key name with spaces (`Page Up`) is one key. Key names are HTML-escaped first, so no other tag can be injected.",
-        "ja": "各行の `Ctrl+C` のようなショートカットのキーをそれぞれ `<kbd>` で囲む（キーは `+` で区切る。キー名の位置にある `+` は + キー（`Ctrl++`）、キー名の前後の空白は除き、`Page Up` のような空白入りの名前は 1 キー）。キー名は先に HTML エスケープするので、ほかのタグは埋め込めない"
+        "en": "Wraps each key of a shortcut such as `Ctrl+C` in `<kbd>` tags on every line: keys are separated by `+`, a `+` where a key is expected is the plus key (`Ctrl++`) and a name right after it is the next key (`a++b` → `a`, `+`, `b`), spaces around a key are dropped and a key name with spaces (`Page Up`) is one key. Key names are HTML-escaped first, so no other tag can be injected.",
+        "ja": "各行の `Ctrl+C` のようなショートカットのキーをそれぞれ `<kbd>` で囲む（キーは `+` で区切る。キー名の位置にある `+` は + キー（`Ctrl++`）で、その直後の名前は次のキー（`a++b` → `a`・`+`・`b`）、キー名の前後の空白は除き、`Page Up` のような空白入りの名前は 1 キー）。キー名は先に HTML エスケープするので、ほかのタグは埋め込めない"
       },
       "example": {
         "en": "`Ctrl+C` → `<kbd>Ctrl</kbd>+<kbd>C</kbd>`",

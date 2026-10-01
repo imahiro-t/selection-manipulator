@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import {
   extractLinks,
+  GITHUB_ALERT_CHOICES,
   GITHUB_ALERT_TYPES,
   MD2_COMMAND_ENTRIES,
   MD_NO_LINKS,
@@ -186,6 +187,9 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
       for (const type of GITHUB_ALERT_TYPES) {
         assert.ok(toGithubAlert('x', '\n', type).startsWith(`> [!${type}]\n`), type);
       }
+      // The values written are exactly the choices offered.
+      assert.deepStrictEqual(GITHUB_ALERT_TYPES, GITHUB_ALERT_CHOICES.map((choice) => choice.value));
+      assert.deepStrictEqual(GITHUB_ALERT_TYPES, ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION']);
     });
 
     test('only the fixed types are written (a value from elsewhere is refused)', () => {
@@ -213,6 +217,12 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
         ['Shift+Page Up', '<kbd>Shift</kbd>+<kbd>Page Up</kbd>'],
         ['Alt+', '<kbd>Alt</kbd>+'],
         ['  Esc  ', '  <kbd>Esc</kbd>  '],
+        ['a++b', '<kbd>a</kbd>+<kbd>+</kbd>+<kbd>b</kbd>'],
+        ['Ctrl++C', '<kbd>Ctrl</kbd>+<kbd>+</kbd>+<kbd>C</kbd>'],
+        ['a+++b', '<kbd>a</kbd>+<kbd>+</kbd>+<kbd>b</kbd>'],
+        ['Ctrl + + ', '<kbd>Ctrl</kbd>+<kbd>+</kbd> '],
+        ['Ctrl+++', '<kbd>Ctrl</kbd>+<kbd>+</kbd>+'],
+        ['+b', '<kbd>+</kbd>+<kbd>b</kbd>'],
       ];
       for (const [line, expected] of cases) {
         assert.strictEqual(toKbd(line, '\n'), expected, line);
