@@ -95,6 +95,7 @@ import { line2CommandHandler } from './handler/line2CommandHandler';
 import { enc2CommandHandler } from './handler/enc2CommandHandler';
 import { data2CommandHandler } from './handler/data2CommandHandler';
 import { dev2CommandHandler } from './handler/dev2CommandHandler';
+import { num2CommandHandler } from './handler/num2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1106,6 +1107,31 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ipv6-expand', dev2CommandHandler('programmatic.ipv6-expand')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ipv6-compress', dev2CommandHandler('programmatic.ipv6-compress')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.programmatic.ip-to-integer', dev2CommandHandler('programmatic.ip-to-integer')));
+
+  // Number extended (NUMX-001..023, group NUM2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.round-to-significant', num2CommandHandler('number.round-to-significant')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.round-to-multiple', num2CommandHandler('number.round-to-multiple')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.clamp', num2CommandHandler('number.clamp')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-roman', num2CommandHandler('number.to-roman')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-roman', num2CommandHandler('number.from-roman')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-english-words', num2CommandHandler('number.from-english-words')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-fraction', num2CommandHandler('number.from-fraction')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.multiply-by-n', num2CommandHandler('number.multiply-by-n')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-ieee754', num2CommandHandler('number.to-ieee754')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.from-ieee754', num2CommandHandler('number.from-ieee754')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.number.to-twos-complement', num2CommandHandler('number.to-twos-complement')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.gcd', num2CommandHandler('math.gcd')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.lcm', num2CommandHandler('math.lcm')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.prime-factors', num2CommandHandler('math.prime-factors')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.diff-consecutive', num2CommandHandler('math.diff-consecutive')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.collapse-ranges', num2CommandHandler('math.collapse-ranges')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.math.expand-ranges', num2CommandHandler('math.expand-ranges')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.m-to-ft', num2CommandHandler('unit.m-to-ft')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.ft-to-m', num2CommandHandler('unit.ft-to-m')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.sqm-to-tsubo', num2CommandHandler('unit.sqm-to-tsubo')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.tsubo-to-sqm', num2CommandHandler('unit.tsubo-to-sqm')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.deg-to-rad', num2CommandHandler('unit.deg-to-rad')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unit.rad-to-deg', num2CommandHandler('unit.rad-to-deg')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

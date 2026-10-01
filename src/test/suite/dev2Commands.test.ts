@@ -215,7 +215,7 @@ suite('Extended Developer Commands (DEVX-001..023) Test Suite', () => {
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       assert.strictEqual(items.length, 73, '50 before DEV2 + 23');
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 946, '923 before DEV2 + 23');
+      assert.strictEqual(ids.length, 969, '923 before DEV2 + 23, then 23 of NUM2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');

@@ -4631,6 +4631,121 @@ export const myCommands = [
     "command": "selection-manipulator.programmatic.ip-to-integer",
     "title": "Convert IPv4 to Integer and Back",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round-to-significant",
+    "title": "Replace - Number - Round to Significant Figures",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.round-to-multiple",
+    "title": "Replace - Number - Round to Nearest Multiple",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.clamp",
+    "title": "Replace - Number - Clamp to Range",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-roman",
+    "title": "Replace - Number - To Roman Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-roman",
+    "title": "Replace - Number - From Roman Numeral",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-english-words",
+    "title": "Replace - Number - From English Words",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-fraction",
+    "title": "Replace - Number - Fraction to Decimal",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.multiply-by-n",
+    "title": "Replace - Number - Multiply by N",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-ieee754",
+    "title": "Replace - Number - To IEEE 754 Bits",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.from-ieee754",
+    "title": "Replace - Number - From IEEE 754 Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.number.to-twos-complement",
+    "title": "Replace - Number - To Two's Complement Hex",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.gcd",
+    "title": "Math - Greatest Common Divisor",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.lcm",
+    "title": "Math - Least Common Multiple",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.prime-factors",
+    "title": "Math - Prime Factorization",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.diff-consecutive",
+    "title": "Math - Differences Between Consecutive Numbers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.collapse-ranges",
+    "title": "Math - Collapse Integers to Ranges",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.math.expand-ranges",
+    "title": "Math - Expand Ranges to Integers",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.m-to-ft",
+    "title": "Unit - m to ft",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.ft-to-m",
+    "title": "Unit - ft to m",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.sqm-to-tsubo",
+    "title": "Unit - m² to Tsubo (坪)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.tsubo-to-sqm",
+    "title": "Unit - Tsubo (坪) to m²",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.deg-to-rad",
+    "title": "Unit - Degrees to Radians",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unit.rad-to-deg",
+    "title": "Unit - Radians to Degrees",
+    "canMultiSelection": true
   }
 ];
 

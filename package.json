@@ -4751,6 +4751,121 @@
         "command": "selection-manipulator.programmatic.ip-to-integer",
         "title": "Convert IPv4 to Integer and Back",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round-to-significant",
+        "title": "Number - Round to Significant Figures",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.round-to-multiple",
+        "title": "Number - Round to Nearest Multiple",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.clamp",
+        "title": "Number - Clamp to Range",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-roman",
+        "title": "Number - To Roman Numeral",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-roman",
+        "title": "Number - From Roman Numeral",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-english-words",
+        "title": "Number - From English Words",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-fraction",
+        "title": "Number - Fraction to Decimal",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.multiply-by-n",
+        "title": "Number - Multiply by N",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-ieee754",
+        "title": "Number - To IEEE 754 Bits",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.from-ieee754",
+        "title": "Number - From IEEE 754 Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.number.to-twos-complement",
+        "title": "Number - To Two's Complement Hex",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.gcd",
+        "title": "Math - Greatest Common Divisor",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.lcm",
+        "title": "Math - Least Common Multiple",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.prime-factors",
+        "title": "Math - Prime Factorization",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.diff-consecutive",
+        "title": "Math - Differences Between Consecutive Numbers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.collapse-ranges",
+        "title": "Math - Collapse Integers to Ranges",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.math.expand-ranges",
+        "title": "Math - Expand Ranges to Integers",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.m-to-ft",
+        "title": "Unit: m to ft",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.ft-to-m",
+        "title": "Unit: ft to m",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.sqm-to-tsubo",
+        "title": "Unit: m² to Tsubo (坪)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.tsubo-to-sqm",
+        "title": "Unit: Tsubo (坪) to m²",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.deg-to-rad",
+        "title": "Unit: Degrees to Radians",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unit.rad-to-deg",
+        "title": "Unit: Radians to Degrees",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -7968,6 +8083,98 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.programmatic.ip-to-integer"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round-to-significant"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.round-to-multiple"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.clamp"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-roman"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-roman"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-english-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-fraction"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.multiply-by-n"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-ieee754"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.from-ieee754"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.number.to-twos-complement"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.gcd"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.lcm"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.prime-factors"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.diff-consecutive"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.collapse-ranges"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.math.expand-ranges"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.m-to-ft"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.ft-to-m"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.sqm-to-tsubo"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.tsubo-to-sqm"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.deg-to-rad"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unit.rad-to-deg"
         }
       ],
       "editor/context": [
@@ -8969,6 +9176,66 @@
         {
           "command": "selection-manipulator.number.to-fraction",
           "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.number.round-to-significant",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.number.round-to-multiple",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.number.clamp",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.number.to-roman",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.number.from-roman",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.number.from-english-words",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.number.from-fraction",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.number.multiply-by-n",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.number.to-ieee754",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.number.from-ieee754",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.number.to-twos-complement",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.math.prime-factors",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.math.diff-consecutive",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.math.collapse-ranges",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.math.expand-ranges",
+          "group": "selection-manipulator@48"
         }
       ],
       "selection-manipulator.json.replace.submenu": [
@@ -9164,6 +9431,14 @@
         {
           "command": "selection-manipulator.math.summary",
           "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.math.gcd",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.math.lcm",
+          "group": "selection-manipulator@12"
         }
       ],
       "selection-manipulator.regex.submenu": [
@@ -10219,6 +10494,30 @@
         {
           "command": "selection-manipulator.unit.inch-to-cm",
           "group": "selection-manipulator@9"
+        },
+        {
+          "command": "selection-manipulator.unit.m-to-ft",
+          "group": "selection-manipulator@10"
+        },
+        {
+          "command": "selection-manipulator.unit.ft-to-m",
+          "group": "selection-manipulator@11"
+        },
+        {
+          "command": "selection-manipulator.unit.sqm-to-tsubo",
+          "group": "selection-manipulator@12"
+        },
+        {
+          "command": "selection-manipulator.unit.tsubo-to-sqm",
+          "group": "selection-manipulator@13"
+        },
+        {
+          "command": "selection-manipulator.unit.deg-to-rad",
+          "group": "selection-manipulator@14"
+        },
+        {
+          "command": "selection-manipulator.unit.rad-to-deg",
+          "group": "selection-manipulator@15"
         }
       ],
       "selection-manipulator.markdown.submenu": [

@@ -59,7 +59,15 @@ export interface NumPrompt {
  * checked with `findNumPromptProblem` and trimmed by the caller (the handler), so a transform
  * uses them as they are.
  */
-export type NumTransform = (text: string, inputs: readonly string[], budget: number) => string;
+export type NumTransform = (text: string, inputs: readonly string[], budget: number, run?: NumRun) => string;
+
+/**
+ * State shared by every selection of one run of a command (created by the handler for each run):
+ * `work` counts expensive steps (e.g. trial divisions) so that a limit applies to the run as a whole.
+ */
+export interface NumRun {
+  work: number;
+}
 
 export interface NumCommandEntry {
   /** ROADMAP ID, e.g. `NUM-001`. */
@@ -71,6 +79,11 @@ export interface NumCommandEntry {
   output: NumOutput;
   /** Questions asked once before running (answered for all selections). */
   prompts: readonly NumPrompt[];
+  /**
+   * Checks the answers together after every prompt was answered (e.g. minimum ≤ maximum); a
+   * problem is shown as a warning and nothing is changed.
+   */
+  validateInputs?: (inputs: readonly string[]) => string | undefined;
   transform: NumTransform;
 }
 
@@ -243,11 +256,11 @@ const summary: NumTransform = statistic((text) => {
 // ---------------------------------------------------------------------------------------------
 
 /** A transform that converts each line on its own. */
-const perLine = (convert: (value: string, inputs: readonly string[]) => string): NumTransform => (text, inputs, budget) =>
+export const perLine = (convert: (value: string, inputs: readonly string[]) => string): NumTransform => (text, inputs, budget) =>
   mapLines(text, budget, (value) => convert(value, inputs));
 
 /** A conversion of the double value of a line (basic form) written with `format`. */
-const numeric = (compute: (n: number) => number, format: (n: number) => string = formatA): NumTransform =>
+export const numeric = (compute: (n: number) => number, format: (n: number) => string = formatA): NumTransform =>
   perLine((value) => format(compute(parseBasicNumber(value))));
 
 /** NUM-010: rule A on every running total (a safe integer total, e.g. of 16-digit integers, is kept exact). */

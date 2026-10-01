@@ -218,6 +218,36 @@ suite('Number Commands common helpers (NUM) Test Suite', () => {
 
     test('too long values are refused', () => {
       assert.match(String(findNumPromptProblem('1'.repeat(1_001), { kind: 'integer', min: 0, max: 15 })), /longer than 1,000 characters/);
+      assert.match(String(findNumPromptProblem('1'.repeat(1_001), { kind: 'number' })), /longer than 1,000 characters/);
+    });
+
+    test('numbers without a range (NUM2): any finite number; the message names no bound', () => {
+      const rule = { kind: 'number' } as const;
+      ['0', '-0', '1.1', ' -2.5e3 ', '.5', '1e308', '-1.7976931348623157e+308'].forEach((value) =>
+        assert.strictEqual(findNumPromptProblem(value, rule), undefined, value));
+      ['', 'x', '1e400', '-1e400', 'NaN', 'Infinity', '1,5', '0x10'].forEach((value) =>
+        assert.strictEqual(findNumPromptProblem(value, rule), 'Enter a number.', value));
+      assert.ok(!String(findNumPromptProblem('x', rule)).includes('1.7976931348623157e+308'));
+    });
+
+    test('numbers without a range that must not be 0 (NUM2)', () => {
+      const rule = { kind: 'number', nonZero: true } as const;
+      ['5', '-0.1', '1e-300'].forEach((value) => assert.strictEqual(findNumPromptProblem(value, rule), undefined, value));
+      ['0', '-0', '0.0', '+0e5', '0e-3', '1e-400', '', 'x', '1e400'].forEach((value) =>
+        assert.strictEqual(findNumPromptProblem(value, rule), 'Enter a number other than 0.', value));
+    });
+
+    test('choices (NUM2 bit widths)', () => {
+      const rule = { kind: 'choice', values: [8, 16, 32, 64] } as const;
+      ['8', ' 16 ', '32', '64', '+64', '064'].forEach((value) => assert.strictEqual(findNumPromptProblem(value, rule), undefined, value));
+      ['', '0', '12', '128', '32.0', '3e1', 'x'].forEach((value) =>
+        assert.strictEqual(findNumPromptProblem(value, rule), 'Enter one of 8, 16, 32, 64.', value));
+      assert.strictEqual(findNumPromptProblem('16', { kind: 'choice', values: [64, 32] }), 'Enter one of 64, 32.');
+    });
+
+    test('the messages of the ranged rules are unchanged', () => {
+      assert.strictEqual(findNumPromptProblem('101', { kind: 'number', min: 0, max: 100 }), 'Enter a number from 0 to 100.');
+      assert.strictEqual(findNumPromptProblem('16', { kind: 'integer', min: 0, max: 15 }), 'Enter an integer from 0 to 15.');
     });
   });
 });

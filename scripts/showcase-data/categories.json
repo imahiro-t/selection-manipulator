@@ -154,6 +154,13 @@
     }
   },
   {
+    "id": "NUMX",
+    "name": {
+      "en": "Numbers and math extensions (significant figures, Roman numerals, IEEE 754, GCD / LCM, prime factors, ranges, m / ft, tsubo, radians)",
+      "ja": "数値・計算・単位拡張（有効数字・ローマ数字・IEEE 754・最大公約数／最小公倍数・素因数分解・範囲表記・m/ft・坪・ラジアン）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",
