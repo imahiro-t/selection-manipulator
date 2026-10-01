@@ -93,6 +93,7 @@ import { mdCommandHandler } from './handler/mdCommandHandler';
 import { text2CommandHandler } from './handler/text2CommandHandler';
 import { line2CommandHandler } from './handler/line2CommandHandler';
 import { enc2CommandHandler } from './handler/enc2CommandHandler';
+import { data2CommandHandler } from './handler/data2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1053,6 +1054,32 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.crc32c', enc2CommandHandler('checksum.crc32c')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.iban', enc2CommandHandler('checksum.iban')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.checksum.isbn', enc2CommandHandler('checksum.isbn')));
+
+  // Data formats extended (DATAX-001..024, group DATA2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.sort-array', data2CommandHandler('json.sort-array')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.filter-array', data2CommandHandler('json.filter-array')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.pick-keys', data2CommandHandler('json.pick-keys')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.omit-keys', data2CommandHandler('json.omit-keys')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.rename-key', data2CommandHandler('json.rename-key')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.remove-empty', data2CommandHandler('json.remove-empty')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-markdown-table', data2CommandHandler('json.to-markdown-table')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.chunk-array', data2CommandHandler('json.chunk-array')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.array-to-object', data2CommandHandler('json.array-to-object')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.object-to-entries', data2CommandHandler('json.object-to-entries')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.set-path', data2CommandHandler('json.set-path')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.to-flow', data2CommandHandler('yaml.to-flow')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.validate', data2CommandHandler('yaml.validate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.yaml.multi-doc-to-json', data2CommandHandler('yaml.multi-doc-to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.toml.format', data2CommandHandler('toml.format')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.validate', data2CommandHandler('xml.validate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.xml.list-paths', data2CommandHandler('xml.list-paths')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.reorder-columns', data2CommandHandler('csv.reorder-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.merge-columns', data2CommandHandler('csv.merge-columns')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.split-column', data2CommandHandler('csv.split-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.group-count', data2CommandHandler('csv.group-count')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.csv.fill-empty', data2CommandHandler('csv.fill-empty')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.ltsv.to-json', data2CommandHandler('ltsv.to-json')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.json.to-ltsv', data2CommandHandler('json.to-ltsv')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

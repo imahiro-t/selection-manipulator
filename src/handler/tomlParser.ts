@@ -28,6 +28,34 @@ import {
   setOwn,
 } from './dataCommon';
 
+/**
+ * DATAX-015 (Format TOML): a float or a date / time read with `preserveTypes`, so that writing the
+ * value back keeps its TOML type (`1.0` stays a float, a date stays unquoted). `text` is what is
+ * written: the date / time as it was, or the float in a normalised form that always has a
+ * fraction or an exponent. A class instance, never a plain object, so it cannot be mistaken for a
+ * table (check with `instanceof` before `isJsonObject`).
+ */
+export class TomlLiteral {
+  constructor(readonly kind: 'float' | 'datetime', readonly text: string) {}
+}
+
+export interface TomlParseOptions {
+  /** Return floats and dates / times as `TomlLiteral` (DATAX-015); off by default (TOML to JSON). */
+  preserveTypes?: boolean;
+}
+
+/** The float written back by DATAX-015: the shortest decimal form, with `.0` when it has neither a fraction nor an exponent. */
+const floatText = (value: number): string => {
+  if (Object.is(value, -0)) {
+    return '-0.0';
+  }
+  const text = String(value);
+  return /[.e]/.test(text) ? text : `${text}.0`;
+};
+
+/** A table (a prototype-less object), not a `TomlLiteral`. */
+export const isTomlTable = (value: unknown): value is JsonObject => isJsonObject(value) && !(value instanceof TomlLiteral);
+
 /** How a table came to exist; decides whether it may be defined or extended again. */
 type TableKind = 'implicit' | 'explicit' | 'dotted' | 'inline';
 
@@ -56,7 +84,7 @@ class TomlParser {
   /** Arrays created by `[[...]]` (every other array is static and cannot be extended). */
   private readonly tableArrays = new Set<JsonValue[]>();
 
-  constructor(private readonly text: string) {
+  constructor(private readonly text: string, private readonly preserveTypes = false) {
     this.current = this.root;
     this.kinds.set(this.root, 'explicit');
   }
@@ -236,7 +264,7 @@ class TomlParser {
           this.fail(`${this.describeKey(keys.slice(0, i + 1))} is a static array and cannot be extended`, start);
         }
         table = existing[existing.length - 1] as JsonObject;
-      } else if (isJsonObject(existing)) {
+      } else if (isTomlTable(existing)) {
         if (this.kinds.get(existing) === 'inline') {
           this.fail(`${this.describeKey(keys.slice(0, i + 1))} is an inline table and cannot be extended`, start);
         }
@@ -268,7 +296,7 @@ class TomlParser {
       return;
     }
     const existing = parent[last];
-    if (isJsonObject(existing) && this.kinds.get(existing) === 'implicit') {
+    if (isTomlTable(existing) && this.kinds.get(existing) === 'implicit') {
       this.kinds.set(existing, 'explicit');
       this.current = existing;
       return;
@@ -329,7 +357,7 @@ class TomlParser {
         continue;
       }
       const existing = target[key];
-      if (!isJsonObject(existing) || this.kinds.get(existing) !== 'dotted') {
+      if (!isTomlTable(existing) || this.kinds.get(existing) !== 'dotted') {
         this.fail(`${this.describeKey(keys.slice(0, i + 1))} is already defined and cannot be extended with a dotted key`, start);
       }
       target = existing;
@@ -632,7 +660,7 @@ class TomlParser {
       if (!Number.isFinite(value)) {
         this.fail(`the number ${token} is too large to be represented in JSON`, start);
       }
-      return value;
+      return this.preserveTypes ? this.literal('float', floatText(value)) : value;
     }
     const dateTime = DATE_TIME.exec(token);
     if (dateTime) {
@@ -641,20 +669,25 @@ class TomlParser {
       if (dateTime[7] && dateTime[7].length === 6) {
         this.checkTime(dateTime[7].slice(1, 3), dateTime[7].slice(4, 6), '00', start);
       }
-      return token;
+      return this.preserveTypes ? this.literal('datetime', token) : token;
     }
     const date = LOCAL_DATE.exec(token);
     if (date) {
       this.checkDate(date[1], date[2], date[3], start);
-      return token;
+      return this.preserveTypes ? this.literal('datetime', token) : token;
     }
     const time = LOCAL_TIME.exec(token);
     if (time) {
       this.checkTime(time[1], time[2], time[3], start);
-      return token;
+      return this.preserveTypes ? this.literal('datetime', token) : token;
     }
     this.pos = start;
     this.fail(`invalid value ${JSON.stringify(token.length > 40 ? `${token.slice(0, 40)}…` : token)} (strings must be quoted)`, start);
+  }
+
+  /** A `TomlLiteral` typed as a JSON value: only DATAX-015 asks for it, and its writer checks for it first. */
+  private literal(kind: 'float' | 'datetime', text: string): JsonValue {
+    return new TomlLiteral(kind, text) as unknown as JsonValue;
   }
 
   private checkDate(year: string, month: string, day: string, start: number): void {
@@ -672,8 +705,11 @@ class TomlParser {
   }
 }
 
-/** Parses TOML (the subset described above) into prototype-less objects. */
-export const parseToml = (text: string): JsonObject => {
+/**
+ * Parses TOML (the subset described above) into prototype-less objects. With `preserveTypes`
+ * (DATAX-015), floats and dates / times are `TomlLiteral` instances instead of numbers / strings.
+ */
+export const parseToml = (text: string, options: TomlParseOptions = {}): JsonObject => {
   assertInputLength(text);
-  return new TomlParser(text).parse();
+  return new TomlParser(text, options.preserveTypes === true).parse();
 };

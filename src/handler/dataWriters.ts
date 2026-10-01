@@ -5,6 +5,7 @@
  */
 import xmlFormat from 'xml-formatter';
 import { findLoneSurrogate } from './encodeTransforms';
+import { isTomlTable, TomlLiteral } from './tomlParser';
 import {
   DataInputError,
   IDENTIFIER,
@@ -229,6 +230,10 @@ const tomlNumber = (value: number): string => {
 };
 
 const tomlInline = (value: JsonValue, path: string[]): string => {
+  // DATAX-015: a float or date / time read with preserveTypes is written as it was read.
+  if ((value as unknown) instanceof TomlLiteral) {
+    return (value as unknown as TomlLiteral).text;
+  }
   if (value === null) {
     throw new DataInputError(`TOML has no null (at ${describePath(path)})`);
   }
@@ -249,12 +254,12 @@ const tomlInline = (value: JsonValue, path: string[]): string => {
 };
 
 const isTableArray = (value: JsonValue): value is JsonObject[] =>
-  Array.isArray(value) && value.length > 0 && value.every(isJsonObject);
+  Array.isArray(value) && value.length > 0 && value.every(isTomlTable);
 
 const writeTomlTable = (table: JsonObject, path: string[], header: string | undefined, out: OutputBuffer): void => {
   const entries = Object.entries(table);
-  const simple = entries.filter(([, item]) => !isJsonObject(item) && !isTableArray(item));
-  const nested = entries.filter(([, item]) => isJsonObject(item) || isTableArray(item));
+  const simple = entries.filter(([, item]) => !isTomlTable(item) && !isTableArray(item));
+  const nested = entries.filter(([, item]) => isTomlTable(item) || isTableArray(item));
   // A table with only sub-tables needs no header of its own (it is created implicitly).
   if (header !== undefined && (simple.length > 0 || nested.length === 0 || header.startsWith('[['))) {
     out.push(header);
@@ -271,6 +276,10 @@ const writeTomlTable = (table: JsonObject, path: string[], header: string | unde
   });
 };
 
+/**
+ * DATA-005 / 036 (JSON to TOML) and DATAX-015 (Format TOML, with the `TomlLiteral` values that
+ * `parseToml(text, { preserveTypes: true })` returns; JSON input never has any).
+ */
 export const toToml = (value: JsonValue): string => {
   const object = requireObject(value, 'Convert JSON to TOML');
   const out = new OutputBuffer();

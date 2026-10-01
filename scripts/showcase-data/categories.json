@@ -140,6 +140,13 @@
     }
   },
   {
+    "id": "DATAX",
+    "name": {
+      "en": "Data formats extensions (JSON arrays and keys, YAML, TOML, XML, CSV columns, LTSV)",
+      "ja": "データ形式拡張（JSON 配列・キー操作／YAML／TOML／XML／CSV 列操作／LTSV）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

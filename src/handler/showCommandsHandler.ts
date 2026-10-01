@@ -4396,6 +4396,126 @@ export const myCommands = [
     "command": "selection-manipulator.checksum.isbn",
     "title": "Transform - Checksum - Checksum: ISBN-10 / ISBN-13 Validate",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.sort-array",
+    "title": "Transform - Data Format - Sort JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.filter-array",
+    "title": "Transform - Data Format - Filter JSON Array by Field Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.pick-keys",
+    "title": "Transform - Data Format - Pick Keys from JSON Object",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.omit-keys",
+    "title": "Transform - Data Format - Omit Keys from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.rename-key",
+    "title": "Transform - Data Format - Rename JSON Key",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.remove-empty",
+    "title": "Transform - Data Format - Remove Empty Values from JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-markdown-table",
+    "title": "Transform - Data Format - Convert JSON Array to Markdown Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.chunk-array",
+    "title": "Transform - Data Format - Split JSON Array into Chunks",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.array-to-object",
+    "title": "Transform - Data Format - Convert JSON Array to Object by Key",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.object-to-entries",
+    "title": "Transform - Data Format - Convert JSON Object to Key-Value Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.set-path",
+    "title": "Transform - Data Format - Set JSON Value at Path",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.to-flow",
+    "title": "Transform - Data Format - Convert YAML to Flow Style",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.validate",
+    "title": "Transform - Data Format - Validate YAML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.yaml.multi-doc-to-json",
+    "title": "Transform - Data Format - Convert Multi-document YAML to JSON Array",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.toml.format",
+    "title": "Transform - Data Format - Format TOML",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.validate",
+    "title": "Transform - Data Format - Validate XML (Well-formedness)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.xml.list-paths",
+    "title": "Transform - Data Format - List XML Element Paths",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.reorder-columns",
+    "title": "Transform - CSV - Reorder Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.merge-columns",
+    "title": "Transform - CSV - Merge Two Columns",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.split-column",
+    "title": "Transform - CSV - Split Column by Delimiter",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.group-count",
+    "title": "Transform - CSV - Count Rows by Column Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.csv.fill-empty",
+    "title": "Transform - CSV - Fill Empty Cells with Value",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.ltsv.to-json",
+    "title": "Transform - Data Format - Convert LTSV to JSON",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.json.to-ltsv",
+    "title": "Transform - Data Format - Convert JSON to LTSV",
+    "canMultiSelection": true
   }
 ];
 

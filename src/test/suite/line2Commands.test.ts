@@ -441,7 +441,7 @@ suite('LINE2 Line Commands (LINEX-001..014) Test Suite', () => {
       ]);
       const ids = contributes.commands.map((c: { command: string }) => c.command);
       assert.strictEqual(new Set(ids).size, ids.length);
-      assert.strictEqual(ids.length, 899);
+      assert.strictEqual(ids.length, 923);
       assert.strictEqual(new Set(myCommands.map((c) => c.title)).size, myCommands.length);
     });
 

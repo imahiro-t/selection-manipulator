@@ -37,6 +37,18 @@ export const tooDeepError = (): DataInputError =>
 export const outputTooLarge = (length: number): EncOutputTooLargeError =>
   new EncOutputTooLargeError(length, MAX_OUTPUT_LENGTH);
 
+/**
+ * A result would have more lines, columns or documents than a command allows (DATA2). Reported
+ * like a result that is too long (a warning, nothing changed), with its own message.
+ */
+export class CountLimitError extends EncOutputTooLargeError {
+  constructor(count: number, limit: number, what: string) {
+    super(count, limit);
+    this.message = `the result would have more than ${limit.toLocaleString('en-US')} ${what}`;
+    this.name = 'CountLimitError';
+  }
+}
+
 export type JsonValue = null | boolean | number | string | JsonValue[] | JsonObject;
 export interface JsonObject {
   [key: string]: JsonValue;

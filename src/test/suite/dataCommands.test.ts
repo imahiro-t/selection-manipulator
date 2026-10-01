@@ -8,6 +8,7 @@ import { findPathProblem } from '../../handler/dataCommon';
 import { MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { DATA_COMMAND_ENTRIES, DataCommandEntry } from '../../handler/dataTransforms';
+import { DATA2_COMMAND_ENTRIES } from '../../handler/data2Transforms';
 import { CHROME_ON_WINDOWS_UA, DATA_ROADMAP_EXAMPLES, pretty } from './dataExamples';
 import { createTextEditor } from './testUtils';
 import { candidateRows } from './showcaseData';
@@ -522,8 +523,11 @@ suite('Data Format Commands (DATA-001..040) Test Suite', () => {
         Object.entries(contributes.menus).filter(([name]) => !name.startsWith('selection-manipulator.data.') && name !== 'commandPalette')
           .forEach(([name, items]) => assert.strictEqual(count(items as MenuItem[], id), 0, `${name}: ${id}`));
       });
-      assert.deepStrictEqual(dataMenu.map((item) => item.command),
-        DATA_COMMAND_ENTRIES.filter((e) => e.output !== 'replace').map((e) => `selection-manipulator.${e.name}`));
+      // The DATA2 commands (DATAX) follow the DATA commands in the Data Format submenu.
+      assert.deepStrictEqual(dataMenu.map((item) => item.command), [
+        ...DATA_COMMAND_ENTRIES.filter((e) => e.output !== 'replace').map((e) => `selection-manipulator.${e.name}`),
+        ...DATA2_COMMAND_ENTRIES.filter((e) => !e.name.startsWith('csv.')).map((e) => `selection-manipulator.${e.name}`),
+      ]);
       assert.deepStrictEqual(replaceMenu.map((item) => item.command),
         DATA_COMMAND_ENTRIES.filter((e) => e.output === 'replace').map((e) => `selection-manipulator.${e.name}`));
       [dataMenu, replaceMenu].forEach((menu) =>

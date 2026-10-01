@@ -4516,6 +4516,126 @@
         "command": "selection-manipulator.checksum.isbn",
         "title": "Checksum: ISBN-10 / ISBN-13 Validate",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.sort-array",
+        "title": "Sort JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.filter-array",
+        "title": "Filter JSON Array by Field Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.pick-keys",
+        "title": "Pick Keys from JSON Object",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.omit-keys",
+        "title": "Omit Keys from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.rename-key",
+        "title": "Rename JSON Key",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.remove-empty",
+        "title": "Remove Empty Values from JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-markdown-table",
+        "title": "Convert JSON Array to Markdown Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.chunk-array",
+        "title": "Split JSON Array into Chunks",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.array-to-object",
+        "title": "Convert JSON Array to Object by Key",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.object-to-entries",
+        "title": "Convert JSON Object to Key-Value Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.set-path",
+        "title": "Set JSON Value at Path",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.to-flow",
+        "title": "Convert YAML to Flow Style",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.validate",
+        "title": "Validate YAML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.yaml.multi-doc-to-json",
+        "title": "Convert Multi-document YAML to JSON Array",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.toml.format",
+        "title": "Format TOML",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.validate",
+        "title": "Validate XML (Well-formedness)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.xml.list-paths",
+        "title": "List XML Element Paths",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.reorder-columns",
+        "title": "CSV - Reorder Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.merge-columns",
+        "title": "CSV - Merge Two Columns",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.split-column",
+        "title": "CSV - Split Column by Delimiter",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.group-count",
+        "title": "CSV - Count Rows by Column Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.csv.fill-empty",
+        "title": "CSV - Fill Empty Cells with Value",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.ltsv.to-json",
+        "title": "Convert LTSV to JSON",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.json.to-ltsv",
+        "title": "Convert JSON to LTSV",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -7545,6 +7665,102 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.checksum.isbn"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.sort-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.filter-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.pick-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.omit-keys"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.rename-key"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.remove-empty"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-markdown-table"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.chunk-array"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.array-to-object"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.object-to-entries"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.set-path"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.to-flow"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.yaml.multi-doc-to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.toml.format"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.xml.validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.xml.list-paths"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.reorder-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.merge-columns"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.split-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.group-count"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.csv.fill-empty"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.ltsv.to-json"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.json.to-ltsv"
         }
       ],
       "editor/context": [
@@ -10780,6 +10996,82 @@
         {
           "command": "selection-manipulator.json.parse-nested",
           "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.json.sort-array",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.json.filter-array",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.json.pick-keys",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.json.omit-keys",
+          "group": "selection-manipulator@36"
+        },
+        {
+          "command": "selection-manipulator.json.rename-key",
+          "group": "selection-manipulator@37"
+        },
+        {
+          "command": "selection-manipulator.json.remove-empty",
+          "group": "selection-manipulator@38"
+        },
+        {
+          "command": "selection-manipulator.json.to-markdown-table",
+          "group": "selection-manipulator@39"
+        },
+        {
+          "command": "selection-manipulator.json.chunk-array",
+          "group": "selection-manipulator@40"
+        },
+        {
+          "command": "selection-manipulator.json.array-to-object",
+          "group": "selection-manipulator@41"
+        },
+        {
+          "command": "selection-manipulator.json.object-to-entries",
+          "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.json.set-path",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.yaml.to-flow",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.yaml.validate",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.yaml.multi-doc-to-json",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.toml.format",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.xml.validate",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.xml.list-paths",
+          "group": "selection-manipulator@49"
+        },
+        {
+          "command": "selection-manipulator.ltsv.to-json",
+          "group": "selection-manipulator@50"
+        },
+        {
+          "command": "selection-manipulator.json.to-ltsv",
+          "group": "selection-manipulator@51"
         }
       ],
       "selection-manipulator.data.replace.submenu": [
@@ -10912,6 +11204,26 @@
         {
           "command": "selection-manipulator.csv.to-records",
           "group": "selection-manipulator@24"
+        },
+        {
+          "command": "selection-manipulator.csv.reorder-columns",
+          "group": "selection-manipulator@25"
+        },
+        {
+          "command": "selection-manipulator.csv.merge-columns",
+          "group": "selection-manipulator@26"
+        },
+        {
+          "command": "selection-manipulator.csv.split-column",
+          "group": "selection-manipulator@27"
+        },
+        {
+          "command": "selection-manipulator.csv.group-count",
+          "group": "selection-manipulator@28"
+        },
+        {
+          "command": "selection-manipulator.csv.fill-empty",
+          "group": "selection-manipulator@29"
         }
       ],
       "selection-manipulator.table.replace.submenu": [

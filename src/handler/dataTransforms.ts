@@ -16,6 +16,7 @@ import {
   DATA_MAX_DEPTH,
   DataInputError,
   formatPath,
+  GraphInfo,
   hasOwn,
   inspectGraph,
   isJsonObject,
@@ -448,8 +449,23 @@ export const jsonLinesToJson = (text: string): string => {
  */
 export const YAML_MAX_ALIAS_WORK = 300_000_000;
 
+/**
+ * Throws when writing YAML that shares objects (anchors and aliases) would take too long: more
+ * than YAML_MAX_ALIAS_WORK (mappings and sequences) x (references to them). DATA-020 / 021 / 040
+ * and DATAX-012.
+ */
+export const assertYamlAliasWork = (graph: GraphInfo): void => {
+  if (graph.shared && graph.containers * graph.references > YAML_MAX_ALIAS_WORK) {
+    const count = (n: number) => n.toLocaleString('en-US');
+    throw new DataInputError(
+      `YAML with anchors and aliases is too large: ${count(graph.containers)} mappings and sequences`
+      + ` x ${count(graph.references)} references to them is more than the limit of ${count(YAML_MAX_ALIAS_WORK)}`
+    );
+  }
+};
+
 /** A line that holds no YAML value: blank, a comment or a document marker (checked without a regular expression). */
-const isEmptyYamlLine = (line: string): boolean => {
+export const isEmptyYamlLine = (line: string): boolean => {
   const trimmed = line.trim();
   return trimmed === '' || trimmed.startsWith('#') || trimmed === '---' || trimmed === '...';
 };
@@ -473,13 +489,7 @@ export const formatYaml = (text: string, sortKeys: boolean): string => {
   }
   // Aliases share objects: visit each once (depth check), and learn whether any is shared.
   const graph = inspectGraph(value);
-  if (graph.shared && graph.containers * graph.references > YAML_MAX_ALIAS_WORK) {
-    const count = (n: number) => n.toLocaleString('en-US');
-    throw new DataInputError(
-      `YAML with anchors and aliases is too large: ${count(graph.containers)} mappings and sequences`
-      + ` x ${count(graph.references)} references to them is more than the limit of ${count(YAML_MAX_ALIAS_WORK)}`
-    );
-  }
+  assertYamlAliasWork(graph);
   let dumped: string;
   try {
     // Without shared objects there is nothing to write as an alias, so reference tracking is off.
@@ -491,7 +501,7 @@ export const formatYaml = (text: string, sortKeys: boolean): string => {
   return /\n$/.test(text) ? `${body}\n` : body;
 };
 
-const yamlError = (error: unknown): Error => {
+export const yamlError = (error: unknown): Error => {
   if (error instanceof yaml.YAMLException) {
     const mark = error.mark as { line?: number; column?: number } | undefined;
     const where = mark && typeof mark.line === 'number' && typeof mark.column === 'number'
