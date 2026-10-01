@@ -307,7 +307,7 @@ suite('Extended Date Commands (DATEX-001..015) Test Suite', () => {
       assert.deepStrictEqual(items.slice(-15).map((item) => item.command), DATE2_COMMAND_ENTRIES.map((entry) => `${PREFIX}${entry.name}`));
       items.forEach((item, i) => assert.strictEqual(item.group, `selection-manipulator@${i}`, item.command));
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 993, '969 before DATE2 + 24');
+      assert.strictEqual(ids.length, 1014, '969 before DATE2 + 24, then 21 of JAUNI2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');

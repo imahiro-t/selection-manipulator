@@ -23,11 +23,37 @@ export const MATH_BOLD: MathStyle = { upper: 0x1d400, lower: 0x1d41a, digits: 0x
 export const MATH_ITALIC: MathStyle = { upper: 0x1d434, lower: 0x1d44e };
 export const MATH_MONOSPACE: MathStyle = { upper: 0x1d670, lower: 0x1d68a, digits: 0x1d7f6 };
 
+/** JAUNIX-008..010: script, fraktur and double-struck (with digits). */
+export const MATH_SCRIPT: MathStyle = { upper: 0x1d49c, lower: 0x1d4b6 };
+export const MATH_FRAKTUR: MathStyle = { upper: 0x1d504, lower: 0x1d51e };
+export const MATH_DOUBLE_STRUCK: MathStyle = { upper: 0x1d538, lower: 0x1d552, digits: 0x1d7d8 };
+
 /**
  * Letters that are missing from the Mathematical Alphanumeric Symbols block because they were
- * encoded earlier (italic `h` is the Planck constant U+210E), by the code point that would hold them.
+ * encoded earlier (italic `h` is the Planck constant U+210E; the script, fraktur and
+ * double-struck letters of the Letterlike Symbols block), by the code point that would hold them.
+ * The code points of different styles never overlap, so one table serves every style.
  */
-export const MATH_HOLES: ReadonlyMap<number, string> = new Map([[0x1d455, 'ℎ']]);
+export const MATH_HOLES: ReadonlyMap<number, string> = new Map([
+  // Italic
+  [0x1d455, 'ℎ'],
+  // Script (JAUNIX-008)
+  [0x1d49d, 'ℬ'], [0x1d4a0, 'ℰ'], [0x1d4a1, 'ℱ'], [0x1d4a3, 'ℋ'], [0x1d4a4, 'ℐ'], [0x1d4a7, 'ℒ'], [0x1d4a8, 'ℳ'],
+  [0x1d4ad, 'ℛ'], [0x1d4ba, 'ℯ'], [0x1d4bc, 'ℊ'], [0x1d4c4, 'ℴ'],
+  // Fraktur (JAUNIX-009)
+  [0x1d506, 'ℭ'], [0x1d50b, 'ℌ'], [0x1d50c, 'ℑ'], [0x1d515, 'ℜ'], [0x1d51d, 'ℨ'],
+  // Double-struck (JAUNIX-010)
+  [0x1d53a, 'ℂ'], [0x1d53f, 'ℍ'], [0x1d545, 'ℕ'], [0x1d547, 'ℙ'], [0x1d548, 'ℚ'], [0x1d549, 'ℝ'], [0x1d551, 'ℤ'],
+]);
+
+/**
+ * JAUNIX-011: the small capitals of the lower-case letters (`x` has none and is kept). Some are
+ * Latin Extended-D letters (ꜰ ꜱ ꞯ) that older fonts may lack.
+ */
+export const SMALL_CAPITALS: ReadonlyMap<string, string> = new Map(Object.entries({
+  a: 'ᴀ', b: 'ʙ', c: 'ᴄ', d: 'ᴅ', e: 'ᴇ', f: 'ꜰ', g: 'ɢ', h: 'ʜ', i: 'ɪ', j: 'ᴊ', k: 'ᴋ', l: 'ʟ', m: 'ᴍ',
+  n: 'ɴ', o: 'ᴏ', p: 'ᴘ', q: 'ꞯ', r: 'ʀ', s: 'ꜱ', t: 'ᴛ', u: 'ᴜ', v: 'ᴠ', w: 'ᴡ', y: 'ʏ', z: 'ᴢ',
+}));
 
 // ---------------------------------------------------------------------------------------------
 // UNI-019 Circled letters and digits

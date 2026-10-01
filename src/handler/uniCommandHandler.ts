@@ -25,7 +25,7 @@ export interface UniDependencies {
   showQuickPick: (items: UniPickItem[], options: QuickPickOptions) => Thenable<UniPickItem | undefined>;
 }
 
-const defaultDependencies: UniDependencies = {
+export const defaultUniDependencies: UniDependencies = {
   notifier: window,
   openResult: (content) => openTextDocument(content),
   showQuickPick: (items, options) => window.showQuickPick(items, options),
@@ -319,4 +319,4 @@ export const uniCommandHandlerInternal = (dependencies: UniDependencies, entries
     };
   };
 
-export const uniCommandHandler = uniCommandHandlerInternal(defaultDependencies);
+export const uniCommandHandler = uniCommandHandlerInternal(defaultUniDependencies);

@@ -4986,6 +4986,111 @@
         "command": "selection-manipulator.random.shuffle-words",
         "title": "Random - Shuffle Words",
         "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.vertical-text",
+        "title": "Japanese - Convert to Vertical Text",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.gojuon-row",
+        "title": "Japanese - Gojuon Row (Index Heading)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.normalize-for-search",
+        "title": "Japanese - Normalize for Search",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.man-oku-notation",
+        "title": "Japanese - Number to Man/Oku Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.corporate-number-validate",
+        "title": "Japanese - Validate Corporate Number",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.decompose-dakuten",
+        "title": "Japanese - Decompose Dakuten",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+        "title": "Japanese - Parenthesized Reading to Ruby Notation",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-script",
+        "title": "Unicode - Mathematical Script",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-fraktur",
+        "title": "Unicode - Mathematical Fraktur",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-double-struck",
+        "title": "Unicode - Mathematical Double-struck",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.style-small-caps",
+        "title": "Unicode - Small Capitals",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.escape-python",
+        "title": "Escape Unicode (Python \\U00XXXXXX)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.to-regional-indicators",
+        "title": "Unicode - Country Code to Flag Emoji",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.unicode.from-regional-indicators",
+        "title": "Unicode - Flag Emoji to Country Code",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.table-sort-by-column",
+        "title": "Markdown: Sort Table by Column",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.table-transpose",
+        "title": "Markdown: Transpose Table",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.unlink",
+        "title": "Markdown: Remove Links (Keep Text)",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.extract-links",
+        "title": "Markdown: Extract Links",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.reference-to-inline",
+        "title": "Markdown: Reference Links to Inline Links",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.github-alert",
+        "title": "Markdown: GitHub Alert Block",
+        "category": "Selection Manipulator"
+      },
+      {
+        "command": "selection-manipulator.markdown.kbd",
+        "title": "Markdown: Keyboard Key (<kbd>)",
+        "category": "Selection Manipulator"
       }
     ],
     "configuration": {
@@ -8367,6 +8472,90 @@
         {
           "when": "editorHasSelection",
           "command": "selection-manipulator.random.shuffle-words"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.vertical-text"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.gojuon-row"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.normalize-for-search"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.man-oku-notation"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.corporate-number-validate"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.decompose-dakuten"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.japanese.paren-reading-to-ruby"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-script"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-fraktur"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-double-struck"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.style-small-caps"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.escape-python"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.to-regional-indicators"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.unicode.from-regional-indicators"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.table-sort-by-column"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.table-transpose"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.unlink"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.extract-links"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.reference-to-inline"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.github-alert"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "selection-manipulator.markdown.kbd"
         }
       ],
       "editor/context": [
@@ -10277,6 +10466,34 @@
         {
           "command": "selection-manipulator.japanese.space-between-ja-en.replace",
           "group": "selection-manipulator@42"
+        },
+        {
+          "command": "selection-manipulator.japanese.vertical-text",
+          "group": "selection-manipulator@43"
+        },
+        {
+          "command": "selection-manipulator.japanese.gojuon-row",
+          "group": "selection-manipulator@44"
+        },
+        {
+          "command": "selection-manipulator.japanese.normalize-for-search",
+          "group": "selection-manipulator@45"
+        },
+        {
+          "command": "selection-manipulator.japanese.man-oku-notation",
+          "group": "selection-manipulator@46"
+        },
+        {
+          "command": "selection-manipulator.japanese.corporate-number-validate",
+          "group": "selection-manipulator@47"
+        },
+        {
+          "command": "selection-manipulator.japanese.decompose-dakuten",
+          "group": "selection-manipulator@48"
+        },
+        {
+          "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+          "group": "selection-manipulator@49"
         }
       ],
       "selection-manipulator.text.submenu": [
@@ -10875,6 +11092,41 @@
         {
           "command": "selection-manipulator.markdown.front-matter-to-json",
           "group": "selection-manipulator@25",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.table-sort-by-column",
+          "group": "selection-manipulator@26",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.table-transpose",
+          "group": "selection-manipulator@27",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.unlink",
+          "group": "selection-manipulator@28",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.extract-links",
+          "group": "selection-manipulator@29",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.reference-to-inline",
+          "group": "selection-manipulator@30",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.github-alert",
+          "group": "selection-manipulator@31",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "selection-manipulator.markdown.kbd",
+          "group": "selection-manipulator@32",
           "when": "editorHasSelection"
         }
       ],
@@ -12254,6 +12506,34 @@
         {
           "command": "selection-manipulator.unicode.transliterate-cyrillic",
           "group": "selection-manipulator@29"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-script",
+          "group": "selection-manipulator@30"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-fraktur",
+          "group": "selection-manipulator@31"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-double-struck",
+          "group": "selection-manipulator@32"
+        },
+        {
+          "command": "selection-manipulator.unicode.style-small-caps",
+          "group": "selection-manipulator@33"
+        },
+        {
+          "command": "selection-manipulator.unicode.escape-python",
+          "group": "selection-manipulator@34"
+        },
+        {
+          "command": "selection-manipulator.unicode.to-regional-indicators",
+          "group": "selection-manipulator@35"
+        },
+        {
+          "command": "selection-manipulator.unicode.from-regional-indicators",
+          "group": "selection-manipulator@36"
         }
       ],
       "selection-manipulator.selection.submenu": [

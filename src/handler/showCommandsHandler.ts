@@ -4866,6 +4866,111 @@ export const myCommands = [
     "command": "selection-manipulator.random.shuffle-words",
     "title": "Random - Shuffle Words",
     "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.vertical-text",
+    "title": "Japanese - Convert to Vertical Text",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.gojuon-row",
+    "title": "Japanese - Gojuon Row (Index Heading)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.normalize-for-search",
+    "title": "Japanese - Normalize for Search",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.man-oku-notation",
+    "title": "Japanese - Number to Man/Oku Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.corporate-number-validate",
+    "title": "Japanese - Validate Corporate Number",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.decompose-dakuten",
+    "title": "Japanese - Decompose Dakuten",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.japanese.paren-reading-to-ruby",
+    "title": "Japanese - Parenthesized Reading to Ruby Notation",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-script",
+    "title": "Unicode - Mathematical Script",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-fraktur",
+    "title": "Unicode - Mathematical Fraktur",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-double-struck",
+    "title": "Unicode - Mathematical Double-struck",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.style-small-caps",
+    "title": "Unicode - Small Capitals",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.escape-python",
+    "title": "Escape Unicode (Python \\U00XXXXXX)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.to-regional-indicators",
+    "title": "Unicode - Country Code to Flag Emoji",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.unicode.from-regional-indicators",
+    "title": "Unicode - Flag Emoji to Country Code",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.table-sort-by-column",
+    "title": "Markdown: Sort Table by Column",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.table-transpose",
+    "title": "Markdown: Transpose Table",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.unlink",
+    "title": "Markdown: Remove Links (Keep Text)",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.extract-links",
+    "title": "Markdown: Extract Links",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.reference-to-inline",
+    "title": "Markdown: Reference Links to Inline Links",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.github-alert",
+    "title": "Markdown: GitHub Alert Block",
+    "canMultiSelection": true
+  },
+  {
+    "command": "selection-manipulator.markdown.kbd",
+    "title": "Markdown: Keyboard Key (<kbd>)",
+    "canMultiSelection": true
   }
 ];
 

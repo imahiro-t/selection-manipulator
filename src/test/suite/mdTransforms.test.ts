@@ -43,6 +43,9 @@ const applied = (text: string, result: MdResult): string => {
   if (result.kind === 'info') {
     return `info: ${result.message}`;
   }
+  if (result.kind === 'open') {
+    return `open: ${result.content}`;
+  }
   let edited = text;
   [...result.edits].reverse().forEach(({ start, end, text: value }) => {
     edited = edited.slice(0, start) + value + edited.slice(end);

@@ -99,6 +99,9 @@ import { num2CommandHandler } from './handler/num2CommandHandler';
 import { date2CommandHandler } from './handler/date2CommandHandler';
 import { gen2CommandHandler } from './handler/gen2CommandHandler';
 import { date2MselCommandHandler } from './handler/date2MselCommandHandler';
+import { ja2CommandHandler } from './handler/ja2CommandHandler';
+import { uni2CommandHandler } from './handler/uni2CommandHandler';
+import { md2CommandHandler } from './handler/md2CommandHandler';
 import { devCommandHandler } from './handler/devCommandHandler';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -1161,6 +1164,29 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.passphrase', gen2CommandHandler('random.passphrase')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.string-custom-charset', gen2CommandHandler('random.string-custom-charset')));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.random.shuffle-words', gen2CommandHandler('random.shuffle-words')));
+
+  // Japanese, Unicode and Markdown extended (JAUNIX-001..021, group JAUNI2)
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.vertical-text', ja2CommandHandler('japanese.vertical-text')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.gojuon-row', ja2CommandHandler('japanese.gojuon-row')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.normalize-for-search', ja2CommandHandler('japanese.normalize-for-search')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.man-oku-notation', ja2CommandHandler('japanese.man-oku-notation')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.corporate-number-validate', ja2CommandHandler('japanese.corporate-number-validate')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.decompose-dakuten', ja2CommandHandler('japanese.decompose-dakuten')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.japanese.paren-reading-to-ruby', ja2CommandHandler('japanese.paren-reading-to-ruby')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-script', uni2CommandHandler('unicode.style-script')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-fraktur', uni2CommandHandler('unicode.style-fraktur')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-double-struck', uni2CommandHandler('unicode.style-double-struck')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.style-small-caps', uni2CommandHandler('unicode.style-small-caps')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.escape-python', uni2CommandHandler('unicode.escape-python')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.to-regional-indicators', uni2CommandHandler('unicode.to-regional-indicators')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.unicode.from-regional-indicators', uni2CommandHandler('unicode.from-regional-indicators')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.table-sort-by-column', md2CommandHandler('markdown.table-sort-by-column')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.table-transpose', md2CommandHandler('markdown.table-transpose')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.unlink', md2CommandHandler('markdown.unlink')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.extract-links', md2CommandHandler('markdown.extract-links')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.reference-to-inline', md2CommandHandler('markdown.reference-to-inline')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.github-alert', md2CommandHandler('markdown.github-alert')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.markdown.kbd', md2CommandHandler('markdown.kbd')));
 
   // Provider
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(ResultProvider.scheme, ResultProvider.instance));

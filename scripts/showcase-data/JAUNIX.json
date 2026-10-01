@@ -1,0 +1,265 @@
+{
+  "category": "JAUNIX",
+  "commands": [
+    {
+      "id": "selection-manipulator.japanese.vertical-text",
+      "candidateId": "JAUNIX-001",
+      "description": {
+        "en": "Rearranges the lines into vertical writing as plain text and opens it in a new tab: each line becomes a column read from top to bottom, the first line on the right. Short columns are filled with ideographic spaces (U+3000), a half-width space becomes one too, and `ー`, brackets such as `「」（）【】『』《》〈〉〔〕｛｝［］`, `、。` and `…‥` become their vertical presentation forms. Only full-width characters line up. More than 1,000 lines or 1,000 characters in a line warns and shows nothing; the size of the result is checked before it is built.",
+        "ja": "行を縦書き（右の列から左へ）のプレーンテキストに組み替えて新しいタブに開く（1 行が 1 列で、上から下へ読む。短い列は全角空白 U+3000 で埋め、半角空白も全角空白にする。`ー`、`「」（）【】『』《》〈〉〔〕｛｝［］` などの括弧、`、。`、`…‥` は縦書き用の字形に置換。揃うのは全角文字だけ）。1,000 行または 1 行 1,000 文字を超えると警告して何も表示しない（結果の大きさは生成前に計算する）"
+      },
+      "example": {
+        "en": "`あい⏎う` → `うあ⏎　い`",
+        "ja": "`あい⏎う` → `うあ⏎　い`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.gojuon-row",
+      "candidateId": "JAUNIX-002",
+      "description": {
+        "en": "Puts the gojuon row of the first kana of each line and a tab before the line (an index heading such as `さ行`). Katakana and half-width katakana count like hiragana; voiced, semi-voiced and small kana belong to the row of their plain kana, `ゔ` to `あ行` and `ん` to `わ行`. Blank lines stay; a line that does not start with kana is an error (with its line number) and nothing is changed.",
+        "ja": "各行の先頭の仮名から五十音の行（`さ行` などの索引見出し）を求め、タブ区切りで行頭に付ける（カタカナ・半角カタカナもひらがなと同じに扱う。濁音・半濁音・小書きは清音の行、`ゔ` は `あ行`、`ん` は `わ行`）。空行はそのまま。先頭が仮名でない行はエラー（行番号付き）で何も変更しない"
+      },
+      "example": {
+        "en": "`さとう⏎ｶﾞｲﾄﾞ` → `さ行⇥さとう⏎か行⇥ｶﾞｲﾄﾞ`",
+        "ja": "`さとう⏎ｶﾞｲﾄﾞ` → `さ行⇥さとう⏎か行⇥ｶﾞｲﾄﾞ`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.normalize-for-search",
+      "candidateId": "JAUNIX-003",
+      "description": {
+        "en": "Makes a search key in one step: NFKC, katakana to hiragana, lower case, and the dashes and tildes right after kana (`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` and the like) to the long vowel mark `ー`. Unlike running the separate conversions one after another, the dashes are judged after the width and the kana are unified.",
+        "ja": "NFKC・カタカナ→ひらがな・小文字化と、仮名の直後のダッシュ・チルダ類（`ｰ` `‐` `‑` `−` `—` `―` `－` `～` `〜` など）の長音符 `ー` への統一を 1 回で行い、検索キー用に正規化する（個別の変換を順に使う場合と違い、幅とかなを揃えた後でダッシュを判定する）"
+      },
+      "example": {
+        "en": "`ｶﾞｲﾄﾞＡＢＣ` → `がいどabc`",
+        "ja": "`ｶﾞｲﾄﾞＡＢＣ` → `がいどabc`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.man-oku-notation",
+      "candidateId": "JAUNIX-004",
+      "description": {
+        "en": "Writes the integer on each line with the units `万`, `億`, `兆` and `京` (Arabic digits kept, unlike **Japanese - Number to Kanji Numeral**). A sign, full-width digits and `,` every three digits are accepted; zero groups are left out. The digits are counted before the number is read: an absolute value above 10^20 - 1 or a line that is not an integer is an error.",
+        "ja": "各行の整数を万・億・兆・京の単位で書く（数字はアラビア数字のまま。**Japanese - Number to Kanji Numeral** は漢数字）。符号・全角数字・3 桁ごとの `,` を受け付け、0 の位取りは省く。桁数を数えてから読み、絶対値が 10^20 - 1 を超える行や整数でない行はエラー"
+      },
+      "example": {
+        "en": "`123456789` → `1億2345万6789`",
+        "ja": "`123456789` → `1億2345万6789`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.corporate-number-validate",
+      "candidateId": "JAUNIX-005",
+      "description": {
+        "en": "Checks the check digit of a 13-digit Japanese corporate number (the first digit) and shows `valid`, `invalid` or `not a corporate number` in a notification; spaces and hyphens are ignored. With several selections each one is listed, and with more than 10 only the counts are shown; the notification never contains the selected text. The check digit only catches typing mistakes (it is not cryptographic) and nothing is looked up online.",
+        "ja": "13 桁の法人番号のチェックデジット（先頭の 1 桁）を検証し、`valid`・`invalid`・`not a corporate number` を通知する（空白・ハイフンは無視。複数選択は選択ごと、11 件以上は件数のみ。通知に選択テキストは含めない）。チェックデジットは入力ミス検出用で暗号用途ではなく、外部への照会もしない"
+      },
+      "example": {
+        "en": "`7000012050002` → `Corporate number: valid（notification）`",
+        "ja": "`7000012050002` → `Corporate number: valid（通知）`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.decompose-dakuten",
+      "candidateId": "JAUNIX-006",
+      "description": {
+        "en": "The reverse of **Japanese - Compose Dakuten**: splits kana with a voiced or semi-voiced sound mark (hiragana and katakana, including `ゔ` `ヴ` `ヷ`–`ヺ`) into the plain kana and the mark, written as spacing marks `゛` `゜` or as combining marks U+3099 / U+309A (chosen in a quick pick). Other characters are not changed.",
+        "ja": "**Japanese - Compose Dakuten** の逆。濁点・半濁点付きの仮名（ひらがな・カタカナ。`ゔ` `ヴ` `ヷ`〜`ヺ` を含む）を清音と濁点・半濁点に分解する（独立した `゛` `゜` か結合用の U+3099 / U+309A かをクイックピックで選ぶ）。ほかの文字は変えない"
+      },
+      "example": {
+        "en": "`がぱ（゛ ゜）` → `か゛は゜`",
+        "ja": "`がぱ（゛ ゜）` → `か゛は゜`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.japanese.paren-reading-to-ruby",
+      "candidateId": "JAUNIX-007",
+      "description": {
+        "en": "Turns a reading of only kana in parentheses right after kanji into ruby notation: `漢字（かんじ）` or `漢字(かんじ)` becomes `｜漢字《かんじ》`, the base being the whole run of kanji before the parenthesis. Other parentheses are kept. (Added in place of the planned Remove Parenthesized Readings, which **Japanese - Remove Ruby Notation** already does.)",
+        "ja": "漢字の直後にある仮名だけの括弧書きの読みをルビ記法にする（`漢字（かんじ）`・`漢字(かんじ)` → `｜漢字《かんじ》`。親文字は括弧の直前の漢字の連続）。ほかの括弧はそのまま（予定していた「括弧書きの読みの削除」は **Japanese - Remove Ruby Notation** が既に行うため、代わりに追加）"
+      },
+      "example": {
+        "en": "`漢字（かんじ）` → `｜漢字《かんじ》`",
+        "ja": "`漢字（かんじ）` → `｜漢字《かんじ》`",
+        "japanese": "data"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-script",
+      "candidateId": "JAUNIX-008",
+      "description": {
+        "en": "Converts A–Z and a–z to Mathematical Script letters; the letters that Unicode encodes in the Letterlike Symbols block (`ℬ` `ℰ` `ℱ` `ℋ` `ℐ` `ℒ` `ℳ` `ℛ` `ℯ` `ℊ` `ℴ`) are used for them. Digits and other characters are kept.",
+        "ja": "A〜Z・a〜z を数学用スクリプト体にする（文字様記号ブロックにある文字 `ℬ` `ℰ` `ℱ` `ℋ` `ℐ` `ℒ` `ℳ` `ℛ` `ℯ` `ℊ` `ℴ` はそれを使う）。数字とほかの文字はそのまま"
+      },
+      "example": {
+        "en": "`Abc` → `𝒜𝒷𝒸`",
+        "ja": "`Abc` → `𝒜𝒷𝒸`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-fraktur",
+      "candidateId": "JAUNIX-009",
+      "description": {
+        "en": "Converts A–Z and a–z to Mathematical Fraktur letters (`ℭ` `ℌ` `ℑ` `ℜ` `ℨ` from the Letterlike Symbols block). Digits and other characters are kept.",
+        "ja": "A〜Z・a〜z を数学用フラクトゥール体にする（`ℭ` `ℌ` `ℑ` `ℜ` `ℨ` は文字様記号ブロックの文字）。数字とほかの文字はそのまま"
+      },
+      "example": {
+        "en": "`Abc` → `𝔄𝔟𝔠`",
+        "ja": "`Abc` → `𝔄𝔟𝔠`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-double-struck",
+      "candidateId": "JAUNIX-010",
+      "description": {
+        "en": "Converts A–Z, a–z and 0–9 to Mathematical Double-struck characters (`ℂ` `ℍ` `ℕ` `ℙ` `ℚ` `ℝ` `ℤ` from the Letterlike Symbols block). Other characters are kept.",
+        "ja": "A〜Z・a〜z・0〜9 を数学用黒板太字にする（`ℂ` `ℍ` `ℕ` `ℙ` `ℚ` `ℝ` `ℤ` は文字様記号ブロックの文字）。ほかの文字はそのまま"
+      },
+      "example": {
+        "en": "`Ab1` → `𝔸𝕓𝟙`",
+        "ja": "`Ab1` → `𝔸𝕓𝟙`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.style-small-caps",
+      "candidateId": "JAUNIX-011",
+      "description": {
+        "en": "Converts the lowercase letters a–z to small capitals (`ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘꞯʀꜱᴛᴜᴠᴡʏᴢ`); `x`, which has no small capital, uppercase letters and other characters are kept. Some of these letters are missing from older fonts.",
+        "ja": "英小文字 a〜z をスモールキャピタル（`ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘꞯʀꜱᴛᴜᴠᴡʏᴢ`）にする（対応する字のない `x`、大文字、ほかの文字はそのまま）。古いフォントには無い字もある"
+      },
+      "example": {
+        "en": "`abc` → `ᴀʙᴄ`",
+        "ja": "`abc` → `ᴀʙᴄ`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.escape-python",
+      "candidateId": "JAUNIX-012",
+      "description": {
+        "en": "Escapes every non-ASCII character in the Python style of `ascii()` and opens the result in a new tab: U+0080–U+00FF as `\\xhh`, the rest of the BMP as `\\uhhhh` (lone surrogates too) and other code points as `\\Uhhhhhhhh`, in lowercase hexadecimal. ASCII is kept as it is. (**Escape Unicode (\\uXXXX)** writes the JavaScript form.)",
+        "ja": "非 ASCII 文字を Python の `ascii()` 形式でエスケープし、新しいタブに開く（U+0080〜U+00FF は `\\xhh`、それ以外の BMP は `\\uhhhh`（単独サロゲートも）、それより上は `\\Uhhhhhhhh`。16 進小文字）。ASCII はそのまま（**Escape Unicode (\\uXXXX)** は JavaScript 形式）"
+      },
+      "example": {
+        "en": "`é😀` → `\\xe9\\U0001f600`",
+        "ja": "`é😀` → `\\xe9\\U0001f600`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.to-regional-indicators",
+      "candidateId": "JAUNIX-013",
+      "description": {
+        "en": "Turns every run of exactly two ASCII letters (not next to another letter; either case) into two regional indicator symbols, which most systems show as the flag of that country code. The codes are not checked against ISO 3166-1, so two-letter words such as `is` or `OK` are converted too, and an unassigned code shows as two boxed letters; longer and shorter runs of letters are kept.",
+        "ja": "前後が英字でない、ちょうど 2 文字の ASCII 英字（大小は問わない）を地域指示記号 2 文字にする（多くの環境でその国コードの国旗として表示される）。ISO 3166-1 の一覧とは照合しないため、`is`・`OK` のような 2 文字の英単語も変換され、未割り当てのコードは囲み文字 2 つで表示される。ほかの長さの英字列はそのまま"
+      },
+      "example": {
+        "en": "`JP` → `🇯🇵`",
+        "ja": "`JP` → `🇯🇵`"
+      }
+    },
+    {
+      "id": "selection-manipulator.unicode.from-regional-indicators",
+      "candidateId": "JAUNIX-014",
+      "description": {
+        "en": "Turns regional indicator symbols back into uppercase ASCII letters, so a flag emoji becomes its two-letter country code; a symbol without a partner becomes one letter. Other characters are kept.",
+        "ja": "地域指示記号を ASCII 大文字に戻す（国旗絵文字は 2 文字の国コードになり、組にならない単独の記号は 1 文字になる）。ほかの文字はそのまま"
+      },
+      "example": {
+        "en": "`🇯🇵` → `JP`",
+        "ja": "`🇯🇵` → `JP`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.table-sort-by-column",
+      "candidateId": "JAUNIX-015",
+      "description": {
+        "en": "Sorts the data rows of a Markdown table by the column whose number you type (1–1,000), ascending or descending (chosen in a quick pick). Cells are compared in natural order (numbers by value); the header and delimiter rows stay on top, rows with equal cells keep their order, and a row without that cell sorts as empty. Rows are moved as written, so escaped `\\|` and code spans stay intact.",
+        "ja": "Markdown 表のデータ行を、入力した列番号（1〜1,000）の列で昇順または降順（クイックピックで選択）に並べ替える（自然順で比較し数値は値で比べる。ヘッダ行と区切り行は先頭に固定、同じ値の行は元の順、その列が無い行は空として扱う）。行は書かれたまま移動するので、エスケープ済みの `\\|` やコードスパンはそのまま"
+      },
+      "example": {
+        "en": "`| k | v |⏎|---|---|⏎| b | 2 |⏎| a | 1 |（1, Ascending）` → `| k | v |⏎|---|---|⏎| a | 1 |⏎| b | 2 |`",
+        "ja": "`| k | v |⏎|---|---|⏎| b | 2 |⏎| a | 1 |（1・昇順）` → `| k | v |⏎|---|---|⏎| a | 1 |⏎| b | 2 |`",
+        "japanese": "note"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.table-transpose",
+      "candidateId": "JAUNIX-016",
+      "description": {
+        "en": "Swaps the rows and columns of a Markdown table: the header row counts as a row and the first column becomes the new header. Missing cells become empty cells and the delimiter row is rewritten with `---` (alignments are not carried over, because they belong to the old columns). Cells are written as they were, so escaped `\\|` stays escaped. The size of the result is checked before it is built.",
+        "ja": "Markdown 表の行と列を入れ替える（ヘッダ行も 1 行として扱い、1 列目が新しいヘッダになる）。足りないセルは空セル、区切り行は `---` で作り直す（配置指定は元の列に属するため引き継がない）。セルは書かれたまま出力するので、エスケープ済みの `\\|` も保たれる。結果の大きさは生成前に確認する"
+      },
+      "example": {
+        "en": "`| a | b |⏎|---|---|⏎| 1 | 2 |` → `| a | 1 |⏎| --- | --- |⏎| b | 2 |`",
+        "ja": "`| a | b |⏎|---|---|⏎| 1 | 2 |` → `| a | 1 |⏎| --- | --- |⏎| b | 2 |`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.unlink",
+      "candidateId": "JAUNIX-017",
+      "description": {
+        "en": "Replaces each inline link `[text](url)` with its text. Images stay, so a linked image `[![alt](img)](url)` becomes `![alt](img)`; links in code spans and fenced code blocks are left. Unlike **Markdown: Strip Formatting**, all other markup is kept. No URL is accessed.",
+        "ja": "インラインリンク `[text](url)` をリンクテキストだけにする（画像はそのままで、リンク付き画像 `[![alt](img)](url)` は `![alt](img)` になる。コードスパン・フェンス内のリンクは変えない）。**Markdown: Strip Formatting** と違い、ほかの書式は残す。URL にはアクセスしない"
+      },
+      "example": {
+        "en": "`[Docs](https://x.example)` → `Docs`",
+        "ja": "`[Docs](https://x.example)` → `Docs`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.extract-links",
+      "candidateId": "JAUNIX-018",
+      "description": {
+        "en": "Lists the inline links and images of the selections in document order as `text<TAB>url` lines in a new tab (links and images in code are skipped; a linked image keeps its `![…](…)` as the text; tabs and line breaks in a field become a space). An information message is shown when there are none. The URLs are only copied, never opened.",
+        "ja": "選択範囲のインラインリンクと画像を文書の順に `テキスト<TAB>URL` の行として新しいタブに出す（コード内のものは除く。リンク付き画像のテキストは `![…](…)` のまま。項目中のタブ・改行は空白 1 つ）。見つからなければ情報メッセージ。URL はコピーするだけで開かない"
+      },
+      "example": {
+        "en": "`[a](u1) ![b](u2)` → `a⇥u1⏎b⇥u2`",
+        "ja": "`[a](u1) ![b](u2)` → `a⇥u1⏎b⇥u2`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.reference-to-inline",
+      "candidateId": "JAUNIX-019",
+      "description": {
+        "en": "The reverse of **Markdown: Inline Links to Reference Links**: turns full `[text][label]` and collapsed `[text][]` references (images too) in the selections into inline links, using the definitions anywhere in the document (labels compare without case and with runs of whitespace as one space). The destination and title are written as in the definition (`<…>` and quotes kept). Shortcut references `[label]` are not converted. Definitions inside the selections that are no longer referenced anywhere are removed (with the blank lines before them when they end the selection); definitions outside the selections are never changed.",
+        "ja": "**Markdown: Inline Links to Reference Links** の逆。選択内の完全参照 `[text][label]`・省略参照 `[text][]`（画像も）を、文書全体のリンク定義（ラベルは大小を区別せず、連続する空白は 1 つとみなす）を使ってインラインリンクに戻す（宛先・タイトルは定義の書き方のまま。`<…>` や引用符も保つ）。ショートカット参照 `[label]` は対象外。選択内の定義のうち文書内のどこからも参照されなくなったものは削除する（選択の末尾ならその前の空行も）。選択外の定義は変更しない"
+      },
+      "example": {
+        "en": "`[a][1]⏎⏎[1]: https://x.example` → `[a](https://x.example)`",
+        "ja": "`[a][1]⏎⏎[1]: https://x.example` → `[a](https://x.example)`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.github-alert",
+      "candidateId": "JAUNIX-020",
+      "description": {
+        "en": "Wraps the selection in a GitHub alert block: `> [!NOTE]` (or TIP, IMPORTANT, WARNING, CAUTION, chosen in a quick pick from this fixed list) followed by every line with `> ` (`>` for a blank line). Only the chosen type from the list is written into the marker. The block gets lines of its own, and a blank line after it when text follows.",
+        "ja": "選択範囲を GitHub のアラートブロックで囲む（`> [!NOTE]` など。種別は NOTE・TIP・IMPORTANT・WARNING・CAUTION の固定リストからクイックピックで選ぶ。各行の先頭に `> `、空行は `>`）。記法に書くのはリストから選んだ種別だけ。ブロックは独立した行に置き、後ろに文字が続くときは空行を挟む"
+      },
+      "example": {
+        "en": "`text（NOTE）` → `> [!NOTE]⏎> text`",
+        "ja": "`text（NOTE）` → `> [!NOTE]⏎> text`"
+      }
+    },
+    {
+      "id": "selection-manipulator.markdown.kbd",
+      "candidateId": "JAUNIX-021",
+      "description": {
+        "en": "Wraps each key of a shortcut such as `Ctrl+C` in `<kbd>` tags on every line: keys are separated by `+`, a `+` where a key is expected is the plus key (`Ctrl++`), spaces around a key are dropped and a key name with spaces (`Page Up`) is one key. Key names are HTML-escaped first, so no other tag can be injected.",
+        "ja": "各行の `Ctrl+C` のようなショートカットのキーをそれぞれ `<kbd>` で囲む（キーは `+` で区切る。キー名の位置にある `+` は + キー（`Ctrl++`）、キー名の前後の空白は除き、`Page Up` のような空白入りの名前は 1 キー）。キー名は先に HTML エスケープするので、ほかのタグは埋め込めない"
+      },
+      "example": {
+        "en": "`Ctrl+C` → `<kbd>Ctrl</kbd>+<kbd>C</kbd>`",
+        "ja": "`Ctrl+C` → `<kbd>Ctrl</kbd>+<kbd>C</kbd>`"
+      }
+    }
+  ]
+}

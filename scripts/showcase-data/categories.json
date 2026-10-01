@@ -168,6 +168,13 @@
     }
   },
   {
+    "id": "JAUNIX",
+    "name": {
+      "en": "Japanese, Unicode & Markdown extensions (vertical text, gojuon rows, man / oku, corporate numbers, math styles, flags, Python escapes, table sort / transpose, links, GitHub alerts, kbd)",
+      "ja": "日本語・Unicode・Markdown拡張（縦書き・五十音の行・万／億表記・法人番号・数学用字体・国旗・Python エスケープ・表の並べ替え／転置・リンク・GitHub アラート・kbd）"
+    }
+  },
+  {
     "id": "EXISTING",
     "name": {
       "en": "Core commands",

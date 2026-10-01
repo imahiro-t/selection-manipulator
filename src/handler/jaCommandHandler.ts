@@ -1,6 +1,6 @@
 import { EndOfLine, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
 import { openTextDocument } from '../common';
-import { assertJaInputLength, isBlank, JaInputError, JaNoTargetError } from './jaCommon';
+import { assertJaInputLength, isBlank, JaInputError, JaLimitError, JaNoTargetError } from './jaCommon';
 import { JA_COMMAND_ENTRIES, JaCommandEntry, JaContext, JaQuickPickItem } from './jaTransforms';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
@@ -25,7 +25,7 @@ export interface JaDependencies {
   showQuickPick: (items: JaPickItem[], options: QuickPickOptions) => Thenable<JaPickItem | undefined>;
 }
 
-const defaultDependencies: JaDependencies = {
+export const defaultJaDependencies: JaDependencies = {
   notifier: window,
   openResult: (content) => openTextDocument(content),
   showQuickPick: (items, options) => window.showQuickPick(items, options),
@@ -113,6 +113,11 @@ const notifyFailure = (dependencies: JaDependencies, prefix: string, error: unkn
     return;
   }
   const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
+  // A limit of a JAUNIX command: a warning (JaLimitError is a JaInputError, so this comes first).
+  if (error instanceof JaLimitError) {
+    void dependencies.notifier.showWarningMessage(`${prefix}${where}${error.message}`);
+    return;
+  }
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
 
@@ -306,4 +311,4 @@ export const jaCommandHandlerInternal = (dependencies: JaDependencies, entries: 
     };
   };
 
-export const jaCommandHandler = jaCommandHandlerInternal(defaultDependencies);
+export const jaCommandHandler = jaCommandHandlerInternal(defaultJaDependencies);

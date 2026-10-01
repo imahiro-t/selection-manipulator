@@ -340,7 +340,7 @@ suite('Extended Data Format Commands (DATAX-001..024) Test Suite', () => {
       }
       assert.deepStrictEqual(sizes, { 'selection-manipulator.data.submenu': 19, 'selection-manipulator.table.submenu': 5 });
       const ids = contributes.commands.map((c: { command: string }) => c.command);
-      assert.strictEqual(ids.length, 993, '899 before DATA2 + 24, then 23 of DEV2, 23 of NUM2 and 24 of DATE2');
+      assert.strictEqual(ids.length, 1014, '899 before DATA2 + 24, then 23 of DEV2, 23 of NUM2, 24 of DATE2 and 21 of JAUNI2');
       assert.strictEqual(new Set(ids).size, ids.length, 'command IDs are unique');
       const titles = contributes.commands.map((c: { title: string; category?: string }) => `${c.category ?? ''}:${c.title}`);
       assert.strictEqual(new Set(titles).size, titles.length, 'command titles are unique');
