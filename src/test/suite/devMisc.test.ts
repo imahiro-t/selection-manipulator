@@ -564,6 +564,69 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
       refuses(() => String(tokenizeJs('`${'.repeat(DEV_MAX_NESTING + 1))), /nested more than/);
       assert.strictEqual(tokenizeJs(`${'`${'.repeat(DEV_MAX_NESTING - 1)}x${'}`'.repeat(DEV_MAX_NESTING - 1)}`).length, 1);
     });
+
+    const split = (text: string) => tokenizeJs(text, { splitTemplates: true });
+    const splitKinds = (text: string) => split(text).filter((token) => token.kind !== 'space').map((token) => `${token.kind}:${token.text}`);
+
+    test('split mode: template chunks and the tokens of the code in ${…}', () => {
+      assert.deepStrictEqual(splitKinds('`a${b /* c */}d${`e${f}`}g`'),
+        ['template:`a${', 'word:b', 'comment:/* c */', 'template:}d${', 'template:`e${', 'word:f', 'template:}`', 'template:}g`']);
+      // The code in ${…} is read with the same rules as outside: numbers, `?.5` and regular expressions.
+      assert.deepStrictEqual(splitKinds('`${/re/.test(x) ? 1.5e-3 : a?.5:b}`'), [
+        'template:`${', 'regex:/re/', 'punct:.', 'word:test', 'punct:(', 'word:x', 'punct:)', 'punct:?', 'number:1.5e-3', 'punct::',
+        'word:a', 'punct:?', 'number:.5', 'punct::', 'word:b', 'template:}`',
+      ]);
+      assert.deepStrictEqual(splitKinds('`a\n${b}\\${c}`'), ['template:`a\n${', 'word:b', 'template:}\\${c}`'], 'a line break in a chunk stays in it');
+      assert.deepStrictEqual(splitKinds('`${ {a: 1}.a }`'), ['template:`${', 'punct:{', 'word:a', 'punct::', 'number:1', 'punct:}', 'punct:.', 'word:a', 'template:}`']);
+    });
+
+    test('the default mode and the split mode find the same boundaries and throw the same errors', () => {
+      const inputs = [
+        'a / b / c', 'x = /a\\/[/]/g', '`a${`b${c + "}"}`}` + 1', '1.5e-3 >>>= a?.b', '`a${b /* c */}d${`e${f}`}g`',
+        '`${/re/.test(x) ? 1.5e-3 : a?.5:b}`', '`${a / b / c}` / 2', '`${ {a: {b: 1}}.a }` + `${"}" + \'`\'}`',
+        '`${f(// c\n  y)}`', '`${() => { return /*\n*/ x; }}`', 'x = `${`${`${a}`}`}` /re/', 'return `${x}` / 2',
+        'const t = `a${x /* c */}b`;', '`${x} ` /* c */', 'f(`// a ${b} /* c */`)', '`${"/* s */" + /\\/\\*/.source}`',
+        '`a\r\nb${c}\u2028`\n// end', 'tag`x${y}`.length',
+      ];
+      for (const input of inputs) {
+        const whole = tokenizeJs(input);
+        const parts = split(input);
+        const outside = parts.filter((token) => !whole.some((t) => t.kind === 'template' && t.start <= token.start && token.end <= t.end));
+        assert.deepStrictEqual(outside, whole.filter((token) => token.kind !== 'template'), input);
+        for (const template of whole.filter((token) => token.kind === 'template')) {
+          const inside = parts.filter((token) => template.start <= token.start && token.end <= template.end);
+          assert.strictEqual(inside.map((token) => token.text).join(''), template.text, input);
+          assert.strictEqual(inside[0].start, template.start, input);
+          assert.strictEqual(inside[inside.length - 1].end, template.end, input);
+        }
+        assert.strictEqual(parts.map((token) => token.text).join(''), input, input);
+      }
+      // The messages are the ones the template scanner gave before it was merged into the main loop.
+      const errors: [string, string][] = [
+        ['`a', 'a ` template literal is not closed'],
+        ['`${a', 'a ` template literal is not closed'],
+        ['`${"a}`', 'a " string is not closed'],
+        ['`${\'a}`', 'a \' string is not closed'],
+        ['`${a /* b}`', 'a /* comment is not closed'],
+        ['`${a // b}`', 'a ` template literal is not closed'],
+        ['`${ /a}`', 'a regular expression is not closed'],
+        ['`${`${`', 'a ` template literal is not closed'],
+        ['`${a}', 'a ` template literal is not closed'],
+        ['`${{}`', 'a ` template literal is not closed'],
+        ['`' + '${`'.repeat(DEV_MAX_NESTING + 1), `the template literals are nested more than ${DEV_MAX_NESTING} levels deep`],
+      ];
+      for (const [input, message] of errors) {
+        for (const run of [() => tokenizeJs(input), () => split(input)]) {
+          assert.throws(run, (error: Error) => error instanceof DevInputError && error.message === message, input);
+        }
+      }
+    });
+
+    test(`split mode: ${DEV_MAX_NESTING - 1} nested template literals work, deeper ones are refused without a stack overflow`, () => {
+      const nested = `${'`${'.repeat(DEV_MAX_NESTING - 1)}x${'}`'.repeat(DEV_MAX_NESTING - 1)}`;
+      assert.strictEqual(split(nested).map((token) => token.text).join(''), nested);
+      refuses(() => String(split('`${'.repeat(DEV_MAX_NESTING + 1))), /nested more than/);
+    });
   });
 
   suite('limits', () => {

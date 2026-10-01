@@ -23,15 +23,18 @@ const isTerminator = (token: CssToken): boolean =>
   token.depth === 0 && (token.type === '{' || token.type === '}' || token.type === ';');
 
 /**
- * One declaration of a run: its body (and the comment after its `;` on the same line) moves, the
- * frame (spaces around it and the `;`) stays.
+ * One declaration of a run: its body (and the comment after it at the end of the same line) moves,
+ * the frame (spaces around it and the `;`) stays.
  */
 interface Declaration {
   lead: string;
   body: string;
   trail: string;
   terminator: string;
-  /** The spaces and comments after the `;` up to the end of the line (`' /* about b *\/'`), or `''`. */
+  /**
+   * The spaces and comments at the end of the line of the declaration (`' /* about b *\/'`), or
+   * `''`: after its `;`, or, for a declaration without `;`, after its last code on the same line.
+   */
   note: string;
   key: string;
 }
@@ -59,6 +62,25 @@ const sameLineNoteLength = (segment: readonly CssToken[]): number => {
   return length;
 };
 
+/**
+ * For a declaration without `;` whose last code token is at `lastCode`: the end of its note, the
+ * spaces without a line break and comments after that code on the same line, up to the last
+ * comment (`lastCode + 1` when there is no such comment). What follows (a line break and the lines
+ * after it) stays in the frame.
+ */
+const trailingNoteEnd = (segment: readonly CssToken[], lastCode: number): number => {
+  let end = lastCode + 1;
+  for (let k = lastCode + 1; k < segment.length; k++) {
+    const token = segment[k];
+    if (token.type === 'comment') {
+      end = k + 1;
+    } else if (token.type !== 'ws' || LINE_BREAK.test(token.text)) {
+      break;
+    }
+  }
+  return end;
+};
+
 const joinTokens = (part: readonly CssToken[]): string => part.map((token) => token.text).join('');
 
 /** The property name of a declaration (before its first `:`, comments left out), in lower case. */
@@ -82,7 +104,10 @@ const compareKeys = (a: Declaration, b: Declaration): number => (a.key < b.key ?
  * sorted by property name (lower case, code point order, stable). Only the declarations move: the
  * spaces and line breaks around each one and the `;` stay where they were, so the layout is kept.
  * A comment right before a declaration moves with it, and so does a comment after its `;` at the
- * end of the same line (`b: 1; /* about b *\/`). A nested rule (`@media`, CSS nesting) or an
+ * end of the same line (`b: 1; /* about b *\/`). For the last declaration without `;`, the comment
+ * after it on the same line moves with it too, and goes after the `;` when it moves to a place
+ * that has one (`a: 2 /* a *\/` → `a: 2; /* a *\/`); a comment on a later line stays where it is,
+ * before the `}`. A comment before the `;` (`b: 1 /* x *\/;`) is part of the body. A nested rule (`@media`, CSS nesting) or an
  * at-rule statement ends a run: declarations are never moved across it. Strings, comments and
  * `url(…)` are copied as they are.
  */
@@ -119,15 +144,25 @@ export const cssSortProperties = (text: string, budget: number): string => {
         bodyStart++;
       }
       let bodyEnd = segment.length;
-      while (isSpaceToken(segment[bodyEnd - 1])) {
-        bodyEnd--;
+      let noteEnd = bodyEnd;
+      if (terminator === ';') {
+        while (isSpaceToken(segment[bodyEnd - 1])) {
+          bodyEnd--;
+        }
+        noteEnd = bodyEnd;
+      } else {
+        // No `;`: the comments after the last code on its line are its note, not its body.
+        while (isInsignificant(segment[bodyEnd - 1])) {
+          bodyEnd--;
+        }
+        noteEnd = trailingNoteEnd(segment, bodyEnd - 1);
       }
       run.push({
         lead: joinTokens(segment.slice(0, bodyStart)),
         body: joinTokens(segment.slice(bodyStart, bodyEnd)),
-        trail: joinTokens(segment.slice(bodyEnd)),
+        trail: joinTokens(segment.slice(noteEnd)),
         terminator: terminator === ';' ? ';' : '',
-        note: '',
+        note: joinTokens(segment.slice(bodyEnd, noteEnd)),
         key: propertyKey(segment.slice(first)),
       });
       if (terminator !== ';') {

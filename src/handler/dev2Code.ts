@@ -3,7 +3,8 @@
  * here-document literals (vscode-independent).
  *
  * The comments are found with the lexer of DEV-023..025 (devJsLexer.ts), so strings, template
- * literals and regular expression literals are never touched. The literals are only built as
+ * literals and regular expression literals are never touched; the lexer splits template literals
+ * into their string chunks and the code of their `${…}`, so comments in `${…}` are removed too. The literals are only built as
  * text: nothing is compiled, evaluated or run in a shell. Every function is linear in its input.
  */
 import { assertWithinBudget, DevInputError, DevOutputBuffer } from './devCommon';
@@ -16,8 +17,38 @@ import { isLineTerminator, JsToken, tokenizeJs } from './devJsLexer';
 /** Punctuators after which, or before which, a removed comment needs no space. */
 const OPENERS = new Set(['(', '[', '{', ',', ';']);
 const CLOSERS = new Set([')', ']', '}', ',', ';']);
+/** Brackets whose inside a comment right after them starts: the spaces after that comment go. */
+const OPEN_BRACKETS = new Set(['(', '[', '{']);
 
-/** The line being written: what is kept so far and where its code ends. */
+/** A template chunk that opens a `${…}` (`` `a${ `` or `}b${`). */
+const opensSubstitution = (token: JsToken): boolean => token.kind === 'template' && token.text.endsWith('${');
+/** A template chunk that ends a `${…}` (`}b${` or `` }b` ``). */
+const closesSubstitution = (token: JsToken): boolean => token.kind === 'template' && token.text.startsWith('}');
+
+/** Whether `token` opens a bracket (`(` `[` `{` or a chunk ending with `${`), for rule R1. */
+const isOpenBracket = (token: JsToken | undefined): boolean =>
+  token !== undefined && ((token.kind === 'punct' && OPEN_BRACKETS.has(token.text)) || opensSubstitution(token));
+
+/** Whether `token` closes a bracket or ends a list item (`)` `]` `}` `,` `;` or a chunk starting with `}`), for rule R2. */
+const isCloser = (token: JsToken | undefined): boolean =>
+  token !== undefined && ((token.kind === 'punct' && CLOSERS.has(token.text)) || closesSubstitution(token));
+
+/**
+ * The line being written: what is kept so far and where its code ends.
+ *
+ * How endLine writes the line, by the three flags:
+ *
+ * | hadComment | codeEnd | commentLast | the line is written as                                         |
+ * |------------|---------|-------------|----------------------------------------------------------------|
+ * | false      | any     | (false)     | `text` as it is (empty lines and lines of spaces stay)         |
+ * | true       | 0       | any         | nothing: the line is removed with its line break               |
+ * | true       | > 0     | false       | `text` as it is (code follows the last removed comment)        |
+ * | true       | > 0     | true        | `text.slice(0, codeEnd)`: the spaces after the last code go    |
+ *
+ * `commentLast` is only set together with `hadComment`, so it is always false when `hadComment` is
+ * false. On the line of a hashbang, `codeEnd` starts at the length of the hashbang (the hashbang
+ * is code; no comment can follow it on that line, as it runs to the line break).
+ */
 interface OpenLine {
   text: string;
   hadComment: boolean;
@@ -26,6 +57,9 @@ interface OpenLine {
   /** A comment was removed after the last code token: the spaces left after that code are dropped. */
   commentLast: boolean;
 }
+
+/** Whether the text of a comment holds a line break. */
+const hasLineBreak = (text: string): boolean => /[\n\r\u2028\u2029]/.test(text);
 
 /** The line breaks in the text of a block comment, each as it is written (CR LF as one). */
 const lineBreaksOf = (text: string): string[] => {
@@ -53,10 +87,10 @@ const needsSpace = (before: JsToken | undefined, after: JsToken | undefined): bo
   if (before === undefined || after === undefined) {
     return false;
   }
-  if (before.kind === 'punct' && OPENERS.has(before.text)) {
+  if ((before.kind === 'punct' && OPENERS.has(before.text)) || opensSubstitution(before)) {
     return false;
   }
-  return !(after.kind === 'punct' && CLOSERS.has(after.text));
+  return !isCloser(after);
 };
 
 /**
@@ -68,6 +102,21 @@ const needsSpace = (before: JsToken | undefined, after: JsToken | undefined): bo
  * and holds only spaces afterwards is removed with its line break; lines that were empty before
  * are kept. When the last line (without a line break) is removed, the line break before it stays.
  * The spaces left at the end of a line after a removed comment are dropped (`a = 1; // x` → `a = 1;`).
+ * Comments in the `${…}` of template literals are removed by the same rules; the string parts of
+ * a template literal are never changed.
+ *
+ * Two more rules for the spaces around a comment without line breaks:
+ * - R1: after a comment at the start of a line (only spaces before it) or right after an opening
+ *   bracket (`(` `[` `{` or `${`), the spaces after it are dropped (`/* c *\/ a;` → `a;`,
+ *   `  /* c *\/ a;` → `  a;`, `f(/* c *\/ a)` → `f(a)`).
+ * - R2: when code comes before it on its line and the first code after it on that line is `)` `]`
+ *   `}` `,` `;` or the `}` that ends a `${…}`, the spaces between that code and it are dropped
+ *   (`f(a /* c *\/)` → `f(a)`, `g(a /* c *\/, b)` → `g(a, b)`).
+ * Both may apply (`( /* c *\/ )` → `()`). The indent of a line is never dropped. Elsewhere in a
+ * line, the spaces on both sides of a removed comment stay (`x = a /* c *\/ - b` → `x = a  - b`).
+ * The spaces after a block comment that spans lines always stay, as they may be the indent of
+ * the next line (`x;⏎/* a⏎ *\/ b;` → `x;⏎ b;`). R1 and R2 only drop spaces without line breaks, so
+ * the line breaks, and automatic semicolon insertion, are the same as before.
  */
 export const removeJsComments = (text: string, budget: number): string => {
   let hashbang = '';
@@ -80,20 +129,36 @@ export const removeJsComments = (text: string, budget: number): string => {
     hashbang = text.slice(0, end);
     source = text.slice(end);
   }
-  const tokens = tokenizeJs(source);
-  // The next token that is not a comment, for each token (to know what follows a comment).
+  // Template chunks are code tokens; a line break inside a chunk is part of it, not a `newline`.
+  const tokens = tokenizeJs(source, { splitTemplates: true });
+  // For each token: the next token that is not a comment (to know what follows a comment), and the
+  // first code token after it on the same line, past spaces and comments without line breaks
+  // (undefined when a line break or a comment with line breaks comes first; for rule R2).
   const nextCode: (JsToken | undefined)[] = new Array(tokens.length);
+  const nextSolid: (JsToken | undefined)[] = new Array(tokens.length);
   let following: JsToken | undefined;
+  let solid: JsToken | undefined;
   for (let i = tokens.length - 1; i >= 0; i--) {
+    const token = tokens[i];
     nextCode[i] = following;
-    if (tokens[i].kind !== 'comment') {
-      following = tokens[i];
+    nextSolid[i] = solid;
+    if (token.kind !== 'comment') {
+      following = token;
+    }
+    if (token.kind === 'newline' || (token.kind === 'comment' && hasLineBreak(token.text))) {
+      solid = undefined;
+    } else if (token.kind !== 'space' && token.kind !== 'comment') {
+      solid = token;
     }
   }
   const out = new DevOutputBuffer(budget);
   let line: OpenLine = { text: hashbang, hadComment: false, codeEnd: hashbang.length, commentLast: false };
-  // The last code token written on the current line (undefined after a space or at its start).
+  // The last code token written on the current line (undefined after a space or at its start; for needsSpace).
   let lastCode: JsToken | undefined;
+  // The last code token of the current line, kept across spaces and comments (for rule R1).
+  let lineLastCode: JsToken | undefined;
+  // Rule R1 applies: the spaces that come next are dropped, until a code token or a line break.
+  let dropSpace = false;
   const endLine = (lineBreak: string) => {
     if (!line.hadComment) {
       out.push(line.text + lineBreak);
@@ -103,6 +168,8 @@ export const removeJsComments = (text: string, budget: number): string => {
     // A line that had a comment and holds no code afterwards is removed with its line break.
     line = { text: '', hadComment: false, codeEnd: 0, commentLast: false };
     lastCode = undefined;
+    lineLastCode = undefined;
+    dropSpace = false;
   };
   tokens.forEach((token, i) => {
     if (token.kind === 'newline') {
@@ -110,13 +177,18 @@ export const removeJsComments = (text: string, budget: number): string => {
       return;
     }
     if (token.kind !== 'comment') {
-      line.text += token.text;
       if (token.kind === 'space') {
+        if (!dropSpace) {
+          line.text += token.text;
+        }
         lastCode = undefined;
       } else {
+        line.text += token.text;
         lastCode = token;
+        lineLastCode = token;
         line.codeEnd = line.text.length;
         line.commentLast = false;
+        dropSpace = false;
       }
       return;
     }
@@ -124,6 +196,17 @@ export const removeJsComments = (text: string, budget: number): string => {
     line.commentLast = true;
     const breaks = token.text.startsWith('/*') ? lineBreaksOf(token.text) : [];
     if (breaks.length === 0) {
+      if (line.codeEnd > 0 && isCloser(nextSolid[i])) {
+        // R2: drop the spaces between the code before and this comment (with a space that an
+        // earlier comment of the run may have left). The line now ends with that code, so it is
+        // the code next to this comment again (needsSpace then gives false, as a closer follows).
+        line.text = line.text.slice(0, line.codeEnd);
+        lastCode = lineLastCode;
+      }
+      if (line.codeEnd === 0 || isOpenBracket(lineLastCode)) {
+        // R1: at the start of the line or right after an opening bracket.
+        dropSpace = true;
+      }
       const after = nextCode[i];
       if (needsSpace(lastCode, after?.kind === 'space' || after?.kind === 'newline' ? undefined : after)) {
         line.text += ' ';

@@ -388,6 +388,20 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assert.strictEqual(cssSortProperties('a{z:1; /* z */ y:2}', BUDGET), 'a{/* z */ y:2; z:1}');
     });
 
+    test('sort: a comment after the last declaration without ; on the same line moves with it and goes after the ;', () => {
+      assert.strictEqual(cssSortProperties('{\n  b: 1;\n  a: 2 /* about a */\n}', BUDGET), '{\n  a: 2; /* about a */\n  b: 1\n}');
+      assert.strictEqual(cssSortProperties('{ b: 1; a: 2 /* a */ }', BUDGET), '{ a: 2; /* a */ b: 1 }');
+      assert.strictEqual(cssSortProperties('{\r\n  b: 1;\r\n  a: 2 /* a */\r\n}', BUDGET), '{\r\n  a: 2; /* a */\r\n  b: 1\r\n}');
+      // A comment on a later line stays before the }.
+      assert.strictEqual(cssSortProperties('{\n  b: 1;\n  a: 2\n  /* end */\n}', BUDGET), '{\n  a: 2;\n  b: 1\n  /* end */\n}');
+      // A comment inside a value is part of the body.
+      assert.strictEqual(cssSortProperties('{ b: 0 /* x */ auto; a: 1 }', BUDGET), '{ a: 1; b: 0 /* x */ auto }');
+      // Already sorted: nothing changes.
+      for (const css of ['{\n  a: 1;\n  b: 2 /* b */ /* c */\n  /* end */\n}', '{ a: 1; b: 2 /* b */ }', 'a: 1; b: 2 /* b */']) {
+        assert.strictEqual(cssSortProperties(css, BUDGET), css);
+      }
+    });
+
     test('CSS to style object: camelCase, vendor prefixes, custom properties and escaped values (never evaluated)', () => {
       assert.strictEqual(cssToJsObject('{ -webkit-transition: a; -ms-transform: b; --main-color: #fff; FONT-SIZE: 1px }', BUDGET),
         '{ WebkitTransition: \'a\', msTransform: \'b\', \'--main-color\': \'#fff\', fontSize: \'1px\' }');
@@ -483,6 +497,57 @@ suite('Extended Developer Transforms (DEVX-001..023) Test Suite', () => {
       assertInputError(() => remove('a /* b'), /comment is not closed/);
       assertInputError(() => remove('"abc'), /string is not closed/);
       assertInputError(() => remove('`abc'), /template literal is not closed/);
+    });
+
+    test('R1: the spaces after a comment at the start of a line or right after an opening bracket are dropped', () => {
+      assert.strictEqual(remove('/* c */ a;'), 'a;');
+      assert.strictEqual(remove('  /* c */ a;'), '  a;', 'the indent stays');
+      assert.strictEqual(remove('\t/* a */ /* b */  x();'), '\tx();');
+      assert.strictEqual(remove('// c\n  /* d */ y;'), '  y;');
+      assert.strictEqual(remove('  /* c */ )'), '  )');
+      assert.strictEqual(remove('f( /* c */ a)'), 'f( a)', 'the space written before the comment stays');
+      assert.strictEqual(remove('f(/* c */ a)'), 'f(a)');
+      assert.strictEqual(remove('a();\r\n  /* c */ b();'), 'a();\r\n  b();');
+      assert.strictEqual(remove('#!/usr/bin/env node\n/* c */ run();'), '#!/usr/bin/env node\nrun();');
+    });
+
+    test('R2: the spaces before a comment right before a closing bracket, , or ; are dropped', () => {
+      assert.strictEqual(remove('f(a /* c */)'), 'f(a)');
+      assert.strictEqual(remove('g(a /* c */, b)'), 'g(a, b)');
+      assert.strictEqual(remove('{ a; /* c */ }'), '{ a; }');
+      assert.strictEqual(remove('x /* c */;'), 'x;');
+      assert.strictEqual(remove('( /* c */ )'), '()', 'R1 and R2 together');
+    });
+
+    test('other spaces around a removed comment stay as before', () => {
+      assert.strictEqual(remove('x = a /* c */ - b;  '), 'x = a  - b;  ');
+      assert.strictEqual(remove('  f(); /* a\n  b */  g();'), '  f();\n  g();');
+      assert.strictEqual(remove('f(/**/a/**/, /**/b/**/);'), 'f(a, b);', 'a , is not an opening bracket');
+      assert.strictEqual(remove('c(/* x */);'), 'c();');
+      assert.strictEqual(remove('a /**/b'), 'a b');
+    });
+
+    test('the spaces after a block comment with line breaks stay as the indent of the next line', () => {
+      assert.strictEqual(remove('x;\n/* a\n */ b;'), 'x;\n b;');
+    });
+
+    test('comments in ${…} of a template literal are removed by the same rules', () => {
+      assert.strictEqual(remove('const t = `a${x /* c */}b`;'), 'const t = `a${x}b`;');
+      assert.strictEqual(remove('`${/* c */ a}`'), '`${a}`');
+      assert.strictEqual(remove('`${a/**/b}`'), '`${a b}`');
+      assert.strictEqual(remove('`${`${a /* in */}` /* out */}`'), '`${`${a}`}`');
+      assert.strictEqual(remove('`${f(// c\n  y)}`'), '`${f(\n  y)}`');
+      assert.strictEqual(remove('`${() => { return /*\n*/ x; }}`'), '`${() => { return\n x; }}`');
+      assert.strictEqual(remove('`${x} ` /* c */'), '`${x} `', 'the spaces of a chunk are not dropped');
+    });
+
+    test('the string parts of a template literal and strings or regular expressions in ${…} are never changed', () => {
+      assert.strictEqual(remove('f(`// a ${b} /* c */`)'), 'f(`// a ${b} /* c */`)');
+      assert.strictEqual(remove('`${"/* s */" + /\\/\\*/.source}`'), '`${"/* s */" + /\\/\\*/.source}`');
+      assert.strictEqual(remove('`a  \n  // b\n${c}  /* d */  `'), '`a  \n  // b\n${c}  /* d */  `');
+      assertInputError(() => remove('`${a /* b`'), /comment is not closed/);
+      assertInputError(() => remove('`${a'), /template literal is not closed/);
+      assertInputError(() => remove('`'.concat('${`'.repeat(DEV_MAX_NESTING + 1))), /nested more than/);
     });
   });
 
