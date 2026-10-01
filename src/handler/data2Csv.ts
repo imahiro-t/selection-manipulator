@@ -6,7 +6,8 @@
  *
  * Security rules (SECURITY.md): no code evaluation and no regular expression built from the
  * user's text (the delimiter of DATAX-020 is split as plain text); the input, the grid (rows x
- * columns) and the output are limited; counts are kept in a `Map` (no prototype involved).
+ * columns) and the output are limited, and the commands that make the text grow (DATAX-020 / 022)
+ * check their limits before building it; counts are kept in a `Map` (no prototype involved).
  */
 import { CountLimitError } from './dataCommon';
 import {
@@ -15,13 +16,16 @@ import {
   findPromptProblem,
   hasTrailingLineBreak,
   normalizeRows,
+  outputTooLarge,
   parseDelimited,
   resolveColumn,
   TABLE_MAX_GRID_CELLS,
   TableInputError,
   TableTooLargeError,
+  writeCell,
   writeDelimited,
 } from './tableCsv';
+import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
 
 /** DATAX-020: upper limit of the number of columns added by splitting. */
 export const SPLIT_MAX_ADDED_COLUMNS = 1_000;
@@ -115,6 +119,17 @@ export const mergeColumns = (text: string, [first, second, separator]: readonly 
   return writeLike(merged, text);
 };
 
+/** The occurrences of `delimiter` (not empty) in `cell`, counted up to `limit`. */
+const countDelimiters = (cell: string, delimiter: string, limit: number): number => {
+  let count = 0;
+  let at = cell.indexOf(delimiter);
+  while (at !== -1 && count < limit) {
+    count++;
+    at = cell.indexOf(delimiter, at + delimiter.length);
+  }
+  return count;
+};
+
 /**
  * DATAX-020: splits one column at every occurrence of the delimiter (plain text, not a regular
  * expression) into as many columns as the row with the most parts needs; the header row too.
@@ -128,20 +143,21 @@ export const splitColumn = (text: string, [column, delimiter]: readonly string[]
   const rows = normalizeRows(readCsv(text));
   const columns = rows[0].length;
   const index = resolveColumn(rows[0], columns, column);
-  const parts = rows.map((row) => row[index].split(delimiter));
-  let widest = 1;
-  for (const cellParts of parts) {
-    widest = Math.max(widest, cellParts.length);
+  // Count the delimiters first (stopping past the limit), so that no cell is split into more
+  // parts than the limit allows.
+  let added = 0;
+  for (const row of rows) {
+    added = Math.max(added, countDelimiters(row[index], delimiter, SPLIT_MAX_ADDED_COLUMNS + 1));
+    if (added > SPLIT_MAX_ADDED_COLUMNS) {
+      throw new CountLimitError(added, SPLIT_MAX_ADDED_COLUMNS, 'added columns');
+    }
   }
-  const added = widest - 1;
-  if (added > SPLIT_MAX_ADDED_COLUMNS) {
-    throw new CountLimitError(added, SPLIT_MAX_ADDED_COLUMNS, 'added columns');
-  }
+  const widest = added + 1;
   if (rows.length * (columns + added) > TABLE_MAX_GRID_CELLS) {
     throw new TableTooLargeError(rows.length, columns + added);
   }
-  const split = rows.map((row, r) => {
-    const cells = parts[r];
+  const split = rows.map((row) => {
+    const cells = row[index].split(delimiter);
     while (cells.length < widest) {
       cells.push('');
     }
@@ -180,6 +196,20 @@ export const fillEmpty = (text: string, [value]: readonly string[]): string => {
   if (problem !== undefined) {
     throw new TableInputError(problem);
   }
-  const rows = normalizeRows(readCsv(text)).map((row) => row.map((cell) => (cell === '' ? value : cell)));
-  return writeLike(rows, text);
+  const rows = normalizeRows(readCsv(text));
+  // Every empty cell grows to the value (up to 1,000 times longer): check the output limit
+  // before any row is built, from the length each filled cell will have at least.
+  let empty = 0;
+  for (const row of rows) {
+    for (const cell of row) {
+      if (cell === '') {
+        empty++;
+      }
+    }
+  }
+  const atLeast = empty * writeCell(value, ',').length;
+  if (atLeast > MAX_OUTPUT_LENGTH) {
+    throw outputTooLarge(atLeast);
+  }
+  return writeLike(rows.map((row) => row.map((cell) => (cell === '' ? value : cell))), text);
 };

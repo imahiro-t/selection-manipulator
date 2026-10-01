@@ -11,9 +11,11 @@
  * as the strings they are).
  *
  * Errors (never silently converted): duplicate keys / tables, extending an inline table or a
- * static array, mixing `[x]` and `[[x]]`, `inf` / `nan` (not representable in JSON), integers
- * outside ±(2^53 − 1) (they would lose precision). Dates are only format-checked (month 01-12,
- * day 01-31, ...), not checked against the calendar.
+ * static array, mixing `[x]` and `[[x]]`. Converting to JSON (the default) also rejects `inf` /
+ * `nan` and floats too large for a double (not representable in JSON) and integers outside
+ * ±(2^53 − 1) (they would lose precision); with `preserveTypes` (TOML to TOML) they are kept, and
+ * only integers outside the 64-bit range TOML allows are rejected. Dates are only format-checked
+ * (month 01-12, day 01-31, ...), not checked against the calendar.
  */
 import {
   assertDepth,
@@ -29,18 +31,20 @@ import {
 } from './dataCommon';
 
 /**
- * DATAX-015 (Format TOML): a float or a date / time read with `preserveTypes`, so that writing the
- * value back keeps its TOML type (`1.0` stays a float, a date stays unquoted). `text` is what is
- * written: the date / time as it was, or the float in a normalised form that always has a
- * fraction or an exponent. A class instance, never a plain object, so it cannot be mistaken for a
- * table (check with `instanceof` before `isJsonObject`).
+ * DATAX-015 (Format TOML): a value read with `preserveTypes` that a JSON number / string would
+ * change, so that writing it back keeps its TOML type and value: a float (`1.0` stays a float),
+ * `inf` / `nan`, a float too large for a double (`1e400`), an integer outside ±(2^53 − 1), or a
+ * date / time (stays unquoted). `text` is what is written: the float in a normalised form that
+ * always has a fraction or an exponent, the large integer in decimal, and anything else as it was
+ * read. A class instance, never a plain object, so it cannot be mistaken for a table (check with
+ * `instanceof` before `isJsonObject`).
  */
 export class TomlLiteral {
-  constructor(readonly kind: 'float' | 'datetime', readonly text: string) {}
+  constructor(readonly text: string) {}
 }
 
 export interface TomlParseOptions {
-  /** Return floats and dates / times as `TomlLiteral` (DATAX-015); off by default (TOML to JSON). */
+  /** Return the values JSON cannot keep as they are as `TomlLiteral` (DATAX-015); off by default (TOML to JSON). */
   preserveTypes?: boolean;
 }
 
@@ -70,6 +74,9 @@ const LOCAL_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const LOCAL_TIME = /^(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?$/;
 const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?([Zz]|[+-]\d{2}:\d{2})?$/;
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
+/** TOML integers are 64-bit signed. */
+const MAX_INT64 = 2n ** 63n - 1n;
+const MIN_INT64 = -(2n ** 63n);
 
 const isControl = (ch: string): boolean => {
   const code = ch.charCodeAt(0);
@@ -646,21 +653,34 @@ class TomlParser {
       return false;
     }
     if (/^[+-]?(?:inf|nan)$/.test(token)) {
+      if (this.preserveTypes) {
+        return this.literal(token);
+      }
       this.fail(`${token} cannot be represented in JSON`, start);
     }
     if (DECIMAL_INTEGER.test(token) || HEX_INTEGER.test(token) || OCTAL_INTEGER.test(token) || BINARY_INTEGER.test(token)) {
       const big = BigInt(token.replace(/_/g, ''));
       if (big > MAX_SAFE || big < -MAX_SAFE) {
-        this.fail(`the integer ${token} is outside ±(2^53 − 1) and cannot be converted without losing precision`, start);
+        if (!this.preserveTypes) {
+          this.fail(`the integer ${token} is outside ±(2^53 − 1) and cannot be converted without losing precision`, start);
+        }
+        if (big > MAX_INT64 || big < MIN_INT64) {
+          this.fail(`the integer ${token} is outside the 64-bit range TOML allows`, start);
+        }
+        // Written in decimal, like the hex / octal / binary integers that fit a double.
+        return this.literal(big.toString());
       }
       return Number(big);
     }
     if (FLOAT.test(token)) {
       const value = Number(token.replace(/_/g, ''));
       if (!Number.isFinite(value)) {
+        if (this.preserveTypes) {
+          return this.literal(token);
+        }
         this.fail(`the number ${token} is too large to be represented in JSON`, start);
       }
-      return this.preserveTypes ? this.literal('float', floatText(value)) : value;
+      return this.preserveTypes ? this.literal(floatText(value)) : value;
     }
     const dateTime = DATE_TIME.exec(token);
     if (dateTime) {
@@ -669,25 +689,25 @@ class TomlParser {
       if (dateTime[7] && dateTime[7].length === 6) {
         this.checkTime(dateTime[7].slice(1, 3), dateTime[7].slice(4, 6), '00', start);
       }
-      return this.preserveTypes ? this.literal('datetime', token) : token;
+      return this.preserveTypes ? this.literal(token) : token;
     }
     const date = LOCAL_DATE.exec(token);
     if (date) {
       this.checkDate(date[1], date[2], date[3], start);
-      return this.preserveTypes ? this.literal('datetime', token) : token;
+      return this.preserveTypes ? this.literal(token) : token;
     }
     const time = LOCAL_TIME.exec(token);
     if (time) {
       this.checkTime(time[1], time[2], time[3], start);
-      return this.preserveTypes ? this.literal('datetime', token) : token;
+      return this.preserveTypes ? this.literal(token) : token;
     }
     this.pos = start;
     this.fail(`invalid value ${JSON.stringify(token.length > 40 ? `${token.slice(0, 40)}…` : token)} (strings must be quoted)`, start);
   }
 
   /** A `TomlLiteral` typed as a JSON value: only DATAX-015 asks for it, and its writer checks for it first. */
-  private literal(kind: 'float' | 'datetime', text: string): JsonValue {
-    return new TomlLiteral(kind, text) as unknown as JsonValue;
+  private literal(text: string): JsonValue {
+    return new TomlLiteral(text) as unknown as JsonValue;
   }
 
   private checkDate(year: string, month: string, day: string, start: number): void {
@@ -707,7 +727,8 @@ class TomlParser {
 
 /**
  * Parses TOML (the subset described above) into prototype-less objects. With `preserveTypes`
- * (DATAX-015), floats and dates / times are `TomlLiteral` instances instead of numbers / strings.
+ * (DATAX-015), floats, `inf` / `nan`, integers outside ±(2^53 − 1) and dates / times are
+ * `TomlLiteral` instances instead of numbers / strings.
  */
 export const parseToml = (text: string, options: TomlParseOptions = {}): JsonObject => {
   assertInputLength(text);

@@ -49,7 +49,7 @@ import {
   stringifyLike,
   stringifyPretty,
 } from './dataCommon';
-import { assertYamlAliasWork, isEmptyYamlLine, parseJson, yamlError } from './dataTransforms';
+import { assertYamlAliasWork, isEmptyYamlLine, parseJson, yamlError, yamlErrorDetail } from './dataTransforms';
 import { toToml } from './dataWriters';
 import { parseToml } from './tomlParser';
 import { listXmlPaths, validateXml } from './data2Xml';
@@ -62,7 +62,7 @@ import {
   reorderColumns,
   splitColumn,
 } from './data2Csv';
-import { findPromptProblem } from './tableCsv';
+import { findPromptProblem, hasTrailingLineBreak } from './tableCsv';
 
 // ---------------------------------------------------------------------------------------------
 // The command table types
@@ -706,8 +706,7 @@ export const ltsvToJson = (text: string): string => {
 // ---------------------------------------------------------------------------------------------
 
 /** Ends the result with a line break when the selection did. */
-const keepFinalLineBreak = (body: string, text: string): string =>
-  text.endsWith('\n') || text.endsWith('\r') ? `${body}\n` : body;
+const keepFinalLineBreak = (body: string, text: string): string => (hasTrailingLineBreak(text) ? `${body}\n` : body);
 
 /**
  * DATAX-012: writes YAML in flow style (`{a: 1, b: [x]}`). Read and written with the Core schema;
@@ -752,7 +751,7 @@ export const validateYaml = (text: string): { valid: boolean; message: string } 
     return { valid: true, message: 'Valid YAML' };
   } catch (error) {
     if (error instanceof yaml.YAMLException) {
-      return { valid: false, message: `Invalid ${yamlError(error).message.replace(/^invalid /, '')}` };
+      return { valid: false, message: `Invalid YAML: ${yamlErrorDetail(error)}` };
     }
     throw yamlError(error);
   }

@@ -501,13 +501,18 @@ export const formatYaml = (text: string, sortKeys: boolean): string => {
   return /\n$/.test(text) ? `${body}\n` : body;
 };
 
+/** Where and why js-yaml rejected the text: `line L, column C: <reason>` (no position when js-yaml gives none). */
+export const yamlErrorDetail = (error: yaml.YAMLException): string => {
+  const mark = error.mark as { line?: number; column?: number } | undefined;
+  const where = mark && typeof mark.line === 'number' && typeof mark.column === 'number'
+    ? `line ${mark.line + 1}, column ${mark.column + 1}: `
+    : '';
+  return `${where}${error.reason}`;
+};
+
 export const yamlError = (error: unknown): Error => {
   if (error instanceof yaml.YAMLException) {
-    const mark = error.mark as { line?: number; column?: number } | undefined;
-    const where = mark && typeof mark.line === 'number' && typeof mark.column === 'number'
-      ? `line ${mark.line + 1}, column ${mark.column + 1}: `
-      : '';
-    return new DataInputError(`invalid YAML: ${where}${error.reason}`);
+    return new DataInputError(`invalid YAML: ${yamlErrorDetail(error)}`);
   }
   if (error instanceof RangeError) {
     return tooDeepError();

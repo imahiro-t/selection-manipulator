@@ -366,7 +366,38 @@ suite('DATA2 Data Format Transforms (DATAX-001..024) Test Suite', () => {
       fails('DATAX-015', 'a = 1979-05-27\n[a.b]\nc = 1', [], /not a table/);
       assert.strictEqual(run('DATAX-015', '# c\na = "x" # c\n'), 'a = "x"\n');
       fails('DATAX-015', '# only', [], /no TOML key/);
-      fails('DATAX-015', 'a = inf', [], /inf/);
+    });
+
+    test('inf / nan, floats too large for a double and integers outside ±(2^53 − 1) are kept (valid TOML)', () => {
+      const text = 'a = inf\nb = +inf\nc = -inf\nd = nan\ne = -nan\nf = 1e400\ng = 9007199254740993\nh = -9_223_372_036_854_775_808\n'
+        + 'i = 0x7fffffffffffffff\nj = 9007199254740991\n';
+      const formatted = run('DATAX-015', text);
+      assert.strictEqual(formatted,
+        'a = inf\nb = +inf\nc = -inf\nd = nan\ne = -nan\nf = 1e400\ng = 9007199254740993\nh = -9223372036854775808\n'
+        + 'i = 9223372036854775807\nj = 9007199254740991\n');
+      assert.strictEqual(run('DATAX-015', formatted), formatted);
+      assert.strictEqual(run('DATAX-015', 'x = [inf, 1e400, 9007199254740993]'), 'x = [inf, 1e400, 9007199254740993]');
+    });
+
+    test('only integers outside the 64-bit range TOML allows are refused, without mentioning JSON', () => {
+      for (const value of ['9223372036854775808', '-9223372036854775809', '0x8000000000000000']) {
+        try {
+          run('DATAX-015', `a = ${value}`);
+          assert.fail(`${value} was accepted`);
+        } catch (error) {
+          assert.ok(error instanceof DataInputError, String(error));
+          assert.match(error.message, /outside the 64-bit range TOML allows/);
+          assert.doesNotMatch(error.message, /JSON/);
+        }
+      }
+    });
+
+    test('TOML to JSON still refuses the values JSON cannot represent', () => {
+      const toJson = DATA_COMMAND_ENTRIES.find((entry) => entry.name === 'toml.to-json');
+      assert.ok(toJson && isTransformEntry(toJson));
+      assert.throws(() => toJson.transform('a = inf', []), /inf cannot be represented in JSON/);
+      assert.throws(() => toJson.transform('a = 1e400', []), /too large to be represented in JSON/);
+      assert.throws(() => toJson.transform('a = 9007199254740993', []), /outside ±\(2\^53 − 1\)/);
     });
   });
 
@@ -473,6 +504,10 @@ suite('DATA2 Data Format Transforms (DATAX-001..024) Test Suite', () => {
     test('DATAX-020: at most 1,000 added columns and TABLE_MAX_GRID_CELLS', () => {
       assert.strictEqual(run('DATAX-020', `x${'-x'.repeat(SPLIT_MAX_ADDED_COLUMNS)}`, ['1', '-']).split(',').length, SPLIT_MAX_ADDED_COLUMNS + 1);
       fails('DATAX-020', `x${'-x'.repeat(SPLIT_MAX_ADDED_COLUMNS + 1)}`, ['1', '-'], /more than 1,000 added columns/, CountLimitError);
+      // A cell of 5,000,000 delimiters is refused without splitting it.
+      timed(() => fails('DATAX-020', '-'.repeat(4_999_999), ['1', '-'], /more than 1,000 added columns/, CountLimitError), 2_000);
+      // Delimiters are counted as split counts them (left to right, without overlapping).
+      assert.strictEqual(run('DATAX-020', 'h\naaa', ['1', 'aa']), 'h,\n,a');
       // 20,000 rows x (1 + 600) columns is more than 10,000,000 cells.
       fails('DATAX-020', `${'-'.repeat(600)}\n${'a\n'.repeat(19_999)}`, ['1', '-'], /the table is too large/, TableTooLargeError);
     });
@@ -488,6 +523,15 @@ suite('DATA2 Data Format Transforms (DATAX-001..024) Test Suite', () => {
       assert.strictEqual(run('DATAX-022', ',b,c\n1\n', ['-']), '-,b,c\n1,-,-\n');
       assert.strictEqual(run('DATAX-022', 'a,,c', ['x, "y"']), 'a,"x, ""y""",c');
       fails('DATAX-022', 'a,,c', [''], /Enter a value/, TableInputError);
+    });
+
+    test('DATAX-022: the output limit is checked before the rows are built (no RangeError)', () => {
+      const value = 'v'.repeat(1_000);
+      // 1,000,000 empty cells in one row, each becoming 1,000 characters: about 10^9 characters.
+      fails('DATAX-022', ','.repeat(999_999), [value], /longer than 10,000,000 characters/, EncOutputTooLargeError);
+      timed(() => fails('DATAX-022', ','.repeat(4_999_999), [value], /longer than 10,000,000 characters/, EncOutputTooLargeError), 5_000);
+      // Just within the limit: 9,990 empty cells x 1,000 characters and 9,989 commas.
+      assert.strictEqual(run('DATAX-022', ','.repeat(9_989), [value]).length, 9_990 * 1_000 + 9_989);
     });
   });
 

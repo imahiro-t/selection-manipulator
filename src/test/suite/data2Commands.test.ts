@@ -172,6 +172,13 @@ suite('Extended Data Format Commands (DATAX-001..024) Test Suite', () => {
       assert.deepStrictEqual(warnings, [`${DATA2_NOT_CHANGED}the result would have more than 100,000 lines (element paths). Select less text.`]);
     });
 
+    test('Fill Empty Cells that would grow past the output limit is a warning, not an unexpected failure', async () => {
+      const { dependencies, warnings, errors, opened, logged } = recorder(['v'.repeat(1_000)]);
+      await run('DATAX-022', dependencies)(await open(','.repeat(999_999)));
+      assert.deepStrictEqual([opened, errors, logged], [[], [], []]);
+      assert.deepStrictEqual(warnings, [`${DATA2_NOT_CHANGED}the result would be longer than 10,000,000 characters. Select less text.`]);
+    });
+
     test('nested YAML aliases are refused by Multi-document YAML to JSON with a warning, before the JSON is built', async () => {
       let text = 'a: &a ["x","x","x","x","x","x","x","x","x","x"]\n';
       let previous = 'a';
