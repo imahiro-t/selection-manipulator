@@ -1,7 +1,9 @@
 import * as assert from 'assert';
-import { LineOutputTooLargeError } from '../../handler/lineTransforms';
+import { LineOutputTooLargeError, lineWiseWith } from '../../handler/lineTransforms';
+import { graphemes } from '../../handler/uniCommon';
 import {
   combineSelections,
+  isSingleUnitGraphemeLine,
   LINE2_ANCHORED_COMMANDS,
   LINE2_COMMAND_ENTRIES,
   Line2InputError,
@@ -108,6 +110,16 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
       assert.strictEqual(run('cut-chars', 'ab\tcd⏎xyz', { range: [2, 4] }), 'b\tc\nyz');
       assert.strictEqual(run('cut-chars', 'abc', { range: [4, 9] }), '');
       assert.strictEqual(run('cut-chars', 'abcdé', { range: [4, 5] }), 'dé');
+      // The fast path for BMP characters that are graphemes of their own (Japanese, Hangul syllables, Cyrillic).
+      assert.strictEqual(run('cut-chars', 'あいうえお', { range: [3, 4] }), 'うえ');
+      assert.strictEqual(run('cut-chars', '가각나', { range: [2, 3] }), '각나');
+      assert.strictEqual(run('cut-chars', 'привет', { range: [2, 4] }), 'рив');
+      // Lines that need the grapheme walk: halfwidth voiced marks, Thai SARA AM, characters outside the BMP.
+      assert.strictEqual(run('cut-chars', 'ｶﾞｷﾞ', { range: [2, 2] }), 'ｷﾞ');
+      assert.strictEqual(run('cut-chars', 'กำx', { range: [1, 1] }), 'กำ');
+      assert.strictEqual(run('cut-chars', 'a\u{20BB7}b', { range: [2, 2] }), '\u{20BB7}');
+      assert.strictEqual(run('cut-chars', 'あ\u{20BB7}い', { range: [1, 2] }), 'あ\u{20BB7}');
+      assert.strictEqual(run('cut-chars', 'x\u{1F600}y', { range: [2, 3] }), '\u{1F600}y');
     });
   });
 
@@ -232,6 +244,159 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
     test('the number of selections is checked', () => {
       assert.throws(() => combine('paste-columns', ['a']), Line2InputError);
       assert.throws(() => combine('intersect-selections', ['a', 'b', 'c']), Line2InputError);
+    });
+  });
+
+  suite('LINEX-005 cut-chars: the single-code-unit fast path', () => {
+    const hex = (code: number): string => `U+${code.toString(16).toUpperCase().padStart(4, '0')}`;
+    const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+    const segmentCount = (text: string): number => {
+      let count = 0;
+      for (const _ of segmenter.segment(text)) {
+        count++;
+      }
+      return count;
+    };
+
+    /** The implementation before the fast paths: every line walked grapheme by grapheme. */
+    const referenceCutChars = (text: string, range: [number, number], eol: string): string =>
+      lineWiseWith(text, { eol }, false, (lines) => lines.map((line) => {
+        let kept = '';
+        let position = 0;
+        for (const grapheme of graphemes(line)) {
+          position++;
+          if (position > range[1]) {
+            break;
+          }
+          if (position >= range[0]) {
+            kept += grapheme;
+          }
+        }
+        return kept;
+      })) ?? text;
+
+    test('every BMP character the fast path allows is a grapheme of its own next to anything allowed', function () {
+      this.timeout(60_000);
+      const isSyllable = (code: number): boolean => code >= 0xac00 && code <= 0xd7a3;
+      const representatives = ['a', 'あ', '가', '각', '©', '\t'];
+      const failures: string[] = [];
+      let allowed = 0;
+      for (let code = 0; code <= 0xffff; code++) {
+        if (code >= 0xd800 && code <= 0xdfff) {
+          continue;
+        }
+        const c = String.fromCharCode(code);
+        if (!isSingleUnitGraphemeLine(c)) {
+          continue;
+        }
+        allowed++;
+        const check = (pair: string, kind: string, joinAllowed = false): void => {
+          const count = segmentCount(pair);
+          if (count !== 2 && !(joinAllowed && count === 1)) {
+            failures.push(`${hex(code)} ${kind}: ${count} segments`);
+          }
+        };
+        check('a' + c, "'a' + c");
+        check(c + 'a', "c + 'a'");
+        check(c + 'ᅡ', 'c + U+1161', isSyllable(code));
+        check(c + 'ᆨ', 'c + U+11A8', isSyllable(code));
+        for (const r of representatives) {
+          check(r + c, `${hex(r.charCodeAt(0))} + c`);
+          check(c + r, `c + ${hex(r.charCodeAt(0))}`);
+        }
+      }
+      assert.deepStrictEqual(failures.slice(0, 20), [], `${failures.length} unexpected joins`);
+      // Sanity: the fast path covers most of the BMP (CJK, Hangul syllables, Latin, Cyrillic, ...).
+      assert.ok(allowed > 50_000, `${allowed} allowed characters`);
+    });
+
+    test('no character outside the BMP and no lone surrogate takes the fast path', function () {
+      this.timeout(60_000);
+      const leaks: string[] = [];
+      for (let code = 0x10000; code <= 0x10ffff; code++) {
+        const c = String.fromCodePoint(code);
+        if (isSingleUnitGraphemeLine(c) || isSingleUnitGraphemeLine('a' + c + 'あ')) {
+          leaks.push(hex(code));
+        }
+      }
+      for (let code = 0xd800; code <= 0xdfff; code++) {
+        const s = String.fromCharCode(code);
+        if (isSingleUnitGraphemeLine(s) || isSingleUnitGraphemeLine('a' + s + 'あ')) {
+          leaks.push(`lone ${hex(code)}`);
+        }
+      }
+      if (isSingleUnitGraphemeLine('\uDC00\uD800')) {
+        leaks.push('U+DC00 U+D800');
+      }
+      assert.deepStrictEqual(leaks.slice(0, 20), [], `${leaks.length} leaks`);
+    });
+
+    test('lines with astral characters, emoji sequences and tags take the grapheme walk and give its result', () => {
+      const lines = [
+        'a\u{20BB7}bc',
+        '\u{1F1EF}\u{1F1F5}あい',
+        'x\u{1F1EF}yz',
+        '\u{1F44D}\u{1F3FB}ok',
+        'a\u{1F468}‍\u{1F469}‍\u{1F467}b',
+        '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}flag',
+      ];
+      for (const line of lines) {
+        assert.strictEqual(isSingleUnitGraphemeLine(line), false, line);
+        for (const range of [[1, 1], [2, 2], [2, 3], [1, 10]] as [number, number][]) {
+          assert.strictEqual(line2Transforms['cut-chars'](line, options({ range })), referenceCutChars(line, range, '\n'),
+            `${line} ${range.join('-')}`);
+        }
+      }
+      for (const line of ['あいう', '가각', '\t©', 'Ελληνικά', 'ｱｲｳ']) {
+        assert.strictEqual(isSingleUnitGraphemeLine(line), true, line);
+      }
+    });
+
+    test('pseudo-random lines give the same result as the grapheme walk', function () {
+      this.timeout(60_000);
+      const pieces = [
+        'a', 'Z', '7', ' ', '\t', 'あ', '漢', 'カ', 'ー', '가', '한', 'ᄀ', 'ᅡ', 'ᆨ',
+        'é', 'ọ̈́̀', '́', '\u{1F468}‍\u{1F469}‍\u{1F467}', '‍',
+        '❤️', '️', '\u{1F44D}\u{1F3FB}', '\u{1F3FB}', '\u{20BB7}', '\u{1F600}', '\u{1F1EF}\u{1F1F5}',
+        '\u{1F1EF}', '\uD800', '\uDC00', 'ｶﾞ', 'ﾟ', 'กำ', 'ำ', '؀', '‌',
+        '©', 'п', 'λ',
+      ];
+      const ranges: [number, number][] = [[1, 1], [2, 3], [3, 10], [1, 1_000_000], [40, 50]];
+      let seed = 11;
+      const next = (): number => {
+        seed = (seed * 1103515245 + 12345) % 2147483648;
+        return seed;
+      };
+      for (let round = 0; round < 400; round++) {
+        const eol = round % 2 === 0 ? '\n' : '\r\n';
+        const lineCount = 1 + (next() % 8);
+        const lines: string[] = [];
+        for (let i = 0; i < lineCount; i++) {
+          let line = '';
+          const length = next() % 12;
+          for (let k = 0; k < length; k++) {
+            line += pieces[next() % pieces.length];
+          }
+          lines.push(line);
+        }
+        const text = lines.join(eol) + (round % 5 === 0 ? eol : '');
+        for (const range of ranges) {
+          assert.strictEqual(line2Transforms['cut-chars'](text, options({ eol, range })),
+            referenceCutChars(text, range, eol), `${JSON.stringify(text)} ${range.join('-')}`);
+        }
+      }
+    });
+
+    test('performance: 1,000,000 short Japanese lines in 2 seconds or less', function () {
+      this.timeout(60_000);
+      const words = ['あいう', '漢字か', 'カタナ', '日本語'];
+      const text = Array.from({ length: 1_000_000 }, (_value, i) => words[i % words.length]).join('\n');
+      assert.strictEqual(text.length, 3_999_999);
+      const start = Date.now();
+      const result = line2Transforms['cut-chars'](text, options({ range: [2, 3] }));
+      const elapsed = Date.now() - start;
+      assert.strictEqual(result.slice(0, 11), 'いう\n字か\nタナ\n本語');
+      assert.ok(elapsed <= 2000, `took ${elapsed} ms (limit 2000 ms)`);
     });
   });
 

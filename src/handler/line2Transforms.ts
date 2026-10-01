@@ -257,11 +257,42 @@ const blankEveryN: Line2Fn = (lines, options) => {
  */
 const SINGLE_UNIT_GRAPHEMES = /^[\x00-\x09\x0b\x0c\x0e-\x7f]*$/;
 
+/**
+ * BMP characters that are a grapheme cluster of their own whatever comes before or after them,
+ * as long as the neighbours are such characters too: no UAX #29 rule that joins two characters
+ * (GB3 CR × LF, GB6-8 Hangul jamo, GB9 × Extend / ZWJ, GB9a × SpacingMark, GB9b Prepend ×,
+ * GB9c Indic conjuncts, GB11 ZWJ emoji sequences, GB12 / 13 regional indicators) can apply.
+ * Excluded:
+ * - everything outside the BMP (`\u{10000}-\u{10FFFF}`): with the `u` flag a surrogate pair is
+ *   matched as one code point of U+10000 or above, so `\uD800-\uDFFF` alone would let it through
+ *   and `slice` could cut it in half (regional indicators, emoji modifiers, tags and the
+ *   supplementary Prepend / Extend characters are all there);
+ * - lone surrogates (`\uD800-\uDFFF`): with the `u` flag an unpaired surrogate is matched as the
+ *   single code point U+D800..U+DFFF;
+ * - CR and LF; marks (`\p{M}`: Extend, SpacingMark, viramas); format characters (`\p{Cf}`: ZWNJ,
+ *   ZWJ and most Prepend characters) and the line / paragraph separators;
+ * - the Extend / SpacingMark / Prepend characters outside those categories: the variation
+ *   selectors U+FE00..U+FE0F, the halfwidth (semi-)voiced sound marks U+FF9E U+FF9F, Thai and
+ *   Lao SARA AM U+0E33 U+0EB3 and Malayalam dot reph U+0D4E;
+ * - the Hangul jamo L / V / T. The syllables (LV / LVT) only join a following V or T, which are
+ *   excluded, so they stay.
+ * Other control characters (tab etc.) never join anything (GB4 / GB5), as on the ASCII path.
+ * The tests check every allowed BMP character against `Intl.Segmenter` and every code point
+ * outside the BMP and every lone surrogate against this expression.
+ */
+const SINGLE_UNIT_BMP_GRAPHEMES =
+  /^[^\u{10000}-\u{10FFFF}\uD800-\uDFFF\r\n\p{M}\p{Cf}\p{Zl}\p{Zp}︀-️ﾞﾟำຳൎᄀ-ᇿꥠ-꥿ힰ-퟿]*$/u;
+
+/** Whether every UTF-16 code unit of the line (without line breaks) is a grapheme cluster of its own. */
+export const isSingleUnitGraphemeLine = (line: string): boolean =>
+  SINGLE_UNIT_GRAPHEMES.test(line) || SINGLE_UNIT_BMP_GRAPHEMES.test(line);
+
 /** LINEX-005: the Mth to Nth characters (grapheme clusters) of every line. */
 const cutChars: Line2Fn = (lines, options) => {
   const [from, to] = requireRange(options.range);
   return lines.map((line) => {
-    if (SINGLE_UNIT_GRAPHEMES.test(line)) {
+    // The ASCII test comes first so that ASCII lines do not pay for the Unicode one.
+    if (isSingleUnitGraphemeLine(line)) {
       // Fast path: starting `Intl.Segmenter` for every short line dominates the time otherwise.
       return line.slice(from - 1, to);
     }
