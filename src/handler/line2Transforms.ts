@@ -183,7 +183,6 @@ export const validateListLocaleInput = (value: string): string | undefined => {
   return undefined;
 };
 
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -252,10 +251,20 @@ const blankEveryN: Line2Fn = (lines, options) => {
   return result;
 };
 
+/**
+ * ASCII without CR / LF: every UTF-16 code unit is a grapheme cluster of its own (only CR LF joins
+ * two ASCII characters), so `slice` gives the same result as walking the graphemes.
+ */
+const SINGLE_UNIT_GRAPHEMES = /^[\x00-\x09\x0b\x0c\x0e-\x7f]*$/;
+
 /** LINEX-005: the Mth to Nth characters (grapheme clusters) of every line. */
 const cutChars: Line2Fn = (lines, options) => {
   const [from, to] = requireRange(options.range);
   return lines.map((line) => {
+    if (SINGLE_UNIT_GRAPHEMES.test(line)) {
+      // Fast path: starting `Intl.Segmenter` for every short line dominates the time otherwise.
+      return line.slice(from - 1, to);
+    }
     let kept = '';
     let position = 0;
     for (const grapheme of graphemes(line)) {
@@ -455,7 +464,12 @@ export const combineSelections = (command: Line2MultiCommand, texts: readonly st
         throw new Line2InputError('Invalid delimiter');
       }
       const delimiter = given === '' ? LINE2_PASTE_DEFAULT_DELIMITER : given;
-      const rows = Math.max(...lines.map((block) => block.length));
+      // A loop, not `Math.max(...)`: spreading one argument per selection overflows the stack
+      // when there are more than about 120,000 selections.
+      let rows = 0;
+      for (const block of lines) {
+        rows = Math.max(rows, block.length);
+      }
       if (rows === 0) {
         return '';
       }

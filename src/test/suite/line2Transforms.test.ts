@@ -104,6 +104,10 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
       assert.strictEqual(run('cut-chars', 'abcdef⏎ab', { range: [3, 3] }), 'c\n');
       assert.strictEqual(run('cut-chars', 'a👨‍👩‍👧bc', { range: [2, 3] }), '👨‍👩‍👧b');
       assert.strictEqual(run('cut-chars', 'éa', { range: [1, 1] }), 'é');
+      // The ASCII fast path gives the same result as the grapheme walk.
+      assert.strictEqual(run('cut-chars', 'ab\tcd⏎xyz', { range: [2, 4] }), 'b\tc\nyz');
+      assert.strictEqual(run('cut-chars', 'abc', { range: [4, 9] }), '');
+      assert.strictEqual(run('cut-chars', 'abcdé', { range: [4, 5] }), 'dé');
     });
   });
 
@@ -203,6 +207,9 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
       assert.strictEqual(combine('paste-columns', ['a⏎b⏎c', '1'], { delimiter: ',' }), 'a,1\nb,\nc,');
       assert.throws(() => combine('paste-columns', ['a', 'b'], { delimiter: 'x'.repeat(101) }), Line2InputError);
       assert.throws(() => combine('paste-columns', ['aaaa', 'bbbb'], { delimiter: ',', maxAddedLength: 4 }), LineOutputTooLargeError);
+      // Review round 1: more than about 120,000 selections used to overflow the stack (Math.max(...)).
+      const many = combineSelections('paste-columns', Array.from({ length: 200_000 }, (_, i) => (i === 7 ? 'a\nb' : 'x')), { eol: '\n' });
+      assert.strictEqual(many.split('\n').length, 2);
     });
 
     test('the trailing line break follows the first selection; no lines give an empty result', () => {

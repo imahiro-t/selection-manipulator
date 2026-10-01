@@ -214,6 +214,10 @@ suite('LINE2 Selection Transforms (LINEX-015..023) Test Suite', () => {
         // As extract.ip: the first four numbers of a longer dotted run.
         ['1.2.3.4.5', ['1.2.3.4']],
         ['time 12:34:56', []],
+        // IPv4 addresses inside, before and after IPv6 addresses (the overlap merge).
+        ['1.1.1.1 ::ffff:192.0.2.1 2.2.2.2 ::1 3.3.3.3', ['1.1.1.1', '::ffff:192.0.2.1', '2.2.2.2', '::1', '3.3.3.3']],
+        ['::1 ::2 4.4.4.4', ['::1', '::2', '4.4.4.4']],
+        ['5.5.5.5 6.6.6.6 ::1', ['5.5.5.5', '6.6.6.6', '::1']],
       ];
       for (const [text, expected] of cases) {
         assert.deepStrictEqual(found(findIps, text), expected, text);
@@ -253,6 +257,9 @@ suite('LINE2 Selection Transforms (LINEX-015..023) Test Suite', () => {
         ['x 2026-10-01 25:00', ['2026-10-01']],
         ['x 2026-10-01T25:00', []],
         ['12026-10-01 2026-10-011', []],
+        // QA review: a fraction of 10 or more digits is selected whole (not cut after the seconds).
+        ['at 2026-10-01T12:34:56.1234567890Z ok', ['2026-10-01T12:34:56.1234567890Z']],
+        ['at 2026-10-01 12:34:56.123456789012+09:00', ['2026-10-01 12:34:56.123456789012+09:00']],
       ];
       for (const [text, expected] of cases) {
         assert.deepStrictEqual(found(findDates, text), expected, text);
@@ -270,6 +277,29 @@ suite('LINE2 Selection Transforms (LINEX-015..023) Test Suite', () => {
       findDates('2026-10-01 '.repeat(100_000));
       findHexColors('#'.repeat(1_000_000));
       findUuids('0'.repeat(1_000_000));
+      assert.ok(Date.now() - started < 3000, `${Date.now() - started} ms`);
+    });
+
+    test('LINEX-016: IPv4 and IPv6 mixed in a large input stay linear (review round 1)', () => {
+      // 100,000 IPv6 and 100,000 IPv4 addresses: the old IPv4 × IPv6 overlap check took minutes.
+      const text = Array.from({ length: 100_000 }, (_, i) => `fe80::${(i % 0xffff).toString(16)} 10.0.${i % 256}.${i % 200}`).join('\n');
+      const started = Date.now();
+      const ranges = findIps(text);
+      assert.ok(Date.now() - started < 3000, `${Date.now() - started} ms`);
+      assert.strictEqual(ranges.length, 200_000);
+      for (let i = 1; i < ranges.length; i++) {
+        assert.ok(ranges[i - 1][1] <= ranges[i][0], `ranges ${i - 1} and ${i} are in document order`);
+      }
+      const repeated = '::1 1.1.1.1 '.repeat(200_000);
+      const startedRepeated = Date.now();
+      assert.strictEqual(findIps(repeated).length, 400_000);
+      assert.ok(Date.now() - startedRepeated < 3000, `${Date.now() - startedRepeated} ms`);
+    });
+
+    test('LINEX-019: a very long fraction of a second stays linear', () => {
+      const started = Date.now();
+      findDates(`2026-10-01T00:00:00.${'1'.repeat(2_000_000)}x`);
+      findDates('2026-10-01T00:00:00.1 '.repeat(100_000));
       assert.ok(Date.now() - started < 3000, `${Date.now() - started} ms`);
     });
   });

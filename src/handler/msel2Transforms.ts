@@ -7,9 +7,12 @@
  * - select-emails / ips / hex-colors / uuids / dates search the non-empty selections; only when
  *   every selection is empty (cursors) do they search the whole document (`searchTargets`). A
  *   match must lie entirely inside one searched range. At most `MSEL_MAX_SELECTIONS` selections
- *   are made. Every pattern is fixed and linear: the e-mail addresses are found by a scanner (the
- *   `extract.email` regular expression is quadratic on long runs of address characters), the
- *   other patterns have bounded quantifiers only, and IPv6 candidates are checked by a function.
+ *   are made. Every search is fixed and runs in linear time: the e-mail addresses are found by a
+ *   scanner (the `extract.email` regular expression is quadratic on long runs of address
+ *   characters); the other regular expressions have no nested or overlapping quantifiers (the
+ *   only unbounded ones, `[0-9A-Fa-f:.]+` of the IPv6 candidates and `\d+` of the fraction of a
+ *   second, repeat one character class and are followed by a fixed-width check); IPv6 candidates
+ *   are checked by a function, and the IPv4 / IPv6 overlap is found by one merge pass.
  * - expand-to-sentence / expand-to-paragraph use the blank lines (`isBlankLine` of
  *   `lineTransforms.ts`) as paragraph boundaries; the start and the end of a selection are
  *   expanded independently (as `expandToWord`), and overlapping results are merged.
@@ -222,15 +225,27 @@ export const findIps: Msel2Finder = (value) => {
       ipv6.push([start, end]);
     }
   }
-  const found: [number, number][] = [...ipv6];
+  // Both lists are in ascending order of their (non-overlapping) ranges, so one merge pass finds
+  // the overlaps and builds the result in document order (linear, not IPv4 × IPv6 comparisons).
+  const found: [number, number][] = [];
+  let next = 0;
   for (const match of value.matchAll(IPV4)) {
     const start = match.index!;
     const end = start + match[0].length;
-    if (isValidIPv4(match[0]) && !ipv6.some(([s, e]) => start < e && s < end)) {
+    // IPv6 addresses that end at or before this IPv4 address cannot overlap it or a later one.
+    while (next < ipv6.length && ipv6[next][1] <= start) {
+      found.push(ipv6[next]);
+      next++;
+    }
+    const overlapsIPv6 = next < ipv6.length && ipv6[next][0] < end;
+    if (!overlapsIPv6 && isValidIPv4(match[0])) {
       found.push([start, end]);
     }
   }
-  return found.sort((a, b) => a[0] - b[0]);
+  for (; next < ipv6.length; next++) {
+    found.push(ipv6[next]);
+  }
+  return found;
 };
 
 /** `#rgb`, `#rrggbb` or `#rrggbbaa` not followed by a letter or digit. */
@@ -239,9 +254,10 @@ const HEX_COLOR = /#(?:[0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})(?![0-9A-Za-
 const UUID = /(?<![0-9A-Za-z])[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}(?![0-9A-Za-z])/g;
 /**
  * `YYYY-MM-DD`, optionally followed by `T` or a space, `HH:MM[:SS[.fraction]]` and `Z` / `±HH[:]MM`,
- * not touching a letter or digit. The numbers are checked by `isValidDate` / `isValidTime`.
+ * not touching a letter or digit. The fraction takes any number of digits, so a long fraction is
+ * selected whole instead of the time being cut after the seconds. The numbers are checked by `isValidDate` / `isValidTime`.
  */
-const ISO_DATE = /(?<![0-9A-Za-z])(\d{4})-(\d{2})-(\d{2})(?:([T ])(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})?)?(?![0-9A-Za-z])/g;
+const ISO_DATE = /(?<![0-9A-Za-z])(\d{4})-(\d{2})-(\d{2})(?:([T ])(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?(?![0-9A-Za-z])/g;
 
 const findAll = (pattern: RegExp): Msel2Finder => (value) =>
   [...value.matchAll(pattern)].map((match) => [match.index!, match.index! + match[0].length]);
