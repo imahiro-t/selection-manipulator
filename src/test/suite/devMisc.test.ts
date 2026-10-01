@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
 import { chmodConvert, concatToTemplate, removeConsoleLog, semverBump, sortImports } from '../../handler/devCode';
+import { removeJsComments } from '../../handler/dev2Code';
 import { hexToHsl, hslToHex, toggleHexLength } from '../../handler/devColor';
 import { DEV_MAX_INPUT_LENGTH, DEV_MAX_NESTING, DevInputError } from '../../handler/devCommon';
 import { curlToFetch, splitShellWords } from '../../handler/devCurl';
@@ -662,6 +663,11 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
         'x\nconsole.log(1);\n'.repeat(Math.floor(n / 17)),
         `curl ${'-\u2028'.repeat(Math.floor(n / 3) - 5)} a`,
         '<a b '.repeat(Math.floor(n / 5)),
+        // Many comments on one line, each dropping the spaces before it (rule R2 of DEVX-013).
+        'f(' + 'a /*c*/, '.repeat(Math.floor((n - 3) / 9)) + ')',
+        '( /*c*/ )'.repeat(Math.floor(n / 9)),
+        'a /**/)'.repeat(Math.floor(n / 7)),
+        'x /**/ ;'.repeat(n / 8),
       ];
       for (const id of ids) {
         const entry = DEV_COMMAND_ENTRIES.find((candidate) => candidate.id === id)!;
@@ -674,6 +680,17 @@ suite('Developer Colors, Code, curl and HTML (DEV-020..029, DEV-035) Test Suite'
           }
           assert.ok(Date.now() - started < 5000, `${id}: ${Date.now() - started} ms`);
         }
+      }
+      // DEVX-013 (remove comments) reads the same lexer: the same inputs, and the ones above with
+      // many comments on one line, are processed in linear time too.
+      for (const input of inputs) {
+        const started = Date.now();
+        try {
+          removeJsComments(input, 50_000_000);
+        } catch (error) {
+          assert.ok(error instanceof DevInputError || error instanceof EncOutputTooLargeError, `DEVX-013: ${error}`);
+        }
+        assert.ok(Date.now() - started < 5000, `DEVX-013: ${Date.now() - started} ms`);
       }
     });
   });

@@ -107,9 +107,9 @@ const compareKeys = (a: Declaration, b: Declaration): number => (a.key < b.key ?
  * end of the same line (`b: 1; /* about b *\/`). For the last declaration without `;`, the comment
  * after it on the same line moves with it too, and goes after the `;` when it moves to a place
  * that has one (`a: 2 /* a *\/` → `a: 2; /* a *\/`); a comment on a later line stays where it is,
- * before the `}`. A comment before the `;` (`b: 1 /* x *\/;`) is part of the body. A nested rule (`@media`, CSS nesting) or an
- * at-rule statement ends a run: declarations are never moved across it. Strings, comments and
- * `url(…)` are copied as they are.
+ * before the `}`. A comment before the `;` (`b: 1 /* x *\/;`) is part of the body. A nested rule
+ * (`@media`, CSS nesting) or an at-rule statement ends a run: declarations are never moved across
+ * it. Strings, comments and `url(…)` are copied as they are.
  */
 export const cssSortProperties = (text: string, budget: number): string => {
   const tokens = parseCss(text);

@@ -4,8 +4,9 @@
  *
  * The comments are found with the lexer of DEV-023..025 (devJsLexer.ts), so strings, template
  * literals and regular expression literals are never touched; the lexer splits template literals
- * into their string chunks and the code of their `${…}`, so comments in `${…}` are removed too. The literals are only built as
- * text: nothing is compiled, evaluated or run in a shell. Every function is linear in its input.
+ * into their string chunks and the code of their `${…}`, so comments in `${…}` are removed too.
+ * The literals are only built as text: nothing is compiled, evaluated or run in a shell. Every
+ * function is linear in its input.
  */
 import { assertWithinBudget, DevInputError, DevOutputBuffer } from './devCommon';
 import { isLineTerminator, JsToken, tokenizeJs } from './devJsLexer';
@@ -34,26 +35,33 @@ const isCloser = (token: JsToken | undefined): boolean =>
   token !== undefined && ((token.kind === 'punct' && CLOSERS.has(token.text)) || closesSubstitution(token));
 
 /**
- * The line being written: what is kept so far and where its code ends.
+ * The line being written: what is kept so far, split where its code ends.
  *
- * How endLine writes the line, by the three flags:
+ * The kept text of the line is `code + tail`. `code` runs up to the end of the last code token
+ * ('' while the line has no code yet) and `tail` holds the spaces kept after it (and a space put in
+ * for a removed comment). `tail` is only appended to `code` when the next code token comes, so
+ * dropping it (rule R2, or the end of the line) never copies `code`: the work stays linear even
+ * when one line has many comments.
  *
- * | hadComment | codeEnd | commentLast | the line is written as                                         |
- * |------------|---------|-------------|----------------------------------------------------------------|
- * | false      | any     | (false)     | `text` as it is (empty lines and lines of spaces stay)         |
- * | true       | 0       | any         | nothing: the line is removed with its line break               |
- * | true       | > 0     | false       | `text` as it is (code follows the last removed comment)        |
- * | true       | > 0     | true        | `text.slice(0, codeEnd)`: the spaces after the last code go    |
+ * How endLine writes the line, by the three fields:
+ *
+ * | hadComment | code     | commentLast | the line is written as                                     |
+ * |------------|----------|-------------|------------------------------------------------------------|
+ * | false      | any      | (false)     | `code + tail` (empty lines and lines of spaces stay)       |
+ * | true       | ''       | any         | nothing: the line is removed with its line break           |
+ * | true       | not ''   | false       | `code + tail` (code follows the last removed comment)      |
+ * | true       | not ''   | true        | `code`: the spaces after the last code go                  |
  *
  * `commentLast` is only set together with `hadComment`, so it is always false when `hadComment` is
- * false. On the line of a hashbang, `codeEnd` starts at the length of the hashbang (the hashbang
- * is code; no comment can follow it on that line, as it runs to the line break).
+ * false. On the line of a hashbang, `code` starts as the hashbang (the hashbang is code; no
+ * comment can follow it on that line, as it runs to the line break).
  */
 interface OpenLine {
-  text: string;
+  /** The text of the line up to the end of its last code token ('' when there is no code yet). */
+  code: string;
+  /** The text kept after `code`: spaces, and a space put in for a removed comment. */
+  tail: string;
   hadComment: boolean;
-  /** The length of `text` up to the end of its last code token (0: no code on the line yet). */
-  codeEnd: number;
   /** A comment was removed after the last code token: the spaces left after that code are dropped. */
   commentLast: boolean;
 }
@@ -152,7 +160,7 @@ export const removeJsComments = (text: string, budget: number): string => {
     }
   }
   const out = new DevOutputBuffer(budget);
-  let line: OpenLine = { text: hashbang, hadComment: false, codeEnd: hashbang.length, commentLast: false };
+  let line: OpenLine = { code: hashbang, tail: '', hadComment: false, commentLast: false };
   // The last code token written on the current line (undefined after a space or at its start; for needsSpace).
   let lastCode: JsToken | undefined;
   // The last code token of the current line, kept across spaces and comments (for rule R1).
@@ -161,12 +169,12 @@ export const removeJsComments = (text: string, budget: number): string => {
   let dropSpace = false;
   const endLine = (lineBreak: string) => {
     if (!line.hadComment) {
-      out.push(line.text + lineBreak);
-    } else if (line.codeEnd > 0) {
-      out.push((line.commentLast ? line.text.slice(0, line.codeEnd) : line.text) + lineBreak);
+      out.push(line.code + line.tail + lineBreak);
+    } else if (line.code !== '') {
+      out.push((line.commentLast ? line.code : line.code + line.tail) + lineBreak);
     }
     // A line that had a comment and holds no code afterwards is removed with its line break.
-    line = { text: '', hadComment: false, codeEnd: 0, commentLast: false };
+    line = { code: '', tail: '', hadComment: false, commentLast: false };
     lastCode = undefined;
     lineLastCode = undefined;
     dropSpace = false;
@@ -179,14 +187,14 @@ export const removeJsComments = (text: string, budget: number): string => {
     if (token.kind !== 'comment') {
       if (token.kind === 'space') {
         if (!dropSpace) {
-          line.text += token.text;
+          line.tail += token.text;
         }
         lastCode = undefined;
       } else {
-        line.text += token.text;
+        line.code += line.tail + token.text;
+        line.tail = '';
         lastCode = token;
         lineLastCode = token;
-        line.codeEnd = line.text.length;
         line.commentLast = false;
         dropSpace = false;
       }
@@ -196,20 +204,20 @@ export const removeJsComments = (text: string, budget: number): string => {
     line.commentLast = true;
     const breaks = token.text.startsWith('/*') ? lineBreaksOf(token.text) : [];
     if (breaks.length === 0) {
-      if (line.codeEnd > 0 && isCloser(nextSolid[i])) {
+      if (line.code !== '' && isCloser(nextSolid[i])) {
         // R2: drop the spaces between the code before and this comment (with a space that an
         // earlier comment of the run may have left). The line now ends with that code, so it is
         // the code next to this comment again (needsSpace then gives false, as a closer follows).
-        line.text = line.text.slice(0, line.codeEnd);
+        line.tail = '';
         lastCode = lineLastCode;
       }
-      if (line.codeEnd === 0 || isOpenBracket(lineLastCode)) {
+      if (line.code === '' || isOpenBracket(lineLastCode)) {
         // R1: at the start of the line or right after an opening bracket.
         dropSpace = true;
       }
       const after = nextCode[i];
       if (needsSpace(lastCode, after?.kind === 'space' || after?.kind === 'newline' ? undefined : after)) {
-        line.text += ' ';
+        line.tail += ' ';
         lastCode = undefined;
       }
       return;
