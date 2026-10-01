@@ -342,7 +342,7 @@ Filter and move data to a new tab or clipboard.
 *   **Extract Lines**: By Regex match or manual selection.
 *   **Extract by Length**: Equal to, Less than, Greater than, or Range of N characters.
 *   **Extract Specific Data**:
-    *   **Email**: `support@example.com`
+    *   **Email**: `support@example.com`. The addresses are found in linear time, so a long selection does not stall the editor.
     *   **URL**: `https://example.com`
     *   **IP Address**: `192.168.1.1`
 

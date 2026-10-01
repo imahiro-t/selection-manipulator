@@ -36,6 +36,27 @@ suite('Data Extraction Handler Test Suite', () => {
     assert.ok(extractedText.includes('support@example.com'));
   });
 
+  test('Extract Email Replace gives the same addresses as before, in order', async () => {
+    const text = 'a@b@c.com first.last+tag@sub.example.co.jp. x@y x@a.b mail a_b%c@d-e.fg! aa@bb.c1d';
+    const editor = await createTextEditor(text);
+    await selectAll(editor);
+    await dataExtractionHandler('email', true)(editor);
+
+    assert.strictEqual(editor.document.getText(), 'b@c.com\nfirst.last+tag@sub.example.co.jp\na_b%c@d-e.fg');
+  });
+
+  test('Extract Email Replace runs in linear time on long runs of address characters', async () => {
+    // The former pattern took about 35 seconds on 160,000 letters without `@`.
+    const text = `${'a'.repeat(160_000)} support@example.com ${'b.'.repeat(80_000)}`;
+    const editor = await createTextEditor(text);
+    await selectAll(editor);
+    const started = Date.now();
+    await dataExtractionHandler('email', true)(editor);
+
+    assert.ok(Date.now() - started < 1000, `${Date.now() - started} ms`);
+    assert.strictEqual(editor.document.getText(), 'support@example.com');
+  });
+
   test('Extract URL', async () => {
     const editor = await createTextEditor('Visit https://google.com for more info.');
     await selectAll(editor);
