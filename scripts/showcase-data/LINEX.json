@@ -41,8 +41,8 @@
       "id": "selection-manipulator.line.blank-every-n",
       "candidateId": "LINEX-004",
       "description": {
-        "en": "Inserts an empty line after every N lines (N is an integer from 1 to 1,000,000, default 2), but not after the last line. The added length is checked before the result is built. **Whitespace: Insert Blank Line Between Lines** is the N=1 case.",
-        "ja": "N 行ごとに空行を挿入する（N は 1〜1,000,000 の整数、既定値 2。末尾には入れない）。増える文字数は結果を作る前に確認する（全行間に入れる **Whitespace: Insert Blank Line Between Lines** は N=1 に相当）"
+        "en": "Inserts an empty line after every N lines (N is an integer from 1 to 1,000,000, default 2), but not after the last line. The added length is checked before the result is built. Unlike **Whitespace: Insert Blank Line Between Lines**, which adds one only between two adjacent non-blank lines, it does not look at whether a line is blank (`a⏎⏎b` with N=1 gives `a⏎⏎⏎⏎b`).",
+        "ja": "N 行ごとに空行を挿入する（N は 1〜1,000,000 の整数、既定値 2。末尾には入れない）。増える文字数は結果を作る前に確認する。隣り合う 2 つの非空行の間にだけ入れる **Whitespace: Insert Blank Line Between Lines** と違い、空行かどうかは見ない（`a⏎⏎b` に N=1 なら `a⏎⏎⏎⏎b`）"
       },
       "example": {
         "en": "`1⏎2⏎3⏎4⏎5⏎6（N=2）` → `1⏎2⏎⏎3⏎4⏎⏎5⏎6`",
@@ -274,8 +274,8 @@
         "ja": "全選択のテキスト（文書順）を入力した区切り文字（既定値 `, `。100 文字まで、空でもよい）で連結して最初の選択に入れ、他の選択のテキストは削除する（1 回の編集）。実行後の選択は連結したテキストの 1 つだけになる"
       },
       "example": {
-        "en": "`[a] [b] [c]（delimiter: default）` → `[a, b, c]··`",
-        "ja": "`[a] [b] [c]（区切り: 既定値）` → `[a, b, c]··`",
+        "en": "`[a]·[b]·[c]（delimiter: default）` → `[a,·b,·c]··`",
+        "ja": "`[a]·[b]·[c]（区切り: 既定値）` → `[a,·b,·c]··`",
         "japanese": "note"
       }
     }
