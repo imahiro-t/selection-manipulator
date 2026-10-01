@@ -281,9 +281,12 @@ const SINGLE_UNIT_GRAPHEMES = /^[\x00-\x09\x0b\x0c\x0e-\x7f]*$/;
  * outside the BMP and every lone surrogate against this expression.
  */
 const SINGLE_UNIT_BMP_GRAPHEMES =
-  /^[^\u{10000}-\u{10FFFF}\uD800-\uDFFF\r\n\p{M}\p{Cf}\p{Zl}\p{Zp}︀-️ﾞﾟำຳൎᄀ-ᇿꥠ-꥿ힰ-퟿]*$/u;
+  /^[^\u{10000}-\u{10FFFF}\uD800-\uDFFF\r\n\p{M}\p{Cf}\p{Zl}\p{Zp}\uFE00-\uFE0F\uFF9E\uFF9F\u0E33\u0EB3\u0D4E\u1100-\u11FF\uA960-\uA97F\uD7B0-\uD7FF]*$/u;
 
-/** Whether every UTF-16 code unit of the line (without line breaks) is a grapheme cluster of its own. */
+/**
+ * Whether every UTF-16 code unit of the line (without line breaks) is a grapheme cluster of its own.
+ * The ASCII test comes first so that ASCII lines do not pay for the Unicode one.
+ */
 export const isSingleUnitGraphemeLine = (line: string): boolean =>
   SINGLE_UNIT_GRAPHEMES.test(line) || SINGLE_UNIT_BMP_GRAPHEMES.test(line);
 
@@ -291,7 +294,6 @@ export const isSingleUnitGraphemeLine = (line: string): boolean =>
 const cutChars: Line2Fn = (lines, options) => {
   const [from, to] = requireRange(options.range);
   return lines.map((line) => {
-    // The ASCII test comes first so that ASCII lines do not pay for the Unicode one.
     if (isSingleUnitGraphemeLine(line)) {
       // Fast path: starting `Intl.Segmenter` for every short line dominates the time otherwise.
       return line.slice(from - 1, to);

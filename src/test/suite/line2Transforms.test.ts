@@ -104,7 +104,7 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
     test('LINEX-005 cut-chars (grapheme clusters)', () => {
       assert.strictEqual(run('cut-chars', 'abcdefgh', { range: [3, 5] }), 'cde');
       assert.strictEqual(run('cut-chars', 'abcdef⏎ab', { range: [3, 3] }), 'c\n');
-      assert.strictEqual(run('cut-chars', 'a👨‍👩‍👧bc', { range: [2, 3] }), '👨‍👩‍👧b');
+      assert.strictEqual(run('cut-chars', 'a👨\u200D👩\u200D👧bc', { range: [2, 3] }), '👨\u200D👩\u200D👧b');
       assert.strictEqual(run('cut-chars', 'éa', { range: [1, 1] }), 'é');
       // The ASCII fast path gives the same result as the grapheme walk.
       assert.strictEqual(run('cut-chars', 'ab\tcd⏎xyz', { range: [2, 4] }), 'b\tc\nyz');
@@ -116,7 +116,7 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
       assert.strictEqual(run('cut-chars', 'привет', { range: [2, 4] }), 'рив');
       // Lines that need the grapheme walk: halfwidth voiced marks, Thai SARA AM, characters outside the BMP.
       assert.strictEqual(run('cut-chars', 'ｶﾞｷﾞ', { range: [2, 2] }), 'ｷﾞ');
-      assert.strictEqual(run('cut-chars', 'กำx', { range: [1, 1] }), 'กำ');
+      assert.strictEqual(run('cut-chars', 'ก\u0E33x', { range: [1, 1] }), 'ก\u0E33');
       assert.strictEqual(run('cut-chars', 'a\u{20BB7}b', { range: [2, 2] }), '\u{20BB7}');
       assert.strictEqual(run('cut-chars', 'あ\u{20BB7}い', { range: [1, 2] }), 'あ\u{20BB7}');
       assert.strictEqual(run('cut-chars', 'x\u{1F600}y', { range: [2, 3] }), '\u{1F600}y');
@@ -163,7 +163,7 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
     });
 
     test('a line of only U+FEFF is not blank', () => {
-      assert.strictEqual(run('number-nonblank', 'a⏎﻿⏎b'), '1 a\n2 ﻿\n3 b');
+      assert.strictEqual(run('number-nonblank', 'a⏎\uFEFF⏎b'), '1 a\n2 \uFEFF\n3 b');
     });
 
     test('the numbers grow without zero padding', () => {
@@ -193,7 +193,7 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
     test('widths are code points: a full-width character and a surrogate pair are 1, a combining mark is 1 more', () => {
       assert.strictEqual(run('fold-to-columns', 'あ⏎b⏎c⏎d', { n: 2 }), t('あ··c⏎b··d'));
       assert.strictEqual(run('fold-to-columns', '👍⏎b⏎c⏎d', { n: 2 }), t('👍··c⏎b··d'));
-      assert.strictEqual(run('fold-to-columns', 'é⏎b⏎c⏎d', { n: 2 }), t('é··c⏎b···d'));
+      assert.strictEqual(run('fold-to-columns', 'e\u0301⏎b⏎c⏎d', { n: 2 }), t('e\u0301··c⏎b···d'));
     });
 
     test('a result over the budget is refused before it is built', () => {
@@ -337,7 +337,7 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
         '\u{1F1EF}\u{1F1F5}あい',
         'x\u{1F1EF}yz',
         '\u{1F44D}\u{1F3FB}ok',
-        'a\u{1F468}‍\u{1F469}‍\u{1F467}b',
+        'a\u{1F468}\u200D\u{1F469}\u200D\u{1F467}b',
         '\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}flag',
       ];
       for (const line of lines) {
@@ -356,9 +356,9 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
       this.timeout(60_000);
       const pieces = [
         'a', 'Z', '7', ' ', '\t', 'あ', '漢', 'カ', 'ー', '가', '한', 'ᄀ', 'ᅡ', 'ᆨ',
-        'é', 'ọ̈́̀', '́', '\u{1F468}‍\u{1F469}‍\u{1F467}', '‍',
-        '❤️', '️', '\u{1F44D}\u{1F3FB}', '\u{1F3FB}', '\u{20BB7}', '\u{1F600}', '\u{1F1EF}\u{1F1F5}',
-        '\u{1F1EF}', '\uD800', '\uDC00', 'ｶﾞ', 'ﾟ', 'กำ', 'ำ', '؀', '‌',
+        'e\u0301', 'o\u0308\u0323\u0301\u0300', '\u0301', '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}', '\u200D',
+        '❤\uFE0F', '\uFE0F', '\u{1F44D}\u{1F3FB}', '\u{1F3FB}', '\u{20BB7}', '\u{1F600}', '\u{1F1EF}\u{1F1F5}',
+        '\u{1F1EF}', '\uD800', '\uDC00', 'ｶﾞ', 'ﾟ', 'ก\u0E33', '\u0E33', '\u0600', '\u200C',
         '©', 'п', 'λ',
       ];
       const ranges: [number, number][] = [[1, 1], [2, 3], [3, 10], [1, 1_000_000], [40, 50]];
