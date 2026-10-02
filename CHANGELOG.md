@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-02
+
+- 📦 Package only the files the extension runs: the VSIX now contains the bundled `out/main.js` and `out/lineRegexWorker.js` (plus the README, changelog, license, security policy and images), and leaves out other build output and local files under `out/` and `dist/` that the 0.2.0 package picked up; the commands are unchanged
+
 ## [0.2.0] - 2026-10-02
 
 - 🐛 Extract Email (and its Replace version): the addresses are now found by the linear-time scanner of Select All Email Addresses instead of a regular expression that took quadratic time on long runs of address characters without `@` (80,000 letters took about 12 seconds and stalled the extension host); the extracted addresses and their order are unchanged
