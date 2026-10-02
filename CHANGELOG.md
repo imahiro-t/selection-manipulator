@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-02
+
 - 🐛 Extract Email (and its Replace version): the addresses are now found by the linear-time scanner of Select All Email Addresses instead of a regular expression that took quadratic time on long runs of address characters without `@` (80,000 letters took about 12 seconds and stalled the extension host); the extracted addresses and their order are unchanged
 - ✨ Add 21 Japanese, Unicode and Markdown commands (group JAUNI2 of the plan to pass 1,000 commands; their showcase category is `JAUNIX`, candidates JAUNIX-001..021), added to the end of the existing `Japanese` (7), `Unicode` (7) and `Markdown` (7) submenus, and to the Command Palette when there is a selection (1,014 commands now)
   - **One candidate was replaced**: the planned `japanese.remove-paren-reading` (Remove Parenthesized Readings, `漢字（かんじ）` -> `漢字`) was dropped because the existing `japanese.remove-ruby` (Japanese - Remove Ruby Notation, JA-012) already removes readings of kana in parentheses; `japanese.paren-reading-to-ruby` (Japanese - Parenthesized Reading to Ruby Notation) was added in its place, so the group still has 21 commands
