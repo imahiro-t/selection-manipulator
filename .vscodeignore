@@ -13,3 +13,8 @@ node_modules
 scripts/**
 docs/showcase.html
 .github/**
+.claude/**
+dist/**
+out/**
+!out/main.js
+!out/lineRegexWorker.js
