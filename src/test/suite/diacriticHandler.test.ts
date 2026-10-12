@@ -1,32 +1,34 @@
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
-import { before, after } from 'mocha';
+import { diacriticHandler } from '../../handler/diacriticHandler';
+import { createTextEditor, waitForChange } from './testUtils';
 
+const COMMAND = 'selection-manipulator.text.remove-accents';
+
+// The handler is called directly (not through `executeCommand`), so the test depends neither on
+// which editor is active nor on activating the extension; the wiring of the command is checked
+// statically below instead.
 suite('Diacritic Handler Test Suite', () => {
-  let originalDocumentContent = '';
-
-  before(async () => {
-    const document = await vscode.workspace.openTextDocument({ content: 'Crème Brûlée' });
-    await vscode.window.showTextDocument(document);
-    originalDocumentContent = document.getText();
-  });
-
-  after(async () => {
-    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-  });
-
   test('Remove Accents', async () => {
-    const editor = vscode.window.activeTextEditor;
-    assert.ok(editor);
-
+    const editor = await createTextEditor('Crème Brûlée');
     editor.selection = new vscode.Selection(0, 0, 0, 12); // "Crème Brûlée"
 
-    await vscode.commands.executeCommand('selection-manipulator.text.remove-accents');
+    const changed = waitForChange(editor.document);
+    diacriticHandler(editor);
+    await changed;
 
-    // Allow time for the command to execute
-    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.strictEqual(editor.document.getText(), 'Creme Brulee');
+  });
 
-    const text = editor.document.getText(new vscode.Range(0, 0, 0, 12));
-    assert.strictEqual(text, 'Creme Brulee');
+  test('extension.ts and package.json register Remove Accents with diacriticHandler', () => {
+    const root = path.resolve(__dirname, '../../..');
+    const source = fs.readFileSync(path.join(root, 'src/extension.ts'), 'utf8');
+    const registration = `registerTextEditorCommand('${COMMAND}', diacriticHandler)`;
+    assert.strictEqual(source.split(registration).length - 1, 1, registration);
+    const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+    const contributed = (packageJson.contributes.commands as { command: string }[]).filter((c) => c.command === COMMAND);
+    assert.strictEqual(contributed.length, 1, COMMAND);
   });
 });

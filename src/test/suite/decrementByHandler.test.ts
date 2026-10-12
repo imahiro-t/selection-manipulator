@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { decrementByHandler } from '../../handler/decrementByHandler';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, waitForChange } from './testUtils';
 
 suite('Decrement By Handler Test Suite', () => {
   test('Decrement By 1', async () => {
@@ -12,9 +12,9 @@ suite('Decrement By Handler Test Suite', () => {
       new vscode.Selection(2, 0, 2, 1)
     ];
 
+    const changed = waitForChange(editor.document);
     decrementByHandler(1)(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await changed;
 
     const text = editor.document.getText();
     assert.strictEqual(text, '1\n2\n3');

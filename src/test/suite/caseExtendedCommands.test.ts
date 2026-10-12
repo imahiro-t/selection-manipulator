@@ -20,12 +20,9 @@ interface CommandCase {
   multiExpected: [string, string];
 }
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/** caseHandler does not return the edit promise, so wait like the existing case tests. */
+/** Awaits the edit caseHandler returns (none for an empty selection list). */
 const viaCaseHandler = (name: Parameters<typeof caseHandler>[0]): Runner => async (editor) => {
-  caseHandler(name)(editor);
-  await wait(100);
+  await caseHandler(name)(editor);
 };
 
 const noop = () => Promise.resolve(undefined);

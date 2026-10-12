@@ -12,9 +12,7 @@ suite('Increment By Handler Test Suite', () => {
       new vscode.Selection(2, 0, 2, 1)
     ];
 
-    incrementByHandler(1)(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await incrementByHandler(1)(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, '2\n3\n4');
@@ -27,9 +25,7 @@ suite('Increment By Handler Test Suite', () => {
       new vscode.Selection(1, 0, 1, 2)
     ];
 
-    incrementByHandler(5)(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await incrementByHandler(5)(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, '15\n25');
@@ -39,9 +35,7 @@ suite('Increment By Handler Test Suite', () => {
     const editor = await createTextEditor('a');
     editor.selection = new vscode.Selection(0, 0, 0, 1);
 
-    incrementByHandler(1)(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await incrementByHandler(1)(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'a');

@@ -27,11 +27,9 @@ CgKCAQEAxFmJ1/0X...
     // Let's test "Do nothing if no header"
     const editor = await createTextEditor('invalid');
     editor.selection = new vscode.Selection(0, 0, 0, 7);
-    x509CertificateHandler(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    // Should not open new doc or change anything visible easily unless we mock openTextDocument.
-    // But invalid cert won't trigger openTextDocument?
-
-    // This handler is hard to test without valid cert data. I'll omit detailed test for now or provide a dummy test.
+    // The handler returns its work (an empty result document for text it cannot parse): await it.
+    await x509CertificateHandler(editor);
+    // The selected text itself is never changed.
+    assert.strictEqual(editor.document.getText(), 'invalid');
   });
 });

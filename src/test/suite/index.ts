@@ -18,6 +18,11 @@ export function run(): Promise<void> {
       },
     },
   });
+  // `MOCHA_GREP='Wrap Commands|Whitespace Commands' npm test` runs only the matching tests (a
+  // regular expression over the full test titles); without it, every test runs.
+  if (process.env.MOCHA_GREP) {
+    mocha.grep(process.env.MOCHA_GREP);
+  }
 
   const testsRoot = path.resolve(__dirname, '..');
 

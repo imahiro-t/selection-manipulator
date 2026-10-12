@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { dataStructHandler } from '../../handler/dataStructHandler';
-import { createTextEditor, getDocumentText } from './testUtils';
+import { createTextEditor, getDocumentText, waitForChange } from './testUtils';
 
 suite('Data Struct Handler Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -16,8 +16,9 @@ KEY3='VALUE3'
         `;
     const editor = await createTextEditor(env);
     editor.selection = new vscode.Selection(0, 0, 5, 10);
-    await dataStructHandler('env-to-json', true)(editor);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    const changed = waitForChange(editor.document);
+    dataStructHandler('env-to-json', true)(editor);
+    await changed;
 
     const text = getDocumentText(editor);
     const expected = `{

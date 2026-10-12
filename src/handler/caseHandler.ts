@@ -10,11 +10,13 @@ type Command = 'camel' | 'capital' | 'constant' | 'dot' | 'kebab' | 'no' | 'pasc
   | 'cycle' | 'upper-acronyms' | 'sentence-each' | 'capitalize-lines' | 'lower-line-start'
   | 'css-variable' | 'bem' | 'pluralize' | 'singularize' | 'hashtag';
 
-export const caseHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => (textEditor) => {
+// Returns the edit (or `undefined` when there is nothing to edit) so that a caller, such as a test,
+// can await it; `registerTextEditorCommand` ignores the return value.
+export const caseHandler: (command: Command) => (textEditor: TextEditor) => Thenable<boolean> | undefined = (command) => (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return undefined;
   }
-  textEditor.edit((editBuilder) => {
+  return textEditor.edit((editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);
