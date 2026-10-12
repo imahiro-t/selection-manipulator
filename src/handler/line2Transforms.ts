@@ -252,12 +252,6 @@ const blankEveryN: Line2Fn = (lines, options) => {
 };
 
 /**
- * ASCII without CR / LF: every UTF-16 code unit is a grapheme cluster of its own (only CR LF joins
- * two ASCII characters), so `slice` gives the same result as walking the graphemes.
- */
-const SINGLE_UNIT_GRAPHEMES = /^[\x00-\x09\x0b\x0c\x0e-\x7f]*$/;
-
-/**
  * BMP characters that are a grapheme cluster of their own whatever comes before or after them,
  * as long as the neighbours are such characters too: no UAX #29 rule that joins two characters
  * (GB3 CR × LF, GB6-8 Hangul jamo, GB9 × Extend / ZWJ, GB9a × SpacingMark, GB9b Prepend ×,
@@ -279,38 +273,124 @@ const SINGLE_UNIT_GRAPHEMES = /^[\x00-\x09\x0b\x0c\x0e-\x7f]*$/;
  * Other control characters (tab etc.) never join anything (GB4 / GB5), as on the ASCII path.
  * The tests check every allowed BMP character against `Intl.Segmenter` and every code point
  * outside the BMP and every lone surrogate against this expression.
+ *
+ * This is the definition only: lines are checked with the table of `singleUnitTableOf`, made from it.
  */
 const SINGLE_UNIT_BMP_GRAPHEMES =
   /^[^\u{10000}-\u{10FFFF}\uD800-\uDFFF\r\n\p{M}\p{Cf}\p{Zl}\p{Zp}\uFE00-\uFE0F\uFF9E\uFF9F\u0E33\u0EB3\u0D4E\u1100-\u11FF\uA960-\uA97F\uD7B0-\uD7FF]*$/u;
 
+/** The test of the definition itself (`SINGLE_UNIT_BMP_GRAPHEMES`), for the tests of the table. */
+export const isSingleUnitGraphemeLineByPattern = (line: string): boolean => SINGLE_UNIT_BMP_GRAPHEMES.test(line);
+
+/**
+ * 1 for every UTF-16 code unit that `SINGLE_UNIT_BMP_GRAPHEMES` allows, 0 otherwise. Surrogates
+ * (0xD800..0xDFFF) are 0: a pair is a character outside the BMP and a lone surrogate is excluded,
+ * as in the expression. Made on first use (65,536 tests of one character; not when the extension
+ * starts): a loop over the line with `charCodeAt` is many times faster than the Unicode
+ * expression on long texts (about 80 MB of Japanese: 0.1-0.3 s instead of 1.3-3.1 s).
+ */
+let singleUnitTable: Uint8Array | undefined;
+
+const singleUnitTableOf = (): Uint8Array => {
+  if (singleUnitTable === undefined) {
+    const table = new Uint8Array(0x10000);
+    for (let code = 0; code < 0x10000; code++) {
+      if ((code < 0xd800 || code > 0xdfff) && SINGLE_UNIT_BMP_GRAPHEMES.test(String.fromCharCode(code))) {
+        table[code] = 1;
+      }
+    }
+    singleUnitTable = table;
+  }
+  return singleUnitTable;
+};
+
 /**
  * Whether every UTF-16 code unit of the line (without line breaks) is a grapheme cluster of its own.
- * The ASCII test comes first so that ASCII lines do not pay for the Unicode one.
+ * ASCII without CR / LF is (only CR LF joins two ASCII characters), and so are the BMP characters
+ * of `SINGLE_UNIT_BMP_GRAPHEMES`; for such a line `slice` gives the same result as walking the graphemes.
  */
-export const isSingleUnitGraphemeLine = (line: string): boolean =>
-  SINGLE_UNIT_GRAPHEMES.test(line) || SINGLE_UNIT_BMP_GRAPHEMES.test(line);
+export const isSingleUnitGraphemeLine = (line: string): boolean => {
+  const table = singleUnitTableOf();
+  for (let i = 0; i < line.length; i++) {
+    if (table[line.charCodeAt(i)] === 0) {
+      return false;
+    }
+  }
+  return true;
+};
 
-/** LINEX-005: the Mth to Nth characters (grapheme clusters) of every line. */
+/**
+ * Lines that need the grapheme walk are segmented together when they are at most this long
+ * (UTF-16 code units) or when the walk has to read them to the end anyway (`to` is at least their
+ * length: a line has no more graphemes than code units). The others are segmented on their own,
+ * so that the walk stops after the `to`th grapheme instead of reading the rest of the line.
+ * Measured with 4,000,000 code units of `e` + U+0301 in lines of equal length, cut at 1-1:
+ * together / alone 290 / 679 ms for lines of 8, 234 / 314 ms for 16, 205 / 154 ms for 32,
+ * 178 / 18 ms for 256 (and one line of 10,000,000: 579 / 3 ms). Cut at 1-1000 (read to the
+ * end), together is never slower: 299 / 732 ms for 8, 242 / 261 ms for 64, 232 / 216 ms for 256.
+ * 16 is the longest length at which together was faster for both.
+ */
+const CUT_CHARS_TOGETHER_LENGTH = 16;
+
+/** The `from`th to `to`th graphemes of one line, stopping after the `to`th. */
+const cutGraphemes = (line: string, from: number, to: number): string => {
+  let kept = '';
+  let position = 0;
+  for (const grapheme of graphemes(line)) {
+    position++;
+    if (position > to) {
+      break;
+    }
+    if (position >= from) {
+      kept += grapheme;
+    }
+  }
+  return kept;
+};
+
+/**
+ * LINEX-005: the Mth to Nth characters (grapheme clusters) of every line.
+ *
+ * Lines of single-unit graphemes are cut with `slice`. The other lines that
+ * CUT_CHARS_TOGETHER_LENGTH lets through are joined with `\n` and segmented once, as starting
+ * `Intl.Segmenter` for every line dominates the time otherwise (1,000,000 short lines with
+ * combining marks or emoji: about 1.4 s instead of 0.5 s). A line feed is always a grapheme of
+ * its own and never joins its neighbours (UAX #29 GB4 / GB5), and no line contains a line
+ * break, so every line gets the same graphemes as when it is segmented alone.
+ */
 const cutChars: Line2Fn = (lines, options) => {
   const [from, to] = requireRange(options.range);
-  return lines.map((line) => {
+  const result: string[] = new Array<string>(lines.length);
+  const complex: number[] = [];
+  lines.forEach((line, i) => {
     if (isSingleUnitGraphemeLine(line)) {
-      // Fast path: starting `Intl.Segmenter` for every short line dominates the time otherwise.
-      return line.slice(from - 1, to);
+      result[i] = line.slice(from - 1, to);
+    } else if (line.length <= CUT_CHARS_TOGETHER_LENGTH || line.length <= to) {
+      complex.push(i);
+    } else {
+      result[i] = cutGraphemes(line, from, to);
     }
-    let kept = '';
-    let position = 0;
-    for (const grapheme of graphemes(line)) {
-      position++;
-      if (position > to) {
-        break;
-      }
-      if (position >= from) {
-        kept += grapheme;
-      }
-    }
-    return kept;
   });
+  if (complex.length === 0) {
+    return result;
+  }
+  let index = 0;
+  let position = 0;
+  let kept = '';
+  for (const grapheme of graphemes(complex.map((i) => lines[i]).join('\n'))) {
+    if (grapheme === '\n') {
+      result[complex[index++]] = kept;
+      kept = '';
+      position = 0;
+      continue;
+    }
+    position++;
+    if (position >= from && position <= to) {
+      kept += grapheme;
+    }
+  }
+  result[complex[index]] = kept;
+  return result;
 };
 
 /** LINEX-007: every line once, at its last occurrence (the relative order is kept). */

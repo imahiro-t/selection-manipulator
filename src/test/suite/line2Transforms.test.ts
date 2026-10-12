@@ -4,6 +4,7 @@ import { graphemes } from '../../handler/uniCommon';
 import {
   combineSelections,
   isSingleUnitGraphemeLine,
+  isSingleUnitGraphemeLineByPattern,
   LINE2_ANCHORED_COMMANDS,
   LINE2_COMMAND_ENTRIES,
   Line2InputError,
@@ -329,6 +330,67 @@ suite('LINE2 Line Transforms (LINEX-001..014) Test Suite', () => {
         leaks.push('U+DC00 U+D800');
       }
       assert.deepStrictEqual(leaks.slice(0, 20), [], `${leaks.length} leaks`);
+    });
+
+    test('the lookup table gives the same answer as the expression for every BMP code unit', function () {
+      this.timeout(60_000);
+      const mismatches: string[] = [];
+      for (let code = 0; code <= 0xffff; code++) {
+        const c = String.fromCharCode(code);
+        for (const line of [c, `a${c}`, `${c}あ`]) {
+          if (isSingleUnitGraphemeLine(line) !== isSingleUnitGraphemeLineByPattern(line)) {
+            mismatches.push(`${hex(code)} in ${JSON.stringify(line)}`);
+          }
+        }
+      }
+      assert.deepStrictEqual(mismatches.slice(0, 20), [], `${mismatches.length} mismatches`);
+      for (const line of ['', 'abc\tdef', 'あいう가각', 'a\u{1F600}', '\uD800a', 'a\uDC00', 'e\u0301', 'x\r', 'y\n']) {
+        assert.strictEqual(isSingleUnitGraphemeLine(line), isSingleUnitGraphemeLineByPattern(line), JSON.stringify(line));
+      }
+    });
+
+    test('many lines, segmented together or alone, give the result of walking every line on its own', () => {
+      const lineKinds = [
+        'abcdefgh',
+        'あいうえおかきくけこ',
+        '',
+        'e\u0301a\u0308o',
+        'x\u{1F600}y\u{1F44D}\u{1F3FB}z',
+        'a\u{1F468}\u200D\u{1F469}\u200D\u{1F467}b',
+        '\u{1F1EF}\u{1F1F5}\u{1F1FA}\u{1F1F8}\u{1F1EF}',
+        '\u{20BB7}\u{20BB7}野家',
+        '\uD800a\uDC00b',
+        'b\uDBFF',
+        '\u1100\u1161\u11A8\u1100',
+        '가\u11A8나',
+        'ｶﾞｷﾞｸﾞ',
+        'ก\u0E33ข',
+        // Longer than CUT_CHARS_TOGETHER_LENGTH (16): segmented alone unless the range reaches its end.
+        `${'e\u0301'.repeat(20)}\u{1F600}${'あ'.repeat(10)}`,
+        `\u{1F468}\u200D\u{1F469}\u200D\u{1F467}${'x\u0300'.repeat(30)}`,
+        `${'\u{1F1EF}\u{1F1F5}'.repeat(12)}\u{1F1EF}`,
+      ];
+      const ranges: [number, number][] = [[1, 1], [1, 3], [2, 5], [3, 3], [10, 20], [16, 17], [30, 40], [1, 1000], [100, 200]];
+      // Every kind next to every other, in several orders (the first and last lines included).
+      const orders = [
+        lineKinds,
+        [...lineKinds].reverse(),
+        lineKinds.flatMap((kind, i) => [kind, lineKinds[(i * 7 + 3) % lineKinds.length]]),
+      ];
+      for (const eol of ['\n', '\r\n']) {
+        for (const order of orders) {
+          for (const trailing of ['', eol]) {
+            const text = order.join(eol) + trailing;
+            for (const range of ranges) {
+              assert.strictEqual(
+                line2Transforms['cut-chars'](text, { eol, range }),
+                referenceCutChars(text, range, eol),
+                `${JSON.stringify(range)} ${JSON.stringify(eol)} ${JSON.stringify(text.slice(0, 40))}`
+              );
+            }
+          }
+        }
+      }
     });
 
     test('lines with astral characters, emoji sequences and tags take the grapheme walk and give its result', () => {
