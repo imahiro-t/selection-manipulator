@@ -17,6 +17,7 @@ import {
   DateInputError,
   DateOutputBuffer,
   DateValue,
+  PatternPiece,
   daysFromCivil,
   daysInMonth,
   formatCivil,
@@ -318,8 +319,14 @@ export const toRelative = (value: string, now: Date): string => {
 // ---------------------------------------------------------------------------------------------
 
 /** DATE-012: the written date and time (no time zone conversion; a date alone is 00:00:00) in the pattern. */
-export const formatPattern = (value: string, pattern: string): string => {
-  const pieces = compilePattern(pattern);
+export const formatPattern = (value: string, pattern: string): string =>
+  formatCompiledPattern(value, compilePattern(pattern));
+
+/**
+ * DATE-012 / DATE-028 with the pattern already compiled (`compilePattern`), so that the lines of
+ * a selection share one compilation.
+ */
+export const formatCompiledPattern = (value: string, pieces: readonly PatternPiece[]): string => {
   const v = parseDateValue(value);
   const w = weekdayOf(daysOf(v));
   const hour12 = v.hour % 12 === 0 ? 12 : v.hour % 12;

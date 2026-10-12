@@ -14,6 +14,7 @@
  */
 import {
   DATE_NOTIFY_ITEMS,
+  compilePattern,
   DateInputError,
   DatePromptRule,
   DateSettingKey,
@@ -21,6 +22,7 @@ import {
   MapDateLinesOptions,
   dateLineValues,
   mapDateLines,
+  PatternPiece,
   truncateText,
 } from './dateCommon';
 import {
@@ -32,7 +34,7 @@ import {
   dateRange,
   dayOfYear,
   durationToHuman,
-  formatPattern,
+  formatCompiledPattern,
   fromCompact,
   fromExcelSerial,
   hmsToSeconds,
@@ -203,7 +205,19 @@ const cronPrecheck = (texts: readonly string[]): void => assertCronLineCount(tex
 const integerOf = (inputs: readonly string[]): number => Number(inputs[0]);
 
 const timeZone = lines((value, inputs, context) => toTimeZone(value, inputs[0], context.timeZones));
-const pattern = lines((value, inputs) => formatPattern(value, inputs[0]));
+/**
+ * DATE-012 / DATE-028: the pattern is compiled once per selection, when the first value line is
+ * converted (not before: an invalid pattern fails on that line, with its line number, as when every
+ * line compiled it, and a selection of blank lines never compiles it). A failed compilation
+ * throws, which ends the conversion, so it is never retried.
+ */
+const pattern: DateTransform = (text, inputs, context, budget) => {
+  let compiled: PatternPiece[] | undefined;
+  return mapDateLines(text, budget, context.eol, (value) => {
+    compiled ??= compilePattern(inputs[0]);
+    return formatCompiledPattern(value, compiled);
+  });
+};
 const compact = lines((value) => toCompact(value));
 const fromCompactLines = lines((value) => fromCompact(value));
 

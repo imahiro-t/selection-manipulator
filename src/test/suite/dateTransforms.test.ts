@@ -7,7 +7,7 @@ import {
   DEFAULT_DATE_SETTINGS,
   MAX_OUTPUT_LENGTH,
 } from '../../handler/dateCommon';
-import { toTimeZones } from '../../handler/dateConvert';
+import { formatPattern, toTimeZones } from '../../handler/dateConvert';
 import { assertCronLineCount, explainCron, parseCron } from '../../handler/dateCron';
 import { DATE_COMMAND_ENTRIES, DateCommandEntry, DateContext } from '../../handler/dateTransforms';
 import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
@@ -286,6 +286,37 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       throwsInput(() => format('2026-09-28', 'EEE'), 'line 1: unsupported pattern token "EEE"');
       throwsInput(() => format('2026-09-28', 'MMM'), 'line 1: unsupported pattern token "MMM"');
       throwsInput(() => format('2026-09-28', "'x"), 'line 1: the pattern has an unterminated quote');
+    });
+
+    // The pattern is compiled once per selection (SELEC-00086); results and errors are those of
+    // compiling it on every line (`formatPattern`, as before).
+    const everyPattern = "yyyy yy MM M dd d HH H hh h mm m ss s SSS a EEEE E 'lit''s' ''";
+    const values = ['2026-09-28', '', '  2026-09-29T13:04:05.006  ', '\t', '0001-01-01T00:00', '9999-12-31T23:59:59.999', '2026-02-28T12:00+09:00'];
+
+    test('DATE-012 / DATE-028: many lines give the same result as formatting each line with its own compilation', () => {
+      for (const eol of ['\n', '\r\n']) {
+        const text = values.join(eol);
+        const expected = values.map((line) => (line.trim() === '' ? line : line.replace(line.trim(), formatPattern(line.trim(), everyPattern)))).join(eol);
+        for (const id of ['DATE-012', 'DATE-028']) {
+          assert.strictEqual(run(id, text, [everyPattern], contextOf({}, DATE_TEST_NOW(), eol)), expected, id);
+        }
+      }
+      assert.strictEqual(
+        format('2026-09-28\n\n2026-09-29T13:04:05.006', everyPattern),
+        "2026 26 09 9 28 28 00 0 12 12 00 0 00 0 000 AM Monday Mon lit's '\n\n2026 26 09 9 29 29 13 13 01 1 04 4 05 5 006 PM Tuesday Tue lit's '"
+      );
+    });
+
+    test('an invalid pattern fails on the first value line, with its number, as before', () => {
+      // The messages are those of the implementation that compiled the pattern on every line.
+      for (const id of ['DATE-012', 'DATE-028']) {
+        throwsInput(() => run(id, '\n  \n2026-09-28\n2026-09-29', ['EEE']), 'line 3: unsupported pattern token "EEE"');
+        // The pattern error comes before the error of the value on the same line.
+        throwsInput(() => run(id, '\n  \nnot a date\n', ['MMM']), 'line 3: unsupported pattern token "MMM"');
+        throwsInput(() => run(id, '\n  \nnot a date\n', ["'x"]), 'line 3: the pattern has an unterminated quote');
+        // No value line: the pattern is never compiled, and nothing fails.
+        assert.strictEqual(run(id, '\n  \n\t\n', ['EEE']), '\n  \n\t\n');
+      }
     });
   });
 
