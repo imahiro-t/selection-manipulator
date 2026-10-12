@@ -2,6 +2,7 @@ import {
   window,
   TextEditor,
 } from 'vscode';
+import * as crypto from 'crypto';
 import { openTextDocument } from '../common';
 
 type Command = 'encrypt' | 'decrypt';
@@ -15,6 +16,7 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
     ignoreFocusOut: true,
     password: true,
   }) ?? "");
+  const converter = createConverter(command, secret);
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;
@@ -23,59 +25,117 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
       textEditor.selections
         .forEach(selection => {
           const text = textEditor.document.getText(selection);
-          editBuilder.replace(selection, change(command,)(text, secret));
+          editBuilder.replace(selection, converter.convert(text));
         });
-    });
+    }).then(() => converter.notifyLegacy());
   } else {
     const selectedText = textEditor.document.getText(textEditor.selection);
     if (!selectedText) {
       return;
     }
-    openTextDocument(change(command)(selectedText, secret));
+    openTextDocument(converter.convert(selectedText));
+    converter.notifyLegacy();
   }
 };
 
-const change: (command: Command) => (value: string, password: string) => string = (command) => (value, secret) => {
-  switch (command) {
-    case 'encrypt':
-      return encrypt(value, secret);
-    case 'decrypt':
-      return decrypt(value, secret);
-    default:
-      return '';
-  }
+/**
+ * Converts each selection and remembers whether any of them was a legacy-format ciphertext, so the
+ * compatibility-mode notice is shown at most once per command run (never with the text or secret).
+ */
+const createConverter = (command: Command, secret: string) => {
+  let usedLegacy = false;
+  return {
+    convert: (value: string): string => {
+      switch (command) {
+        case 'encrypt':
+          return aesEncrypt(value, secret);
+        case 'decrypt': {
+          const result = aesDecrypt(value, secret);
+          usedLegacy = usedLegacy || result.legacy;
+          return result.text;
+        }
+        default:
+          return '';
+      }
+    },
+    notifyLegacy: (): void => {
+      if (usedLegacy) {
+        usedLegacy = false;
+        void window.showInformationMessage(LEGACY_NOTICE);
+      }
+    },
+  };
 };
 
-const encrypt = (src: string, secret: string) => {
-  const crypto = require('crypto');
-  const algorithm = 'aes-256-cbc';
-  const key = crypto.scryptSync(secret, 'salt', 32);
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(algorithm, key, iv);
+export const LEGACY_NOTICE = 'Decrypted text in a legacy AES format (compatibility mode: fixed salt). Encrypt it again to store it in the current v2 format with a random salt and IV.';
+
+const ALGORITHM = 'aes-256-cbc';
+const KEY_LENGTH = 32;
+const SALT_LENGTH = 16;
+const IV_LENGTH = 16;
+const V2_PREFIX = 'v2';
+/** Salt of the legacy formats. Compatibility mode only; never used to encrypt. */
+const LEGACY_SALT = 'salt';
+const HEX_16_BYTES = /^[0-9a-f]{32}$/i;
+const HEX = /^(?:[0-9a-f]{2})+$/i;
+
+/**
+ * Encrypts `src` in the v2 format `v2:<salt hex>:<iv hex>:<ciphertext hex>` (AES-256-CBC, key
+ * derived with scrypt from the secret and a random 16-byte salt, random 16-byte IV).
+ */
+export const aesEncrypt = (src: string, secret: string): string => {
+  const salt = crypto.randomBytes(SALT_LENGTH);
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const key = crypto.scryptSync(secret, salt, KEY_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
   const encrypted = cipher.update(src, 'utf8', 'hex') + cipher.final('hex');
-  return `${iv.toString('hex')}:${encrypted}`;
+  return `${V2_PREFIX}:${salt.toString('hex')}:${iv.toString('hex')}:${encrypted}`;
 };
 
-const decrypt = (encrypted: string, secret: string) => {
+/**
+ * Decrypts the v2 format, or one of the two legacy formats in compatibility mode:
+ * - legacy A: `<iv hex>:<ciphertext hex>` with the fixed salt `'salt'`
+ * - legacy B: `<ciphertext hex>` with the fixed salt `'salt'` and a zero IV
+ * Returns an empty text when the input matches no format or cannot be decrypted. `legacy` tells
+ * whether compatibility mode was used.
+ */
+export const aesDecrypt = (encrypted: string, secret: string): { text: string; legacy: boolean } => {
+  // Ciphertexts never contain whitespace; tolerate a selection that includes surrounding blanks.
+  const parts = encrypted.trim().split(':');
   try {
-    const crypto = require('crypto');
-    const algorithm = 'aes-256-cbc';
-    const key = crypto.scryptSync(secret, 'salt', 32);
-    let iv: Buffer;
-    let cipherText: string;
-
-    if (encrypted.includes(':')) {
-      const parts = encrypted.split(':');
-      iv = Buffer.from(parts[0], 'hex');
-      cipherText = parts.slice(1).join(':');
-    } else {
-      iv = Buffer.alloc(16, 0);
-      cipherText = encrypted;
+    if (parts.length === 4 && parts[0] === V2_PREFIX) {
+      const [, salt, iv, cipherText] = parts;
+      if (!HEX_16_BYTES.test(salt) || !HEX_16_BYTES.test(iv) || !HEX.test(cipherText)) {
+        return { text: '', legacy: false };
+      }
+      const key = crypto.scryptSync(secret, Buffer.from(salt, 'hex'), KEY_LENGTH);
+      return { text: decipher(key, Buffer.from(iv, 'hex'), cipherText), legacy: false };
     }
-
-    const decipher = crypto.createDecipheriv(algorithm, key, iv);
-    return decipher.update(cipherText, 'hex', 'utf8') + decipher.final('utf8');
+    if (parts.length === 2 && HEX_16_BYTES.test(parts[0]) && HEX.test(parts[1])) {
+      return { text: decryptLegacyWithIv(parts[0], parts[1], secret), legacy: true };
+    }
+    if (parts.length === 1 && HEX.test(parts[0])) {
+      return { text: decryptLegacyZeroIv(parts[0], secret), legacy: true };
+    }
   } catch (_e) {
-    return '';
+    // Wrong secret or corrupted ciphertext (bad padding): fall through to the empty result.
   }
+  return { text: '', legacy: false };
+};
+
+const decipher = (key: Buffer, iv: Buffer, cipherText: string): string => {
+  const d = crypto.createDecipheriv(ALGORITHM, key, iv);
+  return d.update(cipherText, 'hex', 'utf8') + d.final('utf8');
+};
+
+/** Compatibility mode (legacy A: fixed salt `'salt'`, stored IV). Never used for new encryption. */
+const decryptLegacyWithIv = (ivHex: string, cipherText: string, secret: string): string => {
+  const key = crypto.scryptSync(secret, LEGACY_SALT, KEY_LENGTH);
+  return decipher(key, Buffer.from(ivHex, 'hex'), cipherText);
+};
+
+/** Compatibility mode (legacy B: fixed salt `'salt'`, zero IV). Never used for new encryption. */
+const decryptLegacyZeroIv = (cipherText: string, secret: string): string => {
+  const key = crypto.scryptSync(secret, LEGACY_SALT, KEY_LENGTH);
+  return decipher(key, Buffer.alloc(IV_LENGTH, 0), cipherText);
 };

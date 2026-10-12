@@ -1,6 +1,6 @@
 # Security Policy
 
-Selection Manipulator transforms, generates and extracts the text you select in VS Code. Because it runs inside your editor with access to whatever you are editing, we keep its behaviour deliberately narrow: commands work on the selected text locally. As of v0.0.42 there are a few existing commands that do communicate over the network; they are listed under [Known Exceptions](#known-exceptions) and no new commands of that kind will be added. This document describes how to report a vulnerability and the rules every new feature must follow.
+Selection Manipulator transforms, generates and extracts the text you select in VS Code. Because it runs inside your editor with access to whatever you are editing, we keep its behaviour deliberately narrow: commands work on the selected text locally. One group of existing commands (DNS Lookup, present since before v0.0.42) does communicate over the network; it is listed under [Known Exceptions](#known-exceptions) and no new commands of that kind will be added. This document describes how to report a vulnerability and the rules every new feature must follow.
 
 ## Supported Versions
 
@@ -68,14 +68,11 @@ A command should normally return its result as text. If a command really needs a
 
 ## Known Exceptions
 
-The following commands existed as of v0.0.42 and communicate over the network. They are **known exceptions** to the "no network access" rule above. **No new commands of these kinds will be added.** Any change to them (for example bundling mermaid, a nonce-based CSP and restricted `localResourceRoots` for the Webview) will be handled in a dedicated ticket.
+The following commands existed as of v0.0.42 and communicate over the network. They are a **known exception** to the "no network access" rule above. **No new commands of this kind will be added.**
 
 | Commands | What they do | Network access |
 |---|---|---|
 | DNS Lookup (`selection-manipulator.dns.*`, 14 commands) | Look up DNS records for the selected host name or IP address | DNS queries via `node:dns/promises` |
-| HAR to Sequence Diagram Image (`selection-manipulator.har-to-image`, 1 command) | Render a sequence diagram of the selected HAR in a Webview | The Webview imports mermaid from `https://cdn.jsdelivr.net/npm/mermaid@10/...` (major-version pin only, no Subresource Integrity), and its CSP allows `https://cdn.jsdelivr.net` and `'unsafe-inline'` scripts. This does not follow the [Webview rules](#6-webviews) above. |
-
-`selection-manipulator.har-to-mermaid` shares the same handler but only writes the Mermaid text to a new editor; it does not open a Webview or access the network.
 
 ## Dependency Vulnerabilities
 

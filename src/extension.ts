@@ -328,7 +328,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.jwt.decode', jwtHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.saml.decode', samlHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-mermaid', harToMermaidHandler('mermaid')));
-  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-image', harToMermaidHandler('image')));
+  context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.har-to-image', harToMermaidHandler('image', context.extensionUri)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.x509', x509CertificateHandler));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha1', cryptoHandler('sha1', false)));
   context.subscriptions.push(vscode.commands.registerTextEditorCommand('selection-manipulator.crypto.hash-sha256', cryptoHandler('sha256', false)));

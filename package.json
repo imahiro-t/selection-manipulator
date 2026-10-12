@@ -12818,10 +12818,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "copy-media": "node scripts/copy-mermaid.mjs",
+    "vscode:prepublish": "npm run copy-media && npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild main=./src/extension.ts lineRegexWorker=./src/handler/lineRegexWorker.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run esbuild-base -- --sourcemap",
-    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "esbuild": "npm run copy-media && npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run copy-media && npm run esbuild-base -- --sourcemap --watch",
     "watch": "npm run esbuild-watch",
     "lint": "eslint src",
     "test-compile": "tsc -p ./",
@@ -12840,6 +12841,7 @@
     "esbuild": "^0.28.2",
     "eslint": "^10.11.0",
     "glob": "^13.0.6",
+    "mermaid": "11.17.2",
     "mocha": "^11.7.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0"
