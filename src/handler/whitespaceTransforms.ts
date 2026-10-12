@@ -384,22 +384,31 @@ const outdentN: WhitespaceTransform = (text, options) => {
 
 const TAB_STOP = 4;
 
-/** Columns (code points, tabs advancing to the next tab stop) WS-033 adds to `line`: each tab becomes 1 to 4 spaces. */
+/**
+ * Walks `line` by code point for WS-033, calling `visit` with each code point and its width in
+ * columns: a tab advances to the next tab stop (1 to 4 columns), anything else is 1. Both the
+ * budget estimate and the expansion use it, so they cannot disagree.
+ */
+const walkTabStops = (line: string, visit: (ch: string, width: number) => void): void => {
+  let col = 0;
+  for (const ch of line) {
+    const width = ch === '\t' ? TAB_STOP - (col % TAB_STOP) : 1;
+    visit(ch, width);
+    col += width;
+  }
+};
+
+/** Characters WS-033 adds to `line`: each tab becomes 1 to 4 spaces. */
 const expandTabsAdded = (line: string): number => {
   if (!line.includes('\t')) {
     return 0;
   }
   let added = 0;
-  let col = 0;
-  for (const ch of line) {
+  walkTabStops(line, (ch, width) => {
     if (ch === '\t') {
-      const width = TAB_STOP - (col % TAB_STOP);
       added += width - 1;
-      col += width;
-    } else {
-      col++;
     }
-  }
+  });
   return added;
 };
 
@@ -408,17 +417,9 @@ const expandTabsLine = (line: string): string => {
     return line;
   }
   const out: string[] = [];
-  let col = 0;
-  for (const ch of line) {
-    if (ch === '\t') {
-      const width = TAB_STOP - (col % TAB_STOP);
-      out.push(spaces(width));
-      col += width;
-    } else {
-      out.push(ch);
-      col++;
-    }
-  }
+  walkTabStops(line, (ch, width) => {
+    out.push(ch === '\t' ? spaces(width) : ch);
+  });
   return out.join('');
 };
 
@@ -1171,15 +1172,22 @@ const removeSpaceBeforePunctuation: WhitespaceTransform = (text) =>
     return PUNCTUATION_BEFORE.has(whole[offset + match.length]) ? '' : match;
   });
 
+/**
+ * WS-030's target: a comma directly followed by a non-whitespace character. The budget count and
+ * the replacement both build their global regex from this one definition, so the estimate always
+ * matches what the replacement adds.
+ */
+const COMMA_WITHOUT_SPACE = /,(?=\S)/;
+
 /** WS-030: inserts a space after a comma that is directly followed by a non-whitespace character. */
 const spaceAfterComma: WhitespaceTransform = (text, options) => {
-  const comma = /,(?=\S)/g;
+  const comma = new RegExp(COMMA_WITHOUT_SPACE.source, 'g');
   let count = 0;
   while (comma.exec(text) !== null) {
     count++;
   }
   ensureAddedLength(count, options);
-  return text.replace(/,(?=\S)/g, ', ');
+  return text.replace(new RegExp(COMMA_WITHOUT_SPACE.source, 'g'), ', ');
 };
 
 // ---------------------------------------------------------------------------

@@ -190,8 +190,8 @@ const offsetAt = (state: TimeZoneState, millis: number): number => {
  */
 const decideHour = (state: TimeZoneState, hour: number, millis: number): ConstantSpan | undefined => {
   const offset = state.firstOffset;
-  if (!(offset === state.secondOffset)) {
-    // Different, or NaN (the era BC).
+  if (Number.isNaN(offset) || offset !== state.secondOffset) {
+    // NaN (the era BC), or different.
     return undefined;
   }
   const span = {

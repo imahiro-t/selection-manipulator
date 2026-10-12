@@ -213,12 +213,6 @@ const splitLines = (text: string): SplitText => {
 const joinLines = ({ lines, trailingBreak }: Pick<SplitText, 'lines' | 'trailingBreak'>, eol: string): string =>
   lines.join(eol) + (trailingBreak ? eol : '');
 
-/**
- * Characters added by re-joining the lines of `text` with `eol` (a `\n` or lone `\r` in a CRLF
- * document); a `\r\n` that is already the document's EOL adds nothing.
- */
-const eolGrowth = (text: string, eol: string): number => countEolGrowth(text, eol);
-
 const countChar = (text: string, ch: string): number => {
   let count = 0;
   for (let i = 0; i < text.length; i++) {
@@ -271,7 +265,7 @@ const enclose = (open: string, close: string): WrapTransform => (text, options) 
 const encloseEachLine = (text: string, open: string, close: string, options: WrapOptions): string => {
   const split = splitLines(text);
   const nonEmpty = split.lines.filter((line) => line.length > 0).length;
-  ensureAddedLength(nonEmpty * (open.length + close.length) + eolGrowth(text, options.eol), options);
+  ensureAddedLength(nonEmpty * (open.length + close.length) + countEolGrowth(text, options.eol), options);
   return joinLines(
     { ...split, lines: split.lines.map((line) => (line.length > 0 ? `${open}${line}${close}` : line)) },
     options.eol
@@ -458,7 +452,7 @@ const asciiBox: WrapTransform = (text, options) => {
   // Border lines and their line breaks, then `| ` + padding + ` |` for every line.
   const added = 2 * (width + 4 + eol.length)
     + widths.reduce((total, w) => total + 4 + (width - w), 0)
-    + eolGrowth(text, eol);
+    + countEolGrowth(text, eol);
   ensureAddedLength(added, options);
   const border = `+${'-'.repeat(width + 2)}+`;
   const body = split.lines.map((line, i) => `| ${line}${' '.repeat(width - widths[i])} |`);
@@ -526,7 +520,7 @@ export const wrapTransforms: Record<WrapCommand, WrapTransform> = {
   },
   'unquote.each-line': (text, options) => {
     const split = splitLines(text);
-    ensureAddedLength(eolGrowth(text, options.eol), options);
+    ensureAddedLength(countEolGrowth(text, options.eol), options);
     return joinLines({ ...split, lines: split.lines.map(unquoteLine) }, options.eol);
   },
   'enclose.japanese.white-lenticular': enclose('〖', '〗'),
