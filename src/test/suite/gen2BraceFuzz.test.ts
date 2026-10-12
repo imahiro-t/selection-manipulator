@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from '../../handler/encodeTransforms';
-import { braceExpansion } from '../../handler/gen2Generate';
+import { braceExpansion, matchBraces, parseSequence } from '../../handler/gen2Generate';
+import { GenLimitError } from '../../handler/genCommon';
 import { braceExpansion as legacyBraceExpansion } from './legacy/braceExpansionLegacy';
 
 /**
@@ -270,6 +271,41 @@ suite('DATEX-016 brace expansion: differential fuzzing against the former implem
         }
       }
     });
+  });
+
+  test('lines with braces count towards the limit of a selection even when they are kept as text', function () {
+    this.timeout(60_000);
+    // A line with a brace that is kept as it is (none closed, no escape) is one string, as before;
+    // only a line without any brace is left out of the BRACE_MAX_PER_SELECTION check.
+    const cases: [string, string][] = [
+      ['{\\n × 100,001', '{\n'.repeat(100_001)],
+      ['{\\r × 500,000', '{\r'.repeat(500_000)],
+      ['{x\\n × 100,001', '{x\n'.repeat(100_001)],
+      ['{a}\\n + {\\n × 100,000', '{a}\n' + '{\n'.repeat(100_000)],
+      ['{x\\}\\n × 3 + x{y\\n × 100,001', '{x\\}\n'.repeat(3) + 'x{y\n'.repeat(100_001)],
+    ];
+    for (const [name, text] of cases) {
+      const expected = outcomeOf(() => legacyBraceExpansion(text, '\n', MAX_OUTPUT_LENGTH));
+      assert.ok('error' in expected && expected.error === GenLimitError.name, `${name}: the former implementation refuses it`);
+      assert.throws(() => braceExpansion(text, '\n', MAX_OUTPUT_LENGTH), GenLimitError, name);
+      compare(text, '\n', MAX_OUTPUT_LENGTH, name);
+    }
+    // Just under the limit, the same lines are kept as they are.
+    compare('{\n'.repeat(100_000), '\n', MAX_OUTPUT_LENGTH, '{\\n × 100,000');
+    // A line without any brace is not counted, as before.
+    compare('a\n'.repeat(100_001), '\n', MAX_OUTPUT_LENGTH, 'a\\n × 100,001');
+  });
+
+  test('a broken comma table stops with an error instead of walking without end', () => {
+    // The comma lists of the brace tables are walked a bounded number of times: a bug that left a
+    // cycle or a stale index in them must not hang the extension host shared by every extension.
+    const line = '{a,b,c}';
+    const cyclic = matchBraces(line);
+    cyclic.nextComma[1] = 0;
+    assert.throws(() => parseSequence(line, cyclic, 0, line.length, 0), /broken comma table/);
+    const stale = matchBraces(line);
+    stale.nextComma[0] = 5;
+    assert.throws(() => parseSequence(line, stale, 0, line.length, 0), /broken comma table/);
   });
 
   /**

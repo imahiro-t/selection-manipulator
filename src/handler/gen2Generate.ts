@@ -281,6 +281,8 @@ export interface BraceTable {
   readonly escapeAt: Int32Array;
   /** The number of opening braces of the line (the entries of `openAt`, `closeAt` and `firstComma`). */
   readonly braces: number;
+  /** The number of commas inside an open brace (the entries of `commaAt` and `nextComma`). */
+  readonly commas: number;
   /** The number of escapes of the line (the entries of `escapeAt`). */
   readonly escapes: number;
   /** The number of braces that are closed (0: the line is literal text, if it has no escape either). */
@@ -409,13 +411,24 @@ export const matchBraces = (line: string): BraceTable => {
     }
   }
   // A brace that is never closed is literal text; so are the commas recorded for it.
-  return { openAt, closeAt, firstComma, commaAt, nextComma, escapeAt, braces, escapes, closed };
+  return { openAt, closeAt, firstComma, commaAt, nextComma, escapeAt, braces, commas, escapes, closed };
+};
+
+/**
+ * Stops on a comma list that is not one of the line's (a bug of `matchBraces`): it would otherwise
+ * be walked without end, and the extension host is shared by every extension.
+ */
+const checkCommaIndex = (table: BraceTable, comma: number, walked: number): void => {
+  if (comma < 0 || comma >= table.commas || walked >= table.commas) {
+    throw new Error('Brace Expansion: broken comma table (internal error)');
+  }
 };
 
 /** The number of commas directly inside the brace `brace`. */
 const commaCountOf = (table: BraceTable, brace: number): number => {
   let commas = 0;
   for (let comma = table.firstComma[brace]; comma >= 0; comma = table.nextComma[comma]) {
+    checkCommaIndex(table, comma, commas);
     commas++;
   }
   return commas;
@@ -607,6 +620,9 @@ const parseInto = (line: string, table: BraceTable, from: number, to: number, de
         optionStart = stop;
         if (k < commas) {
           comma = table.nextComma[comma];
+          if (k + 1 < commas) {
+            checkCommaIndex(table, comma, k + 1);
+          }
         }
       }
       pendingNodes.push({ kind: 'alternatives', options });
@@ -754,13 +770,17 @@ export const braceExpansion = (text: string, eol: string, budget: number): strin
           parsed.push({ nodes: undefined, line, lineBreak, lineNumber });
           total += 1;
           length += line.length + lineBreak.length;
-          return;
+          if (table === undefined) {
+            // Only a line without any brace is left out of the BRACE_MAX_PER_SELECTION check below.
+            return;
+          }
+        } else {
+          // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured at the same time.
+          const size = parseSequence(line, table, 0, line.length, 0);
+          parsed.push({ nodes: size.nodes, line, lineBreak, lineNumber });
+          total += size.count;
+          length = cap(length + size.length + (size.count - 1) * eol.length + lineBreak.length);
         }
-        // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured at the same time.
-        const size = parseSequence(line, table, 0, line.length, 0);
-        parsed.push({ nodes: size.nodes, line, lineBreak, lineNumber });
-        total += size.count;
-        length = cap(length + size.length + (size.count - 1) * eol.length + lineBreak.length);
       } catch (error) {
         throw atLine(lineNumber, error);
       }
