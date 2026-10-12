@@ -12,8 +12,11 @@
  *   (to avoid ReDoS); trimming and bracket matching are done with plain loops.
  * - Every command counts the characters it adds before building the result and throws
  *   `WrapOutputTooLargeError` when the count exceeds the limit, so a small selection (or a long
- *   prefix repeated on many lines) can never blow up into hundreds of megabytes.
+ *   prefix repeated on many lines) can never blow up into hundreds of megabytes. The count is
+ *   the characters ADDED, removed ones are not subtracted (the same rule as the WS commands),
+ *   including line breaks replaced by the document's EOL (`countEolGrowth`).
  */
+import { countEolGrowth } from './eolGrowth';
 import { sqlUnsafeCharacterReason } from './sqlSafety';
 
 /** The 30 commands in ROADMAP order (WRAP-001..WRAP-030). */
@@ -191,28 +194,30 @@ interface SplitText {
   lines: string[];
   /** True when one trailing line break was removed before splitting. */
   trailingBreak: boolean;
+  /** Length of that line break (0 when there was none, 1 for `\n` or `\r`, 2 for `\r\n`). */
+  trailingBreakLength: number;
 }
 
 /** Drops one trailing line break and splits the rest into lines. */
 const splitLines = (text: string): SplitText => {
-  let body = text;
-  let trailingBreak = false;
-  if (body.endsWith('\r\n')) {
-    body = body.slice(0, -2);
-    trailingBreak = true;
-  } else if (body.endsWith('\n') || body.endsWith('\r')) {
-    body = body.slice(0, -1);
-    trailingBreak = true;
+  let trailingBreakLength = 0;
+  if (text.endsWith('\r\n')) {
+    trailingBreakLength = 2;
+  } else if (text.endsWith('\n') || text.endsWith('\r')) {
+    trailingBreakLength = 1;
   }
-  return { lines: body.split(LINE_BREAK), trailingBreak };
+  const body = text.slice(0, text.length - trailingBreakLength);
+  return { lines: body.split(LINE_BREAK), trailingBreak: trailingBreakLength > 0, trailingBreakLength };
 };
 
-const joinLines = ({ lines, trailingBreak }: SplitText, eol: string): string =>
+const joinLines = ({ lines, trailingBreak }: Pick<SplitText, 'lines' | 'trailingBreak'>, eol: string): string =>
   lines.join(eol) + (trailingBreak ? eol : '');
 
-/** Characters that can be added by re-joining with `eol` (CRLF documents with LF text). */
-const eolGrowth = (split: SplitText, eol: string): number =>
-  (split.lines.length - 1 + (split.trailingBreak ? 1 : 0)) * Math.max(0, eol.length - 1);
+/**
+ * Characters added by re-joining the lines of `text` with `eol` (a `\n` or lone `\r` in a CRLF
+ * document); a `\r\n` that is already the document's EOL adds nothing.
+ */
+const eolGrowth = (text: string, eol: string): number => countEolGrowth(text, eol);
 
 const countChar = (text: string, ch: string): number => {
   let count = 0;
@@ -266,7 +271,7 @@ const enclose = (open: string, close: string): WrapTransform => (text, options) 
 const encloseEachLine = (text: string, open: string, close: string, options: WrapOptions): string => {
   const split = splitLines(text);
   const nonEmpty = split.lines.filter((line) => line.length > 0).length;
-  ensureAddedLength(nonEmpty * (open.length + close.length) + eolGrowth(split, options.eol), options);
+  ensureAddedLength(nonEmpty * (open.length + close.length) + eolGrowth(text, options.eol), options);
   return joinLines(
     { ...split, lines: split.lines.map((line) => (line.length > 0 ? `${open}${line}${close}` : line)) },
     options.eol
@@ -304,8 +309,13 @@ const quoteList = (
   if (items.length === 0) {
     return text;
   }
-  // Quotes (2) and separator (2) per item, the brackets, the escapes and the final EOL.
-  const added = items.reduce((total, line) => total + 4 + extraPerLine(line), 2) + options.eol.length;
+  // What is added (removed line breaks and blank lines are not subtracted): the brackets, the
+  // quotes (2 per item), the `, ` separators (2 between two items), the escapes, and, when one
+  // trailing line break is kept, what replacing it with the document's EOL adds.
+  const added = open.length + close.length
+    + items.reduce((total, line) => total + 2 + extraPerLine(line), 0)
+    + 2 * (items.length - 1)
+    + (split.trailingBreak ? Math.max(0, options.eol.length - split.trailingBreakLength) : 0);
   ensureAddedLength(added, options);
   const list = `${open}${items.map(escape).join(', ')}${close}`;
   return split.trailingBreak ? list + options.eol : list;
@@ -446,7 +456,7 @@ const asciiBox: WrapTransform = (text, options) => {
   // Border lines and their line breaks, then `| ` + padding + ` |` for every line.
   const added = 2 * (width + 4 + eol.length)
     + widths.reduce((total, w) => total + 4 + (width - w), 0)
-    + eolGrowth(split, eol);
+    + eolGrowth(text, eol);
   ensureAddedLength(added, options);
   const border = `+${'-'.repeat(width + 2)}+`;
   const body = split.lines.map((line, i) => `| ${line}${' '.repeat(width - widths[i])} |`);
@@ -514,7 +524,7 @@ export const wrapTransforms: Record<WrapCommand, WrapTransform> = {
   },
   'unquote.each-line': (text, options) => {
     const split = splitLines(text);
-    ensureAddedLength(eolGrowth(split, options.eol), options);
+    ensureAddedLength(eolGrowth(text, options.eol), options);
     return joinLines({ ...split, lines: split.lines.map(unquoteLine) }, options.eol);
   },
   'enclose.japanese.white-lenticular': enclose('〖', '〗'),
