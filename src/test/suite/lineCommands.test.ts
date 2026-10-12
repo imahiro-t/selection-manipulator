@@ -624,7 +624,12 @@ suite('Line Commands (LINE-001..040) Test Suite', () => {
       const { deps, record } = recorder(['1000000', longDelimiter]);
       await runnerFor(joinAll, deps)(editor);
       assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
-      assert.strictEqual(record.warnings.length, 1);
+      // 60,999 line breaks become the 100-character delimiter (99 more each) in each block: the
+      // warning gives what both blocks add together (2 × 6,038,901), not the second block alone.
+      assert.deepStrictEqual(record.warnings, [
+        'The selection was not changed: the result would add 12,077,802 characters (limit: 10,000,000). '
+        + 'Select fewer or shorter lines.',
+      ]);
     });
   });
 

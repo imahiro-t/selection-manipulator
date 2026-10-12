@@ -465,7 +465,12 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', function () {
       selectBlocks(editor, [block, block]);
       await wrapHandlerInternal(notifier)('enclose.ascii-box')(editor);
       assert.strictEqual(editor.document.getText(), [block, block].join(SEPARATOR));
-      assert.strictEqual(warnings.length, 1);
+      // The box adds 6,120,314 characters to each block: the warning gives what both blocks add
+      // together, not the second block alone (which looks within the limit).
+      assert.deepStrictEqual(warnings, [
+        'The selection was not changed: the result would add 12,240,628 characters (limit: 10,000,000). '
+        + 'Select less text or use shorter input.',
+      ]);
     });
 
     test('a result within the limit is applied without notifications', async () => {
