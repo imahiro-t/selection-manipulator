@@ -65,26 +65,70 @@ export const toUtcString = (value: string): string => dateOfInstant(parseInstant
 // DATE-002 / 003 / 026 / 027: time zones
 // ---------------------------------------------------------------------------------------------
 
-/** One `Intl.DateTimeFormat` per time zone, made once per run (never kept between runs). */
-export type TimeZoneCache = Map<string, Intl.DateTimeFormat>;
+const MS_PER_HOUR = 3_600_000;
+/** `Date` cannot hold an instant further than this from 1970 (in either direction). */
+const MAX_DATE_MILLIS = 8.64e15;
 
-const formatterOf = (cache: TimeZoneCache, timeZone: string): Intl.DateTimeFormat => {
-  let formatter = cache.get(timeZone);
-  if (formatter === undefined) {
-    formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      hourCycle: 'h23',
-      era: 'short',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-    cache.set(timeZone, formatter);
+/** Instants `from` to `to` (both included) of one hour, throughout which the zone has `offset` seconds. */
+export interface ConstantSpan {
+  from: number;
+  to: number;
+  offset: number;
+}
+
+/**
+ * What one run knows about a time zone (made once per run, never kept between runs): its
+ * `Intl.DateTimeFormat`, the hours (`Math.floor(millis / MS_PER_HOUR)`) decided so far, and the
+ * values of the latest run of values in one hour.
+ */
+export interface TimeZoneState {
+  formatter: Intl.DateTimeFormat;
+  /** Per decided hour: the span of it known to have one offset (undefined: none is known). */
+  decided: Map<number, ConstantSpan | undefined>;
+  /** The hour of the latest value (NaN before the first). */
+  runHour: number;
+  /** How many values in a row fell in `runHour` (counted up to 2). */
+  runLength: number;
+  /** The instants and offsets (NaN in the era BC) of the first two values of the run, formatted. */
+  firstMillis: number;
+  firstOffset: number;
+  secondMillis: number;
+  secondOffset: number;
+}
+
+/** One state per time zone for one run. */
+export type TimeZoneCache = Map<string, TimeZoneState>;
+
+/** The span of `hour` whose values are computed from the offset (for the tests). */
+export const constantSpanOfHour = (state: TimeZoneState | undefined, hour: number): ConstantSpan | undefined =>
+  state?.decided.get(hour);
+
+const stateOf = (cache: TimeZoneCache, timeZone: string): TimeZoneState => {
+  let state = cache.get(timeZone);
+  if (state === undefined) {
+    state = {
+      formatter: new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        hourCycle: 'h23',
+        era: 'short',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+      decided: new Map(),
+      runHour: NaN,
+      runLength: 0,
+      firstMillis: NaN,
+      firstOffset: NaN,
+      secondMillis: NaN,
+      secondOffset: NaN,
+    };
+    cache.set(timeZone, state);
   }
-  return formatter;
+  return state;
 };
 
 interface ZonedTime extends CivilDate {
@@ -95,10 +139,13 @@ interface ZonedTime extends CivilDate {
   offsetSeconds: number;
 }
 
-/** The calendar date and time of an instant in a time zone, with the offset of that zone then. */
-export const zonedTime = (millis: number, timeZone: string, cache: TimeZoneCache): ZonedTime => {
+/**
+ * The wall clock time of an instant from the formatter, with the offset, and whether it is in the
+ * era BC (the formatter then counts the years backwards, and the offset means nothing).
+ */
+const formatZoned = (millis: number, formatter: Intl.DateTimeFormat): { zoned: ZonedTime; bc: boolean } => {
   const parts: Record<string, string> = {};
-  for (const part of formatterOf(cache, timeZone).formatToParts(new Date(millis))) {
+  for (const part of formatter.formatToParts(new Date(millis))) {
     parts[part.type] = part.value;
   }
   const zoned = {
@@ -109,13 +156,127 @@ export const zonedTime = (millis: number, timeZone: string, cache: TimeZoneCache
     minute: Number(parts.minute),
     second: Number(parts.second),
   };
-  // Before the year 1 the formatter gives the era BC (and a year counted backwards).
-  if ((parts.era !== undefined && !/^A/.test(parts.era)) || zoned.year < MIN_YEAR || zoned.year > MAX_YEAR) {
-    throw new DateInputError('the result is outside the years 0001 to 9999');
-  }
   const wholeSeconds = Math.floor(millis / 1000) * 1000;
   const offsetSeconds = Math.round((utcMillis(zoned, zoned.hour, zoned.minute, zoned.second) - wholeSeconds) / 1000);
-  return { ...zoned, offsetSeconds };
+  return { zoned: { ...zoned, offsetSeconds }, bc: parts.era !== undefined && !/^A/.test(parts.era) };
+};
+
+/** The offset (seconds) at an instant from the formatter: NaN in the era BC or outside `Date` (equal to nothing). */
+const offsetAt = (state: TimeZoneState, millis: number): number => {
+  if (Math.abs(millis) > MAX_DATE_MILLIS) {
+    return NaN;
+  }
+  const { zoned, bc } = formatZoned(millis, state.formatter);
+  return bc ? NaN : zoned.offsetSeconds;
+};
+
+/**
+ * Decides, at the third value in a row in one hour, which span of the hour has one offset.
+ *
+ * The first two values (formatted) bound the span `[lo, hi]` when their offsets are equal. The
+ * third value is on one side of it or inside it: when it is after `hi`, the offset at the start of
+ * the next hour is formatted and, when it is the same, the span reaches the end of the hour; when
+ * it is before `lo`, the same with the start of the hour; inside, nothing more is formatted.
+ * This formats at most one instant where the third value would have been formatted itself, so a
+ * run formats no more often than before (dates of a log, sorted or nearly so, are formatted about
+ * 3 times per hour instead of once per value). The one exception is an hour in which the offset
+ * changes after (or before) the first two values: the third value is then formatted as well, one
+ * call more than before for that hour.
+ *
+ * This assumes, as tzdata has it, that no zone changes its offset and changes it back within one
+ * hour: equal offsets at two instants less than an hour apart then mean no change between them.
+ * A change exactly at the start of the next hour makes the offsets differ, and the span stays
+ * `[lo, hi]`.
+ */
+const decideHour = (state: TimeZoneState, hour: number, millis: number): ConstantSpan | undefined => {
+  const offset = state.firstOffset;
+  if (!(offset === state.secondOffset)) {
+    // Different, or NaN (the era BC).
+    return undefined;
+  }
+  const span = {
+    from: Math.min(state.firstMillis, state.secondMillis),
+    to: Math.max(state.firstMillis, state.secondMillis),
+    offset,
+  };
+  if (millis > span.to) {
+    const end = (hour + 1) * MS_PER_HOUR;
+    if (offsetAt(state, end) === offset) {
+      span.to = end - 1;
+    }
+  } else if (millis < span.from) {
+    const start = hour * MS_PER_HOUR;
+    if (offsetAt(state, start) === offset) {
+      span.from = start;
+    }
+  }
+  return span;
+};
+
+/**
+ * The offset (seconds) of the zone at `millis` when it is known from the values before it, else
+ * undefined (the formatter is then used for this value). See `decideHour`.
+ */
+const knownOffset = (state: TimeZoneState, millis: number): number | undefined => {
+  const hour = Math.floor(millis / MS_PER_HOUR);
+  let span: ConstantSpan | undefined;
+  if (state.decided.has(hour)) {
+    span = state.decided.get(hour);
+  } else if (hour === state.runHour && state.runLength === 2) {
+    span = decideHour(state, hour, millis);
+    state.decided.set(hour, span);
+  } else {
+    return undefined;
+  }
+  return span !== undefined && millis >= span.from && millis <= span.to ? span.offset : undefined;
+};
+
+/** Remembers a formatted value for the run of values in its hour. */
+const noteFormatted = (state: TimeZoneState, millis: number, offset: number): void => {
+  const hour = Math.floor(millis / MS_PER_HOUR);
+  if (hour !== state.runHour) {
+    state.runHour = hour;
+    state.runLength = 1;
+    state.firstMillis = millis;
+    state.firstOffset = offset;
+  } else if (state.runLength === 1) {
+    state.runLength = 2;
+    state.secondMillis = millis;
+    state.secondOffset = offset;
+  }
+};
+
+const outOfYears = (): DateInputError => new DateInputError('the result is outside the years 0001 to 9999');
+
+/** The calendar date and time of an instant in a time zone, with the offset of that zone then. */
+export const zonedTime = (millis: number, timeZone: string, cache: TimeZoneCache): ZonedTime => {
+  const state = stateOf(cache, timeZone);
+  const offsetSeconds = knownOffset(state, millis);
+  if (offsetSeconds !== undefined) {
+    // The wall clock time from the offset: the same whole seconds as the formatter gives.
+    const wallSeconds = Math.floor(millis / 1000) + offsetSeconds;
+    const days = Math.floor(wallSeconds / 86_400);
+    const secondOfDay = wallSeconds - days * 86_400;
+    const date = civilFromDays(days);
+    // The formatter gives the era BC before the year 1; the calendar year is then 0 or less.
+    if (date.year < MIN_YEAR || date.year > MAX_YEAR) {
+      throw outOfYears();
+    }
+    return {
+      ...date,
+      hour: Math.floor(secondOfDay / 3600),
+      minute: Math.floor(secondOfDay / 60) % 60,
+      second: secondOfDay % 60,
+      offsetSeconds,
+    };
+  }
+  const { zoned, bc } = formatZoned(millis, state.formatter);
+  noteFormatted(state, millis, bc ? NaN : zoned.offsetSeconds);
+  // Before the year 1 the formatter gives the era BC (and a year counted backwards).
+  if (bc || zoned.year < MIN_YEAR || zoned.year > MAX_YEAR) {
+    throw outOfYears();
+  }
+  return zoned;
 };
 
 /** `+09:00`, `-08:00`, `+05:45` (`+09:18:59` for an offset with seconds). */
