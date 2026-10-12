@@ -142,7 +142,16 @@ const caseOf = (name: WrapCommand): CommandCase => {
   return found;
 };
 
-suite('Wrap Commands (WRAP-001..030) Test Suite', () => {
+suite('Wrap Commands (WRAP-001..030) Test Suite', function () {
+  // One `npm test` run had 6 tests of the Wrap and Whitespace Commands suites exceed Mocha's default
+  // 2,000 ms, and the rerun passed. Measured with every test and hook timed, the tests of both
+  // suites take about 10 ms on average and at most 61 ms in a full run, and at most 197 ms (hooks
+  // 148 ms) with four full `npm test` runs in parallel or with 14 busy CPU loops;
+  // the large "output size limit" documents are no slower than the rest. No test here waits for a
+  // fixed time or without a bound, so the failures most likely came from a stall of the whole test
+  // host (it could not be reproduced). The suite allows 10 s per test so that such a stall does not
+  // fail it, while a real hang still fails.
+  this.timeout(10_000);
 
   teardown(closeAllEditors);
 

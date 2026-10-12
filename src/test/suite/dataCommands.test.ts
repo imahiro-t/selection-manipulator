@@ -10,7 +10,7 @@ import { myCommands } from '../../handler/showCommandsHandler';
 import { DATA_COMMAND_ENTRIES, DataCommandEntry } from '../../handler/dataTransforms';
 import { DATA2_COMMAND_ENTRIES } from '../../handler/data2Transforms';
 import { CHROME_ON_WINDOWS_UA, DATA_ROADMAP_EXAMPLES, pretty } from './dataExamples';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, waitForChange } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 const SEPARATOR = '\n---\n';
@@ -427,11 +427,10 @@ suite('Data Format Commands (DATA-001..040) Test Suite', () => {
       await run(entryOf('DATA-003'), dependencies)(editor);
       const env = await createTextEditor(opened[0]);
       selectWholeDocument(env);
-      await dataStructHandler('env-to-json', true)(env);
-      // The existing handler does not wait for its edit.
-      for (let i = 0; i < 50 && env.document.getText() === opened[0]; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 20));
-      }
+      // The existing handler does not return its edit: wait for the document to change.
+      const changed = waitForChange(env.document);
+      dataStructHandler('env-to-json', true)(env);
+      await changed;
       assert.deepStrictEqual(JSON.parse(env.document.getText()), JSON.parse(json));
     });
   });

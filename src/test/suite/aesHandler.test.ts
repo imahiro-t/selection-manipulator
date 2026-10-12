@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as crypto from 'crypto';
 import * as vscode from 'vscode';
 import { aesHandler, aesEncrypt, aesDecrypt } from '../../handler/aesHandler';
-import { createTextEditor } from './testUtils';
+import { createTextEditor, waitForChange } from './testUtils';
 
 const V2_PATTERN = /^v2:([0-9a-f]{32}):([0-9a-f]{32}):([0-9a-f]+)$/;
 
@@ -20,16 +20,18 @@ suite('AES Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 0, 5);
 
     // Encrypt
+    const encryptedChange = waitForChange(editor.document);
     aesHandler('encrypt', true, 'secret')(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await encryptedChange;
     const encrypted = editor.document.getText();
     assert.notStrictEqual(encrypted, 'hello');
     assert.match(encrypted, V2_PATTERN);
 
     // Decrypt
     editor.selection = new vscode.Selection(0, 0, 0, encrypted.length);
+    const decryptedChange = waitForChange(editor.document);
     aesHandler('decrypt', true, 'secret')(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await decryptedChange;
     const decrypted = editor.document.getText();
 
     assert.strictEqual(decrypted, 'hello');
@@ -38,14 +40,16 @@ suite('AES Handler Test Suite', () => {
   test('AES generates different ciphertexts with random IV', async () => {
     const editor1 = await createTextEditor('hello');
     editor1.selection = new vscode.Selection(0, 0, 0, 5);
+    const changed1 = waitForChange(editor1.document);
     aesHandler('encrypt', true, 'secret')(editor1);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await changed1;
     const encrypted1 = editor1.document.getText();
 
     const editor2 = await createTextEditor('hello');
     editor2.selection = new vscode.Selection(0, 0, 0, 5);
+    const changed2 = waitForChange(editor2.document);
     aesHandler('encrypt', true, 'secret')(editor2);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await changed2;
     const encrypted2 = editor2.document.getText();
 
     assert.notStrictEqual(encrypted1, encrypted2);

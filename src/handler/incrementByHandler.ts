@@ -3,11 +3,13 @@ import {
   window,
 } from 'vscode';
 
-export const incrementByHandler: (incrementBy: number) => (textEditor: TextEditor) => void = (incrementBy) => (textEditor) => {
+// Returns the edit (or `undefined` when there is nothing to edit) so that a caller, such as a test,
+// can await it; `registerTextEditorCommand` ignores the return value.
+export const incrementByHandler: (incrementBy: number) => (textEditor: TextEditor) => Thenable<boolean> | undefined = (incrementBy) => (textEditor) => {
   if (textEditor.selections.length === 0) {
-    return;
+    return undefined;
   }
-  textEditor.edit((editBuilder) => {
+  return textEditor.edit((editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);

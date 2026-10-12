@@ -2,7 +2,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { diffHandler } from '../../handler/diffHandler';
-import { createTextEditor, waitForNewDocument } from './testUtils';
+import { createTextEditor, isResultDocument, waitForNewDocument } from './testUtils';
 
 suite('Diff Handler Test Suite', () => {
   test('Diff Two Selections (Word Diff)', async () => {
@@ -15,16 +15,11 @@ suite('Diff Handler Test Suite', () => {
       new vscode.Selection(1, 0, 1, 18)
     ];
 
-    const waitPromise = waitForNewDocument();
+    // The handler sets the language without awaiting it; a language change reopens the document,
+    // so wait for the result document that opens as Markdown.
+    const waitPromise = waitForNewDocument((doc) => isResultDocument(doc) && doc.languageId === 'markdown');
     await diffHandler(editor);
     const doc = await waitPromise;
-
-    // setTextDocumentLanguage is async, so we poll for the change
-    let attempts = 0;
-    while (doc.languageId !== 'markdown' && attempts < 100) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      attempts++;
-    }
 
     assert.strictEqual(doc.languageId, 'markdown');
     const text = doc.getText();
@@ -48,16 +43,11 @@ suite('Diff Handler Test Suite', () => {
       new vscode.Selection(1, 0, 1, 19)
     ];
 
-    const waitPromise = waitForNewDocument();
+    // The handler sets the language without awaiting it; a language change reopens the document,
+    // so wait for the result document that opens as Markdown.
+    const waitPromise = waitForNewDocument((doc) => isResultDocument(doc) && doc.languageId === 'markdown');
     await diffHandler(editor);
     const doc = await waitPromise;
-
-    // setTextDocumentLanguage is async, so we poll for the change
-    let attempts = 0;
-    while (doc.languageId !== 'markdown' && attempts < 100) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      attempts++;
-    }
 
     assert.strictEqual(doc.languageId, 'markdown');
     const text = doc.getText();

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - A selection with nothing before it on its line, or after other text, is unchanged
 - 🐛 Math - Min / Math - Max, CSV - Convert to Markdown Table (also Replace) and the ASCII Art balloons: a selection of more than about 120,000 numbers or lines no longer fails with `Maximum call stack size exceeded` (the minimum and maximum are now found with a loop instead of spreading the whole list into `Math.min` / `Math.max`); the results are unchanged
 - 🐛 Create HMAC (SHA-256, SHA-512, MD5): cancelling the key input box now does nothing, like the other Create HMAC commands, instead of going on without a key and failing with an error; an empty key that is entered is still used
+- 🔧 Make the integration tests (`npm test`) steadier (no change for users of the extension): the handler tests that slept for a fixed 100 to 200 ms (AES, Base64, Case, CSV, JSON, Escape, Increment / Decrement, Text Cleanup, ...) now wait for their own edit, Case and Increment By return their edit so a test can await it, and the Wrap and Whitespace Commands suites allow 10 seconds per test after 6 of their tests once exceeded the default 2 seconds under load
 
 ## [0.2.1] - 2026-10-02
 

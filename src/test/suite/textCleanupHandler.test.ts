@@ -9,9 +9,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 3, 5); // Select all
 
     const handler = textCleanupHandler('remove-empty-lines');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1\nline2');
@@ -22,9 +20,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 2, 9);
 
     const handler = textCleanupHandler('remove-line-numbers');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1\nline2\nline3');
@@ -56,9 +52,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 1, 6);
 
     const handler = textCleanupHandler('trim-lines');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1\nline2');
@@ -69,9 +63,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 1, 5);
 
     const handler = textCleanupHandler('join-lines-space');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1 line2');
@@ -82,9 +74,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 1, 5);
 
     const handler = textCleanupHandler('join-lines-comma');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1,line2');
@@ -95,9 +85,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 0, 11);
 
     const handler = textCleanupHandler('split-lines-space');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1\nline2');
@@ -108,9 +96,7 @@ suite('Text Cleanup Handler Test Suite', () => {
     editor.selection = new vscode.Selection(0, 0, 0, 11);
 
     const handler = textCleanupHandler('split-lines-comma');
-    handler(editor);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await handler(editor);
 
     const text = editor.document.getText();
     assert.strictEqual(text, 'line1\nline2');
