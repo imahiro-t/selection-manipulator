@@ -29,6 +29,7 @@ import {
   JsonValue,
   setOwn,
 } from './dataCommon';
+import { quoteForDisplay } from '../textFormat';
 
 /**
  * DATAX-015 (Format TOML): a value read with `preserveTypes` that a JSON number / string would
@@ -77,6 +78,17 @@ const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 /** TOML integers are 64-bit signed. */
 const MAX_INT64 = 2n ** 63n - 1n;
 const MIN_INT64 = -(2n ** 63n);
+
+/** The longest part of a value an error message quotes, so that a huge number does not make a huge message. */
+const ERROR_TOKEN_MAX_LENGTH = 40;
+
+/**
+ * `token` cut to `ERROR_TOKEN_MAX_LENGTH` characters followed by `…` when it is longer, for an
+ * error message. Only used for number tokens, which are ASCII (`BARE_VALUE_CHAR`), so `slice`
+ * never cuts a surrogate pair.
+ */
+const shortToken = (token: string): string =>
+  token.length > ERROR_TOKEN_MAX_LENGTH ? `${token.slice(0, ERROR_TOKEN_MAX_LENGTH)}…` : token;
 
 const isControl = (ch: string): boolean => {
   const code = ch.charCodeAt(0);
@@ -656,16 +668,16 @@ class TomlParser {
       if (this.preserveTypes) {
         return this.literal(token);
       }
-      this.fail(`${token} cannot be represented in JSON`, start);
+      this.fail(`${shortToken(token)} cannot be represented in JSON`, start);
     }
     if (DECIMAL_INTEGER.test(token) || HEX_INTEGER.test(token) || OCTAL_INTEGER.test(token) || BINARY_INTEGER.test(token)) {
       const big = BigInt(token.replace(/_/g, ''));
       if (big > MAX_SAFE || big < -MAX_SAFE) {
         if (!this.preserveTypes) {
-          this.fail(`the integer ${token} is outside ±(2^53 − 1) and cannot be converted without losing precision`, start);
+          this.fail(`the integer ${shortToken(token)} is outside ±(2^53 − 1) and cannot be converted without losing precision`, start);
         }
         if (big > MAX_INT64 || big < MIN_INT64) {
-          this.fail(`the integer ${token} is outside the 64-bit range TOML allows`, start);
+          this.fail(`the integer ${shortToken(token)} is outside the 64-bit range TOML allows`, start);
         }
         // Written in decimal, like the hex / octal / binary integers that fit a double.
         return this.literal(big.toString());
@@ -678,7 +690,7 @@ class TomlParser {
         if (this.preserveTypes) {
           return this.literal(token);
         }
-        this.fail(`the number ${token} is too large to be represented in JSON`, start);
+        this.fail(`the number ${shortToken(token)} is too large to be represented in JSON`, start);
       }
       return this.preserveTypes ? this.literal(floatText(value)) : value;
     }
@@ -702,7 +714,7 @@ class TomlParser {
       return this.preserveTypes ? this.literal(token) : token;
     }
     this.pos = start;
-    this.fail(`invalid value ${JSON.stringify(token.length > 40 ? `${token.slice(0, 40)}…` : token)} (strings must be quoted)`, start);
+    this.fail(`invalid value ${quoteForDisplay(token, ERROR_TOKEN_MAX_LENGTH)} (strings must be quoted)`, start);
   }
 
   /** A `TomlLiteral` typed as a JSON value: only DATAX-015 asks for it, and its writer checks for it first. */

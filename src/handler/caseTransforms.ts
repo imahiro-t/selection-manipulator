@@ -751,11 +751,40 @@ const singularizeAcronym: Inflection = (line, start, end, humpStart) => {
   if (isLowerSAcronymPlural(line, start, end) || isUpperSAcronymPlural(line.slice(humpStart, end))) {
     return line.slice(0, end - 1) + line.slice(end);
   }
+  if (isEsSEndingAcronymPlural(line, start, end)) {
+    return line.slice(0, end - 2) + line.slice(end);
+  }
   return null;
+};
+
+/**
+ * `CSSes` / `DNSes` / `myCSSes`: the letter run [start, end) ends with a lower-case `es` right
+ * after an upper-case run that is an acronym ending with `S` (`S_ENDING_ACRONYMS`). Singularize
+ * removes the `es` (`CSSes` -> `CSS`); Pluralize already leaves such a word unchanged. Looks back
+ * at most `MAX_GUARD_WORD_LENGTH + 1` characters, so it stays linear.
+ */
+const isEsSEndingAcronymPlural = (line: string, start: number, end: number): boolean => {
+  if (end - start < 4 || line.charAt(end - 1) !== 's' || line.charAt(end - 2) !== 'e') {
+    return false;
+  }
+  let runStart = end - 2;
+  while (runStart > start && isAsciiUpper(line.charCodeAt(runStart - 1)) && end - 2 - runStart <= MAX_GUARD_WORD_LENGTH) {
+    runStart--;
+  }
+  const run = line.slice(runStart, end - 2);
+  return run.length >= 2 && run.length <= MAX_GUARD_WORD_LENGTH && S_ENDING_ACRONYMS.has(run.toLowerCase());
 };
 
 /** True when `text` is all lower-case or all upper-case. */
 const isSingleCase = (text: string): boolean => text === text.toLowerCase() || text === text.toUpperCase();
+
+/**
+ * True when `text` is written as a file extension can be: all lower-case (`ts`), all upper-case
+ * (`TS`) or capitalized, one upper-case letter followed by lower-case letters (`Ts`, `Json`).
+ * An irregular mix (`tS`, `jSon`) is not an extension.
+ */
+const isExtensionCase = (text: string): boolean =>
+  isSingleCase(text) || (text.charAt(0) === text.charAt(0).toUpperCase() && text.slice(1) === text.slice(1).toLowerCase());
 
 /**
  * Length of the longest entry of `FILE_EXTENSIONS` / `S_ENDING_ACRONYMS`, so
@@ -767,7 +796,7 @@ export const MAX_GUARD_WORD_LENGTH: number = Math.max(
 
 /**
  * True when the last word must be left unchanged in both directions:
- * a known file extension right after a `.` (`file.ts`, `index.json`), or a
+ * a known file extension right after a `.` (`file.ts`, `FILE.TS`, `file.Ts`, `index.json`), or a
  * last hump that is an acronym ending with `S` (`DNS`, `HTTPS`, `iOS`).
  * An acronym plural with a lower-case `s` (`DTOs`, `TODOs`, `myDTOs`, whose last
  * hump is `Os`) is not an S-ending acronym and is left to the acronym rules.
@@ -775,7 +804,7 @@ export const MAX_GUARD_WORD_LENGTH: number = Math.max(
 const isProtectedWord = (line: string, start: number, end: number, humpStart: number): boolean => {
   if (start > 0 && line.charAt(start - 1) === '.' && end - start <= MAX_GUARD_WORD_LENGTH) {
     const word = line.slice(start, end);
-    if (isSingleCase(word) && FILE_EXTENSIONS.has(word.toLowerCase())) {
+    if (isExtensionCase(word) && FILE_EXTENSIONS.has(word.toLowerCase())) {
       return true;
     }
   }

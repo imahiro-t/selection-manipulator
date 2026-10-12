@@ -196,8 +196,8 @@
       "id": "selection-manipulator.random.phone-jp",
       "candidateId": "GEN-016",
       "description": {
-        "en": "Generates dummy phone numbers in the fictional number block (for example 090-0xxx) that the Ministry of Internal Affairs and Communications designates for use in TV dramas and the like (each x in `090-0xxx-xxxx` is a uniform random digit 0–9). The source of the number block could not be strictly verified, so **it is not guaranteed that the numbers do not exist (are unused)**.",
-        "ja": "総務省がドラマ等向けに案内している架空番号帯（例: 090-0xxx）のダミー電話番号を生成する（`090-0xxx-xxxx` の x を 0〜9 の一様乱数にする。番号帯の出典は厳密に確認できていないため、**実在しない（未使用の）番号であることは保証しない**）"
+        "en": "Generates dummy mobile phone numbers of the form `090-0xxx-xxxx` (each x is a uniform random digit 0–9) for samples and tests. This number block is not taken from a verified official list of fictional numbers, and **whether the numbers are unassigned has not been checked and is not guaranteed**; do not call or text them.",
+        "ja": "サンプルやテスト向けに `090-0xxx-xxxx` の形のダミー携帯電話番号を生成する（x は 0〜9 の一様乱数）。この番号帯は公式な架空番号の一覧で確認したものではなく、**未割り当ての番号であることは確認しておらず保証しない**（かけたり送信したりしないこと）"
       },
       "example": {
         "en": "`（cursor）` → `090-0123-4567`",

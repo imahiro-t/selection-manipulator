@@ -371,25 +371,39 @@ export const dateLineValues = (text: string): { value: string; lineNumber: numbe
   return values;
 };
 
+/** Options of `mapDateLines`. */
+export interface MapDateLinesOptions {
+  /** Separates the results of the values by one empty line (see `mapDateLines`). */
+  blankLineBetweenValues?: boolean;
+}
+
 /**
  * Applies `convert` to every line of the selection. The line breaks (LF / CRLF) and the spaces /
  * tabs around each value are kept; an empty (or blank) line stays as it is and is not passed to
  * `convert`. A result of several lines (an array) is joined with `eol` and the indentation of the
  * value. A value that cannot be converted stops everything with `line N: <reason>`. The result is
  * counted against `budget` piece by piece.
+ *
+ * With `blankLineBetweenValues` (DATE-003, whose results are several lines each), one more `eol`
+ * is written before the result of a value that directly follows another value, so the results of
+ * the values are separated by one empty line; when the values are already separated by an empty
+ * (or blank) line, nothing is added.
  */
 export const mapDateLines = (
   text: string,
   budget: number,
   eol: string,
-  convert: (value: string, output: DateOutputBuffer) => string | readonly string[]
+  convert: (value: string, output: DateOutputBuffer) => string | readonly string[],
+  options: MapDateLinesOptions = {}
 ): string => {
   assertDateInputLength(text);
   const output = new DateOutputBuffer(budget);
+  let afterValue = false;
   forEachLine(text, (line, lineBreak, lineNumber) => {
     const { lead, value, trail } = splitLine(line);
     if (value === '') {
       output.push(line);
+      afterValue = false;
     } else {
       let converted: string | readonly string[];
       try {
@@ -397,6 +411,10 @@ export const mapDateLines = (
       } catch (error) {
         throw atLine(lineNumber, error);
       }
+      if (afterValue && options.blankLineBetweenValues === true) {
+        output.push(eol);
+      }
+      afterValue = true;
       output.push(lead);
       if (typeof converted === 'string') {
         output.push(converted);

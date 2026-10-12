@@ -18,6 +18,7 @@ import {
   DatePromptRule,
   DateSettingKey,
   DateSettings,
+  MapDateLinesOptions,
   dateLineValues,
   mapDateLines,
   truncateText,
@@ -118,9 +119,12 @@ const PATTERN_PROMPT: DatePrompt = {
   rule: { kind: 'pattern' },
 };
 
-/** A transform that converts every line with `convert`. */
-const lines = (convert: (value: string, inputs: readonly string[], context: DateContext) => string | readonly string[]): DateTransform =>
-  (text, inputs, context, budget) => mapDateLines(text, budget, context.eol, (value) => convert(value, inputs, context));
+/** A transform that converts every line with `convert` (see `mapDateLines` for `options`). */
+const lines = (
+  convert: (value: string, inputs: readonly string[], context: DateContext) => string | readonly string[],
+  options: MapDateLinesOptions = {}
+): DateTransform =>
+  (text, inputs, context, budget) => mapDateLines(text, budget, context.eol, (value) => convert(value, inputs, context), options);
 
 const where = (index: number, count: number): string => (count > 1 ? `selection ${index + 1} of ${count}: ` : '');
 
@@ -219,7 +223,7 @@ export const DATE_COMMAND_ENTRIES: readonly DateCommandEntry[] = [
   },
   {
     id: 'DATE-003', name: 'date.to-timezones', title: 'Date - Show in Multiple Time Zones', output: 'new-tab', prompts: [], settings: ['timeZones'],
-    transform: lines((value, _inputs, context) => toTimeZones(value, context.settings.timeZones, context.timeZones)),
+    transform: lines((value, _inputs, context) => toTimeZones(value, context.settings.timeZones, context.timeZones), { blankLineBetweenValues: true }),
     blankLineBetween: true,
   },
   {

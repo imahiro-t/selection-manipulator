@@ -301,6 +301,22 @@ suite('Text Transforms (TEXTX-001..023) Test Suite', () => {
       assert.strictEqual(removeUrls('https://a.example'), '');
     });
 
+    test('ideographic and no-break spaces around a URL are blanks too; line breaks are not', () => {
+      // U+3000 (ideographic space) and U+00A0 (no-break space) are blanks, so they are squeezed
+      // like ASCII spaces; LF and U+2028 (line separator) are line breaks and stay.
+      assert.strictEqual(removeUrls('x https://a.com/\u3000y'), 'x y');
+      assert.strictEqual(removeUrls('x\u3000https://a.com/ y'), 'x y');
+      assert.strictEqual(removeUrls('x\u00a0https://a.com/ y'), 'x y');
+      assert.strictEqual(removeUrls('x https://a.com/\u00a0y'), 'x y');
+      assert.strictEqual(removeUrls('x\u00a0https://a.com/\u00a0\u3000y'), 'x y');
+      assert.strictEqual(removeUrls('https://a.com/\u3000y'), 'y');
+      assert.strictEqual(removeUrls('x\u3000https://a.com/'), 'x');
+      assert.strictEqual(removeUrls('Visit https://a.example.\u3000Next'), 'Visit. Next');
+      assert.strictEqual(removeUrls('x https://a.com/\ny'), 'x\ny');
+      assert.strictEqual(removeUrls('x\u3000https://a.com/\u2028y'), 'x\u2028y');
+      assert.strictEqual(removeUrls('a\u3000b'), 'a\u3000b');
+    });
+
     test('a URL never runs over a space; a bare scheme is not a URL', () => {
       assert.strictEqual(removeUrls('x http://a b'), 'x b');
       assert.strictEqual(removeUrls('x http:// b'), 'x http:// b');
