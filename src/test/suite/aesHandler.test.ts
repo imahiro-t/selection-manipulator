@@ -118,8 +118,9 @@ suite('AES Handler Test Suite', () => {
     const legacy = '9341c76b2734640981b43927febaf3b0:8dea8b1a099c01ab46519c92d5edf008';
     const editor = await createTextEditor(legacy);
     editor.selection = new vscode.Selection(0, 0, 0, legacy.length);
+    const changed = waitForChange(editor.document);
     aesHandler('decrypt', true, 'secret')(editor);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await changed;
     assert.strictEqual(editor.document.getText(), 'hello legacy');
   });
 });
