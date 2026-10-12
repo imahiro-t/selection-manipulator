@@ -18,6 +18,7 @@ import {
   DatePromptRule,
   DateSettingKey,
   DateSettings,
+  MapDateLinesOptions,
   dateLineValues,
   mapDateLines,
   truncateText,
@@ -121,7 +122,7 @@ const PATTERN_PROMPT: DatePrompt = {
 /** A transform that converts every line with `convert` (see `mapDateLines` for `options`). */
 const lines = (
   convert: (value: string, inputs: readonly string[], context: DateContext) => string | readonly string[],
-  options: { blankLineBetweenValues?: boolean } = {}
+  options: MapDateLinesOptions = {}
 ): DateTransform =>
   (text, inputs, context, budget) => mapDateLines(text, budget, context.eol, (value) => convert(value, inputs, context), options);
 

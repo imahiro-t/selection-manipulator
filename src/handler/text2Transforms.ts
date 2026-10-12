@@ -461,13 +461,14 @@ const trimBlanksEnd = (text: string): string => {
 
 /**
  * TEXTX-020: the URLs removed (see `scanUrl` for where a URL ends). The blanks (whitespace other
- * than line breaks, see `isBlank`) around a removed URL become one space between the words on both sides, or nothing at the start or end of
- * a line. Punctuation and closing brackets that follow a URL stay, directly after the word before
- * it (`Visit https://a.example.` becomes `Visit.`, `foo(https://x.com)bar` becomes `foo()bar`);
- * the blanks after them become one space, or nothing at the end of a line. At the start of a line
- * the sentence punctuation that follows a URL is removed too (`https://x. Next` becomes `Next`),
- * while brackets and quotation marks stay. No URL is ever accessed. Linear in the length of the
- * text: the text after a removed URL and its tail is never scanned again.
+ * than line breaks, see `isBlank`) around a removed URL become one space between the words on both
+ * sides, or nothing at the start or end of a line. Punctuation and closing brackets that follow a
+ * URL stay, directly after the word before it (`Visit https://a.example.` becomes `Visit.`,
+ * `foo(https://x.com)bar` becomes `foo()bar`); the blanks after them become one space, or nothing
+ * at the end of a line. At the start of a line the sentence punctuation that follows a URL is
+ * removed too (`https://x. Next` becomes `Next`), while brackets and quotation marks stay. No URL
+ * is ever accessed. Linear in the length of the text: the text after a removed URL and its tail is
+ * never scanned again.
  */
 export const removeUrls = (text: string): string => {
   const parts: string[] = [];

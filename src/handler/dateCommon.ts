@@ -371,6 +371,12 @@ export const dateLineValues = (text: string): { value: string; lineNumber: numbe
   return values;
 };
 
+/** Options of `mapDateLines`. */
+export interface MapDateLinesOptions {
+  /** Separates the results of the values by one empty line (see `mapDateLines`). */
+  blankLineBetweenValues?: boolean;
+}
+
 /**
  * Applies `convert` to every line of the selection. The line breaks (LF / CRLF) and the spaces /
  * tabs around each value are kept; an empty (or blank) line stays as it is and is not passed to
@@ -388,7 +394,7 @@ export const mapDateLines = (
   budget: number,
   eol: string,
   convert: (value: string, output: DateOutputBuffer) => string | readonly string[],
-  options: { blankLineBetweenValues?: boolean } = {}
+  options: MapDateLinesOptions = {}
 ): string => {
   assertDateInputLength(text);
   const output = new DateOutputBuffer(budget);

@@ -66,16 +66,6 @@ type TableKind = 'implicit' | 'explicit' | 'dotted' | 'inline';
 
 const BARE_KEY_CHAR = /[A-Za-z0-9_-]/;
 const BARE_VALUE_CHAR = /[A-Za-z0-9_+\-.:]/;
-/** The longest part of a value an error message quotes, so that a huge number does not make a huge message. */
-const ERROR_TOKEN_MAX_LENGTH = 40;
-
-/**
- * `token` cut to `ERROR_TOKEN_MAX_LENGTH` characters followed by `…` when it is longer, for an
- * error message. Only used for number tokens, which are ASCII (`BARE_VALUE_CHAR`), so `slice`
- * never cuts a surrogate pair.
- */
-const shortToken = (token: string): string =>
-  token.length > ERROR_TOKEN_MAX_LENGTH ? `${token.slice(0, ERROR_TOKEN_MAX_LENGTH)}…` : token;
 const DECIMAL_INTEGER = /^[+-]?(?:0|[1-9](?:_?[0-9])*)$/;
 const HEX_INTEGER = /^0x[0-9A-Fa-f](?:_?[0-9A-Fa-f])*$/;
 const OCTAL_INTEGER = /^0o[0-7](?:_?[0-7])*$/;
@@ -88,6 +78,17 @@ const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 /** TOML integers are 64-bit signed. */
 const MAX_INT64 = 2n ** 63n - 1n;
 const MIN_INT64 = -(2n ** 63n);
+
+/** The longest part of a value an error message quotes, so that a huge number does not make a huge message. */
+const ERROR_TOKEN_MAX_LENGTH = 40;
+
+/**
+ * `token` cut to `ERROR_TOKEN_MAX_LENGTH` characters followed by `…` when it is longer, for an
+ * error message. Only used for number tokens, which are ASCII (`BARE_VALUE_CHAR`), so `slice`
+ * never cuts a surrogate pair.
+ */
+const shortToken = (token: string): string =>
+  token.length > ERROR_TOKEN_MAX_LENGTH ? `${token.slice(0, ERROR_TOKEN_MAX_LENGTH)}…` : token;
 
 const isControl = (ch: string): boolean => {
   const code = ch.charCodeAt(0);
