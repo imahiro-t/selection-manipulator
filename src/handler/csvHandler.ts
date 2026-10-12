@@ -31,14 +31,15 @@ const convert: (command: 'csv-to-markdown' | 'markdown-to-csv') => (text: string
   }
 };
 
-const csvToMarkdown = (csv: string): string => {
+export const csvToMarkdown = (csv: string): string => {
   const lines = csv.trim().split(/\r\n|\r|\n/);
   if (lines.length === 0) {
     return '';
   }
 
   const rows = lines.map(line => line.split(',')); // Simple split, does not handle quotes yet
-  const colCount = Math.max(...rows.map(row => row.length));
+  // reduce, not Math.max(...): spreading a huge array overflows the call stack.
+  const colCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
 
   // Header
   let markdown = '| ' + rows[0].join(' | ') + ' |\n';

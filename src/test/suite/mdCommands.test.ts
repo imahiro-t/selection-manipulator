@@ -286,6 +286,29 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       assert.strictEqual(links.document.getText(), 'para\n\n    [a][1]\n\n[1]: u\n');
     });
 
+    test('MD-014: lines selected from after the indentation keep their relative indentation (SELEC-00082)', async () => {
+      const cases: [string, [number, number], string][] = [
+        // Up to 3 columns, every later line starting with them: every line stays as it was.
+        ['  a\n    b', [2, 9], '  ```js\n  a\n    b\n```'],
+        ['   a\n     b', [3, 11], '   ```js\n   a\n     b\n```'],
+        ['  a\n  b', [2, 7], '  ```js\n  a\n  b\n```'],
+        // 4 columns or more: the fence starts the line and the shared indentation is removed.
+        ['    a\n    b', [4, 11], '```js\na\nb\n```'],
+        ['    a\n      b', [4, 13], '```js\na\n  b\n```'],
+        // A later line not starting with the indentation: the fence starts the line.
+        ['  a\nb', [2, 5], '```js\n  a\nb\n```'],
+        // CRLF: the line breaks in the block stay CRLF.
+        ['    a\r\n      b', [4, 14], '```js\r\na\r\n  b\r\n```'],
+      ];
+      for (const [text, range, expected] of cases) {
+        const editor = await open(text, [range]);
+        await run(entryOf('MD-014'), recorder(['js']).dependencies)(editor);
+        assert.strictEqual(editor.document.getText(), expected, JSON.stringify(text));
+        await undoIn(editor);
+        assert.strictEqual(editor.document.getText(), text, `${JSON.stringify(text)}: one undo restores the text`);
+      }
+    });
+
     test('MD-003: several cursors on one line of spaces insert separate lists (SELEC-00065)', async () => {
       // The second edit starts where the first one inserts its list: the editor keeps them in order.
       const text = '# A\n\n    ';

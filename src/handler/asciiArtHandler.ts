@@ -148,7 +148,8 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
 
   const generateAsciiArt = (text: string, charName: string): string => {
     const lines = text.split(/\r?\n/);
-    const maxLength = Math.max(...lines.map(line => line.length));
+    // reduce, not Math.max(...): spreading a huge array overflows the call stack.
+    const maxLength = lines.reduce((max, line) => Math.max(max, line.length), 0);
 
     let bubble = ' ' + '_'.repeat(maxLength + 2) + ' \n';
 

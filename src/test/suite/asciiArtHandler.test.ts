@@ -193,6 +193,31 @@ suite('ASCII Art Handler Test Suite', () => {
     assert.ok(result.includes('o   |'), 'Should contain elephant trunk');
   });
 
+  test('Cowsay of 200,000 lines does not overflow the call stack (SELEC-00082)', async function () {
+    this.timeout(60000);
+    // The longest line is in the middle, so that the bubble is not as wide as the first line.
+    const input = Array.from({ length: 200000 }, (_, i) => (i === 100000 ? 'longest line' : 'x')).join('\n');
+    const editor = await createTextEditor(input);
+    await selectAll(editor);
+
+    let result = '';
+    const common = require('../../common');
+    const originalOpen = common.openTextDocument;
+    common.openTextDocument = async (content: string) => {
+      result = content;
+    };
+    try {
+      await asciiArtHandler('cowsay', false)(editor);
+    } finally {
+      common.openTextDocument = originalOpen;
+    }
+
+    const lines = result.split('\n');
+    assert.strictEqual(lines[0], ' ' + '_'.repeat('longest line'.length + 2) + ' ', 'the bubble is as wide as the longest line');
+    assert.ok(result.includes('| longest line |'), 'the longest line fills the bubble');
+    assert.ok(result.includes('/ x' + ' '.repeat('longest line'.length - 1) + ' \\'), 'the first line is padded to it');
+  });
+
   test('Check empty line removal', async () => {
     const editor = await createTextEditor('Test');
     await selectAll(editor);

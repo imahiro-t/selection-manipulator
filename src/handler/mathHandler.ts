@@ -44,11 +44,12 @@ export const mathHandler: (command: 'sum' | 'average' | 'min' | 'max') => (textE
       title = 'Average';
       break;
     case 'min':
-      result = Math.min(...numbers);
+      // reduce, not Math.min(...numbers): spreading a huge array overflows the call stack.
+      result = numbers.reduce((a, b) => Math.min(a, b));
       title = 'Min';
       break;
     case 'max':
-      result = Math.max(...numbers);
+      result = numbers.reduce((a, b) => Math.max(a, b));
       title = 'Max';
       break;
   }

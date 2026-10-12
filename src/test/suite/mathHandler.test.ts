@@ -34,4 +34,19 @@ suite('Math Handler Test Suite', () => {
   test('Max', async () => {
     assert.strictEqual(await runMath('max', 'Max'), 'Max\n3');
   });
+
+  test('Min / Max of 200,000 numbers do not overflow the call stack (SELEC-00082)', async function () {
+    this.timeout(60000);
+    // Not in order, so that the result is not simply the first or the last number.
+    const numbers = Array.from({ length: 200000 }, (_, i) => ((i * 7919) % 200000) + 1);
+    const editor = await createTextEditor(numbers.join('\n'));
+    const lastLine = editor.document.lineCount - 1;
+    for (const [command, title, result] of [['min', 'Min', '1'], ['max', 'Max', '200000']] as const) {
+      editor.selection = new vscode.Selection(0, 0, lastLine, editor.document.lineAt(lastLine).text.length);
+      const waitPromise = waitForNewDocument(doc => isResultDocument(doc) && doc.getText().startsWith(`${title}\n`));
+      assert.doesNotThrow(() => mathHandler(command)(editor));
+      const doc = await waitPromise;
+      assert.strictEqual(doc.getText(), `${title}\n${result}`);
+    }
+  });
 });
