@@ -9,17 +9,17 @@
  * the number of braces, commas and escapes (not by the length of the line), then one recursive
  * pass (bounded by the nesting limit) goes from brace to brace, builds the pieces and, at the same
  * time, counts the strings and measures their total length (no second walk to estimate the
- * size). A range is plain data (no closure, read by hand): its terms are only made when the line
- * is expanded, except the only term of a one-term range, which is folded into the text around it
- * while parsing. Parsing stops as soon as the count of the line passes the limit; no shell is run
- * and no regular expression is built from the text. The expansion builds no
- * intermediate product: only the pieces with two strings or more are left between literal texts,
- * and their combinations are emitted one by one (a mixed-radix counter) and joined once per line,
- * so that the time and memory follow the length of the result.
- * Only `BigInt` and typed arrays are used.
+ * size). The tables are scratch arrays reused from line to line. A range is plain data (no
+ * closure, read by hand): its terms are only made when the line is expanded, except the only term
+ * of a one-term range, which is folded into the text around it while parsing. Parsing stops as
+ * soon as the count of the line passes the limit; no shell is run and no regular expression is
+ * built from the text. The expansion builds no intermediate product: only the pieces with two
+ * strings or more are left between literal texts, and their combinations are emitted one by one
+ * (a mixed-radix counter) and joined once per line, so that the time and memory follow the length
+ * of the result. Only `BigInt` and typed arrays are used.
  */
 import { pad2 } from './dateCommon';
-import { formatCount, GenInputError, GenLimitError, GenOutputBuffer, quoteText } from './genCommon';
+import { forEachLine, formatCount, GenInputError, GenLimitError, GenOutputBuffer, quoteText } from './genCommon';
 
 // ---------------------------------------------------------------------------------------------
 // Lines
@@ -219,8 +219,8 @@ const rangeTerm = (range: RangeNode, i: number): string => {
     return String.fromCharCode(n);
   }
   if (range.width === 0) {
-    // Not zero-padded (`String(-0)` is `0`, as `String(Math.abs(-0))`).
-    return n < 0 ? `-${String(-n)}` : String(n);
+    // Not zero-padded.
+    return String(n);
   }
   const sign = n < 0 ? '-' : '';
   return `${sign}${String(Math.abs(n)).padStart(range.width - sign.length, '0')}`;
@@ -259,24 +259,62 @@ const rangeLength = (range: RangeNode): number => {
  * by the length of the line. The opening braces (not escaped) are numbered in the order of the
  * line; the parser meets them, and the escapes, in that order, so that it goes from one to the
  * next without looking at the characters in between.
+ *
+ * The tables are scratch arrays shared by every line (a selection of many short lines would
+ * otherwise allocate a few typed arrays per line): only their first `braces`, commas and `escapes`
+ * entries belong to the line, and they are valid until the next call of `matchBraces`. They grow
+ * to what a line needs (at least twice what they were) and `releaseBraceTables` drops large ones
+ * after a selection, so that one long line does not keep its tables for the next selections.
  */
 export interface BraceTable {
   /** Brace number → offset of the opening brace (increasing). */
-  openAt: Int32Array;
+  readonly openAt: Int32Array;
   /** Brace number → offset of its closing brace, -1 for a brace that is never closed. */
-  closeAt: Int32Array;
+  readonly closeAt: Int32Array;
   /** Brace number → the index (in `commaAt`) of its first comma, -1 for none. */
-  firstComma: Int32Array;
+  readonly firstComma: Int32Array;
   /** Comma index → offset of the comma. */
-  commaAt: Int32Array;
+  readonly commaAt: Int32Array;
   /** Comma index → index of the next comma of the same brace, -1 for the last one. */
-  nextComma: Int32Array;
+  readonly nextComma: Int32Array;
   /** Offsets of the backslashes that escape the next character (`\{`, `\}`, `\,`, `\\`), increasing. */
-  escapeAt: Int32Array;
-  /** The number of the next brace and the index of the next escape the parser has not met yet. */
-  nextBrace: number;
-  nextEscape: number;
+  readonly escapeAt: Int32Array;
+  /** The number of opening braces of the line (the entries of `openAt`, `closeAt` and `firstComma`). */
+  readonly braces: number;
+  /** The number of escapes of the line (the entries of `escapeAt`). */
+  readonly escapes: number;
+  /** The number of braces that are closed (0: the line is literal text, if it has no escape either). */
+  readonly closed: number;
 }
+
+/** The size the scratch tables start with and keep between selections (larger ones are dropped). */
+const TABLE_SCRATCH = 256;
+
+// The scratch tables (see `BraceTable`), by what sizes them: the braces, the commas, the escapes
+// and the deepest nesting (the open braces and the last comma found directly inside each of them).
+let braceTables = { openAt: new Int32Array(TABLE_SCRATCH), closeAt: new Int32Array(TABLE_SCRATCH), firstComma: new Int32Array(TABLE_SCRATCH) };
+let commaTables = { commaAt: new Int32Array(TABLE_SCRATCH), nextComma: new Int32Array(TABLE_SCRATCH) };
+let escapeTable = new Int32Array(TABLE_SCRATCH);
+let depthTables = { stack: new Int32Array(TABLE_SCRATCH), lastComma: new Int32Array(TABLE_SCRATCH) };
+
+/** The new size of a scratch table of `size` entries that must hold `needed` (at least twice the size). */
+const grownSize = (size: number, needed: number): number => Math.max(needed, size * 2);
+
+/** Drops the scratch tables grown past TABLE_SCRATCH entries (called after every selection). */
+const releaseBraceTables = (): void => {
+  if (braceTables.openAt.length > TABLE_SCRATCH) {
+    braceTables = { openAt: new Int32Array(TABLE_SCRATCH), closeAt: new Int32Array(TABLE_SCRATCH), firstComma: new Int32Array(TABLE_SCRATCH) };
+  }
+  if (commaTables.commaAt.length > TABLE_SCRATCH) {
+    commaTables = { commaAt: new Int32Array(TABLE_SCRATCH), nextComma: new Int32Array(TABLE_SCRATCH) };
+  }
+  if (escapeTable.length > TABLE_SCRATCH) {
+    escapeTable = new Int32Array(TABLE_SCRATCH);
+  }
+  if (depthTables.stack.length > TABLE_SCRATCH) {
+    depthTables = { stack: new Int32Array(TABLE_SCRATCH), lastComma: new Int32Array(TABLE_SCRATCH) };
+  }
+};
 
 /** Whether the character at `i` can be escaped with a backslash (`{`, `}`, `,`, `\`). */
 const escapable = (line: string, i: number): boolean => {
@@ -291,6 +329,7 @@ export const matchBraces = (line: string): BraceTable => {
   let braces = 0;
   let commas = 0;
   let escapes = 0;
+  let closed = 0;
   let open = 0;
   let deepest = 0;
   for (let i = 0; i < length; i++) {
@@ -309,22 +348,33 @@ export const matchBraces = (line: string): BraceTable => {
     } else if (code === CLOSE) {
       if (open > 0) {
         open--;
+        closed++;
       }
     } else if (code === COMMA && open > 0) {
       commas++;
     }
   }
-  const openAt = new Int32Array(braces);
-  const closeAt = new Int32Array(braces).fill(-1);
-  const firstComma = new Int32Array(braces).fill(-1);
-  const commaAt = new Int32Array(commas);
-  const nextComma = new Int32Array(commas).fill(-1);
-  const escapeAt = new Int32Array(escapes);
-  // The braces open at the current offset and the last comma found directly inside each of them
-  // (as deep as the deepest nesting of the line).
-  const stack = new Int32Array(deepest);
-  const lastComma = new Int32Array(deepest);
-  // Second pass: the same walk, filling the tables.
+  if (braces > braceTables.openAt.length) {
+    const size = grownSize(braceTables.openAt.length, braces);
+    braceTables = { openAt: new Int32Array(size), closeAt: new Int32Array(size), firstComma: new Int32Array(size) };
+  }
+  if (commas > commaTables.commaAt.length) {
+    const size = grownSize(commaTables.commaAt.length, commas);
+    commaTables = { commaAt: new Int32Array(size), nextComma: new Int32Array(size) };
+  }
+  if (escapes > escapeTable.length) {
+    escapeTable = new Int32Array(grownSize(escapeTable.length, escapes));
+  }
+  if (deepest > depthTables.stack.length) {
+    const size = grownSize(depthTables.stack.length, deepest);
+    depthTables = { stack: new Int32Array(size), lastComma: new Int32Array(size) };
+  }
+  const { openAt, closeAt, firstComma } = braceTables;
+  const { commaAt, nextComma } = commaTables;
+  const escapeAt = escapeTable;
+  const { stack, lastComma } = depthTables;
+  // Second pass: the same walk, filling the tables (every entry of the line is written: the
+  // scratch tables still hold those of the lines before).
   let top = 0;
   let brace = 0;
   let comma = 0;
@@ -338,6 +388,8 @@ export const matchBraces = (line: string): BraceTable => {
       }
     } else if (code === OPEN) {
       openAt[brace] = i;
+      closeAt[brace] = -1;
+      firstComma[brace] = -1;
       lastComma[top] = -1;
       stack[top++] = brace++;
     } else if (code === CLOSE) {
@@ -346,6 +398,7 @@ export const matchBraces = (line: string): BraceTable => {
       }
     } else if (code === COMMA && top > 0) {
       commaAt[comma] = i;
+      nextComma[comma] = -1;
       if (lastComma[top - 1] < 0) {
         firstComma[stack[top - 1]] = comma;
       } else {
@@ -356,7 +409,7 @@ export const matchBraces = (line: string): BraceTable => {
     }
   }
   // A brace that is never closed is literal text; so are the commas recorded for it.
-  return { openAt, closeAt, firstComma, commaAt, nextComma, escapeAt, nextBrace: 0, nextEscape: 0 };
+  return { openAt, closeAt, firstComma, commaAt, nextComma, escapeAt, braces, escapes, closed };
 };
 
 /** The number of commas directly inside the brace `brace`. */
@@ -368,10 +421,10 @@ const commaCountOf = (table: BraceTable, brace: number): number => {
   return commas;
 };
 
-/** The index of the first value of the increasing `values` that is `offset` or more. */
-const firstAtOrAfter = (values: Int32Array, offset: number): number => {
+/** The index of the first of the first `count` values of the increasing `values` that is `offset` or more. */
+const firstAtOrAfter = (values: Int32Array, count: number, offset: number): number => {
   let low = 0;
-  let high = values.length;
+  let high = count;
   while (low < high) {
     const middle = (low + high) >> 1;
     if (values[middle] < offset) {
@@ -413,7 +466,16 @@ let pendingLength = 0;
 const pendingNodes: BraceNode[] = [];
 let parsedCount = 0;
 let parsedLength = 0;
+// The number of the next brace and the index of the next escape the parser has not met yet.
+let nextBrace = 0;
+let nextEscape = 0;
 
+/**
+ * Pending texts shorter than this are joined with `+`, the cheapest for the short lines: V8 copies
+ * such a short concatenation into a flat string of its own (a longer one is a tree of the pieces,
+ * and a longer piece may be a slice that keeps the whole line alive).
+ */
+const FLAT_CONCAT = 13;
 /** Pending texts up to this length are joined through their character codes (nothing but the text is made). */
 const SHORT_TEXT = 256;
 const textCodes: number[] = [];
@@ -433,6 +495,13 @@ const pushText = (line: string, start: number, end: number): number => {
   return end - start;
 };
 
+/** Cuts the pieces from `mark` on out of `pendingNodes` (as an array of their own). */
+const cutNodes = (mark: number): BraceNode[] => {
+  const nodes = pendingNodes.slice(mark);
+  pendingNodes.length = mark;
+  return nodes;
+};
+
 /** Joins the pending literal texts into one text piece (none when they are empty). */
 const flushTexts = (): void => {
   if (pendingCount === 0) {
@@ -441,6 +510,11 @@ const flushTexts = (): void => {
   let text: string;
   if (pendingCount === 1) {
     text = pendingTexts[0];
+  } else if (pendingLength < FLAT_CONCAT) {
+    text = pendingTexts[0];
+    for (let k = 1; k < pendingCount; k++) {
+      text += pendingTexts[k];
+    }
   } else if (pendingLength <= SHORT_TEXT) {
     textCodes.length = pendingLength;
     let n = 0;
@@ -481,19 +555,19 @@ const flushTexts = (): void => {
  * piece is combined with every string of the others).
  */
 const parseInto = (line: string, table: BraceTable, from: number, to: number, depth: number): void => {
-  const { openAt, escapeAt } = table;
+  const { openAt, escapeAt, braces, escapes } = table;
   let count = 1;
   let length = 0;
   // The literal text not yet added to `pendingTexts` starts at `start`.
   let start = from;
   for (;;) {
-    const brace = table.nextBrace;
-    const escape = table.nextEscape;
-    const braceAt = brace < openAt.length ? openAt[brace] : to;
-    const escapeOffset = escape < escapeAt.length ? escapeAt[escape] : to;
+    const brace = nextBrace;
+    const escape = nextEscape;
+    const braceAt = brace < braces ? openAt[brace] : to;
+    const escapeOffset = escape < escapes ? escapeAt[escape] : to;
     if (escapeOffset < braceAt && escapeOffset < to) {
       // The backslash is dropped; the escaped character starts the next literal text.
-      table.nextEscape++;
+      nextEscape++;
       length = cap(length + cap(pushText(line, start, escapeOffset) * count));
       start = escapeOffset + 1;
       continue;
@@ -502,7 +576,7 @@ const parseInto = (line: string, table: BraceTable, from: number, to: number, de
       break;
     }
     const i = braceAt;
-    table.nextBrace++;
+    nextBrace++;
     const end = table.closeAt[brace];
     if (end < 0 || end >= to) {
       // A brace that is not closed (here) is literal text.
@@ -527,7 +601,7 @@ const parseInto = (line: string, table: BraceTable, from: number, to: number, de
         const mark = pendingNodes.length;
         parseInto(line, table, optionStart + 1, stop, depth + 1);
         flushTexts();
-        options.push(pendingNodes.splice(mark));
+        options.push(cutNodes(mark));
         optionsCount = checkLineCount(optionsCount + parsedCount);
         optionsLength = cap(optionsLength + parsedLength);
         optionStart = stop;
@@ -580,22 +654,23 @@ const parseInto = (line: string, table: BraceTable, from: number, to: number, de
  * tests only.
  */
 export const parseSequence = (line: string, table: BraceTable, from: number, to: number, depth: number): ParsedSequence => {
-  table.nextBrace = firstAtOrAfter(table.openAt, from);
-  table.nextEscape = firstAtOrAfter(table.escapeAt, from);
-  pendingTexts.length = 0;
-  pendingCount = 0;
-  pendingLength = 0;
-  pendingNodes.length = 0;
+  nextBrace = firstAtOrAfter(table.openAt, table.braces, from);
+  nextEscape = firstAtOrAfter(table.escapeAt, table.escapes, from);
+  // The buffers are empty here: they are emptied after every line (also when it is refused).
   try {
     parseInto(line, table, from, to, depth);
     flushTexts();
-    return { nodes: pendingNodes.splice(0), count: parsedCount, length: parsedLength };
+    return { nodes: cutNodes(0), count: parsedCount, length: parsedLength };
   } finally {
-    // Nothing of a line is kept in the buffers after it (also when it is refused).
-    pendingTexts.length = 0;
+    // Nothing of a line is kept in the buffers after it.
+    if (pendingTexts.length !== 0) {
+      pendingTexts.length = 0;
+    }
     pendingCount = 0;
     pendingLength = 0;
-    pendingNodes.length = 0;
+    if (pendingNodes.length !== 0) {
+      pendingNodes.length = 0;
+    }
   }
 };
 
@@ -659,33 +734,6 @@ export const emitSequence = (nodes: readonly BraceNode[], emit: (expanded: strin
 };
 
 /**
- * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
- * last line) and its number (from 1); LF, CRLF and CR are recognised. The same as `forEachLine`
- * of genCommon, with the line breaks found by `indexOf` instead of looking at every character
- * (a selection of one long line full of braces is otherwise read once more just for this).
- */
-const forEachLineOf = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
-  let start = 0;
-  let lineNumber = 1;
-  let lf = text.indexOf('\n');
-  let cr = text.indexOf('\r');
-  while (lf >= 0 || cr >= 0) {
-    const at = lf < 0 ? cr : cr < 0 ? lf : Math.min(lf, cr);
-    const breakLength = at === cr && text.charCodeAt(at + 1) === 0x0a ? 2 : 1;
-    visit(text.slice(start, at), text.slice(at, at + breakLength), lineNumber);
-    start = at + breakLength;
-    lineNumber++;
-    if (lf >= 0 && lf < start) {
-      lf = text.indexOf('\n', start);
-    }
-    if (cr >= 0 && cr < start) {
-      cr = text.indexOf('\r', start);
-    }
-  }
-  visit(text.slice(start), '', lineNumber);
-};
-
-/**
  * DATEX-016: expands the braces of every line of the selection (`file{1..3}.txt` → 3 lines). The
  * strings of one line are joined with `eol`; the line breaks of the selection are kept. Every
  * line is parsed, counted and measured before anything is expanded: more than BRACE_MAX_PER_LINE
@@ -697,26 +745,32 @@ export const braceExpansion = (text: string, eol: string, budget: number): strin
   const parsed: { nodes: BraceNode[] | undefined; line: string; lineBreak: string; lineNumber: number }[] = [];
   let total = 0;
   let length = 0;
-  forEachLineOf(text, (line, lineBreak, lineNumber) => {
-    try {
-      if (!line.includes('{')) {
-        parsed.push({ nodes: undefined, line, lineBreak, lineNumber });
-        total += 1;
-        length += line.length + lineBreak.length;
-        return;
+  try {
+    forEachLine(text, (line, lineBreak, lineNumber) => {
+      try {
+        const table = line.includes('{') ? matchBraces(line) : undefined;
+        if (table === undefined || (table.closed === 0 && table.escapes === 0)) {
+          // No brace, or none closed and no escape: the line is kept as it is.
+          parsed.push({ nodes: undefined, line, lineBreak, lineNumber });
+          total += 1;
+          length += line.length + lineBreak.length;
+          return;
+        }
+        // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured at the same time.
+        const size = parseSequence(line, table, 0, line.length, 0);
+        parsed.push({ nodes: size.nodes, line, lineBreak, lineNumber });
+        total += size.count;
+        length = cap(length + size.length + (size.count - 1) * eol.length + lineBreak.length);
+      } catch (error) {
+        throw atLine(lineNumber, error);
       }
-      // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured at the same time.
-      const size = parseSequence(line, matchBraces(line), 0, line.length, 0);
-      parsed.push({ nodes: size.nodes, line, lineBreak, lineNumber });
-      total += size.count;
-      length = cap(length + size.length + (size.count - 1) * eol.length + lineBreak.length);
-    } catch (error) {
-      throw atLine(lineNumber, error);
-    }
-    if (total > BRACE_MAX_PER_SELECTION) {
-      throw new GenLimitError(`the selection expands to more than ${formatCount(BRACE_MAX_PER_SELECTION)} strings`);
-    }
-  });
+      if (total > BRACE_MAX_PER_SELECTION) {
+        throw new GenLimitError(`the selection expands to more than ${formatCount(BRACE_MAX_PER_SELECTION)} strings`);
+      }
+    });
+  } finally {
+    releaseBraceTables();
+  }
   const output = new GenOutputBuffer(budget);
   // The whole result is checked against the budget before it is built.
   output.reserve(length);

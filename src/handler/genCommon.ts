@@ -128,19 +128,26 @@ export const splitLines = (text: string): string[] => text.split(/\r\n|\r|\n/);
 
 /**
  * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
- * last line) and its number (from 1). LF, CRLF and CR are recognised.
+ * last line) and its number (from 1). LF, CRLF and CR are recognised. The line breaks are found
+ * with `indexOf` (the next LF and the next CR) rather than by looking at every character, so that
+ * a long line is not read once more just for this.
  */
 export const forEachLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
   let start = 0;
   let lineNumber = 1;
-  for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i);
-    if (code === 0x0a || code === 0x0d) {
-      const breakLength = code === 0x0d && text.charCodeAt(i + 1) === 0x0a ? 2 : 1;
-      visit(text.slice(start, i), text.slice(i, i + breakLength), lineNumber);
-      i += breakLength - 1;
-      start = i + 1;
-      lineNumber++;
+  let lf = text.indexOf('\n');
+  let cr = text.indexOf('\r');
+  while (lf >= 0 || cr >= 0) {
+    const at = lf < 0 ? cr : cr < 0 ? lf : Math.min(lf, cr);
+    const breakLength = at === cr && text.charCodeAt(at + 1) === 0x0a ? 2 : 1;
+    visit(text.slice(start, at), text.slice(at, at + breakLength), lineNumber);
+    start = at + breakLength;
+    lineNumber++;
+    if (lf >= 0 && lf < start) {
+      lf = text.indexOf('\n', start);
+    }
+    if (cr >= 0 && cr < start) {
+      cr = text.indexOf('\r', start);
     }
   }
   visit(text.slice(start), '', lineNumber);

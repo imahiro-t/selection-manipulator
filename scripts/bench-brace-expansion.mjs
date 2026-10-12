@@ -9,7 +9,7 @@
  * Both are bundled with esbuild into a temporary directory; every measure runs in a child process
  * of its own (`node --expose-gc`), several times, and the median is printed with every value.
  *
- * Benches (`{` + N alternatives of `x{1..1}` × k joined with `,` + `}`, as in art-aa1f961b):
+ * Benches (B1 to R841: `{` + N alternatives of `x{1..1}` × k joined with `,` + `}`, as in art-aa1f961b):
  *   B1   N=1,100,  k=120 (925,101 characters) × 9 selections: about the 8.4 million characters of
  *        art-aa1f961b, cut into selections of at most GEN_MAX_INPUT_LENGTH.
  *   B2   N=10,000, k=14 (990,001 characters) × 34 selections: the most one run can parse within the
@@ -20,6 +20,12 @@
  *        one term and `{x}` kept as text.
  *   R841 N=10,000, k=120 (8,410,001 characters), one selection: the input of art-aa1f961b (over
  *        GEN_MAX_INPUT_LENGTH, for reference only).
+ *   B3   many short lines: `{a}` + LF × 99,999 (399,996 characters) × 25 selections (the last one
+ *        is over the output budget), braces kept as text on every line.
+ *   B4   many short lines: `{` + LF × 99,999 (199,998 characters) × 50 selections (the last one is
+ *        over the output budget), a brace that is never closed on every line.
+ *   B5   many short lines: `{a,b}` + LF × 49,999 (299,994 characters) × 16 selections (the last
+ *        one is over the output budget), two alternatives on every line.
  *
  * The input is made flat (as the text of a document is) before anything is measured.
  *
@@ -37,7 +43,8 @@
  *   full ms          every selection run with what is left of the output budget (10,000,000), as
  *                    the command does (expansion included; for reference).
  *   retained MB      heapUsed + arrayBuffers of one parsed selection kept alive (table and pieces),
- *                    after a GC, minus the same before it.
+ *                    after a GC, minus the same before it (the benches of one line only; `-` for
+ *                    B3 to B5, whose lines are not kept from one to the next).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -57,6 +64,9 @@ const BENCHES = {
   A1: { make: () => `{${'{a}'.repeat(333_332)}}`, makeSmall: () => `{${'{a}'.repeat(16_666)}}`, selections: 1 },
   A2: { make: () => alternatives(10_000, 'a\\,b{1..1}\\{c{x}'.repeat(6)), makeSmall: () => alternatives(500, 'a\\,b{1..1}\\{c{x}'.repeat(6)), selections: 1 },
   R841: { make: () => alternatives(10_000, 'x{1..1}'.repeat(120)), makeSmall: () => alternatives(500, 'x{1..1}'.repeat(120)), selections: 1 },
+  B3: { make: () => '{a}\n'.repeat(99_999), makeSmall: () => '{a}\n'.repeat(5_000), selections: 25, lines: true },
+  B4: { make: () => '{\n'.repeat(99_999), makeSmall: () => '{\n'.repeat(5_000), selections: 50, lines: true },
+  B5: { make: () => '{a,b}\n'.repeat(49_999), makeSmall: () => '{a,b}\n'.repeat(2_500), selections: 16, lines: true },
 };
 
 const MODES = ['parse', 'warm', 'full', 'retained'];
@@ -156,6 +166,9 @@ const main = async () => {
         let length = 0;
         for (let run = 0; run < runs; run++) {
           for (const mode of MODES) {
+            if (mode === 'retained' && BENCHES[bench].lines) {
+              continue;
+            }
             const output = execFileSync(process.execPath, ['--expose-gc', fileURLToPath(import.meta.url), '--child', bundles[name], bench, mode], { encoding: 'utf8', maxBuffer: 1 << 20 });
             const result = JSON.parse(output.trim().split('\n').pop());
             values[mode].push(result);
@@ -168,7 +181,7 @@ const main = async () => {
         const warmPeak = values.warm.map((v) => v.peakMB);
         const fullMs = values.full.map((v) => v.ms);
         const retained = values.retained.map((v) => v.mb);
-        const all = (list, digits = 0) => `${fmt(median(list), digits)} (${list.map((v) => fmt(v, digits)).join(' / ')})`;
+        const all = (list, digits = 0) => (list.length === 0 ? '-' : `${fmt(median(list), digits)} (${list.map((v) => fmt(v, digits)).join(' / ')})`);
         console.log(`| ${bench} | ${length.toLocaleString('en-US')} × ${BENCHES[bench].selections} | ${name} | ${all(parseMs)} | ${all(peak)} | ${all(warmMs)} | ${all(warmPeak)} | ${all(fullMs)} ${values.full[0].error ? `[${values.full[0].error}]` : ''} | ${all(retained, 1)} |`);
       }
     }

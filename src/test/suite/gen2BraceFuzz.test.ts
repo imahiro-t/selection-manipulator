@@ -146,6 +146,31 @@ const randomSelection = (random: () => number): string => {
   return text;
 };
 
+/**
+ * A selection of many lines of different sizes: the tables of the braces are scratch arrays shared
+ * from line to line (and dropped after a selection when they have grown), so that a line must not
+ * see anything left by the lines (or the selections) before it.
+ */
+const randomManyLines = (random: () => number): string => {
+  const lines = 5 + Math.floor(random() * 40);
+  let text = '';
+  for (let i = 0; i < lines; i++) {
+    if (i > 0) {
+      text += LINE_BREAKS[Math.floor(random() * LINE_BREAKS.length)];
+    }
+    const pick = random();
+    if (pick < 0.1) {
+      // A long line: more braces, commas and escapes than the scratch tables start with.
+      text += `{${Array.from({ length: 100 + Math.floor(random() * 300) }, () => randomSequence(random, 1, 2)).join(',')}}`;
+    } else if (pick < 0.4) {
+      text += ['{', '{a}', 'a{b}c', '{a,b}', '\\{a\\}', '{x', 'x}', '}{', 'file{1..1}.txt', ''][Math.floor(random() * 10)];
+    } else {
+      text += randomSequence(random, 0, 4);
+    }
+  }
+  return text;
+};
+
 /** Inputs at the limits of a line and of a selection, checked with every budget too. */
 const EDGE_CASES = [
   '{1..100}{1..100}',
@@ -171,6 +196,9 @@ const EDGE_CASES = [
   '',
   '\n',
   '{,}\n{,{,}}x',
+  // A long line (tables grown past their first size) then short ones, and the other way round.
+  `{${'{a,b}x\\,'.repeat(400)}}\n{a}\n{\n{a,b}\n\\{1..2}`,
+  `{a}\n{\n${'{1..1}'.repeat(600)}\n{a,b}`,
 ];
 
 const budgetsFor = (text: string, eol: string, random: () => number): number[] => {
@@ -216,6 +244,22 @@ suite('DATEX-016 brace expansion: differential fuzzing against the former implem
     assert.ok(compared > 20_000, `${compared} comparisons`);
   });
 
+  test('selections of many lines, long and short, expand to the same strings or fail with the same error', function () {
+    this.timeout(60_000);
+    const random = mulberry32(0x124);
+    let compared = 0;
+    for (let n = 0; n < 300; n++) {
+      const text = randomManyLines(random);
+      for (const eol of ['\n', '\r\n']) {
+        for (const budget of budgetsFor(text, eol, random)) {
+          compare(text, eol, budget, `many lines ${n}`);
+          compared++;
+        }
+      }
+    }
+    assert.ok(compared > 1_500, `${compared} comparisons`);
+  });
+
   test('inputs at the limits of a line, of a selection, of the nesting and of the budget', function () {
     this.timeout(60_000);
     const random = mulberry32(7);
@@ -228,21 +272,18 @@ suite('DATEX-016 brace expansion: differential fuzzing against the former implem
     });
   });
 
-  test('a large selection full of braces is parsed and measured at least 3 times faster than before', function () {
-    this.timeout(60_000);
-    // S1 of the benchmark (scripts/bench-brace-expansion.mjs): 10,000 alternatives of
-    // `x{1..1}` × 14, 990,001 characters (near GEN_MAX_INPUT_LENGTH). With a budget of 0, only the
-    // parsing and the estimate run: the result is refused before anything is expanded. The time is
-    // compared with that of the former implementation on the same machine (a ratio, not a time,
-    // so that a slower machine does not matter); the former one is about 1, never below 1/3.
-    const text = `{${Array.from({ length: 10_000 }, () => 'x{1..1}'.repeat(14)).join(',')}}`;
-    assert.strictEqual(text.length, 990_001);
+  /**
+   * The times of the current and of the former implementation for `text` with a budget of 0 (only
+   * the parsing and the estimate run: the result is refused before anything is expanded): two
+   * warm-ups of each (compiled, as in an extension host that has run the command before), then the
+   * two measured in turn, so that a slower moment affects both; the fastest of five runs leaves out
+   * a pause of the garbage collector. A ratio, not a time, is checked, so that a slower machine
+   * does not matter.
+   */
+  const compareTimes = (text: string): { now: number; was: number; report: string } => {
     const run = (expand: typeof braceExpansion) => () => {
       assert.throws(() => expand(text, '\n', 0), EncOutputTooLargeError);
     };
-    // Two warm-ups of each (compiled, as in an extension host that has run the command before),
-    // then the two measured in turn, so that a slower moment affects both; the fastest of five
-    // runs leaves out a pause of the garbage collector.
     for (let k = 0; k < 2; k++) {
       run(legacyBraceExpansion)();
       run(braceExpansion)();
@@ -255,9 +296,32 @@ suite('DATEX-016 brace expansion: differential fuzzing against the former implem
     }
     const was = Math.min(...before);
     const now = Math.min(...after);
-    const report = `now ${now.toFixed(1)} ms, before ${was.toFixed(1)} ms (ratio ${(now / was).toFixed(2)})`;
+    return { now, was, report: `now ${now.toFixed(1)} ms, before ${was.toFixed(1)} ms (ratio ${(now / was).toFixed(2)})` };
+  };
+
+  test('a large selection full of braces is parsed and measured at least 3 times faster than before', function () {
+    this.timeout(60_000);
+    // S1 of the benchmark (scripts/bench-brace-expansion.mjs): 10,000 alternatives of
+    // `x{1..1}` × 14, 990,001 characters (near GEN_MAX_INPUT_LENGTH). The former implementation
+    // is about 1, never below 1/3.
+    const text = `{${Array.from({ length: 10_000 }, () => 'x{1..1}'.repeat(14)).join(',')}}`;
+    assert.strictEqual(text.length, 990_001);
+    const { now, was, report } = compareTimes(text);
     console.log(`      S1 parsing and estimate: ${report}`);
     assert.ok(now * 3 <= was, `${report}: should be 3 times faster at least`);
     assert.ok(now < 500, report);
+  });
+
+  test('a selection of many short lines with braces is parsed and measured no slower than before', function () {
+    this.timeout(60_000);
+    // B3 to B5 of the benchmark, mixed: 80,000 short lines (99,996 strings, just under the limit of
+    // a selection) with braces kept as text, a brace never closed and two alternatives (a list of
+    // file names, the most common use). The tables of the braces were once allocated for every
+    // line, which made such lines 1.6 to 2.4 times slower than before; they take about 0.7 to 0.8
+    // of the time of the former implementation now.
+    const text = '{a}\n{\nfile{a,b}.txt\na{b}c\n'.repeat(19_999);
+    const { now, was, report } = compareTimes(text);
+    console.log(`      many short lines, parsing and estimate: ${report}`);
+    assert.ok(now <= was, `${report}: should not be slower than before`);
   });
 });
