@@ -349,8 +349,6 @@ export const csvToHtmlTable: TableTransform = (text) => {
 };
 
 const SQL_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
-/** Control characters other than tab, CR and LF (NUL included). */
-const SQL_FORBIDDEN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 const quoteIdentifier = (name: string): string => `"${name.replace(/"/g, '""')}"`;
 
@@ -358,9 +356,6 @@ const quoteIdentifier = (name: string): string => `"${name.replace(/"/g, '""')}"
 export const sqlTableName = (name: string): string => {
   if (name === '') {
     throw new TableInputError('the table name is empty');
-  }
-  if (SQL_FORBIDDEN.test(name)) {
-    throw new TableInputError('the table name contains a control character');
   }
   const unsafe = sqlUnsafeCharacterReason(name);
   if (unsafe !== undefined) {
@@ -373,9 +368,6 @@ const sqlColumnName = (name: string, column: number): string => {
   if (name === '') {
     throw new TableInputError(`column ${column + 1} of the header is empty`);
   }
-  if (SQL_FORBIDDEN.test(name)) {
-    throw new TableInputError(`column ${column + 1} of the header contains a control character`);
-  }
   const unsafe = sqlUnsafeCharacterReason(name);
   if (unsafe !== undefined) {
     throw new TableInputError(`column ${column + 1} of the header contains ${unsafe}`);
@@ -385,9 +377,9 @@ const sqlColumnName = (name: string, column: number): string => {
 
 /**
  * TABLE-012: one `INSERT INTO t (c1, c2) VALUES ('v1', 'v2');` per data row. Every value is a
- * string literal (`'` doubled, an empty cell is `''`), names follow standard SQL. A backslash
- * or a yen sign in a value or a name is an error (see sqlUnsafeCharacterReason). The SQL is only
- * generated.
+ * string literal (`'` doubled, an empty cell is `''`), names follow standard SQL. A control
+ * character other than tab, CR and LF, a backslash or a yen sign in a value or a name is an error
+ * (see sqlUnsafeCharacterReason). The SQL is only generated.
  */
 export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
   const table = sqlTableName(tableName);
@@ -397,9 +389,6 @@ export const csvToSqlInsert: TableTransform = (text, [tableName]) => {
   const out = new OutputBuffer();
   data.forEach((row, r) => {
     const values = row.map((value, column) => {
-      if (SQL_FORBIDDEN.test(value)) {
-        throw new TableInputError(`row ${r + 2}, column ${column + 1} contains a control character`);
-      }
       const unsafe = sqlUnsafeCharacterReason(value);
       if (unsafe !== undefined) {
         throw new TableInputError(`row ${r + 2}, column ${column + 1} contains ${unsafe}`);

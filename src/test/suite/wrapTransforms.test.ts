@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
+import { SQL_BACKSLASH_REASON, SQL_CONTROL_CHARACTER_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import {
   MAX_ADDED_LENGTH,
   REMOVABLE_BRACKETS,
@@ -236,9 +236,39 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
       assert.strictEqual(run('quote.list.sql-in', "\uFFE5100\nO'Neil"), "('\uFFE5100', 'O''Neil')");
     });
 
+    test('WRAP-006 refuses a line with a control character other than tab, CR and LF (NUL, ESC, DEL)', () => {
+      const refused = (text: string, lineNumber: number) =>
+        assert.throws(
+          () => run('quote.list.sql-in', text),
+          (error: unknown) =>
+            error instanceof Error && error.message === `line ${lineNumber} contains ${SQL_CONTROL_CHARACTER_REASON}`,
+          JSON.stringify(text)
+        );
+      refused('a\nb\u0000c', 2);
+      refused('\u001b[31mred', 1);
+      refused('a\r\n\r\nb\u007f\r\n', 3);
+      refused('x\u000by', 1);
+      // Reported before a backslash or a yen sign on the same line, like TABLE-012.
+      refused('a\\\u0000', 1);
+      refused('\u00A5\u0001', 1);
+      // A line of only VT / FF is blank to trim(), so it is skipped (not checked, not in the list).
+      assert.strictEqual(run('quote.list.sql-in', 'a\n\u000b\u000c\nb'), "('a', 'b')");
+    });
+
+    test('WRAP-006 still quotes tabs and CRLF lines (they are valid in an SQL literal)', () => {
+      assert.strictEqual(run('quote.list.sql-in', 'a\tb\nc'), "('a\tb', 'c')");
+      assert.strictEqual(run('quote.list.sql-in', 'a\tb\r\nc\r\n', CRLF), "('a\tb', 'c')\r\n");
+      // C1 controls (U+0080..U+009F) are outside the refused range, as in TABLE-012.
+      assert.strictEqual(run('quote.list.sql-in', 'a\u0085b'), "('a\u0085b')");
+    });
+
     test('WRAP-006 checks every line before building (no partial result, even over the size limit)', () => {
       // The size check would fail too; the backslash is reported first, so nothing is built at all.
       assert.throws(() => run('quote.list.sql-in', `${'a\n'.repeat(10)}\\`, { maxAddedLength: 1 }), /line 11 contains a backslash/);
+      assert.throws(
+        () => run('quote.list.sql-in', `${'a\n'.repeat(10)}\u0000`, { maxAddedLength: 1 }),
+        /line 11 contains a control character/
+      );
     });
 
     test('WRAP-007 escapes backslashes and double quotes', () => {

@@ -9,7 +9,7 @@ import { DEV2_COMMAND_ENTRIES } from '../../handler/dev2Transforms';
 import { DEV_NOTHING_SELECTED, devCommandHandlerInternal, DevDependencies, DevPickItem } from '../../handler/devCommandHandler';
 import { DevInputError } from '../../handler/devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry } from '../../handler/devTransforms';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
+import { SQL_BACKSLASH_REASON, SQL_CONTROL_CHARACTER_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor, undoIn } from './testUtils';
 import { DEV_ROADMAP_EXAMPLES } from './devExamples';
 import { candidateRows } from './showcaseData';
@@ -258,6 +258,36 @@ suite('Developer Commands (DEV-001..035) Test Suite', () => {
       assert.deepStrictEqual(opened, []);
       assert.strictEqual(errors.length, 1);
       assert.ok(errors[0].startsWith(`${NOT_SHOWN}the text contains a backslash`), errors[0]);
+    });
+
+    test('DEV-032 (Replace) with a control character in one selection changes nothing', async () => {
+      const { dependencies, errors } = recorder();
+      const blocks = ['O\'Reilly', 'a\u0000b'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [
+        `${NOT_CHANGED}selection 2 of 2: the text contains ${SQL_CONTROL_CHARACTER_REASON}`,
+      ]);
+    });
+
+    test('DEV-007 (new editor) with a control character shows no result', async () => {
+      const { dependencies, errors, opened } = recorder();
+      const editor = await createTextEditor('O\'Neil\u001b[0m');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-007'), dependencies)(editor);
+      assert.deepStrictEqual(opened, []);
+      assert.deepStrictEqual(errors, [`${NOT_SHOWN}the text contains ${SQL_CONTROL_CHARACTER_REASON}`]);
+    });
+
+    test('DEV-032 (Replace) keeps tabs and line breaks', async () => {
+      const { dependencies, errors } = recorder();
+      const editor = await createTextEditor('it\'s\tok\nnext');
+      selectWholeDocument(editor);
+      await run(entryOf('DEV-032'), dependencies)(editor);
+      assert.strictEqual(editor.document.getText(), 'it\'\'s\tok\nnext');
+      assert.deepStrictEqual(errors, []);
     });
 
     test('one invalid selection among several changes nothing; the message names the selection', async () => {

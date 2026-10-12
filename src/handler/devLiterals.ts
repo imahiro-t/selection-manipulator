@@ -163,6 +163,8 @@ export const escapeRegex = (text: string): string => text.replace(/[\\^$.*+?()[\
  * DEV-007: `'` doubled for the inside of a standard SQL string literal (no quotes added). Text
  * with `\` or `¥` is an error (see sqlUnsafeCharacterReason), like TABLE-012 and WRAP-006: in
  * MySQL's default mode `\'` would be read as an escaped quote and the text could end the literal.
+ * So is a control character other than tab, CR and LF (NUL and DEL included), which would go
+ * into the query unnoticed; tabs and line breaks stay as they are.
  */
 export const escapeSql = (text: string): string => {
   const unsafe = sqlUnsafeCharacterReason(text);

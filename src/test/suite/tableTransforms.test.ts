@@ -382,6 +382,12 @@ suite('Table Commands (TABLE-001..030) transforms Test Suite', function () {
       rejects(() => run('TABLE-012', 'a\n1', ['t\u0000']), /^the table name contains a control character$/);
     });
 
+    test('a control character is reported before a backslash or a yen sign in the same value or name', () => {
+      rejects(() => run('TABLE-012', 'a\nx\\\u0000', ['t']), /^row 2, column 1 contains a control character$/);
+      rejects(() => run('TABLE-012', 'a,\u00A5\u007f\n1,2', ['t']), /^column 2 of the header contains a control character$/);
+      rejects(() => run('TABLE-012', 'a\n1', ['\\\u001b']), /^the table name contains a control character$/);
+    });
+
     test('a backslash in a value, a column name or the table name is an error (MySQL reads it as an escape)', () => {
       const reason = SQL_BACKSLASH_REASON;
       const refused = (text: string, table: string, message: string) => assert.throws(() => run('TABLE-012', text, [table]),
