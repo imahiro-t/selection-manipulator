@@ -17,8 +17,9 @@
  * the constant expressions below are linear (no end-anchored repetition such as `[ \t]+$`, which
  * is quadratic on a long run of blanks that is not at the end: blanks are trimmed by loops).
  * Results that may grow (repeat, pad, insert every N) are measured before they are built and
- * refused when they exceed the output budget. Error messages never quote the selected text or the
- * values entered.
+ * refused when they exceed the output budget (insert every N counts its graphemes only when an
+ * upper bound taken from the length is over the budget). Error messages never quote the selected
+ * text or the values entered.
  */
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import { countGraphemes, formatCodePoint, graphemes, isEmojiGrapheme, isInvisibleCode } from './uniCommon';
@@ -175,14 +176,27 @@ export const insertEveryN = (text: string, n: number, separator: string, budget:
   if (!Number.isInteger(n) || n < 1 || n > TEXT2_MAX_GROUP) {
     throw new Text2InputError(`the group size must be a whole number from 1 to ${TEXT2_MAX_GROUP.toLocaleString('en-US')}`);
   }
-  // Counted without building the grapheme array, so a result over the budget is refused before
-  // anything is allocated.
-  const groups = Math.ceil(countGraphemes(text) / n);
-  assertText2Budget(text.length + separator.length * Math.max(0, groups - 1), budget);
-  const all = [...graphemes(text)];
+  const resultLength = (graphemeCount: number): number =>
+    text.length + separator.length * Math.max(0, Math.ceil(graphemeCount / n) - 1);
+  // A text has at most `text.length` graphemes, so this bound needs no segmentation; only when it
+  // is over the budget are the graphemes counted (without building anything) to decide exactly, so
+  // a result over the budget is still refused before it is built.
+  if (resultLength(text.length) > budget) {
+    assertText2Budget(resultLength(countGraphemes(text)), budget);
+  }
   const parts: string[] = [];
-  for (let i = 0; i < all.length; i += n) {
-    parts.push(all.slice(i, i + n).join(''));
+  let group = '';
+  let size = 0;
+  for (const grapheme of graphemes(text)) {
+    group += grapheme;
+    if (++size === n) {
+      parts.push(group);
+      group = '';
+      size = 0;
+    }
+  }
+  if (size > 0) {
+    parts.push(group);
   }
   return parts.join(separator);
 };

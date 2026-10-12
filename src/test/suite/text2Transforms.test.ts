@@ -37,6 +37,7 @@ import {
   uniqueWords,
   wordFrequency,
 } from '../../handler/text2Transforms';
+import { GRAPHEME_CHUNK_LENGTH, graphemes } from '../../handler/uniCommon';
 import { TEXT2_EXAMPLES } from './text2Examples';
 
 const FAMILY = '\u{1F468}‍\u{1F469}‍\u{1F467}';
@@ -133,6 +134,49 @@ suite('Text Transforms (TEXTX-001..023) Test Suite', () => {
       assert.throws(() => insertEveryN('abc', TEXT2_MAX_GROUP + 1, '-'), Text2InputError);
       assert.throws(() => insertEveryN('abcdef', 1, '--', 15), EncOutputTooLargeError);
       assert.strictEqual(insertEveryN('abcdef', 1, '--', 16), 'a--b--c--d--e--f');
+    });
+
+    test('budget boundary when the length alone shows the result fits', () => {
+      assert.strictEqual(insertEveryN('abcdef', 2, '-', 8), 'ab-cd-ef');
+      assert.throws(() => insertEveryN('abcdef', 2, '-', 7), (error: unknown) =>
+        error instanceof EncOutputTooLargeError && error.length === 8 && error.limit === TEXT2_MAX_OUTPUT_LENGTH);
+    });
+
+    test('budget boundary when only the exact grapheme count shows the result fits', () => {
+      // 24 code units but 3 graphemes: the bound from the length (24 + 23) is over the budget, the
+      // exact result (24 + 2) is not.
+      const families = `${FAMILY}${FAMILY}${FAMILY}`;
+      assert.strictEqual(insertEveryN(families, 1, '|', 26), `${FAMILY}|${FAMILY}|${FAMILY}`);
+      assert.throws(() => insertEveryN(families, 1, '|', 25), (error: unknown) =>
+        error instanceof EncOutputTooLargeError && error.length === 26);
+      const accents = E_ACUTE.repeat(4);
+      assert.strictEqual(insertEveryN(accents, 2, '--', 10), `${E_ACUTE}${E_ACUTE}--${E_ACUTE}${E_ACUTE}`);
+      assert.throws(() => insertEveryN(accents, 2, '--', 9), (error: unknown) =>
+        error instanceof EncOutputTooLargeError && error.length === 10);
+    });
+
+    test('grapheme clusters are never split; a short last group; N at least the grapheme count', () => {
+      const JP = '\u{1F1EF}\u{1F1F5}';
+      const text = `a\r\n${E_ACUTE}${JP}${FAMILY}b`;
+      assert.strictEqual(insertEveryN(text, 2, '/'), `a\r\n/${E_ACUTE}${JP}/${FAMILY}b`);
+      assert.strictEqual(insertEveryN(text, 3, '/'), `a\r\n${E_ACUTE}/${JP}${FAMILY}b`);
+      assert.strictEqual(insertEveryN(text, 4, '/'), `a\r\n${E_ACUTE}${JP}/${FAMILY}b`);
+      assert.strictEqual(insertEveryN(text, 6, '/'), text);
+      assert.strictEqual(insertEveryN(text, 7, '/'), text);
+      assert.strictEqual(insertEveryN('', 1, '/', 0), '');
+    });
+
+    test('long input across segmentation chunks matches grouping the grapheme array', () => {
+      const unit = `ab${E_ACUTE}${FAMILY}c\r\n`;
+      const text = unit.repeat(Math.ceil((GRAPHEME_CHUNK_LENGTH * 3) / unit.length));
+      const all = [...graphemes(text)];
+      for (const n of [1, 3, 4, 7]) {
+        const parts: string[] = [];
+        for (let i = 0; i < all.length; i += n) {
+          parts.push(all.slice(i, i + n).join(''));
+        }
+        assert.strictEqual(insertEveryN(text, n, '-'), parts.join('-'), `N = ${n}`);
+      }
     });
   });
 
