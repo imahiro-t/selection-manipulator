@@ -426,7 +426,8 @@ const isCodeSpanSpace = (ch: string): boolean => ch === ' ' || ch === '\n' || ch
  * starts and ends with a space but is not all spaces (CommonMark strips one such space).
  */
 const inlineCode: WrapTransform = (text, options) => {
-  const fence = '`'.repeat(longestBacktickRun(text) + 1);
+  // Only the length is needed for the limit: the fence itself is built once it has passed.
+  const fenceLength = longestBacktickRun(text) + 1;
   let pad = false;
   if (text.length > 0) {
     const first = text[0];
@@ -441,7 +442,8 @@ const inlineCode: WrapTransform = (text, options) => {
       pad = !allSpaces;
     }
   }
-  ensureAddedLength(fence.length * 2 + (pad ? 2 : 0), options);
+  ensureAddedLength(fenceLength * 2 + (pad ? 2 : 0), options);
+  const fence = '`'.repeat(fenceLength);
   const space = pad ? ' ' : '';
   return `${fence}${space}${text}${space}${fence}`;
 };

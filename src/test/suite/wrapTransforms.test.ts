@@ -456,6 +456,14 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
       });
     };
 
+    test('WRAP-030 counts the fence before building it: exactly the limit passes, one less fails', () => {
+      // The longest run is 1,000 backticks: a fence of 1,001 on both sides plus a space each.
+      checkLimit('enclose.markdown-inline-code', '`'.repeat(1000), 1001 * 2 + 2);
+      checkLimit('enclose.markdown-inline-code', `a${'`'.repeat(500)}b`, 501 * 2);
+      checkLimit('enclose.markdown-inline-code', 'abc', 2);
+      assert.strictEqual(run('enclose.markdown-inline-code', 'a``b', { maxAddedLength: 6 }), '```a``b```');
+    });
+
     test('each line: in a CRLF document, CRLF line breaks add nothing', () => {
       // 3 non-empty lines: 2 quotes each. The line breaks are CRLF already.
       checkLimit('quote.each-line.double', 'a\r\n\r\nb\r\nc', 6, CRLF);
