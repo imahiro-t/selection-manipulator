@@ -399,6 +399,27 @@ suite('DATA2 Data Format Transforms (DATAX-001..024) Test Suite', () => {
       assert.throws(() => toJson.transform('a = 1e400', []), /too large to be represented in JSON/);
       assert.throws(() => toJson.transform('a = 9007199254740993', []), /outside ±\(2\^53 − 1\)/);
     });
+
+    test('an error quotes at most 40 characters of a huge value', () => {
+      const toJson = DATA_COMMAND_ENTRIES.find((entry) => entry.name === 'toml.to-json');
+      assert.ok(toJson && isTransformEntry(toJson));
+      const digits = '9'.repeat(100_000);
+      const short = (pattern: RegExp) => (error: unknown) => {
+        assert.ok(error instanceof DataInputError, String(error));
+        assert.match(error.message, pattern);
+        assert.ok(error.message.includes(`${'9'.repeat(40)}…`), error.message.slice(0, 200));
+        assert.ok(!error.message.includes('9'.repeat(41)), error.message.slice(0, 200));
+        assert.ok(error.message.length < 200, error.message.slice(0, 200));
+        return true;
+      };
+      assert.throws(() => run('DATAX-015', `a = ${digits}`), short(/outside the 64-bit range TOML allows/));
+      assert.throws(() => toJson.transform(`a = ${digits}`, []), short(/outside ±\(2\^53 − 1\)/));
+      assert.throws(() => toJson.transform(`a = ${digits}.0`, []), short(/too large to be represented in JSON/));
+      assert.throws(() => toJson.transform(`a = ${digits}x`, []), short(/invalid value "9{40}…" \(strings must be quoted\)/));
+      // Short values are quoted whole, as before.
+      assert.throws(() => run('DATAX-015', 'a = 9223372036854775808'), /the integer 9223372036854775808 is outside the 64-bit range TOML allows/);
+      assert.throws(() => toJson.transform('a = 012', []), /invalid value "012"/);
+    });
   });
 
   suite('XML (DATAX-016 / 017)', () => {

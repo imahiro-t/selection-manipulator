@@ -430,9 +430,18 @@ const scanUrl = (text: string, first: number, depths: Map<string, number>): { en
   return { end, tailEnd };
 };
 
-const isBlank = (char: string): boolean => char === ' ' || char === '\t';
+/** Whether `char` breaks a line (LF, CR, U+2028 or U+2029): never trimmed, and no space is added next to it. */
+const isLineBreakChar = (char: string): boolean =>
+  char === '\n' || char === '\r' || char === '\u2028' || char === '\u2029';
 
-/** `text` without its leading spaces and tabs (a loop: linear). */
+/**
+ * Whether `char` is a blank: whitespace (`WHITESPACE`, the same set that ends a URL, so also the
+ * ideographic space U+3000, the no-break space U+00A0, U+1680, U+2000-U+200A, U+202F, U+205F and
+ * U+FEFF) other than a line break (LF, CR, U+2028, U+2029), which is never trimmed.
+ */
+const isBlank = (char: string): boolean => !isLineBreakChar(char) && WHITESPACE.test(char);
+
+/** `text` without its leading blanks (a loop: linear). */
 const trimBlanksStart = (text: string): string => {
   let start = 0;
   while (start < text.length && isBlank(text[start])) {
@@ -441,7 +450,7 @@ const trimBlanksStart = (text: string): string => {
   return text.slice(start);
 };
 
-/** `text` without its trailing spaces and tabs (a backward loop: linear, unlike `/[ \t]+$/`). */
+/** `text` without its trailing blanks (a backward loop: linear, unlike `/[ \t]+$/`). */
 const trimBlanksEnd = (text: string): string => {
   let end = text.length;
   while (end > 0 && isBlank(text[end - 1])) {
@@ -451,8 +460,8 @@ const trimBlanksEnd = (text: string): string => {
 };
 
 /**
- * TEXTX-020: the URLs removed (see `scanUrl` for where a URL ends). The spaces and tabs around a
- * removed URL become one space between the words on both sides, or nothing at the start or end of
+ * TEXTX-020: the URLs removed (see `scanUrl` for where a URL ends). The blanks (whitespace other
+ * than line breaks, see `isBlank`) around a removed URL become one space between the words on both sides, or nothing at the start or end of
  * a line. Punctuation and closing brackets that follow a URL stay, directly after the word before
  * it (`Visit https://a.example.` becomes `Visit.`, `foo(https://x.com)bar` becomes `foo()bar`);
  * the blanks after them become one space, or nothing at the end of a line. At the start of a line
@@ -496,7 +505,7 @@ export const removeUrls = (text: string): string => {
       const before = lastChar();
       const after = piece.charAt(0);
       if (
-        before !== '' && before !== '\n' && before !== '\r' && after !== '\n' && after !== '\r' &&
+        before !== '' && !isLineBreakChar(before) && !isLineBreakChar(after) &&
         (!afterTail || sawBlank)
       ) {
         parts.push(' ');
@@ -515,7 +524,7 @@ export const removeUrls = (text: string): string => {
     trimEnd();
     let piece = tail;
     const before = lastChar();
-    if (before === '' || before === '\n' || before === '\r') {
+    if (before === '' || isLineBreakChar(before)) {
       let start = 0;
       while (start < piece.length && SENTENCE_PUNCTUATION.has(piece[start])) {
         start++;

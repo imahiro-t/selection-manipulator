@@ -29,8 +29,8 @@
       "id": "selection-manipulator.date.to-timezones",
       "candidateId": "DATE-003",
       "description": {
-        "en": "Outputs the time in each time zone of the setting `selection-manipulator.date.timeZones` (1 to 20 entries, default `UTC`, `Asia/Tokyo`, `America/Los_Angeles`), one line each as `<IANA name> HH:mm`, adding ` (前日)` (previous day) / ` (翌日)` (next day) when the date differs from UTC. IANA names are used because abbreviations such as JST or PDT cannot be produced reliably with Intl. Selections are separated by one empty line, but multiple values within one selection are not separated.",
-        "ja": "設定 `selection-manipulator.date.timeZones`（1〜20 件、既定 `UTC`・`Asia/Tokyo`・`America/Los_Angeles`）の各タイムゾーンでの時刻を `<IANA 名> HH:mm` で 1 行ずつ出し、UTC と日付が違えば ` (前日)` / ` (翌日)` を付ける（JST・PDT などの略称は Intl で安定して出せないため IANA 名。選択範囲の間は空行 1 行で区切るが、1 選択内の複数の値の間には区切りを入れない）"
+        "en": "Outputs the time in each time zone of the setting `selection-manipulator.date.timeZones` (1 to 20 entries, default `UTC`, `Asia/Tokyo`, `America/Los_Angeles`), one line each as `<IANA name> HH:mm`, adding ` (前日)` (previous day) / ` (翌日)` (next day) when the date differs from UTC. IANA names are used because abbreviations such as JST or PDT cannot be produced reliably with Intl. The results of selections, and of multiple values within one selection, are separated by one empty line (an empty line already between values is kept, not doubled).",
+        "ja": "設定 `selection-manipulator.date.timeZones`（1〜20 件、既定 `UTC`・`Asia/Tokyo`・`America/Los_Angeles`）の各タイムゾーンでの時刻を `<IANA 名> HH:mm` で 1 行ずつ出し、UTC と日付が違えば ` (前日)` / ` (翌日)` を付ける（JST・PDT などの略称は Intl で安定して出せないため IANA 名。選択範囲の間も、1 選択内の複数の値の結果の間も空行 1 行で区切る。値の間に既にある空行はそのまま残し、二重にしない）"
       },
       "example": {
         "en": "`2026-09-28T00:00:00Z` → `UTC 00:00⏎Asia/Tokyo 09:00⏎America/Los_Angeles 17:00 (前日)`",

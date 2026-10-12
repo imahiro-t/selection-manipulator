@@ -430,8 +430,9 @@ export const randomName = (random: GenRandom): string => `${pickOne(random, FIRS
 export const randomNameJa = (random: GenRandom): string => `${pickOne(random, JA_FAMILY_NAMES)} ${pickOne(random, JA_GIVEN_NAMES)}`;
 
 /**
- * GEN-016: a dummy mobile number `090-0xxx-xxxx` (the form of the ROADMAP; not guaranteed to be
- * unassigned).
+ * GEN-016: a dummy mobile number `090-0xxx-xxxx` (the form of the ROADMAP). The block is not
+ * taken from a verified official list of fictional numbers, and whether a number is unassigned is
+ * not checked: it is not guaranteed to be unassigned.
  */
 export const randomPhoneJp = (random: GenRandom): string =>
   `090-0${String(random.below(1_000)).padStart(3, '0')}-${String(random.below(10_000)).padStart(4, '0')}`;

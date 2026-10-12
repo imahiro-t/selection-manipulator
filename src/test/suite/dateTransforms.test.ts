@@ -116,6 +116,23 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       assert.strictEqual(cache.size, 3);
       assert.strictEqual(run('DATE-003', '2026-09-28T12:00:00Z', [], contextOf({ timeZones: ['Europe/London'] })), 'Europe/London 13:00');
     });
+
+    test('DATE-003: the results of several values in one selection are separated by one empty line', () => {
+      const zones = contextOf({ timeZones: ['UTC', 'Asia/Tokyo'] });
+      assert.strictEqual(run('DATE-003', '2026-09-28T12:00:00Z\n2026-09-28T20:00:00Z', [], zones),
+        'UTC 12:00\nAsia/Tokyo 21:00\n\nUTC 20:00\nAsia/Tokyo 05:00 (翌日)');
+      // An empty or blank line already between the values is kept, and no second one is added.
+      assert.strictEqual(run('DATE-003', '2026-09-28T12:00:00Z\n\n2026-09-28T20:00:00Z\n', [], zones),
+        'UTC 12:00\nAsia/Tokyo 21:00\n\nUTC 20:00\nAsia/Tokyo 05:00 (翌日)\n');
+      assert.strictEqual(run('DATE-003', '2026-09-28T12:00:00Z\n \n2026-09-28T20:00:00Z', [], zones),
+        'UTC 12:00\nAsia/Tokyo 21:00\n \nUTC 20:00\nAsia/Tokyo 05:00 (翌日)');
+      // The indentation of each value is kept, and the document's line ending is used.
+      assert.strictEqual(
+        run('DATE-003', '  2026-09-28T12:00:00Z\r\n  2026-09-28T20:00:00Z', [], contextOf({ timeZones: ['UTC'] }, DATE_TEST_NOW(), '\r\n')),
+        '  UTC 12:00\r\n\r\n  UTC 20:00');
+      // Other line commands do not add empty lines.
+      assert.strictEqual(run('DATE-005', '2026-09-28\n2026-09-29'), '2026-09-28 (月)\n2026-09-29 (火)');
+    });
   });
 
   suite('DATE-004 / 005: weekday', () => {

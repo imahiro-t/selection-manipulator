@@ -536,6 +536,31 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
       });
     });
 
+    test('a capitalized file extension does not change either; an irregular mix is still a word', () => {
+      ['file.Ts', 'index.Json', 'README.Md'].forEach((text) => {
+        assert.strictEqual(t.pluralize(text), text);
+        assert.strictEqual(t.singularize(text), text);
+      });
+      assert.strictEqual(t.singularize('file.tS'), 'file.t');
+      assert.strictEqual(t.pluralize('this.User'), 'this.Users');
+    });
+
+    test('an S-ending acronym with a lower-case es becomes the acronym again', () => {
+      [['CSSes', 'CSS'], ['DNSes', 'DNS'], ['HTTPSes', 'HTTPS'], ['myCSSes', 'myCSS'], ['the GPSes', 'the GPS']].forEach(([plural, singular]) => {
+        assert.strictEqual(t.singularize(plural), singular);
+        assert.strictEqual(t.pluralize(plural), plural);
+      });
+      // Other words ending with es are unchanged by this rule.
+      assert.strictEqual(t.singularize('buses'), 'bus');
+      assert.strictEqual(t.singularize('boxes'), 'box');
+      // The earlier acronym rules are unchanged.
+      assert.strictEqual(t.singularize('CSSs'), 'CSS');
+      assert.strictEqual(t.singularize('DTOs'), 'DTO');
+      assert.strictEqual(t.singularize('ABS'), 'AB');
+      // A stand-alone all-caps word outside the dictionary is inflected like a word (documented limitation).
+      assert.strictEqual(t.pluralize('DTO'), 'DTOS');
+    });
+
     test('property access is still converted', () => {
       assert.strictEqual(t.pluralize('this.user'), 'this.users');
       assert.strictEqual(t.singularize('this.users'), 'this.user');
