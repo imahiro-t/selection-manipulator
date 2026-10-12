@@ -502,9 +502,9 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-014', 'foo y', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\ny');
       assert.strictEqual(run('MD-014', 'x \t foo \t y', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), 'x\n```\nfoo\n```\ny');
       // Only indentation before, only spaces after, a selection ending with its line break: no extra line breaks.
-      // The indentation of up to 3 columns before the selection is written before its first line too
-      // (SELEC-00082), so that the line stays as it was; rendered, it is still "foo".
-      assert.strictEqual(run('MD-014', '  foo  ', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), '  ```\n  foo\n```  ');
+      // The indentation of up to 3 columns before the selection is written before its first line and
+      // the closing fence too (SELEC-00082), so that the line stays as it was; rendered, it is still "foo".
+      assert.strictEqual(run('MD-014', '  foo  ', { inputs: [''], ranges: [{ start: 2, end: 5 }] }), '  ```\n  foo\n  ```  ');
       assert.strictEqual(run('MD-014', 'x foo\ny', { inputs: [''], ranges: [{ start: 2, end: 6 }] }), 'x\n```\nfoo\n```\ny');
       // The closing fence ends the block: a text line right after it needs no blank line.
       assert.strictEqual(run('MD-014', 'foo\nbar', { inputs: [''], ranges: [{ start: 0, end: 3 }] }), '```\nfoo\n```\nbar');
@@ -591,9 +591,10 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-024', 'para\n\n\tfoo', { inputs: ['S'], ranges: [{ start: 7, end: 10 }] }),
         'para\n\n<details><summary>S</summary>\n\nfoo\n\n</details>');
       // Boundaries: 3 spaces stay; 4 spaces, more than 4, and 2 spaces and a tab (4 columns) are dropped.
-      // MD-014 writes the 3 spaces before the first line in the block too (SELEC-00082): the fence's
-      // indentation is removed from it when rendered, so it still renders as "foo".
-      assert.strictEqual(run('MD-014', '   foo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '   ```\n   foo\n```');
+      // MD-014 writes the 3 spaces before the first line in the block and the closing fence too
+      // (SELEC-00082): the fence's indentation is removed from the line when rendered, so it still
+      // renders as "foo".
+      assert.strictEqual(run('MD-014', '   foo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '   ```\n   foo\n   ```');
       assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```');
       assert.strictEqual(run('MD-014', '      foo', { inputs: [''], ranges: [{ start: 6, end: 9 }] }), '```\nfoo\n```');
       assert.strictEqual(run('MD-014', '  \tfoo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '```\nfoo\n```');
@@ -602,9 +603,14 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       // The indentation selected with the text stays in the block, as before.
       assert.strictEqual(run('MD-014', '    foo', { inputs: [''] }), '```\n    foo\n```');
       // From inside the indentation: the 2 columns before the selection are written before the line
-      // in the block as well (SELEC-00082), so the line is as it was, and the 2 selected columns
-      // stay when rendered ("  foo"; before SELEC-00082 the block was "  foo" and rendered as "foo").
-      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 7 }] }), '  ```\n    foo\n```');
+      // in the block and the closing fence as well (SELEC-00082), so the line is as it was, and the
+      // 2 selected columns stay when rendered ("  foo"; before SELEC-00082 the block was "  foo" and
+      // rendered as "foo").
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 7 }] }), '  ```\n    foo\n  ```');
+      // From inside 4 columns or more: only the indentation before the selection is removed; the
+      // spaces and tabs selected with the text stay in the block (SELEC-00082).
+      assert.strictEqual(run('MD-014', '      foo', { inputs: [''], ranges: [{ start: 4, end: 9 }] }), '```\n  foo\n```');
+      assert.strictEqual(run('MD-014', '\t  foo', { inputs: [''], ranges: [{ start: 1, end: 6 }] }), '```\n  foo\n```');
       // CRLF.
       assert.strictEqual(run('MD-014', 'p\r\n\r\n    foo\r\n', { inputs: [''], ranges: [{ start: 9, end: 14 }], eol: '\r\n' }), 'p\r\n\r\n```\r\nfoo\r\n```\r\n');
       assert.strictEqual(run('MD-024', 'p\r\n\r\n\tfoo\r\n', { inputs: ['S'], ranges: [{ start: 6, end: 11 }], eol: '\r\n' }),
@@ -613,10 +619,11 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-014', '    foo  bar', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```\nbar');
       // Two selections on one line: the second follows text, so it starts on a new line as before.
       assert.strictEqual(run('MD-014', '    a b', { inputs: [''], ranges: [{ start: 4, end: 5 }, { start: 6, end: 7 }] }), '```\na\n```\n\n```\nb\n```');
-      // A cursor inside the indentation: the edit does not reach before it, and the 2 columns after it stay.
-      // MD-014 counts only those 2 columns as the indentation before the selection (not the ones before
-      // the cursor) and writes them before the line in the block too (SELEC-00082).
-      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }), '    ```\n  foo\n```');
+      // A cursor inside the indentation: the edit does not reach before it. This pins the current
+      // output only, which is a known problem (the opening fence ends up 4 columns deep and is read
+      // as an indented code block; it was already so before SELEC-00082) left for a separate ticket:
+      // MD-014 counts only the 2 columns after the cursor as the indentation before the selection.
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }), '    ```\n  foo\n  ```');
       assert.strictEqual(run('MD-024', '    foo', { inputs: ['S'], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }),
         '    <details><summary>S</summary>\n\nfoo\n\n</details>');
       // The block and the selection after it start at the start of the line.
@@ -626,19 +633,25 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
     test('MD-014: lines selected from after the indentation of the first one keep their relative indentation (SELEC-00082)', () => {
       const wrap = (text: string, start: number, eol: '\n' | '\r\n' = '\n'): string =>
         run('MD-014', text, { inputs: ['js'], ranges: [{ start, end: text.length }], eol });
-      // Up to 3 columns, every later line starting with them: the fence stays after them and the
+      // Up to 3 columns, every later line starting with them: both fences stay after them and the
       // first line gets them too, so every line is as it was (rendered: "a\n  b", "a\nb").
-      assert.strictEqual(wrap('  a\n    b', 2), '  ```js\n  a\n    b\n```');
-      assert.strictEqual(wrap('   a\n     b', 3), '   ```js\n   a\n     b\n```');
-      assert.strictEqual(wrap('  a\n  b', 2), '  ```js\n  a\n  b\n```');
+      assert.strictEqual(wrap('  a\n    b', 2), '  ```js\n  a\n    b\n  ```');
+      assert.strictEqual(wrap('   a\n     b', 3), '   ```js\n   a\n     b\n   ```');
+      assert.strictEqual(wrap('  a\n  b', 2), '  ```js\n  a\n  b\n  ```');
       // A blank line (or one with fewer spaces only) does not count.
-      assert.strictEqual(wrap('  a\n\n  b', 2), '  ```js\n  a\n\n  b\n```');
-      assert.strictEqual(wrap('  a\n \n  b', 2), '  ```js\n  a\n \n  b\n```');
+      assert.strictEqual(wrap('  a\n\n  b', 2), '  ```js\n  a\n\n  b\n  ```');
+      assert.strictEqual(wrap('  a\n \n  b', 2), '  ```js\n  a\n \n  b\n  ```');
       // 4 columns or more: the fence starts the line and the shared indentation is removed.
       assert.strictEqual(wrap('    a\n    b', 4), '```js\na\nb\n```');
       assert.strictEqual(wrap('    a\n      b', 4), '```js\na\n  b\n```');
       assert.strictEqual(wrap('    a\n  b', 4), '```js\n  a\nb\n```');
       assert.strictEqual(wrap('\ta\n\tb', 1), '```js\na\nb\n```');
+      // From inside 4 columns or more: no more than the indentation before the selection is removed,
+      // so the spaces selected with the text stay on every line.
+      assert.strictEqual(wrap('      a\n      b', 4), '```js\n  a\n  b\n```');
+      assert.strictEqual(wrap('      a\n        b', 4), '```js\n  a\n    b\n```');
+      assert.strictEqual(wrap('      a\n     b', 4), '```js\n  a\n b\n```');
+      assert.strictEqual(wrap('\t  a\n\t  b', 1), '```js\n  a\n  b\n```');
       // A tab and spaces never match, even when they are as wide.
       assert.strictEqual(wrap('\ta\n    b', 1), '```js\n\ta\n    b\n```');
       // Blank lines lose only what matches the shared indentation.
@@ -650,7 +663,7 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(wrap('  a\n b', 2), '```js\n a\nb\n```');
       // CRLF and a final line break of the selection are kept.
       assert.strictEqual(wrap('    a\r\n      b\r\n', 4, '\r\n'), '```js\r\na\r\n  b\r\n```\r\n');
-      assert.strictEqual(wrap('  a\r\n    b\r\n', 2, '\r\n'), '  ```js\r\n  a\r\n    b\r\n```\r\n');
+      assert.strictEqual(wrap('  a\r\n    b\r\n', 2, '\r\n'), '  ```js\r\n  a\r\n    b\r\n  ```\r\n');
       // Mixed line breaks in the selection stay as they are.
       assert.strictEqual(wrap('    a\r\n    b\n    c\r    d', 4), '```js\na\r\nb\nc\rd\n```');
       // From the start of the line: the selected text is written as it is.
@@ -658,21 +671,24 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(wrap('  a\n    b', 0), '```js\n  a\n    b\n```');
       // After other text on the line: nothing is added or removed.
       assert.strictEqual(wrap('x   a\n    b', 4), 'x\n```js\na\n    b\n```');
-      // Inside a list item: the fence stays in the item.
-      assert.strictEqual(run('MD-014', '- item\n\n  a\n    b\n', { inputs: [''], ranges: [{ start: 10, end: 18 }] }), '- item\n\n  ```\n  a\n    b\n```\n');
+      // Inside a list item: both fences are indented as the item's content, so the block stays in
+      // the item (a closing fence at the start of the line would end the item and open a new
+      // block that is never closed). Block quotes ("> ") are not indentation and are not handled.
+      assert.strictEqual(run('MD-014', '- item\n\n  a\n    b\n', { inputs: [''], ranges: [{ start: 10, end: 18 }] }), '- item\n\n  ```\n  a\n    b\n  ```\n');
+      assert.strictEqual(run('MD-014', '1. item\n\n   a\n\nafter', { inputs: [''], ranges: [{ start: 12, end: 13 }] }), '1. item\n\n   ```\n   a\n   ```\n\nafter');
       // The edit and the selection after it.
       const taken = result('MD-014', 'p\n\n    a\n      b', { inputs: [''], ranges: [{ start: 7, end: 16 }] });
       assert.ok(taken.kind === 'edit');
       assert.strictEqual(applied('p\n\n    a\n      b', taken), 'p\n\n```\na\n  b\n```');
-      assert.deepStrictEqual(selectedAfter('MD-014', '  a\n    b', { inputs: [''], ranges: [{ start: 2, end: 9 }] }), ['```\n  a\n    b\n```']);
+      assert.deepStrictEqual(selectedAfter('MD-014', '  a\n    b', { inputs: [''], ranges: [{ start: 2, end: 9 }] }), ['```\n  a\n    b\n  ```']);
     });
 
     test('MD-014: several selections each count only the indentation after the previous one (SELEC-00082)', () => {
       // Two selections on one line: the second follows text, so nothing is added to it.
-      assert.strictEqual(run('MD-014', '  a b', { inputs: [''], ranges: [{ start: 2, end: 3 }, { start: 4, end: 5 }] }), '  ```\n  a\n```\n\n```\nb\n```');
+      assert.strictEqual(run('MD-014', '  a b', { inputs: [''], ranges: [{ start: 2, end: 3 }, { start: 4, end: 5 }] }), '  ```\n  a\n  ```\n\n```\nb\n```');
       // Two lines selected separately: each counts its own indentation.
       const text = '  a\n    b';
-      assert.strictEqual(run('MD-014', text, { inputs: [''], ranges: [{ start: 2, end: 3 }, { start: 8, end: 9 }] }), '  ```\n  a\n```\n```\nb\n```');
+      assert.strictEqual(run('MD-014', text, { inputs: [''], ranges: [{ start: 2, end: 3 }, { start: 8, end: 9 }] }), '  ```\n  a\n  ```\n```\nb\n```');
     });
 
     test('MD-024: the indentation before the selection is handled as before (SELEC-00082)', () => {

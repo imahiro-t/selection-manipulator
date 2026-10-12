@@ -747,11 +747,12 @@ export const fenceTakesIndent = (indent: string, value: string): boolean => {
 
 /**
  * The lines of `text` without the indentation all of its lines with text start with (compared
- * character by character, so that a tab and spaces never match); a line of spaces and tabs only
- * loses the part of it that matches that indentation (or `fallback`, when no line has text). The
- * line breaks are kept as they are.
+ * character by character, so that a tab and spaces never match), but never more than `before` (the
+ * indentation before the selection, which `text` starts with): spaces and tabs the user selected
+ * stay. A line of spaces and tabs only loses the part of it that matches that indentation (or
+ * `before`, when no line has text). The line breaks are kept as they are.
  */
-const removeCommonIndent = (text: string, fallback: string): string => {
+const removeCommonIndent = (text: string, before: string): string => {
   const spans = lineSpans(text);
   let common: string | undefined;
   for (const { start, end } of spans) {
@@ -762,7 +763,7 @@ const removeCommonIndent = (text: string, fallback: string): string => {
         : common.slice(0, commonPrefixLength(common, text, start, run));
     }
   }
-  const prefix = common ?? fallback;
+  const prefix = common === undefined ? before : common.slice(0, before.length);
   if (prefix === '') {
     return text;
   }
@@ -788,11 +789,15 @@ const removeCommonIndent = (text: string, fallback: string): string => {
  * indented):
  * - up to 3 columns, with every later line with text starting with the same indentation
  *   (`fenceTakesIndent` is false): the opening fence stays after the indentation, and the first
- *   line in the block gets it too, so that every line is as it was;
+ *   line in the block gets it too, so that every line is as it was. The closing fence gets the
+ *   same indentation, so that inside a list item it stays in the item (a closing fence at the
+ *   start of the line would end the item and open a new block that is never closed); outside a
+ *   container a closing fence may be indented by up to 3 columns, so nothing changes there;
  * - 4 columns or more (the fence would be part of an indented code block), or a later line that
  *   does not start with it: `perSelection` takes the indentation into the edit, the opening fence
  *   starts the line, and the indentation all lines with text share (the first line counted with
- *   the indentation before it) is removed from every line.
+ *   the indentation before it) is removed from every line, up to the indentation before the
+ *   selection: spaces and tabs selected with the text stay in the block.
  * With nothing before the selection on its line, the selected text is written as it is: the
  * indentation selected with it stays in the block.
  */
@@ -807,12 +812,18 @@ export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edg
   const fence = '`'.repeat(Math.max(3, longest + 1));
   const [selected, trailing] = splitTrailingBreaks(value);
   let body = selected;
+  let closingIndent = '';
   if (edges.indentBefore !== '') {
-    body = edges.indentTaken ? removeCommonIndent(edges.indentBefore + selected, edges.indentBefore) : edges.indentBefore + selected;
+    if (edges.indentTaken) {
+      body = removeCommonIndent(edges.indentBefore + selected, edges.indentBefore);
+    } else {
+      body = edges.indentBefore + selected;
+      closingIndent = edges.indentBefore;
+    }
   }
   const before = edges.textBefore ? eol : '';
   const after = trailing === '' && edges.textAfter ? eol : '';
-  return `${before}${fence}${language}${eol}${body}${eol}${fence}${trailing}${after}`;
+  return `${before}${fence}${language}${eol}${body}${eol}${closingIndent}${fence}${trailing}${after}`;
 };
 
 /** Whether the parentheses of a URL are balanced (so that it can stay a bare link destination). */

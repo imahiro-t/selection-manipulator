@@ -288,13 +288,17 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
 
     test('MD-014: lines selected from after the indentation keep their relative indentation (SELEC-00082)', async () => {
       const cases: [string, [number, number], string][] = [
-        // Up to 3 columns, every later line starting with them: every line stays as it was.
-        ['  a\n    b', [2, 9], '  ```js\n  a\n    b\n```'],
-        ['   a\n     b', [3, 11], '   ```js\n   a\n     b\n```'],
-        ['  a\n  b', [2, 7], '  ```js\n  a\n  b\n```'],
+        // Up to 3 columns, every later line starting with them: every line stays as it was, and the
+        // closing fence is indented as the opening one.
+        ['  a\n    b', [2, 9], '  ```js\n  a\n    b\n  ```'],
+        ['   a\n     b', [3, 11], '   ```js\n   a\n     b\n   ```'],
+        ['  a\n  b', [2, 7], '  ```js\n  a\n  b\n  ```'],
         // 4 columns or more: the fence starts the line and the shared indentation is removed.
         ['    a\n    b', [4, 11], '```js\na\nb\n```'],
         ['    a\n      b', [4, 13], '```js\na\n  b\n```'],
+        // From inside 4 columns or more: the spaces selected with the text stay.
+        ['      foo', [4, 9], '```js\n  foo\n```'],
+        ['      a\n      b', [4, 15], '```js\n  a\n  b\n```'],
         // A later line not starting with the indentation: the fence starts the line.
         ['  a\nb', [2, 5], '```js\n  a\nb\n```'],
         // CRLF: the line breaks in the block stay CRLF.
