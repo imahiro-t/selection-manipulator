@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
+import { SQL_BACKSLASH_REASON, SQL_CONTROL_CHARACTER_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
 import { DEV_MAX_INPUT_LENGTH, DevInputError, splitDevLines } from '../../handler/devCommon';
 import {
@@ -176,6 +176,25 @@ suite('Developer Literals (DEV-001..011) Test Suite', () => {
         );
       }
       assert.strictEqual(escapeSql('\uFFE5100 O\'Neil'), '\uFFE5100 O\'\'Neil');
+    });
+
+    test('text with a control character other than tab, CR and LF (NUL, ESC, DEL) is refused', () => {
+      // VT / FF alone are refused too: DEV-007 / DEV-032 convert blank selections as well.
+      for (const text of ['a\u0000b', '\u001b[0m', '\u007f', 'O\'Neil\n\u0008', '\u000b', '\u000c', '\\\u0000', '\u00A5\u001f']) {
+        assert.throws(
+          () => escapeSql(text),
+          (error: unknown) =>
+            error instanceof DevInputError &&
+            error.message === `the text contains ${SQL_CONTROL_CHARACTER_REASON}`,
+          JSON.stringify(text)
+        );
+      }
+    });
+
+    test('tabs and line breaks are kept (valid in an SQL literal)', () => {
+      assert.strictEqual(escapeSql('a\tb\r\nc'), 'a\tb\r\nc');
+      assert.strictEqual(escapeSql('it\'s\n\t\r'), 'it\'\'s\n\t\r');
+      assert.strictEqual(escapeSql('a\u0085b'), 'a\u0085b');
     });
   });
 

@@ -18,7 +18,7 @@ import {
   WrapCommand,
   WrapInputCommand,
 } from '../../handler/wrapTransforms';
-import { SQL_BACKSLASH_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
+import { SQL_BACKSLASH_REASON, SQL_CONTROL_CHARACTER_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
 import { createTextEditor } from './testUtils';
 import { candidateRows } from './showcaseData';
 
@@ -383,6 +383,38 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', function () {
         [warnings, errors],
         [[], [`The selection was not changed: line 2 contains ${SQL_YEN_SIGN_REASON}`]]
       );
+    });
+
+    test('a selection with a control character (NUL) is left unchanged with one error', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const text = 'a\nb\u0000c';
+      const editor = await createTextEditor(text);
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), text);
+      assert.deepStrictEqual(
+        [warnings, errors],
+        [[], [`The selection was not changed: line 2 contains ${SQL_CONTROL_CHARACTER_REASON}`]]
+      );
+    });
+
+    test('one selection with a control character (DEL) among several changes none of them', async () => {
+      const { notifier, errors } = recordingNotifier();
+      const blocks: [string, string] = ["a\nO'Neil", 'x\u007fy'];
+      const editor = await createTextEditor(blocks.join(SEPARATOR));
+      selectBlocks(editor, blocks);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), blocks.join(SEPARATOR));
+      assert.deepStrictEqual(errors, [`The selection was not changed: line 1 contains ${SQL_CONTROL_CHARACTER_REASON}`]);
+    });
+
+    test('a selection with tabs is still quoted', async () => {
+      const { notifier, warnings, errors } = recordingNotifier();
+      const editor = await createTextEditor('a\tb\nc');
+      selectWholeDocument(editor);
+      await wrapHandlerInternal(notifier)('quote.list.sql-in')(editor);
+      assert.strictEqual(editor.document.getText(), "('a\tb', 'c')");
+      assert.deepStrictEqual([warnings, errors], [[], []]);
     });
 
     test('single quotes alone are still doubled', async () => {

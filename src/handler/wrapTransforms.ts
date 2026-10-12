@@ -313,9 +313,10 @@ const quoteList = (
 
 /**
  * WRAP-006 writes standard SQL literals (`'` doubled), like TABLE-012, so a line with a character
- * that is unsafe there is an error: a backslash `\`, or a yen sign `¥` (saved as `\` in Shift_JIS,
- * CP932 and EUC-JP). MySQL's default mode would read `\'` as an escaped quote. The reason comes
- * from sqlUnsafeCharacterReason.
+ * that is unsafe there is an error: a control character other than tab, CR and LF (NUL and DEL
+ * included; invisible, it would go into the query unnoticed), a backslash `\`, or a yen sign `¥`
+ * (saved as `\` in Shift_JIS, CP932 and EUC-JP). MySQL's default mode would read `\'` as an
+ * escaped quote. The reason comes from sqlUnsafeCharacterReason.
  */
 const rejectSqlUnsafeCharacter = (line: string, lineNumber: number): void => {
   const unsafe = sqlUnsafeCharacterReason(line);
