@@ -11,10 +11,23 @@
  *   except for WS-033 / WS-034 where tabs advance to the next tab stop.
  * - No regular expression has a quantified repetition followed by a condition that can
  *   fail (to avoid ReDoS); trimming is done with plain loops.
- * - Commands that pad or indent (WS-017..WS-023, WS-031) count the characters they add
- *   before building the result and throw `WhitespaceOutputTooLargeError` when the count
- *   exceeds the limit, so a small selection can never blow up into hundreds of megabytes.
+ * - Output limit (the same rule as the WRAP commands): every command whose result can be
+ *   longer than its input keeps the characters it ADDS within `maxAddedLength` and throws
+ *   `WhitespaceOutputTooLargeError` otherwise, so a small selection can never blow up into
+ *   hundreds of megabytes. Removed characters are not subtracted, so the count is never less
+ *   than the net growth that the handler takes from the budget shared by all selections.
+ *   - Line breaks replaced by the document's EOL count too (`countEolGrowth`: a `\n` or lone
+ *     `\r` in a CRLF document adds one character). `lineWise` checks this for every line-wise
+ *     command; for commands that remove lines it is an upper bound.
+ *   - Commands that pad, indent or insert (WS-001/002, WS-005, WS-017..WS-024, WS-030, WS-031,
+ *     WS-033) count what they add before building the result.
+ *   - Commands where counting costs as much as building the result (WS-012/013 hard wrap,
+ *     WS-028 spaces around operators) check the net growth of the result once it is built.
+ *   - Commands that only replace characters one for one or remove them (WS-010, WS-014..016,
+ *     WS-029) cannot grow and are not checked.
  */
+
+import { countEolGrowth } from './eolGrowth';
 
 export type WhitespaceCommand =
   | 'tabs-to-spaces-2'
@@ -125,6 +138,12 @@ const ensureAddedLength = (added: number, options: WhitespaceOptions): void => {
 };
 
 const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
+
+/** Throws `WhitespaceOutputTooLargeError` when `result` is longer than `text` by more than the limit. */
+const ensureNetGrowth = (text: string, result: string, options: WhitespaceOptions): string => {
+  ensureAddedLength(result.length - text.length, options);
+  return result;
+};
 
 // ---------------------------------------------------------------------------
 // Input validation (WS-013 / WS-023 / WS-031 / WS-032)
@@ -251,29 +270,51 @@ const trailingBreakLength = (text: string): number => {
 /**
  * Applies a line-wise transformation. One trailing line break is removed before
  * splitting and the document EOL is appended again afterwards.
+ *
+ * The characters that replacing the line breaks with the document EOL adds (`growth`) are
+ * checked against the limit first and passed to `fn`, which adds its own count to them when it
+ * adds characters of its own. When `fn` removes lines, `growth` is an upper bound.
  */
-const lineWise = (text: string, eol: string, fn: (lines: string[]) => string[]): string => {
+const lineWise = (
+  text: string,
+  options: WhitespaceOptions,
+  fn: (lines: string[], growth: number) => string[]
+): string => {
   if (text === '') {
     return text;
   }
+  const growth = countEolGrowth(text, options.eol);
+  ensureAddedLength(growth, options);
   const breakLength = trailingBreakLength(text);
   const body = breakLength > 0 ? text.slice(0, text.length - breakLength) : text;
-  const lines = fn(body.split(LINE_BREAK));
-  return lines.join(eol) + (breakLength > 0 ? eol : '');
+  const lines = fn(body.split(LINE_BREAK), growth);
+  return lines.join(options.eol) + (breakLength > 0 ? options.eol : '');
 };
 
-const mapLines = (fn: (line: string) => string): WhitespaceTransform => (text, { eol }) =>
-  lineWise(text, eol, (lines) => lines.map(fn));
+const mapLines = (fn: (line: string) => string): WhitespaceTransform => (text, options) =>
+  lineWise(text, options, (lines) => lines.map(fn));
 
 // ---------------------------------------------------------------------------
 // A. Indent / tabs
 // ---------------------------------------------------------------------------
 
 /** WS-001 / WS-002: tabs inside the leading whitespace become `n` spaces each. */
-const leadingTabsToSpaces = (n: number): WhitespaceTransform => mapLines((line) => {
-  const indent = leadingSpaceTab(line);
-  return indent.split('\t').join(spaces(n)) + line.slice(indent.length);
-});
+const leadingTabsToSpaces = (n: number): WhitespaceTransform => (text, options) =>
+  lineWise(text, options, (lines, growth) => {
+    let tabs = 0;
+    for (const line of lines) {
+      for (let i = 0; i < line.length && isSpaceOrTab(line[i]); i++) {
+        if (line[i] === '\t') {
+          tabs++;
+        }
+      }
+    }
+    ensureAddedLength(growth + tabs * (n - 1), options);
+    return lines.map((line) => {
+      const indent = leadingSpaceTab(line);
+      return indent.split('\t').join(spaces(n)) + line.slice(indent.length);
+    });
+  });
 
 /** WS-003 / WS-004: every run of `n` spaces (left to right) in the leading whitespace becomes a tab. */
 const leadingSpacesToTabs = (n: number): WhitespaceTransform => mapLines((line) => {
@@ -282,16 +323,17 @@ const leadingSpacesToTabs = (n: number): WhitespaceTransform => mapLines((line) 
 });
 
 /** WS-005 / WS-006: leading spaces k become floor(k/from)*to + k%from. Lines starting with a tab are unchanged. */
-const reindent = (from: number, to: number): WhitespaceTransform => mapLines((line) => {
-  const k = leadingLength(line, (ch) => ch === ' ');
-  if (k === 0) {
-    return line;
-  }
-  return spaces(Math.floor(k / from) * to + (k % from)) + line.slice(k);
-});
+const reindent = (from: number, to: number): WhitespaceTransform => (text, options) =>
+  lineWise(text, options, (lines, growth) => {
+    const counts = lines.map((line) => leadingLength(line, (ch) => ch === ' '));
+    const widths = counts.map((k) => Math.floor(k / from) * to + (k % from));
+    // Only WS-005 (2 to 4) adds spaces; WS-006 (4 to 2) adds none.
+    ensureAddedLength(growth + sum(counts.map((k, i) => Math.max(0, widths[i] - k))), options);
+    return lines.map((line, i) => (counts[i] === 0 ? line : spaces(widths[i]) + line.slice(counts[i])));
+  });
 
 /** WS-007: removes the longest leading whitespace prefix shared by every non-blank line. */
-const dedent: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (lines) => {
+const dedent: WhitespaceTransform = (text, options) => lineWise(text, options, (lines) => {
   let prefix: string | undefined;
   for (const line of lines) {
     if (isBlankLine(line)) {
@@ -322,8 +364,8 @@ const dedent: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (line
 const indentN: WhitespaceTransform = (text, options) => {
   const n = options.n ?? 4;
   const pad = spaces(n);
-  return lineWise(text, options.eol, (lines) => {
-    ensureAddedLength(n * lines.filter((line) => !isBlankLine(line)).length, options);
+  return lineWise(text, options, (lines, growth) => {
+    ensureAddedLength(growth + n * lines.filter((line) => !isBlankLine(line)).length, options);
     return lines.map((line) => (isBlankLine(line) ? line : pad + line));
   });
 };
@@ -342,24 +384,49 @@ const outdentN: WhitespaceTransform = (text, options) => {
 
 const TAB_STOP = 4;
 
-/** WS-033: expands every tab to spaces up to the next tab stop (4). */
-const expandTabs: WhitespaceTransform = mapLines((line) => {
+/**
+ * Walks `line` by code point for WS-033, calling `visit` with each code point and its width in
+ * columns: a tab advances to the next tab stop (1 to 4 columns), anything else is 1. Both the
+ * budget estimate and the expansion use it, so they cannot disagree.
+ */
+const walkTabStops = (line: string, visit: (ch: string, width: number) => void): void => {
+  let col = 0;
+  for (const ch of line) {
+    const width = ch === '\t' ? TAB_STOP - (col % TAB_STOP) : 1;
+    visit(ch, width);
+    col += width;
+  }
+};
+
+/** Characters WS-033 adds to `line`: each tab becomes 1 to 4 spaces. */
+const expandTabsAdded = (line: string): number => {
+  if (!line.includes('\t')) {
+    return 0;
+  }
+  let added = 0;
+  walkTabStops(line, (ch, width) => {
+    if (ch === '\t') {
+      added += width - 1;
+    }
+  });
+  return added;
+};
+
+const expandTabsLine = (line: string): string => {
   if (!line.includes('\t')) {
     return line;
   }
   const out: string[] = [];
-  let col = 0;
-  for (const ch of line) {
-    if (ch === '\t') {
-      const width = TAB_STOP - (col % TAB_STOP);
-      out.push(spaces(width));
-      col += width;
-    } else {
-      out.push(ch);
-      col++;
-    }
-  }
+  walkTabStops(line, (ch, width) => {
+    out.push(ch === '\t' ? spaces(width) : ch);
+  });
   return out.join('');
+};
+
+/** WS-033: expands every tab to spaces up to the next tab stop (4). */
+const expandTabs: WhitespaceTransform = (text, options) => lineWise(text, options, (lines, growth) => {
+  ensureAddedLength(growth + sum(lines.map(expandTabsAdded)), options);
+  return lines.map(expandTabsLine);
 });
 
 /**
@@ -418,7 +485,7 @@ const unexpandTabs: WhitespaceTransform = mapLines((line) => {
 const trimLeading: WhitespaceTransform = mapLines(trimStartWs);
 
 /** WS-009: two or more consecutive blank lines become one empty line. A single blank line is kept as is. */
-const collapseBlankLines: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (lines) => {
+const collapseBlankLines: WhitespaceTransform = (text, options) => lineWise(text, options, (lines) => {
   const out: string[] = [];
   let i = 0;
   while (i < lines.length) {
@@ -438,7 +505,14 @@ const collapseBlankLines: WhitespaceTransform = (text, { eol }) => lineWise(text
 });
 
 /** WS-024: inserts an empty line between two adjacent non-blank lines. */
-const blankLineBetween: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (lines) => {
+const blankLineBetween: WhitespaceTransform = (text, options) => lineWise(text, options, (lines, growth) => {
+  let inserted = 0;
+  for (let i = 1; i < lines.length; i++) {
+    if (!isBlankLine(lines[i - 1]) && !isBlankLine(lines[i])) {
+      inserted++;
+    }
+  }
+  ensureAddedLength(growth + inserted * options.eol.length, options);
   const out: string[] = [];
   lines.forEach((line, i) => {
     if (i > 0 && !isBlankLine(lines[i - 1]) && !isBlankLine(line)) {
@@ -471,13 +545,13 @@ const blankLineBetween: WhitespaceTransform = (text, { eol }) => lineWise(text, 
  * kept after the last kept line, so the following text is not joined: `|a⏎⏎··|z` becomes
  * `a⏎z`. Nothing is removed when the selected part of the last line contains non-whitespace.
  */
-const removeTrailingBlankLines: WhitespaceTransform = (
-  text,
-  { eol, followedByLine, precededByText, followedByText }
-) => {
+const removeTrailingBlankLines: WhitespaceTransform = (text, options) => {
+  const { eol, followedByLine, precededByText, followedByText } = options;
   if (text === '') {
     return text;
   }
+  // The kept line breaks are joined again with `eol` (an upper bound: some are removed).
+  ensureAddedLength(countEolGrowth(text, eol), options);
   const lines = text.split(LINE_BREAK);
   if (precededByText === true && followedByText === true && lines.length > 1) {
     let end = lines.length;
@@ -511,10 +585,13 @@ const removeTrailingBlankLines: WhitespaceTransform = (
  * follow it and nothing of the same line follows the selection (e.g. it reaches the end of
  * the document), everything is removed as before (`ab|⏎⏎⏎|` becomes `ab`).
  */
-const removeLeadingBlankLines: WhitespaceTransform = (text, { eol, precededByText, followedByText }) => {
+const removeLeadingBlankLines: WhitespaceTransform = (text, options) => {
+  const { eol, precededByText, followedByText } = options;
   if (text === '') {
     return text;
   }
+  // The kept line breaks are joined again with `eol` (an upper bound: some are removed).
+  ensureAddedLength(countEolGrowth(text, eol), options);
   const breakLength = trailingBreakLength(text);
   const body = breakLength > 0 ? text.slice(0, text.length - breakLength) : text;
   const lines = body.split(LINE_BREAK);
@@ -583,7 +660,7 @@ const collapseInline: WhitespaceTransform = mapLines((line) => {
 // ---------------------------------------------------------------------------
 
 /** WS-011: joins the lines of each paragraph (separated by blank lines) with one space. */
-const unwrapParagraphs: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (lines) => {
+const unwrapParagraphs: WhitespaceTransform = (text, options) => lineWise(text, options, (lines) => {
   const out: string[] = [];
   let paragraph: string[] = [];
   const flush = () => {
@@ -635,7 +712,8 @@ const hardWrapLine = (line: string, width: number): string[] => {
 
 const hardWrap = (fixedWidth?: number): WhitespaceTransform => (text, options) => {
   const width = fixedWidth ?? options.n ?? 80;
-  return lineWise(text, options.eol, (lines) => lines.flatMap((line) => hardWrapLine(line, width)));
+  // Counting the line breaks a wrap inserts costs as much as wrapping, so the result is checked.
+  return ensureNetGrowth(text, lineWise(text, options, (lines) => lines.flatMap((line) => hardWrapLine(line, width))), options);
 };
 
 // ---------------------------------------------------------------------------
@@ -646,7 +724,7 @@ const maxOf = (values: number[]): number => values.reduce((a, b) => Math.max(a, 
 
 /** WS-017 / WS-018: trims each line and pads it on the left to center / right align it. */
 const alignLines = (mode: 'center' | 'right'): WhitespaceTransform => (text, options) =>
-  lineWise(text, options.eol, (lines) => {
+  lineWise(text, options, (lines, growth) => {
     const trimmed = lines.map(trimWs);
     const widths = trimmed.map(codePointWidth);
     const max = maxOf(widths);
@@ -657,16 +735,16 @@ const alignLines = (mode: 'center' | 'right'): WhitespaceTransform => (text, opt
       const gap = max - widths[i];
       return mode === 'center' ? Math.floor(gap / 2) : gap;
     });
-    ensureAddedLength(sum(pads), options);
+    ensureAddedLength(growth + sum(pads), options);
     return trimmed.map((line, i) => (line === '' ? '' : spaces(pads[i]) + line));
   });
 
 /** WS-019: pads the end of every line with spaces to the width of the longest line. */
-const padToLongest: WhitespaceTransform = (text, options) => lineWise(text, options.eol, (lines) => {
+const padToLongest: WhitespaceTransform = (text, options) => lineWise(text, options, (lines, growth) => {
   const widths = lines.map(codePointWidth);
   const max = maxOf(widths);
   const pads = widths.map((width) => max - width);
-  ensureAddedLength(sum(pads), options);
+  ensureAddedLength(growth + sum(pads), options);
   return lines.map((line, i) => line + spaces(pads[i]));
 });
 
@@ -678,7 +756,7 @@ const padToLongest: WhitespaceTransform = (text, options) => lineWise(text, opti
  * whitespace before it) are unchanged and do not take part in the width.
  */
 const alignBy = (split: (line: string) => [string, string] | undefined): WhitespaceTransform =>
-  (text, options) => lineWise(text, options.eol, (lines) => {
+  (text, options) => lineWise(text, options, (lines, growth) => {
     const parts = lines.map((line) => {
       const found = split(line);
       if (!found) {
@@ -692,7 +770,7 @@ const alignBy = (split: (line: string) => [string, string] | undefined): Whitesp
       return { left, width: codePointWidth(left), right: found[1] };
     });
     const max = maxOf(parts.map((part) => (part ? part.width : 0)));
-    ensureAddedLength(sum(parts.map((part) => (part && part.right !== '' ? max - part.width + 1 : 0))), options);
+    ensureAddedLength(growth + sum(parts.map((part) => (part && part.right !== '' ? max - part.width + 1 : 0))), options);
     return lines.map((line, i) => {
       const part = parts[i];
       if (!part) {
@@ -754,7 +832,7 @@ const alignColon: WhitespaceTransform = alignBy((line) => {
  * after the last non-empty cell of a row are not padded either, so a trailing comma
  * (`a,b,`) never produces trailing whitespace.
  */
-const alignComma: WhitespaceTransform = (text, options) => lineWise(text, options.eol, (lines) => {
+const alignComma: WhitespaceTransform = (text, options) => lineWise(text, options, (lines, growth) => {
   const rows = lines.map((line) => {
     if (!line.includes(',')) {
       return undefined;
@@ -779,7 +857,7 @@ const alignComma: WhitespaceTransform = (text, options) => lineWise(text, option
     return cells.map((cell, i) => (i < lastNonEmpty ? widths[i] - codePointWidth(cell) : 0));
   };
   const pads = rows.map((cells) => (cells ? padsOf(cells) : undefined));
-  ensureAddedLength(sum(pads.map((rowPads) => (rowPads ? sum(rowPads) : 0))), options);
+  ensureAddedLength(growth + sum(pads.map((rowPads) => (rowPads ? sum(rowPads) : 0))), options);
   return lines.map((line, r) => {
     const cells = rows[r];
     const rowPads = pads[r];
@@ -1070,10 +1148,14 @@ const spaceAroundOperatorsLine = (line: string, state: ScanState): string => {
  * template literals (also across lines), line comments and block comments (also across
  * lines) are left untouched. Unary `+ - * **` are left as they are.
  */
-const spaceAroundOperators: WhitespaceTransform = (text, { eol }) => lineWise(text, eol, (lines) => {
-  const state: ScanState = { blockComment: false, templates: [] };
-  return lines.map((line) => spaceAroundOperatorsLine(line, state));
-});
+const spaceAroundOperators: WhitespaceTransform = (text, options) => {
+  // Which operators get spaces depends on the scan of the whole line, so the result is checked.
+  const result = lineWise(text, options, (lines) => {
+    const state: ScanState = { blockComment: false, templates: [] };
+    return lines.map((line) => spaceAroundOperatorsLine(line, state));
+  });
+  return ensureNetGrowth(text, result, options);
+};
 
 const PUNCTUATION_BEFORE = new Set([',', '.', '!', '?', ';', ':']);
 
@@ -1090,8 +1172,23 @@ const removeSpaceBeforePunctuation: WhitespaceTransform = (text) =>
     return PUNCTUATION_BEFORE.has(whole[offset + match.length]) ? '' : match;
   });
 
+/**
+ * WS-030's target: a comma directly followed by a non-whitespace character. The budget count and
+ * the replacement both build their global regex from this one definition, so the estimate always
+ * matches what the replacement adds.
+ */
+const COMMA_WITHOUT_SPACE = /,(?=\S)/;
+
 /** WS-030: inserts a space after a comma that is directly followed by a non-whitespace character. */
-const spaceAfterComma: WhitespaceTransform = (text) => text.replace(/,(?=\S)/g, ', ');
+const spaceAfterComma: WhitespaceTransform = (text, options) => {
+  const comma = new RegExp(COMMA_WITHOUT_SPACE.source, 'g');
+  let count = 0;
+  while (comma.exec(text) !== null) {
+    count++;
+  }
+  ensureAddedLength(count, options);
+  return text.replace(new RegExp(COMMA_WITHOUT_SPACE.source, 'g'), ', ');
+};
 
 // ---------------------------------------------------------------------------
 // Command table

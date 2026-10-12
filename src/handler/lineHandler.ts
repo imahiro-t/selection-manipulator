@@ -213,12 +213,17 @@ const matchSelections = async (deps: LineHandlerDeps, pattern: string, texts: st
 // Handlers
 // ---------------------------------------------------------------------------
 
-/** Tells the user why nothing was changed. Not awaited: the Thenable settles on dismissal. */
-const notifyFailure = (deps: LineHandlerDeps, output: LineOutput, error: unknown): void => {
+/**
+ * Tells the user why nothing was changed. Not awaited: the Thenable settles on dismissal.
+ * `used`: what the selections before the failing one already added.
+ */
+const notifyFailure = (deps: LineHandlerDeps, output: LineOutput, error: unknown, used = 0): void => {
   const target = output === 'replace' ? 'The selection was not changed' : 'The clipboard was not changed';
   if (error instanceof LineOutputTooLargeError) {
-    // The overall limit, not error.limit (the budget left for this selection).
-    void deps.showWarningMessage(`${target}: ${describeAddedLength(error.added, MAX_ADDED_LENGTH)}. Select fewer or shorter lines.`);
+    // What all selections up to this one would add, against the overall limit (not error.added
+    // against error.limit, the budget left for this selection: with several selections that
+    // pair alone would look as if it were within the limit).
+    void deps.showWarningMessage(`${target}: ${describeAddedLength(used + error.added, MAX_ADDED_LENGTH)}. Select fewer or shorter lines.`);
   } else if (error instanceof LineRegexTimeoutError || error instanceof LineInputTooLargeError) {
     void deps.showWarningMessage(`${target}: ${error.message}.`);
   } else {
@@ -261,11 +266,11 @@ const runLineCommand = async (
   const texts = selections.map((selection) => textEditor.document.getText(selection));
   // undefined: LINE-032 / LINE-040 found no start marker in that selection.
   const results: (string | undefined)[] = [];
+  let budget = MAX_ADDED_LENGTH;
   try {
     const regexMatches = isRegexCommand(command) && pattern !== undefined
       ? await matchSelections(deps, pattern, texts)
       : undefined;
-    let budget = MAX_ADDED_LENGTH;
     selections.forEach((selection, i) => {
       const text = texts[i];
       const options: LineOptions = {
@@ -284,7 +289,7 @@ const runLineCommand = async (
       results.push(result);
     });
   } catch (error) {
-    notifyFailure(deps, output, error);
+    notifyFailure(deps, output, error, MAX_ADDED_LENGTH - budget);
     return;
   }
 

@@ -220,7 +220,8 @@ suite('LINE2 Line Commands (LINEX-001..014) Test Suite', () => {
       await run('LINEX-013', deps)(editor);
       assert.strictEqual(editor.document.getText(), before);
       assert.deepStrictEqual(record.warnings, [
-        'The selection was not changed: the result would add 8 characters (limit: 6). Select fewer or shorter lines.',
+        // The first selection adds 4 (fits), the second 8 more: 12 in all (not 8, which looks as if it fit in 6).
+        'The selection was not changed: the result would add 12 characters (limit: 6). Select fewer or shorter lines.',
       ]);
     });
 
@@ -233,7 +234,10 @@ suite('LINE2 Line Commands (LINEX-001..014) Test Suite', () => {
       const second = recorder([], { maxAddedLength: 15 });
       await run('LINEX-013', second.deps)(tooMuch);
       assert.strictEqual(tooMuch.document.getText(), 'a\nb\nc\nd\n---\na\nb\nc\nd');
-      assert.strictEqual(second.record.warnings.length, 1);
+      // Each selection adds 8 (below the limit alone); the warning gives what both add together.
+      assert.deepStrictEqual(second.record.warnings, [
+        'The selection was not changed: the result would add 16 characters (limit: 15). Select fewer or shorter lines.',
+      ]);
     });
 
     test('LINEX-004 / 014: an increase over the limit is refused', async () => {

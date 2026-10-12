@@ -439,6 +439,74 @@ suite('Wrap Transforms (WRAP-001..030) Test Suite', () => {
       assert.throws(() => run('enclose.markdown-inline-code', '``', { maxAddedLength: 7 }), WrapOutputTooLargeError);
     });
 
+    /** `command` passes with a limit of exactly `added` and fails with `added - 1`, reporting `added`. */
+    const checkLimit = (command: WrapCommand, text: string, added: number, options: Partial<WrapOptions> = {}) => {
+      const label = `${command} ${JSON.stringify(options.eol ?? '\n')} ${JSON.stringify(text)}`;
+      const expected = run(command, text);
+      assert.strictEqual(run(command, text, { ...options, maxAddedLength: added }), run(command, text, options), label);
+      assert.ok(expected !== undefined);
+      if (added === 0) {
+        return;
+      }
+      assert.throws(() => run(command, text, { ...options, maxAddedLength: added - 1 }), (error: unknown) => {
+        assert.ok(error instanceof WrapOutputTooLargeError, `${label}: ${String(error)}`);
+        assert.strictEqual(error.added, added, label);
+        assert.strictEqual(error.limit, added - 1, label);
+        return true;
+      });
+    };
+
+    test('WRAP-030 counts the fence before building it: exactly the limit passes, one less fails', () => {
+      // The longest run is 1,000 backticks: a fence of 1,001 on both sides plus a space each.
+      checkLimit('enclose.markdown-inline-code', '`'.repeat(1000), 1001 * 2 + 2);
+      checkLimit('enclose.markdown-inline-code', `a${'`'.repeat(500)}b`, 501 * 2);
+      checkLimit('enclose.markdown-inline-code', 'abc', 2);
+      assert.strictEqual(run('enclose.markdown-inline-code', 'a``b', { maxAddedLength: 6 }), '```a``b```');
+    });
+
+    test('each line: in a CRLF document, CRLF line breaks add nothing', () => {
+      // 3 non-empty lines: 2 quotes each. The line breaks are CRLF already.
+      checkLimit('quote.each-line.double', 'a\r\n\r\nb\r\nc', 6, CRLF);
+      checkLimit('quote.each-line.single', 'a\r\nb\r\n', 4, CRLF);
+      checkLimit('enclose.each-line.custom', 'a\r\nb', 2 * 5, { ...CRLF, prefix: '<<', suffix: '>>>' });
+      // LF text in a CRLF document: one more character per line break.
+      checkLimit('quote.each-line.double', 'a\n\nb\nc', 6 + 3, CRLF);
+      // CRLF text in an LF document: shorter, nothing is subtracted.
+      checkLimit('quote.each-line.double', 'a\r\nb', 4, LF);
+    });
+
+    test('WRAP-013 unquote: only the line breaks replaced by the document EOL count', () => {
+      checkLimit('unquote.each-line', '"a"\r\n"b"\r\n', 0, CRLF);
+      assert.strictEqual(run('unquote.each-line', '"a"\r\n"b"\r\n', { ...CRLF, maxAddedLength: 0 }), 'a\r\nb\r\n');
+      checkLimit('unquote.each-line', '"a"\n"b"\n"c"', 2, CRLF);
+      checkLimit('unquote.each-line', '"a"\r\n"b"\r"c"', 1, CRLF);
+      assert.throws(() => run('unquote.each-line', '"a"\r\n"b"\r"c"', { ...CRLF, maxAddedLength: 0 }), WrapOutputTooLargeError);
+      assert.strictEqual(run('unquote.each-line', '"a"\r\n"b"', { ...LF, maxAddedLength: 0 }), 'a\nb');
+    });
+
+    test('WRAP-006 / WRAP-007 lists count brackets, quotes, separators, escapes and the final EOL only', () => {
+      /** What a list of `items` adds: brackets 2, quotes 2 per item, `, ` between items, escapes, final EOL growth. */
+      const listAdded = (count: number, escapes: number, finalGrowth: number) => 2 + 2 * count + 2 * (count - 1) + escapes + finalGrowth;
+      for (const command of ['quote.list.sql-in', 'quote.list.array'] as const) {
+        checkLimit(command, 'a', listAdded(1, 0, 0));
+        checkLimit(command, 'a\nb\nc', listAdded(3, 0, 0));
+        // Blank lines and the line breaks between items are removed (not subtracted).
+        checkLimit(command, 'a\n\n  \nb\n', listAdded(2, 0, 0));
+        checkLimit(command, 'a\n\n  \nb\r\n', listAdded(2, 0, 0), CRLF);
+        // The kept final line break: `\n` or a lone `\r` in a CRLF document grows by one.
+        checkLimit(command, 'a\nb\n', listAdded(2, 0, 1), CRLF);
+        checkLimit(command, 'a\rb\r', listAdded(2, 0, 1), CRLF);
+        checkLimit(command, 'a\r\nb\r\n', listAdded(2, 0, 0), CRLF);
+        checkLimit(command, 'a\r\nb\r\n', listAdded(2, 0, 0), LF);
+        checkLimit(command, 'a\nb', listAdded(2, 0, 0), CRLF);
+      }
+      checkLimit('quote.list.sql-in', "O'Neil\nit''s", listAdded(2, 3, 0));
+      checkLimit('quote.list.array', 'say "hi"\nC:\\dir\n', listAdded(2, 3, 1), CRLF);
+      // The net growth (what the handler takes from the shared budget) is never more than the count.
+      const text = 'a\n\n\n\nb\n';
+      assert.ok(run('quote.list.array', text).length - text.length <= listAdded(2, 0, 0));
+    });
+
     test('the error message states the added characters and the limit', () => {
       const error = new WrapOutputTooLargeError(12345, MAX_ADDED_LENGTH);
       assert.strictEqual(error.message, 'The result would add 12,345 characters (limit: 10,000,000)');

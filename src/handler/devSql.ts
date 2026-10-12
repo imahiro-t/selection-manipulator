@@ -20,7 +20,7 @@
  * not open a string, a quoted identifier or a comment that goes on to the next line (it is refused):
  * the dialects would disagree on where the next line starts.
  */
-import { DEV_MAX_NESTING, DevInputError, DevOutputBuffer } from './devCommon';
+import { DEV_MAX_NESTING, DevInputError, DevOutputBuffer, assertWithinBudget } from './devCommon';
 
 type SqlTokenType =
   | 'ws' | 'line-comment' | 'block-comment' | 'raw-line' | 'string' | 'quoted' | 'number' | 'word'
@@ -430,22 +430,40 @@ interface Level {
   between: boolean;
 }
 
-/** Collects the lines of the formatted SQL. */
+/**
+ * Collects the lines of the formatted SQL. Each line goes into a `DevOutputBuffer` as soon as it
+ * is complete (preceded by `eol` from the second line on), and the line being written is checked
+ * against the budget as it grows, so a result longer than the budget is never built in full.
+ */
 class SqlLines {
-  private readonly lines: string[] = [];
+  private readonly out: DevOutputBuffer;
+  /** Number of lines written to `out`. */
+  private count = 0;
   private current = '';
   private hasContent = false;
   private lineIndent = 0;
+
+  constructor(private readonly eol: string, private readonly budget: number) {
+    this.out = new DevOutputBuffer(budget);
+  }
 
   /** Indentation of the current line. */
   get indent(): number {
     return this.lineIndent;
   }
 
+  private push(line: string): void {
+    if (this.count > 0) {
+      this.out.push(this.eol);
+    }
+    this.out.push(line);
+    this.count++;
+  }
+
   /** Starts a new line (nothing happens when the current line is still empty but the indent). */
   newLine(indent: number): void {
     if (this.hasContent) {
-      this.lines.push(this.current);
+      this.push(this.current);
     }
     this.current = ' '.repeat(indent);
     this.lineIndent = indent;
@@ -454,8 +472,8 @@ class SqlLines {
 
   blankLine(): void {
     this.newLine(0);
-    if (this.lines.length > 0) {
-      this.lines.push('');
+    if (this.count > 0) {
+      this.push('');
     }
   }
 
@@ -465,11 +483,15 @@ class SqlLines {
     }
     this.current += text;
     this.hasContent = true;
+    // The line is not complete yet, but what it adds already counts: one very long line (SQL with
+    // no line breaks) must not grow past the budget either.
+    assertWithinBudget(this.out.length + (this.count > 0 ? this.eol.length : 0) + this.current.length, this.budget);
   }
 
-  finish(): string[] {
+  /** Writes the last line and returns the whole result. */
+  finish(): string {
     this.newLine(0);
-    return this.lines;
+    return this.out.join();
   }
 }
 
@@ -557,7 +579,7 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
     lineStart = false;
   });
 
-  const lines = new SqlLines();
+  const lines = new SqlLines(eol, budget);
   const base = (): Level => ({ query: true, indent: 0, closeIndent: 0, between: false });
   let levels: Level[] = [base()];
   let previous: FormatToken | undefined;
@@ -683,12 +705,5 @@ export const sqlFormat = (text: string, eol: string, budget: number): string => 
   if (levels.length > 1) {
     throw unbalanced();
   }
-  const out = new DevOutputBuffer(budget);
-  lines.finish().forEach((line, i) => {
-    if (i > 0) {
-      out.push(eol);
-    }
-    out.push(line);
-  });
-  return out.join();
+  return lines.finish();
 };

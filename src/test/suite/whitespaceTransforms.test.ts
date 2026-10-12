@@ -597,9 +597,123 @@ suite('Whitespace Transforms (WS-001..035) Test Suite', () => {
       assert.throws(() => run('indent-n', 'a\nb', { n: 3, maxAddedLength: 5 }), WhitespaceOutputTooLargeError);
     });
 
-    test('commands that do not pad ignore the limit', () => {
+    test('commands that do not add characters pass with a limit of 0', () => {
       assert.strictEqual(run('trim-leading', '  a', { maxAddedLength: 0 }), 'a');
-      assert.strictEqual(run('expand-tabs', 'a\tb', { maxAddedLength: 0 }), 'a   b');
+      assert.strictEqual(run('spaces-to-tabs-4', '    a', { maxAddedLength: 0 }), '\ta');
+      assert.strictEqual(run('reindent-4-to-2', '        a', { maxAddedLength: 0 }), '    a');
+      assert.strictEqual(run('nbsp-to-space', 'a\u00a0b', { maxAddedLength: 0 }), 'a b');
+      assert.strictEqual(run('visualize', 'a b\tc', { maxAddedLength: 0 }), 'a\u00b7b\u2192c');
+      assert.strictEqual(run('remove-all', 'a b\r\nc', { eol: '\r\n', maxAddedLength: 0 }), 'abc');
+      assert.strictEqual(run('remove-space-before-punctuation', 'a ,b', { maxAddedLength: 0 }), 'a,b');
+    });
+  });
+
+  suite('output size limit of the other commands that can add characters (SELEC-00086)', () => {
+    /** `command` passes with a limit of exactly `added` and fails with `added - 1`, reporting `added`. */
+    const checkLimit = (command: WhitespaceCommand, input: string, added: number, options: Partial<WhitespaceOptions> = {}) => {
+      const expected = run(command, input, options);
+      assert.strictEqual(run(command, input, { ...options, maxAddedLength: added }), expected, `${command}: ${JSON.stringify(input)}`);
+      assert.throws(() => run(command, input, { ...options, maxAddedLength: added - 1 }), (error: unknown) => {
+        assert.ok(error instanceof WhitespaceOutputTooLargeError, String(error));
+        assert.strictEqual(error.added, added, `${command}: ${JSON.stringify(input)}`);
+        assert.strictEqual(error.limit, added - 1);
+        return true;
+      });
+    };
+
+    test('WS-001 / WS-002 tabs-to-spaces count (n - 1) per leading tab', () => {
+      checkLimit('tabs-to-spaces-2', '\t\ta\tb\n \tc\nd', 3);
+      checkLimit('tabs-to-spaces-4', '\t\ta\tb\n \tc\nd', 9);
+    });
+
+    test('WS-005 reindent-2-to-4 counts the leading spaces it doubles', () => {
+      checkLimit('reindent-2-to-4', '  a\n     b\n\t  c', 2 + 4);
+    });
+
+    test('WS-033 expand-tabs counts each tab up to its tab stop minus the tab itself', () => {
+      // `a⇥` → 3 spaces (+2), `ab⇥` → 2 (+1), `⇥` at column 0 → 4 (+3), a tab after a surrogate pair (1 column) → 3 (+2).
+      checkLimit('expand-tabs', 'a\tb\nab\tc\n\td\n\u{1F600}\te', 2 + 1 + 3 + 2);
+      assert.strictEqual(run('expand-tabs', 'abc\td', { maxAddedLength: 0 }), 'abc d');
+    });
+
+    test('WS-024 blank-line-between counts one EOL per inserted line', () => {
+      checkLimit('blank-line-between', 'a\nb\nc\n\nd', 2);
+      checkLimit('blank-line-between', 'a\r\nb\r\nc', 4, { eol: '\r\n' });
+    });
+
+    test('WS-030 space-after-comma counts the commas followed by a non-whitespace character', () => {
+      checkLimit('space-after-comma', 'a,b, c,\nd,,e,', 3);
+    });
+
+    test('WS-012 / WS-013 / WS-028 check the net growth of the result', () => {
+      checkLimit('space-around-operators', 'a=b+c', 4);
+      // Wrapping replaces a space with a line break: no growth in an LF document, one per break in CRLF.
+      assert.strictEqual(run('hard-wrap-n', 'aa bb cc', { n: 2, maxAddedLength: 0 }), 'aa\nbb\ncc');
+      checkLimit('hard-wrap-n', 'aa bb cc', 2, { n: 2, eol: '\r\n' });
+    });
+
+    test('line breaks replaced by the document EOL count as added characters', () => {
+      // LF text in a CRLF document: one character per line break, for a command that adds nothing itself.
+      checkLimit('spaces-to-tabs-2', '  a\n  b\nc\n', 3, { eol: '\r\n' });
+      // CRLF text in a CRLF document, or in an LF document (shorter): nothing is added.
+      assert.strictEqual(run('spaces-to-tabs-2', '  a\r\nb\r\n', { eol: '\r\n', maxAddedLength: 0 }), '\ta\r\nb\r\n');
+      assert.strictEqual(run('spaces-to-tabs-2', '  a\r\nb\r\n', { eol: '\n', maxAddedLength: 0 }), '\ta\nb\n');
+      // A lone CR in a CRLF document adds one.
+      checkLimit('trim-leading', ' a\r\n b\rc', 1, { eol: '\r\n' });
+      // Added to the command's own count.
+      checkLimit('indent-n', 'a\nb', 2 * 3 + 1, { n: 3, eol: '\r\n' });
+      checkLimit('pad-to-longest', 'a\nabc\n', 2 + 2, { eol: '\r\n' });
+      // Commands that remove lines: the count is an upper bound (every line break of the input).
+      checkLimit('collapse-blank-lines', 'a\n\n\nb', 3, { eol: '\r\n' });
+      checkLimit('remove-trailing-blank-lines', 'a\nb\n\n', 3, { eol: '\r\n' });
+      checkLimit('remove-leading-blank-lines', '\n\na\nb', 3, { eol: '\r\n' });
+    });
+
+    test('the large inputs of every command that can add characters are refused quickly', () => {
+      const cases: [WhitespaceCommand, string, Partial<WhitespaceOptions>?][] = [
+        ['tabs-to-spaces-4', '\t'.repeat(4_000_000)],
+        ['reindent-2-to-4', `${' '.repeat(11_000_000)}a`],
+        ['expand-tabs', '\t'.repeat(4_000_000)],
+        ['blank-line-between', 'a\n'.repeat(6_000_000), { eol: '\r\n' }],
+        ['space-after-comma', ','.repeat(11_000_000)],
+        ['spaces-to-tabs-2', '\n'.repeat(11_000_000), { eol: '\r\n' }],
+      ];
+      cases.forEach(([command, input, options]) => {
+        const start = Date.now();
+        assert.throws(() => run(command, input, options), (error: unknown) => {
+          assert.ok(error instanceof WhitespaceOutputTooLargeError, `${command}: ${String(error)}`);
+          assert.ok(error.added > MAX_ADDED_LENGTH, `${command}: ${error.added}`);
+          return true;
+        });
+        const elapsed = Date.now() - start;
+        assert.ok(elapsed < 3000, `${command} took ${elapsed} ms`);
+      });
+    });
+
+    test('no command of the 35 grows its result past the limit', () => {
+      const inputs = [
+        '\t a,b=c\n\n\tx :y\r\n  z=>1, 2\r',
+        'k\u00a0l\tm  n\n\n\n',
+        '  a\n    bb\ncc\n',
+        `${'word '.repeat(30)}\n${'x=1;'.repeat(5)}\n`,
+      ];
+      let checked = 0;
+      for (const command of WHITESPACE_COMMANDS) {
+        for (const eol of ['\n', '\r\n']) {
+          for (const input of inputs) {
+            const options: Partial<WhitespaceOptions> = { eol, n: 4, delimiter: '=>', followedByText: true };
+            const result = run(command, input, options);
+            const growth = result.length - input.length;
+            if (growth > 0) {
+              // What a command counts is never less than the net growth (removed characters are not
+              // subtracted), so a limit below the net growth is always refused.
+              assert.throws(() => run(command, input, { ...options, maxAddedLength: growth - 1 }), WhitespaceOutputTooLargeError, `${command} ${JSON.stringify(eol)} ${JSON.stringify(input)}`);
+              checked++;
+            }
+          }
+        }
+      }
+      assert.ok(checked > 30, String(checked));
     });
   });
 

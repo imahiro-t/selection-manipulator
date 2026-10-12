@@ -401,7 +401,12 @@ suite('Whitespace Commands (WS-001..035) Test Suite', function () {
       selectBlocks(editor, [block, block]);
       await whitespaceHandlerInternal(notifier)('pad-to-longest')(editor);
       assert.strictEqual(editor.document.getText(), [block, block].join(SEPARATOR));
-      assert.strictEqual(warnings.length, 1);
+      // 100 lines of `a` padded by 59,999 each in each block: the warning gives what both blocks
+      // add together (2 × 5,999,900), not the second block alone (which looks within the limit).
+      assert.deepStrictEqual(warnings, [
+        'The selection was not changed: the result would add 11,999,800 characters (limit: 10,000,000). '
+        + 'Select fewer or shorter lines.',
+      ]);
     });
 
     test('a result within the limit is applied without notifications', async () => {

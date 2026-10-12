@@ -7,7 +7,8 @@ import {
   DEFAULT_DATE_SETTINGS,
   MAX_OUTPUT_LENGTH,
 } from '../../handler/dateCommon';
-import { toTimeZones } from '../../handler/dateConvert';
+import { constantSpanOfHour, formatPattern, TimeZoneCache, toTimeZone, toTimeZones } from '../../handler/dateConvert';
+import { toRfc3339Offset } from '../../handler/date2Convert';
 import { assertCronLineCount, explainCron, parseCron } from '../../handler/dateCron';
 import { DATE_COMMAND_ENTRIES, DateCommandEntry, DateContext } from '../../handler/dateTransforms';
 import { EncOutputTooLargeError } from '../../handler/encodeTransforms';
@@ -107,12 +108,12 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
     });
 
     test('DATE-003: next day and several time zones; the formatters are made once per time zone', () => {
-      const cache = new Map<string, Intl.DateTimeFormat>();
+      const cache: TimeZoneCache = new Map();
       assert.deepStrictEqual(toTimeZones('2026-09-28T20:00:00Z', ['UTC', 'Asia/Tokyo', 'Pacific/Kiritimati'], cache),
         ['UTC 20:00', 'Asia/Tokyo 05:00 (翌日)', 'Pacific/Kiritimati 10:00 (翌日)']);
-      const first = cache.get('Asia/Tokyo');
+      const first = cache.get('Asia/Tokyo')?.formatter;
       toTimeZones('2026-09-29T20:00:00Z', ['Asia/Tokyo'], cache);
-      assert.strictEqual(cache.get('Asia/Tokyo'), first);
+      assert.strictEqual(cache.get('Asia/Tokyo')?.formatter, first);
       assert.strictEqual(cache.size, 3);
       assert.strictEqual(run('DATE-003', '2026-09-28T12:00:00Z', [], contextOf({ timeZones: ['Europe/London'] })), 'Europe/London 13:00');
     });
@@ -132,6 +133,133 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
         '  UTC 12:00\r\n\r\n  UTC 20:00');
       // Other line commands do not add empty lines.
       assert.strictEqual(run('DATE-005', '2026-09-28\n2026-09-29'), '2026-09-28 (月)\n2026-09-29 (火)');
+    });
+  });
+
+  // SELEC-00086: within one run, an hour whose offset is the same at both ends is computed from the
+  // offset from its third value on. The results must be those of the formatter for every value.
+  suite('DATE-002 / 003 / 026 / 027: offsets reused within an hour give the formatter\'s results', () => {
+    const H = 3_600_000;
+    /** `Date.UTC` reads the years 0 to 99 as 1900 to 1999; this does not. */
+    const utc = (year: number, month: number, day: number, hour = 0): number => {
+      const date = new Date(0);
+      date.setUTCFullYear(year, month, day);
+      date.setUTCHours(hour);
+      return date.getTime();
+    };
+    /** The result without reuse: a new cache (so a new formatter) for every value. */
+    const alone = (convert: (cache: TimeZoneCache) => string | string[]): string => {
+      try {
+        return JSON.stringify(convert(new Map()));
+      } catch (error) {
+        return `error: ${error instanceof Error ? error.message : String(error)}`;
+      }
+    };
+    const shared = (convert: () => string | string[]): string => {
+      try {
+        return JSON.stringify(convert());
+      } catch (error) {
+        return `error: ${error instanceof Error ? error.message : String(error)}`;
+      }
+    };
+    /** Instants around `center`: every `step` ms for two hours on both sides, and the center and ±1 ms. */
+    const around = (center: number, step: number): number[] => {
+      const list: number[] = [center - 1, center, center + 1];
+      for (let ms = center - 2 * H; ms <= center + 2 * H; ms += step) {
+        list.push(ms);
+      }
+      return list;
+    };
+    /** [zone, instants of offset changes (or other edges)]. */
+    const edges: [string, number[]][] = [
+      // Daylight saving time starts and ends on the hour (UTC).
+      ['America/New_York', [Date.UTC(2026, 2, 8, 7), Date.UTC(2026, 10, 1, 6), Date.UTC(1970, 3, 26, 7)]],
+      ['Europe/London', [Date.UTC(2026, 2, 29, 1), Date.UTC(2026, 9, 25, 1)]],
+      // A change of 30 minutes, at half past (UTC) in October.
+      ['Australia/Lord_Howe', [Date.UTC(2026, 3, 4, 15), Date.UTC(2026, 9, 3, 15, 30)]],
+      // +05:30 to +05:45 at 1985-12-31T18:30Z.
+      ['Asia/Kathmandu', [Date.UTC(1985, 11, 31, 18, 30), Date.UTC(2026, 0, 1)]],
+      // Local mean time (+09:18:59) to +09:00, at 14:41:01 UTC.
+      ['Asia/Tokyo', [Date.UTC(1887, 11, 31, 14, 41, 1), Date.UTC(2026, 8, 28)]],
+      // The ends of the years 0001 to 9999 (outside them is an error, with or without reuse).
+      ['America/New_York', [utc(1, 0, 1, 5)]],
+      ['Asia/Tokyo', [utc(1, 0, 1, 0)]],
+      ['Asia/Tokyo', [Date.UTC(9999, 11, 31, 15)]],
+      ['UTC', [Date.UTC(9999, 11, 31, 23, 59, 59, 999) - 2 * H]],
+    ];
+    const iso = (ms: number): string => new Date(ms).toISOString();
+
+    test('every instant around offset changes, in order and in reverse, gives the same result', function () {
+      this.timeout(60_000);
+      let compared = 0;
+      for (const [zone, centers] of edges) {
+        for (const center of centers) {
+          const instants = around(center, 61_000);
+          for (const order of [instants, [...instants].reverse()]) {
+            const cache: TimeZoneCache = new Map();
+            for (const ms of order) {
+              const value = iso(ms);
+              assert.strictEqual(shared(() => toTimeZone(value, zone, cache)), alone((fresh) => toTimeZone(value, zone, fresh)), `${zone} ${value}`);
+              compared++;
+            }
+            // The hours were really reused (a value of each hour was computed from the offset).
+            const state = cache.get(zone);
+            assert.ok(instants.some((ms) => constantSpanOfHour(state, Math.floor(ms / H)) !== undefined), `${zone} ${iso(center)}`);
+          }
+        }
+      }
+      assert.ok(compared > 5_000, String(compared));
+    });
+
+    test('DATE-003 (several zones) and DATEX-007 (RFC 3339) give the same results with reuse', () => {
+      const zones = ['UTC', 'America/New_York', 'Europe/London', 'Australia/Lord_Howe', 'Asia/Kathmandu', 'Pacific/Chatham'];
+      const cache: TimeZoneCache = new Map();
+      for (const ms of [...around(Date.UTC(2026, 2, 8, 7), 300_000), ...around(Date.UTC(2026, 9, 3, 15, 30), 300_000)]) {
+        const value = iso(ms);
+        assert.strictEqual(shared(() => toTimeZones(value, zones, cache)), alone((fresh) => toTimeZones(value, zones, fresh)), value);
+        for (const zone of zones) {
+          assert.strictEqual(shared(() => toRfc3339Offset(value, zone, cache)), alone((fresh) => toRfc3339Offset(value, zone, fresh)), `${zone} ${value}`);
+        }
+      }
+    });
+
+    test('a whole selection (DATE-002, DATE-026) gives the results of converting every line alone', () => {
+      const values = around(Date.UTC(2026, 10, 1, 6), 7_000).map(iso);
+      const text = values.join('\n');
+      const expected = values.map((value) => toTimeZone(value, 'America/New_York', new Map())).join('\n');
+      assert.strictEqual(run('DATE-002', text, ['America/New_York']), expected);
+      assert.strictEqual(run('DATE-026', text, ['America/New_York']), expected);
+    });
+
+    test('only the part of an hour known to have one offset is computed from it', () => {
+      // Lord Howe changes from +10:30 to +11:00 at 15:30 UTC.
+      const zone = 'Australia/Lord_Howe';
+      const hour = Date.UTC(2026, 9, 3, 15);
+      // Later values: the offset at 16:00 differs, so only 15:00 to 15:06 (the first two) is known.
+      let cache: TimeZoneCache = new Map();
+      for (let i = 0; i < 10; i++) {
+        toTimeZone(iso(hour + i * 360_000), zone, cache);
+      }
+      assert.deepStrictEqual(constantSpanOfHour(cache.get(zone), hour / H), { from: hour, to: hour + 360_000, offset: 10.5 * 3600 });
+      // Earlier values (in reverse): the offset at 15:00 (+10:30) differs from 15:54 and 15:48 (+11:00).
+      cache = new Map();
+      for (let i = 9; i >= 0; i--) {
+        toTimeZone(iso(hour + i * 360_000), zone, cache);
+      }
+      assert.deepStrictEqual(constantSpanOfHour(cache.get(zone), hour / H), { from: hour + 8 * 360_000, to: hour + 9 * 360_000, offset: 11 * 3600 });
+      // An hour without a change: from the first value to the end of the hour.
+      cache = new Map();
+      for (let i = 0; i < 3; i++) {
+        toTimeZone(iso(hour - H + i * 1000), zone, cache);
+      }
+      assert.deepStrictEqual(constantSpanOfHour(cache.get(zone), hour / H - 1), { from: hour - H, to: hour - 1, offset: 10.5 * 3600 });
+      // Values that change the offset between the first two: nothing is known.
+      cache = new Map();
+      for (const minutes of [10, 50, 20, 40]) {
+        toTimeZone(iso(hour + minutes * 60_000), zone, cache);
+      }
+      assert.strictEqual(constantSpanOfHour(cache.get(zone), hour / H), undefined);
+      assert.ok(cache.get(zone)?.decided.has(hour / H));
     });
   });
 
@@ -286,6 +414,37 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       throwsInput(() => format('2026-09-28', 'EEE'), 'line 1: unsupported pattern token "EEE"');
       throwsInput(() => format('2026-09-28', 'MMM'), 'line 1: unsupported pattern token "MMM"');
       throwsInput(() => format('2026-09-28', "'x"), 'line 1: the pattern has an unterminated quote');
+    });
+
+    // The pattern is compiled once per selection (SELEC-00086); results and errors are those of
+    // compiling it on every line (`formatPattern`, as before).
+    const everyPattern = "yyyy yy MM M dd d HH H hh h mm m ss s SSS a EEEE E 'lit''s' ''";
+    const values = ['2026-09-28', '', '  2026-09-29T13:04:05.006  ', '\t', '0001-01-01T00:00', '9999-12-31T23:59:59.999', '2026-02-28T12:00+09:00'];
+
+    test('DATE-012 / DATE-028: many lines give the same result as formatting each line with its own compilation', () => {
+      for (const eol of ['\n', '\r\n']) {
+        const text = values.join(eol);
+        const expected = values.map((line) => (line.trim() === '' ? line : line.replace(line.trim(), formatPattern(line.trim(), everyPattern)))).join(eol);
+        for (const id of ['DATE-012', 'DATE-028']) {
+          assert.strictEqual(run(id, text, [everyPattern], contextOf({}, DATE_TEST_NOW(), eol)), expected, id);
+        }
+      }
+      assert.strictEqual(
+        format('2026-09-28\n\n2026-09-29T13:04:05.006', everyPattern),
+        "2026 26 09 9 28 28 00 0 12 12 00 0 00 0 000 AM Monday Mon lit's '\n\n2026 26 09 9 29 29 13 13 01 1 04 4 05 5 006 PM Tuesday Tue lit's '"
+      );
+    });
+
+    test('an invalid pattern fails on the first value line, with its number, as before', () => {
+      // The messages are those of the implementation that compiled the pattern on every line.
+      for (const id of ['DATE-012', 'DATE-028']) {
+        throwsInput(() => run(id, '\n  \n2026-09-28\n2026-09-29', ['EEE']), 'line 3: unsupported pattern token "EEE"');
+        // The pattern error comes before the error of the value on the same line.
+        throwsInput(() => run(id, '\n  \nnot a date\n', ['MMM']), 'line 3: unsupported pattern token "MMM"');
+        throwsInput(() => run(id, '\n  \nnot a date\n', ["'x"]), 'line 3: the pattern has an unterminated quote');
+        // No value line: the pattern is never compiled, and nothing fails.
+        assert.strictEqual(run(id, '\n  \n\t\n', ['EEE']), '\n  \n\t\n');
+      }
     });
   });
 

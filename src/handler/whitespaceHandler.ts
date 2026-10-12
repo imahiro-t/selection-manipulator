@@ -106,8 +106,10 @@ const applyTransform = async (
     // Not awaited: the returned Thenable only settles when the notification is dismissed.
     if (error instanceof WhitespaceOutputTooLargeError) {
       void notifier.showWarningMessage(
-        // The overall limit, not error.limit (the budget left for this selection).
-        `The selection was not changed: ${describeAddedLength(error.added, MAX_ADDED_LENGTH)}. `
+        // What all selections up to this one would add, against the overall limit (not
+        // error.added against error.limit, the budget left for this selection: with several
+        // selections that pair alone would look as if it were within the limit).
+        `The selection was not changed: ${describeAddedLength(MAX_ADDED_LENGTH - budget + error.added, MAX_ADDED_LENGTH)}. `
         + 'Select fewer or shorter lines.'
       );
     } else {

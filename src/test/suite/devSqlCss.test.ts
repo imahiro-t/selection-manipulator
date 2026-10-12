@@ -306,6 +306,32 @@ suite('Developer SQL and CSS (DEV-015..019) Test Suite', () => {
       assert.throws(() => sqlFormat('select a from t', '\n', 5), EncOutputTooLargeError);
     });
 
+    test('the budget is checked as the lines are written: exactly the budget passes, one less fails', () => {
+      const inputs = [
+        'select a from t',
+        'select a, b from t where x = 1 and y between 1 and 2 -- c\n; select (select 1) from u;',
+        'select a from t; select b from u',
+        `select ${'x'.repeat(500)} from t`,
+      ];
+      for (const eol of ['\n', '\r\n']) {
+        for (const input of inputs) {
+          const expected = sqlFormat(input, eol, MAX_OUTPUT_LENGTH);
+          const length = expected.length;
+          assert.strictEqual(sqlFormat(input, eol, length), expected, input);
+          assert.throws(() => sqlFormat(input, eol, length - 1), EncOutputTooLargeError, input);
+        }
+      }
+    });
+
+    test('a result that grows past a small budget is refused part way (deep nesting, one long line)', () => {
+      // Every level of subquery adds two spaces of indentation to its lines.
+      const nested = `${'select a from ('.repeat(DEV_MAX_NESTING)}select 1${')'.repeat(DEV_MAX_NESTING)}`;
+      assert.ok(sqlFormat(nested, '\n', MAX_OUTPUT_LENGTH).length > 10_000);
+      assert.throws(() => sqlFormat(nested, '\n', 1_000), EncOutputTooLargeError);
+      // One line with no line break in the output.
+      assert.throws(() => sqlFormat(`select ${'a + '.repeat(10_000)}1`, '\n', 1_000), EncOutputTooLargeError);
+    });
+
     test('1,000,000 characters are processed quickly', function () {
       this.timeout(30_000);
       const statement = 'select a, b from t where x = \'y\' and z in (1, 2) -- c\n;';

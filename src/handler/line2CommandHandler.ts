@@ -92,11 +92,16 @@ const logUnexpected = (error: unknown): void => {
   console.error(`Selection Manipulator: a line command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
-/** Tells why nothing was changed. Not awaited: the Thenable settles on dismissal. */
-const notifyFailure = (deps: Line2Dependencies, error: unknown): void => {
+/**
+ * Tells why nothing was changed. Not awaited: the Thenable settles on dismissal.
+ * `used`: what the selections before the failing one already added.
+ */
+const notifyFailure = (deps: Line2Dependencies, error: unknown, used = 0): void => {
   if (error instanceof LineOutputTooLargeError) {
-    // The overall limit, not error.limit (the budget left for this selection).
-    void deps.showWarningMessage(`${LINE2_NOT_CHANGED}: ${describeAddedLength(error.added, deps.maxAddedLength)}. Select fewer or shorter lines.`);
+    // What all selections up to this one would add, against the overall limit (not error.added
+    // against error.limit, the budget left for this selection: with several selections that
+    // pair alone would look as if it were within the limit).
+    void deps.showWarningMessage(`${LINE2_NOT_CHANGED}: ${describeAddedLength(used + error.added, deps.maxAddedLength)}. Select fewer or shorter lines.`);
   } else if (error instanceof LineRegexTimeoutError || error instanceof LineInputTooLargeError || error instanceof Line2InputError) {
     void deps.showWarningMessage(`${LINE2_NOT_CHANGED}: ${error.message}.`);
   } else {
@@ -225,11 +230,11 @@ const runSingle = async (deps: Line2Dependencies, entry: Line2CommandEntry, text
   const version = textEditor.document.version;
   const texts = selections.map((selection) => textEditor.document.getText(selection));
   const results: string[] = [];
+  let budget = deps.maxAddedLength;
   try {
     const splits = command === 'split-by-regex'
       ? await findSplits(deps, pattern ?? '', texts)
       : undefined;
-    let budget = deps.maxAddedLength;
     selections.forEach((selection, i) => {
       const options: Line2Options = {
         ...inputOptions,
@@ -243,7 +248,7 @@ const runSingle = async (deps: Line2Dependencies, entry: Line2CommandEntry, text
       results.push(result);
     });
   } catch (error) {
-    notifyFailure(deps, error);
+    notifyFailure(deps, error, deps.maxAddedLength - budget);
     return;
   }
   if (textEditor.document.version !== version) {
