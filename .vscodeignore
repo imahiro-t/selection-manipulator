@@ -18,3 +18,5 @@ dist/**
 out/**
 !out/main.js
 !out/lineRegexWorker.js
+.nvmrc
+.tool-versions

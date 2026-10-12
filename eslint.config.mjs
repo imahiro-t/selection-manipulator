@@ -11,6 +11,11 @@ export default defineConfig([
             parser: tseslint.parser,
             ecmaVersion: 6,
             sourceType: "module",
+            parserOptions: {
+                // Type information for the type-aware rules (@typescript-eslint/only-throw-error).
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
+            },
         },
         plugins: {
             "@typescript-eslint": tseslint.plugin,
@@ -28,7 +33,8 @@ export default defineConfig([
             "@stylistic/semi": "warn",
             curly: "warn",
             eqeqeq: "warn",
-            "no-throw-literal": "warn",
+            // Type-aware successor of the deprecated core no-throw-literal rule.
+            "@typescript-eslint/only-throw-error": "warn",
             semi: "off",
         },
     },

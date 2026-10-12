@@ -1512,6 +1512,21 @@ In the examples, `·` is a space, `⏎` is a line break, `⇥` is a tab, and a v
 > *   **Styled letters and flags**: Mathematical alphanumerics and small capitals are meant for display; screen readers and search may not read them as letters, and some small capitals are missing from older fonts. Country Code to Flag Emoji converts every isolated pair of letters, words included.
 > *   **GitHub alerts**: Only the five types above exist; other renderers may show the block as a plain quote.
 
+## Development
+
+*   **Node.js**: Use Node.js 22 (22.13 or later), the same major version as CI. The version is declared in `.nvmrc` and `.tool-versions`, so `nvm install && nvm use` or `asdf install` picks it up (the accepted range is also in `engines.node` of `package.json`). Older versions such as Node.js 20.10 fail on `npm run lint`, because ESLint 10 needs a newer Node.js.
+*   **Build and test**: Run the same steps as CI:
+
+    ```sh
+    npm ci
+    npm run lint
+    npm run test-compile
+    npm run esbuild
+    npm test
+    npm run test:showcase
+    npm run showcase:check
+    ```
+
 ## Security
 
 *   **[Security Policy](SECURITY.md)**: How to report a vulnerability, and the implementation rules every new command must follow (local processing only, no code/shell execution, no network access, no remote resources in Webviews, no new dependencies by default).
