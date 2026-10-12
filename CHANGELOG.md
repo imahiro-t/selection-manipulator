@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 🔒 AES Encryption (Encrypt / Decrypt by AES and their Replace versions): Encrypt now outputs a new format, `v2:<salt>:<iv>:<ciphertext>` (hexadecimal), with a random 16-byte salt for the scrypt key derivation and a random 16-byte IV on every encryption, instead of the fixed salt `'salt'`. Text encrypted by earlier versions (`<iv>:<ciphertext>`, and `<ciphertext>` alone with a zero IV) is still decrypted in a **compatibility mode**, never produced again, and a decryption that uses it shows a notification suggesting to encrypt the text again. The cipher (AES-256-CBC) and the scrypt parameters are unchanged
+- 🔒 HAR to Sequence Diagram Image no longer loads mermaid from the jsDelivr CDN: mermaid (updated from 10 to 11.17.2, pinned to the exact version) is bundled with the extension in `media/mermaid/`, the Webview may read only that directory, and its Content Security Policy is `default-src 'none'` with nonce-only scripts (no `'unsafe-inline'` script and no external origin; inline styles stay allowed because mermaid writes a `<style>` into each diagram). The command is removed from the Known Exceptions of SECURITY.md. The VSIX grows by about 3.5 MB (`mermaid.min.js`)
+
 ## [0.2.1] - 2026-10-02
 
 - 📦 Package only the files the extension runs: the VSIX now contains the bundled `out/main.js` and `out/lineRegexWorker.js` (plus the README, changelog, license, security policy and images), and leaves out other build output and local files under `out/` and `dist/` that the 0.2.0 package picked up; the commands are unchanged

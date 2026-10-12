@@ -697,8 +697,8 @@
     {
       "id": "selection-manipulator.har-to-image",
       "description": {
-        "en": "Converts the selected HAR (HTTP Archive) JSON into a sequence diagram, after asking which hosts, resource types and extras to include, and renders it as an image in a webview panel beside the editor. The panel loads the Mermaid library from the jsDelivr CDN.",
-        "ja": "選択した HAR（HTTP Archive）の JSON をシーケンス図に変換し、エディタの横の Webview パネルに画像として描画する。含めるホスト・リソースの種類・追加情報は選択肢から選ぶ。パネルは Mermaid ライブラリを jsDelivr CDN から読み込む"
+        "en": "Converts the selected HAR (HTTP Archive) JSON into a sequence diagram, after asking which hosts, resource types and extras to include, and renders it as an image in a webview panel beside the editor. The panel uses the Mermaid library bundled with the extension and does not access the network.",
+        "ja": "選択した HAR（HTTP Archive）の JSON をシーケンス図に変換し、エディタの横の Webview パネルに画像として描画する。含めるホスト・リソースの種類・追加情報は選択肢から選ぶ。パネルは拡張機能に同梱した Mermaid ライブラリを使い、ネットワークにはアクセスしない"
       }
     },
     {
@@ -977,29 +977,29 @@
     {
       "id": "selection-manipulator.crypto.encrypt",
       "description": {
-        "en": "Encrypts the selected text with AES-256-CBC using a key derived from the secret typed in a password input box, and outputs `IV:ciphertext` in hexadecimal (a random IV each time). Shows the result in a new read-only tab.",
-        "ja": "パスワード入力ボックスで入力した秘密から導出した鍵で選択テキストを AES-256-CBC 暗号化し、`IV:暗号文` を 16 進で出力する（IV は毎回ランダム）。結果を新しい読み取り専用タブに表示する"
+        "en": "Encrypts the selected text with AES-256-CBC using a key derived (scrypt) from the secret typed in a password input box and a random salt, and outputs `v2:salt:IV:ciphertext` in hexadecimal (a random salt and IV each time). Shows the result in a new read-only tab.",
+        "ja": "パスワード入力ボックスで入力した秘密とランダムなソルトから（scrypt で）導出した鍵で選択テキストを AES-256-CBC 暗号化し、`v2:ソルト:IV:暗号文` を 16 進で出力する（ソルトと IV は毎回ランダム）。結果を新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.crypto.decrypt",
       "description": {
-        "en": "Decrypts AES-256-CBC `IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. Shows the result in a new read-only tab.",
-        "ja": "Encrypt by AES で作った 16 進の `IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。結果を新しい読み取り専用タブに表示する"
+        "en": "Decrypts AES-256-CBC `v2:salt:IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. The formats of earlier versions (`IV:ciphertext`, and ciphertext only) are still decrypted in a compatibility mode (fixed salt), with a notification suggesting to encrypt them again. Shows the result in a new read-only tab.",
+        "ja": "Encrypt by AES で作った 16 進の `v2:ソルト:IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。以前のバージョンの形式（`IV:暗号文` と暗号文だけのもの）も互換モード（固定ソルト）で復号し、暗号化し直すよう勧める通知を出す。結果を新しい読み取り専用タブに表示する"
       }
     },
     {
       "id": "selection-manipulator.crypto.encrypt.replace",
       "description": {
-        "en": "Encrypts the selected text with AES-256-CBC using a key derived from the secret typed in a password input box, and outputs `IV:ciphertext` in hexadecimal (a random IV each time). Replaces the selection with the result.",
-        "ja": "パスワード入力ボックスで入力した秘密から導出した鍵で選択テキストを AES-256-CBC 暗号化し、`IV:暗号文` を 16 進で出力する（IV は毎回ランダム）。結果で選択範囲を置き換える"
+        "en": "Encrypts the selected text with AES-256-CBC using a key derived (scrypt) from the secret typed in a password input box and a random salt, and outputs `v2:salt:IV:ciphertext` in hexadecimal (a random salt and IV each time). Replaces the selection with the result.",
+        "ja": "パスワード入力ボックスで入力した秘密とランダムなソルトから（scrypt で）導出した鍵で選択テキストを AES-256-CBC 暗号化し、`v2:ソルト:IV:暗号文` を 16 進で出力する（ソルトと IV は毎回ランダム）。結果で選択範囲を置き換える"
       }
     },
     {
       "id": "selection-manipulator.crypto.decrypt.replace",
       "description": {
-        "en": "Decrypts AES-256-CBC `IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. Replaces the selection with the result.",
-        "ja": "Encrypt by AES で作った 16 進の `IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。結果で選択範囲を置き換える"
+        "en": "Decrypts AES-256-CBC `v2:salt:IV:ciphertext` hexadecimal text produced by Encrypt by AES, using the secret typed in a password input box; the output is empty if decryption fails. The formats of earlier versions (`IV:ciphertext`, and ciphertext only) are still decrypted in a compatibility mode (fixed salt), with a notification suggesting to encrypt them again. Replaces the selection with the result.",
+        "ja": "Encrypt by AES で作った 16 進の `v2:ソルト:IV:暗号文` を、パスワード入力ボックスで入力した秘密を使って AES-256-CBC で復号する。復号できないときは空になる。以前のバージョンの形式（`IV:暗号文` と暗号文だけのもの）も互換モード（固定ソルト）で復号し、暗号化し直すよう勧める通知を出す。結果で選択範囲を置き換える"
       }
     },
     {

@@ -578,7 +578,9 @@ In the examples, `·` is a space, `⇥` is a tab and `⏎` is a line break. A va
 #### Hashing & Encryption
 *   **Hash**: MD5, SHA-1, SHA-256, SHA-512.
 *   **HMAC**: Keyed-hash for the above algorithms.
-*   **AES Encryption**: Encrypt/Decrypt text with a passphrase.
+*   **AES Encryption**: Encrypt/Decrypt text with a passphrase (AES-256-CBC).
+    *   Encrypt outputs the v2 format `v2:<salt>:<iv>:<ciphertext>` (hexadecimal). The key is derived from the passphrase with scrypt and a random 16-byte salt, and the IV is a random 16 bytes; both are new for every encryption, so the same text and passphrase give a different result each time.
+    *   **Compatibility mode**: text encrypted by earlier versions (`<iv>:<ciphertext>`, and `<ciphertext>` alone, which used a zero IV) can still be decrypted. Those formats used a fixed salt, so they are only decrypted, never produced; when a decryption uses them, a notification suggests encrypting the text again in the v2 format.
 
 #### Hash and Checksum Commands
 Every command hashes the selected text exactly as it is selected, as UTF-8 bytes: the text is not trimmed, and a CRLF line break is hashed as the two characters CR and LF. Hex output is lower case. The standard versions open a new read-only editor, like the existing Create Hash commands: for each selection, the selected text (trimmed, as a heading) followed by its result. The (Replace) versions replace each selection with its result. Multiple selections are processed in document order; empty selections are skipped, and nothing happens if every selection is empty. The **Crypto** submenu of the **Transform** context submenu has the Create Hash, Create HMAC and SRI commands, the new **Checksum** submenu of **Transform** has the four Checksum commands, and the **Crypto** submenu of the **Replace** context submenu has the (Replace) versions.
@@ -613,7 +615,7 @@ In the examples, `⏎` is a line break, a value in parentheses is the value you 
 
 ### 8. Network & Analysis
 *   **DNS Lookup**: A, AAAA, MX, NS, TXT, etc.
-*   **HAR Visualization**: Convert HTTP Archive (HAR) logs to Mermaid sequence diagrams.
+*   **HAR Visualization**: Convert HTTP Archive (HAR) logs to Mermaid sequence diagrams. HAR to Sequence Diagram Image renders the diagram in a Webview with the Mermaid library bundled with the extension; it does not access the network.
 
 ### 9. Generators & Random
 *   **UUID**: Generate Random UUID v4.

@@ -3,7 +3,9 @@ import {
   QuickPickItem,
   window,
   ViewColumn,
+  Uri,
 } from 'vscode';
+import { randomBytes } from 'crypto';
 import { openTextDocument } from '../common';
 
 const DIAGRAM_HEADER = '```mermaid';
@@ -11,7 +13,11 @@ const DIAGRAM_FOOTER = '```';
 
 type Command = 'mermaid' | 'image';
 
-export const harToMermaidHandler: (command: Command) => (textEditor: TextEditor) => void = (command) => async (textEditor) => {
+/**
+ * @param extensionUri The extension's root URI. Required by the `image` command, whose webview
+ *   loads the bundled mermaid from `media/mermaid/`; the `mermaid` (text) command does not use it.
+ */
+export const harToMermaidHandler: (command: Command, extensionUri?: Uri) => (textEditor: TextEditor) => void = (command, extensionUri) => async (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
@@ -53,7 +59,10 @@ export const harToMermaidHandler: (command: Command) => (textEditor: TextEditor)
   const content = createDocument(filteredEntries, includeQueryString, includeCookies);
 
   if (command === 'image') {
-    openWebView(content);
+    if (!extensionUri) {
+      return;
+    }
+    openWebView(content, extensionUri);
   } else {
     openTextDocument(content);
   }
@@ -136,20 +145,34 @@ const getResponseCookies: (entry: any) => string[] = (entry) => {
   return entry['response']['cookies'].map((x: any) => x.name);
 };
 
-const openWebView: (content: string) => void = (content) => {
+export type MermaidTheme = 'dark' | 'default';
+
+const openWebView: (content: string, extensionUri: Uri) => void = (content, extensionUri) => {
   const kind = window.activeColorTheme.kind;
-  const theme = kind === 2 || kind === 3 ? 'dark' : 'default';
+  const theme: MermaidTheme = kind === 2 || kind === 3 ? 'dark' : 'default';
   const viewColumn = window.activeTextEditor?.viewColumn ?? 1;
   const openViewColumn = viewColumn === 1 ? ViewColumn.Beside : viewColumn;
+  // mermaid is bundled with the extension (copied from node_modules by scripts/copy-mermaid.mjs),
+  // so the webview only needs to read this one directory and never reaches the network.
+  const mediaRoot = Uri.joinPath(extensionUri, 'media', 'mermaid');
   const panel = window.createWebviewPanel(
     'sequence',
     'Sequence Diagram',
     openViewColumn,
     {
-      enableScripts: true
+      enableScripts: true,
+      localResourceRoots: [mediaRoot],
     }
   );
-  panel.webview.html = getWebviewContent(content.replace(DIAGRAM_HEADER, '').replace(DIAGRAM_FOOTER, ''), theme);
+  const scriptUri = panel.webview.asWebviewUri(Uri.joinPath(mediaRoot, 'mermaid.min.js')).toString();
+  const nonce = randomBytes(16).toString('base64');
+  panel.webview.html = getWebviewContent(
+    content.replace(DIAGRAM_HEADER, '').replace(DIAGRAM_FOOTER, ''),
+    theme,
+    scriptUri,
+    panel.webview.cspSource,
+    nonce,
+  );
 };
 
 const escapeHtml = (unsafe: string): string => {
@@ -161,25 +184,45 @@ const escapeHtml = (unsafe: string): string => {
     .replaceAll("'", '&#039;');
 };
 
-const getWebviewContent: (content: string, theme: string) => string = (content, theme) => {
+/**
+ * Builds the HTML of the sequence diagram webview (SECURITY.md §6).
+ *
+ * - `default-src 'none'`, and scripts only with the per-load nonce: no `'unsafe-inline'` /
+ *   `'unsafe-eval'` script and no external origin. mermaid itself is the bundled
+ *   `media/mermaid/mermaid.min.js` passed in as `scriptUri` (an `asWebviewUri` URI).
+ * - `style-src` allows `'unsafe-inline'` because mermaid writes an inline `<style>` into each SVG
+ *   it renders. §6 forbids inline *scripts*, not inline styles.
+ * - The theme is passed as an escaped `data-theme` attribute (one of two fixed values) and read by
+ *   the script, so no value is ever spliced into script source.
+ */
+export const getWebviewContent: (content: string, theme: MermaidTheme, scriptUri: string, cspSource: string, nonce: string) => string = (content, theme, scriptUri, cspSource, nonce) => {
   const safeContent = escapeHtml(content);
+  const safeTheme: MermaidTheme = theme === 'dark' ? 'dark' : 'default';
+  const safeNonce = escapeHtml(nonce);
+  const safeCspSource = escapeHtml(cspSource);
+  const csp = [
+    "default-src 'none'",
+    `script-src 'nonce-${safeNonce}'`,
+    `style-src ${safeCspSource} 'unsafe-inline'`,
+    `img-src ${safeCspSource} data:`,
+    `font-src ${safeCspSource}`,
+  ].join('; ') + ';';
   return `<!DOCTYPE html>
   <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'unsafe-inline';">
+      <meta http-equiv="Content-Security-Policy" content="${csp}">
     </head>
-    <body>
+    <body data-theme="${safeTheme}">
       <pre class="mermaid">
 ${safeContent}
       </pre>
-      <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-        var config = {
+      <script nonce="${safeNonce}" src="${escapeHtml(scriptUri)}"></script>
+      <script nonce="${safeNonce}">
+        mermaid.initialize({
           startOnLoad: true,
-          theme: '${escapeHtml(theme)}'
-        };
-        mermaid.initialize(config);
+          theme: document.body.dataset.theme === 'dark' ? 'dark' : 'default'
+        });
       </script>
     </body>
   </html>`;
