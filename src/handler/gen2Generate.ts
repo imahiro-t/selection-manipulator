@@ -5,17 +5,21 @@
  * Security rules (SECURITY.md): every count and size is estimated BEFORE anything is generated and
  * a value over a limit throws `GenLimitError` (a warning, nothing is changed); the results are then
  * counted against the output budget while they are built. The brace expansion is a hand-written
- * parser (one linear pass to match the braces, recursion bounded by the nesting limit) whose ranges
- * stay lazy (their terms are only made after the line has been counted) and which stops as soon as
- * the count of the line passes the limit; no shell is run and no regular expression is built from
- * the text. The expansion builds no intermediate product: the pieces that expand to one string are
- * folded into the text around them, and the combinations of the others are emitted one by one (a
- * mixed-radix counter) and joined once per line, so that the time and memory follow the length of
- * the result.
+ * parser: the braces of a line are matched in two linear passes into typed-array tables sized by
+ * the number of braces, commas and escapes (not by the length of the line), then one recursive
+ * pass (bounded by the nesting limit) goes from brace to brace, builds the pieces and, at the same
+ * time, counts the strings and measures their total length (no second walk to estimate the
+ * size). A range is plain data (no closure, read by hand): its terms are only made when the line
+ * is expanded, except the only term of a one-term range, which is folded into the text around it
+ * while parsing. Parsing stops as soon as the count of the line passes the limit; no shell is run
+ * and no regular expression is built from the text. The expansion builds no
+ * intermediate product: only the pieces with two strings or more are left between literal texts,
+ * and their combinations are emitted one by one (a mixed-radix counter) and joined once per line,
+ * so that the time and memory follow the length of the result.
  * Only `BigInt` and typed arrays are used.
  */
 import { pad2 } from './dateCommon';
-import { forEachLine, formatCount, GenInputError, GenLimitError, GenOutputBuffer, quoteText } from './genCommon';
+import { formatCount, GenInputError, GenLimitError, GenOutputBuffer, quoteText } from './genCommon';
 
 // ---------------------------------------------------------------------------------------------
 // Lines
@@ -46,19 +50,29 @@ export const BRACE_MAX_PER_SELECTION = 100_000;
 export const BRACE_MAX_RANGE_TERMS = 10_000;
 
 /**
- * A piece of a parsed line: literal text, alternatives (`{a,b}`) or a range (`{1..3}`). A range is
- * lazy: it knows how many terms it has and makes the term `i` only when asked, so that nothing is
- * built for a line before the line has been counted. Exported (as a type) for the tests only.
+ * A range (`{1..3}`, `{01..10..3}`, `{a..e}`) as plain data: the term `i` is
+ * `from + direction × i × step`, a character code for a letter range, a number zero-padded to
+ * `width` otherwise (see `rangeTerm`). Nothing is built for it before the line has been counted.
+ */
+interface RangeNode {
+  kind: 'range';
+  count: number;
+  letter: boolean;
+  from: number;
+  step: number;
+  direction: number;
+  width: number;
+}
+
+/**
+ * A piece of a parsed line: literal text, alternatives (`{a,b}`) or a range of two terms or more.
+ * A parsed line is already folded: the texts next to each other are one text, and a range of one
+ * term is part of the text. Exported (as a type) for the tests only.
  */
 export type BraceNode =
   | { kind: 'text'; text: string }
   | { kind: 'alternatives'; options: BraceNode[][] }
-  | { kind: 'range'; count: number; term: (i: number) => string };
-
-type RangeNode = Extract<BraceNode, { kind: 'range' }>;
-
-const NUMBER_RANGE = /^([-+]?\d{1,15})\.\.([-+]?\d{1,15})(?:\.\.([-+]?\d{1,15}))?$/;
-const LETTER_RANGE = /^([A-Za-z])\.\.([A-Za-z])(?:\.\.([-+]?\d{1,15}))?$/;
+  | RangeNode;
 
 /** The number of terms from `from` to `to` by `step` (> 0), refused over BRACE_MAX_RANGE_TERMS. */
 const rangeTermCount = (from: number, to: number, step: number): number => {
@@ -69,81 +83,304 @@ const rangeTermCount = (from: number, to: number, step: number): number => {
   return terms;
 };
 
-/** A step of 0 counts as 1 (as in bash); the sign of the step is ignored (the direction comes from the ends). */
-const stepOf = (text: string | undefined): number => {
-  const step = text === undefined ? 1 : Math.abs(Number(text));
+const BACKSLASH = 0x5c;
+const OPEN = 0x7b;
+const CLOSE = 0x7d;
+const COMMA = 0x2c;
+const PLUS = 0x2b;
+const MINUS = 0x2d;
+const DOT = 0x2e;
+const ZERO = 0x30;
+const NINE = 0x39;
+
+/** The most digits of an end or a step of a range. */
+const RANGE_MAX_DIGITS = 15;
+
+/** What `readInteger` read (one shared object: the parser reads one integer at a time). */
+const integer = { value: 0, length: 0, padded: false };
+
+/**
+ * Reads `[-+]?\d{1,15}` at `line[i]` (followed by `..` or the end `to`, checked by the caller):
+ * its value (`Number` of the text, `-0` included), its length without a `+` and whether it is
+ * zero-padded (`[-+]?0\d`). Returns the offset after it, or -1 when there is no such integer.
+ */
+const readInteger = (line: string, i: number, to: number): number => {
+  let p = i;
+  const sign = p < to ? line.charCodeAt(p) : 0;
+  const negative = sign === MINUS;
+  if (negative || sign === PLUS) {
+    p++;
+  }
+  const digitsStart = p;
+  let value = 0;
+  while (p < to) {
+    const code = line.charCodeAt(p);
+    if (code < ZERO || code > NINE) {
+      break;
+    }
+    if (p - digitsStart === RANGE_MAX_DIGITS) {
+      return -1;
+    }
+    value = value * 10 + (code - ZERO);
+    p++;
+  }
+  const digits = p - digitsStart;
+  if (digits === 0) {
+    return -1;
+  }
+  integer.value = negative ? -value : value;
+  integer.length = (negative ? 1 : 0) + digits;
+  integer.padded = digits >= 2 && line.charCodeAt(digitsStart) === ZERO;
+  return p;
+};
+
+/** Whether `line[i, i + 2)` (before `to`) is `..`. */
+const isDots = (line: string, i: number, to: number): boolean =>
+  i + 1 < to && line.charCodeAt(i) === DOT && line.charCodeAt(i + 1) === DOT;
+
+const isLetter = (code: number): boolean => (code >= 0x41 && code <= 0x5a) || (code >= 0x61 && code <= 0x7a);
+
+/**
+ * The step of a range after its second end at `i` (`..[-+]?\d{1,15}` up to `to`, or nothing): a
+ * step of 0 counts as 1 (as in bash) and its sign is ignored (the direction comes from the ends).
+ * Returns -1 when the rest is not a step.
+ */
+const readStep = (line: string, i: number, to: number): number => {
+  if (i === to) {
+    return 1;
+  }
+  if (!isDots(line, i, to) || readInteger(line, i + 2, to) !== to) {
+    return -1;
+  }
+  const step = Math.abs(integer.value);
   return step === 0 ? 1 : step;
 };
 
+/** What `parseRange` read (one shared object: a node is made of it only for a range of two terms or more). */
+const scannedRange: RangeNode = { kind: 'range', count: 0, letter: false, from: 0, step: 1, direction: 1, width: 0 };
+
 /**
- * `{1..3}`, `{01..10}` (zero-padded to the longer end), `{10..1..3}`, `{a..e}` as a lazy range (no
- * term is made here); `undefined` when the text is not a range.
+ * Reads the content `line[from, to)` of a pair of braces as a range into `scannedRange` (no term
+ * is made here) and returns whether it is one. It reads exactly what these expressions match:
+ * `^([-+]?\d{1,15})\.\.([-+]?\d{1,15})(?:\.\.([-+]?\d{1,15}))?$` (`{1..3}`, `{01..10}` zero-padded
+ * to the longer end, `{10..1..3}`) and `^([A-Za-z])\.\.([A-Za-z])(?:\.\.([-+]?\d{1,15}))?$`
+ * (`{a..e}`), by hand and without cutting the content out of the line.
  */
-const parseRange = (content: string): RangeNode | undefined => {
-  const number = NUMBER_RANGE.exec(content);
-  if (number) {
-    const from = Number(number[1]);
-    const to = Number(number[2]);
-    const step = stepOf(number[3]);
-    const count = rangeTermCount(from, to, step);
-    const padded = [number[1], number[2]].some((end) => /^[-+]?0\d/.test(end));
-    const width = padded ? Math.max(number[1].replace('+', '').length, number[2].replace('+', '').length) : 0;
-    const direction = to >= from ? 1 : -1;
-    const term = (i: number): string => {
-      const n = from + direction * i * step;
-      const sign = n < 0 ? '-' : '';
-      return `${sign}${String(Math.abs(n)).padStart(width - sign.length, '0')}`;
-    };
-    return { kind: 'range', count, term };
+const parseRange = (line: string, from: number, to: number): boolean => {
+  const first = readInteger(line, from, to);
+  if (first >= 0) {
+    const start = integer.value;
+    const startLength = integer.length;
+    const startPadded = integer.padded;
+    if (!isDots(line, first, to)) {
+      return false;
+    }
+    const second = readInteger(line, first + 2, to);
+    if (second < 0) {
+      return false;
+    }
+    const end = integer.value;
+    const endLength = integer.length;
+    const endPadded = integer.padded;
+    const step = readStep(line, second, to);
+    if (step < 0) {
+      return false;
+    }
+    scannedRange.count = rangeTermCount(start, end, step);
+    scannedRange.letter = false;
+    scannedRange.from = start;
+    scannedRange.step = step;
+    scannedRange.direction = end >= start ? 1 : -1;
+    scannedRange.width = startPadded || endPadded ? Math.max(startLength, endLength) : 0;
+    return true;
   }
-  const letter = LETTER_RANGE.exec(content);
-  if (letter) {
-    const from = letter[1].charCodeAt(0);
-    const to = letter[2].charCodeAt(0);
-    const step = stepOf(letter[3]);
-    const count = rangeTermCount(from, to, step);
-    const direction = to >= from ? 1 : -1;
-    return { kind: 'range', count, term: (i) => String.fromCharCode(from + direction * i * step) };
+  if (to - from >= 4 && isLetter(line.charCodeAt(from)) && isDots(line, from + 1, to) && isLetter(line.charCodeAt(from + 3))) {
+    const start = line.charCodeAt(from);
+    const end = line.charCodeAt(from + 3);
+    const step = readStep(line, from + 4, to);
+    if (step < 0) {
+      return false;
+    }
+    scannedRange.count = rangeTermCount(start, end, step);
+    scannedRange.letter = true;
+    scannedRange.from = start;
+    scannedRange.step = step;
+    scannedRange.direction = end >= start ? 1 : -1;
+    scannedRange.width = 0;
+    return true;
   }
-  return undefined;
+  return false;
 };
 
-/** The braces of a line matched in one pass: the closing brace and the top-level commas of each opening brace. */
+/** The term `i` of a range. */
+const rangeTerm = (range: RangeNode, i: number): string => {
+  const n = range.from + range.direction * i * range.step;
+  if (range.letter) {
+    return String.fromCharCode(n);
+  }
+  if (range.width === 0) {
+    // Not zero-padded (`String(-0)` is `0`, as `String(Math.abs(-0))`).
+    return n < 0 ? `-${String(-n)}` : String(n);
+  }
+  const sign = n < 0 ? '-' : '';
+  return `${sign}${String(Math.abs(n)).padStart(range.width - sign.length, '0')}`;
+};
+
+/** The number of decimal digits of a non-negative integer (at most 16 here: the ends have 15 digits or less). */
+const digitCount = (n: number): number => {
+  let digits = 1;
+  for (let power = 10; n >= power; power *= 10) {
+    digits++;
+  }
+  return digits;
+};
+
+/**
+ * The total length of the terms of a range, computed without making them (the length of a term
+ * is the sign, then the digits padded to `width`). Called only once the count of the range has
+ * passed the limit of the line, so that it is at most BRACE_MAX_RANGE_TERMS steps.
+ */
+const rangeLength = (range: RangeNode): number => {
+  if (range.letter) {
+    return range.count;
+  }
+  let length = 0;
+  for (let i = 0; i < range.count; i++) {
+    const n = range.from + range.direction * i * range.step;
+    const signed = (n < 0 ? 1 : 0) + digitCount(Math.abs(n));
+    length += signed > range.width ? signed : range.width;
+  }
+  return length;
+};
+
+/**
+ * The braces of a line matched in two linear passes (the first one counts the braces, the commas
+ * and the escapes, the second one fills the tables). The tables are sized by those counts, not
+ * by the length of the line. The opening braces (not escaped) are numbered in the order of the
+ * line; the parser meets them, and the escapes, in that order, so that it goes from one to the
+ * next without looking at the characters in between.
+ */
 export interface BraceTable {
-  /** Opening brace offset → its closing brace offset (unmatched braces are not in it). */
-  close: Map<number, number>;
-  /** Opening brace offset → the offsets of the commas directly inside it. */
-  commas: Map<number, number[]>;
-  /** Offsets of the characters escaped with a backslash (`\{`, `\}`, `\,`, `\\`). */
-  escaped: Set<number>;
+  /** Brace number → offset of the opening brace (increasing). */
+  openAt: Int32Array;
+  /** Brace number → offset of its closing brace, -1 for a brace that is never closed. */
+  closeAt: Int32Array;
+  /** Brace number → the index (in `commaAt`) of its first comma, -1 for none. */
+  firstComma: Int32Array;
+  /** Comma index → offset of the comma. */
+  commaAt: Int32Array;
+  /** Comma index → index of the next comma of the same brace, -1 for the last one. */
+  nextComma: Int32Array;
+  /** Offsets of the backslashes that escape the next character (`\{`, `\}`, `\,`, `\\`), increasing. */
+  escapeAt: Int32Array;
+  /** The number of the next brace and the index of the next escape the parser has not met yet. */
+  nextBrace: number;
+  nextEscape: number;
 }
 
-const ESCAPABLE = '{},\\';
+/** Whether the character at `i` can be escaped with a backslash (`{`, `}`, `,`, `\`). */
+const escapable = (line: string, i: number): boolean => {
+  const code = line.charCodeAt(i);
+  return code === OPEN || code === CLOSE || code === COMMA || code === BACKSLASH;
+};
 
 /** Exported for the tests only (with `parseSequence`, to hand a parsed line to `emitSequence`). */
 export const matchBraces = (line: string): BraceTable => {
-  const close = new Map<number, number>();
-  const commas = new Map<number, number[]>();
-  const escaped = new Set<number>();
-  const stack: number[] = [];
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '\\' && i + 1 < line.length && ESCAPABLE.includes(line[i + 1])) {
-      escaped.add(i + 1);
-      i++;
-      continue;
+  const length = line.length;
+  // First pass: the number of opening braces, of the commas inside an open brace and of the escapes.
+  let braces = 0;
+  let commas = 0;
+  let escapes = 0;
+  let open = 0;
+  let deepest = 0;
+  for (let i = 0; i < length; i++) {
+    const code = line.charCodeAt(i);
+    if (code === BACKSLASH) {
+      if (i + 1 < length && escapable(line, i + 1)) {
+        escapes++;
+        i++;
+      }
+    } else if (code === OPEN) {
+      braces++;
+      open++;
+      if (open > deepest) {
+        deepest = open;
+      }
+    } else if (code === CLOSE) {
+      if (open > 0) {
+        open--;
+      }
+    } else if (code === COMMA && open > 0) {
+      commas++;
     }
-    if (ch === '{') {
-      stack.push(i);
-      commas.set(i, []);
-    } else if (ch === '}' && stack.length > 0) {
-      close.set(stack.pop()!, i);
-    } else if (ch === ',' && stack.length > 0) {
-      commas.get(stack[stack.length - 1])!.push(i);
+  }
+  const openAt = new Int32Array(braces);
+  const closeAt = new Int32Array(braces).fill(-1);
+  const firstComma = new Int32Array(braces).fill(-1);
+  const commaAt = new Int32Array(commas);
+  const nextComma = new Int32Array(commas).fill(-1);
+  const escapeAt = new Int32Array(escapes);
+  // The braces open at the current offset and the last comma found directly inside each of them
+  // (as deep as the deepest nesting of the line).
+  const stack = new Int32Array(deepest);
+  const lastComma = new Int32Array(deepest);
+  // Second pass: the same walk, filling the tables.
+  let top = 0;
+  let brace = 0;
+  let comma = 0;
+  let escape = 0;
+  for (let i = 0; i < length; i++) {
+    const code = line.charCodeAt(i);
+    if (code === BACKSLASH) {
+      if (i + 1 < length && escapable(line, i + 1)) {
+        escapeAt[escape++] = i;
+        i++;
+      }
+    } else if (code === OPEN) {
+      openAt[brace] = i;
+      lastComma[top] = -1;
+      stack[top++] = brace++;
+    } else if (code === CLOSE) {
+      if (top > 0) {
+        closeAt[stack[--top]] = i;
+      }
+    } else if (code === COMMA && top > 0) {
+      commaAt[comma] = i;
+      if (lastComma[top - 1] < 0) {
+        firstComma[stack[top - 1]] = comma;
+      } else {
+        nextComma[lastComma[top - 1]] = comma;
+      }
+      lastComma[top - 1] = comma;
+      comma++;
     }
   }
   // A brace that is never closed is literal text; so are the commas recorded for it.
-  return { close, commas, escaped };
+  return { openAt, closeAt, firstComma, commaAt, nextComma, escapeAt, nextBrace: 0, nextEscape: 0 };
+};
+
+/** The number of commas directly inside the brace `brace`. */
+const commaCountOf = (table: BraceTable, brace: number): number => {
+  let commas = 0;
+  for (let comma = table.firstComma[brace]; comma >= 0; comma = table.nextComma[comma]) {
+    commas++;
+  }
+  return commas;
+};
+
+/** The index of the first value of the increasing `values` that is `offset` or more. */
+const firstAtOrAfter = (values: Int32Array, offset: number): number => {
+  let low = 0;
+  let high = values.length;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (values[middle] < offset) {
+      low = middle + 1;
+    } else {
+      high = middle;
+    }
+  }
+  return low;
 };
 
 /** Refuses a number of strings over BRACE_MAX_PER_LINE; returns it otherwise. */
@@ -154,196 +391,225 @@ const checkLineCount = (count: number): number => {
   return count;
 };
 
-/** Pieces of a line and the number of strings they expand to (at most BRACE_MAX_PER_LINE). */
+/** Counts and lengths are computed saturated at this value (far above every limit). */
+const SATURATED = 1e15;
+const cap = (n: number): number => (n > SATURATED ? SATURATED : n);
+
+/** Pieces of a line, the number of strings they expand to (at most BRACE_MAX_PER_LINE) and the total length of those strings. */
 export interface ParsedSequence {
   nodes: BraceNode[];
   count: number;
+  length: number;
 }
 
+// The buffers of the parser, shared by the whole parse of one line (and emptied after it), so
+// that a sequence allocates little more than what it keeps: the literal texts not yet joined into
+// one text piece (the first `pendingCount` of `pendingTexts`, `pendingLength` characters in all),
+// the pieces of the sequences being parsed (each one cut out at its end as an array of its own
+// size), and the count and the length of the sequence parsed last.
+const pendingTexts: string[] = [];
+let pendingCount = 0;
+let pendingLength = 0;
+const pendingNodes: BraceNode[] = [];
+let parsedCount = 0;
+let parsedLength = 0;
+
+/** Pending texts up to this length are joined through their character codes (nothing but the text is made). */
+const SHORT_TEXT = 256;
+const textCodes: number[] = [];
+
+/** Adds a literal text to the pending texts. */
+const pushPending = (text: string): void => {
+  pendingTexts[pendingCount++] = text;
+  pendingLength += text.length;
+};
+
+/** Adds the literal text `line[start, end)` (if any) to the pending texts; returns its length. */
+const pushText = (line: string, start: number, end: number): number => {
+  if (end <= start) {
+    return 0;
+  }
+  pushPending(line.slice(start, end));
+  return end - start;
+};
+
+/** Joins the pending literal texts into one text piece (none when they are empty). */
+const flushTexts = (): void => {
+  if (pendingCount === 0) {
+    return;
+  }
+  let text: string;
+  if (pendingCount === 1) {
+    text = pendingTexts[0];
+  } else if (pendingLength <= SHORT_TEXT) {
+    textCodes.length = pendingLength;
+    let n = 0;
+    for (let k = 0; k < pendingCount; k++) {
+      const piece = pendingTexts[k];
+      for (let c = 0; c < piece.length; c++) {
+        textCodes[n++] = piece.charCodeAt(c);
+      }
+    }
+    text = String.fromCharCode.apply(null, textCodes);
+  } else {
+    pendingTexts.length = pendingCount;
+    text = pendingTexts.join('');
+  }
+  pendingCount = 0;
+  pendingLength = 0;
+  if (text !== '') {
+    pendingNodes.push({ kind: 'text', text });
+  }
+};
+
 /**
- * Parses `line[from, to)` into pieces. A matched pair of braces with top-level commas is a list of
- * alternatives, one with a range inside is a range, anything else (`{a}`, `{}`, an unmatched brace)
- * is literal text whose inside is still parsed. `depth` is the nesting of the braces around.
+ * Parses `line[from, to)`, adding its pieces to `pendingNodes` and `pendingTexts`, and sets
+ * `parsedCount` and `parsedLength` to the number of strings it expands to and their total length.
+ * A matched pair of braces with top-level commas is a list of alternatives, one with a range
+ * inside is a range, anything else (`{a}`, `{}`, an unmatched brace) is literal text whose inside
+ * is still parsed (into the same pieces, so that its texts join those around it). `depth` is the
+ * nesting of the braces around. Only the opening braces and the escapes are visited (from the
+ * table, in the order of the line); the text between them is cut out of the line at once.
  *
  * The strings are counted while parsing: a sequence multiplies the counts of its pieces and
  * alternatives add those of their options. Every count is 1 or more, so the count of any part is
  * not more than that of the whole line: parsing stops with GenLimitError as soon as one passes
  * BRACE_MAX_PER_LINE, and alternatives with more options than that are refused before any of them
  * is parsed. The work done before a refusal is therefore bounded by the limit, not by the input.
- * Exported for the tests only.
+ * The length is measured with the count: a piece of `c` strings of total length `l` after pieces
+ * of `count` strings of total length `length` makes `length × c + l × count` (every string of a
+ * piece is combined with every string of the others).
  */
-export const parseSequence = (line: string, table: BraceTable, from: number, to: number, depth: number): ParsedSequence => {
-  const nodes: BraceNode[] = [];
+const parseInto = (line: string, table: BraceTable, from: number, to: number, depth: number): void => {
+  const { openAt, escapeAt } = table;
   let count = 1;
-  let text = '';
-  const flush = () => {
-    if (text !== '') {
-      nodes.push({ kind: 'text', text });
-      text = '';
-    }
-  };
-  let i = from;
-  while (i < to) {
-    const ch = line[i];
-    if (ch === '\\' && table.escaped.has(i + 1)) {
-      text += line[i + 1];
-      i += 2;
+  let length = 0;
+  // The literal text not yet added to `pendingTexts` starts at `start`.
+  let start = from;
+  for (;;) {
+    const brace = table.nextBrace;
+    const escape = table.nextEscape;
+    const braceAt = brace < openAt.length ? openAt[brace] : to;
+    const escapeOffset = escape < escapeAt.length ? escapeAt[escape] : to;
+    if (escapeOffset < braceAt && escapeOffset < to) {
+      // The backslash is dropped; the escaped character starts the next literal text.
+      table.nextEscape++;
+      length = cap(length + cap(pushText(line, start, escapeOffset) * count));
+      start = escapeOffset + 1;
       continue;
     }
-    const end = ch === '{' && !table.escaped.has(i) ? table.close.get(i) : undefined;
-    if (end === undefined || end >= to) {
-      text += ch;
-      i++;
+    if (braceAt >= to) {
+      break;
+    }
+    const i = braceAt;
+    table.nextBrace++;
+    const end = table.closeAt[brace];
+    if (end < 0 || end >= to) {
+      // A brace that is not closed (here) is literal text.
       continue;
     }
     if (depth + 1 > BRACE_MAX_DEPTH) {
       throw new GenLimitError(`the braces are nested more than ${BRACE_MAX_DEPTH} deep`);
     }
-    const commas = table.commas.get(i)!;
-    if (commas.length > 0) {
-      flush();
+    if (table.firstComma[brace] >= 0) {
+      const commas = commaCountOf(table, brace);
+      length = cap(length + cap(pushText(line, start, i) * count));
+      flushTexts();
       // Every option expands to one string or more.
-      checkLineCount(commas.length + 1);
+      checkLineCount(commas + 1);
       const options: BraceNode[][] = [];
       let optionsCount = 0;
-      let start = i;
-      for (const stop of [...commas, end]) {
-        const option = parseSequence(line, table, start + 1, stop, depth + 1);
-        options.push(option.nodes);
-        optionsCount = checkLineCount(optionsCount + option.count);
-        start = stop;
-      }
-      nodes.push({ kind: 'alternatives', options });
-      count = checkLineCount(count * optionsCount);
-    } else {
-      const content = line.slice(i + 1, end);
-      const range = content.includes('{') || content.includes('\\') ? undefined : parseRange(content);
-      if (range !== undefined) {
-        flush();
-        nodes.push(range);
-        count = checkLineCount(count * range.count);
-      } else {
-        // `{a}`: the braces stay; what is inside them is still expanded.
-        text += '{';
-        const inner = parseSequence(line, table, i + 1, end, depth + 1);
-        // One by one (spreading a very long list into push() would overflow the call stack), the
-        // literal text joined to the text around it.
-        for (const node of inner.nodes) {
-          if (node.kind === 'text') {
-            text += node.text;
-          } else {
-            flush();
-            nodes.push(node);
-          }
+      let optionsLength = 0;
+      let optionStart = i;
+      let comma = table.firstComma[brace];
+      for (let k = 0; k <= commas; k++) {
+        const stop = k < commas ? table.commaAt[comma] : end;
+        const mark = pendingNodes.length;
+        parseInto(line, table, optionStart + 1, stop, depth + 1);
+        flushTexts();
+        options.push(pendingNodes.splice(mark));
+        optionsCount = checkLineCount(optionsCount + parsedCount);
+        optionsLength = cap(optionsLength + parsedLength);
+        optionStart = stop;
+        if (k < commas) {
+          comma = table.nextComma[comma];
         }
-        count = checkLineCount(count * inner.count);
-        text += '}';
       }
+      pendingNodes.push({ kind: 'alternatives', options });
+      const total = checkLineCount(count * optionsCount);
+      length = cap(cap(length * optionsCount) + cap(optionsLength * count));
+      count = total;
+      start = end + 1;
+      continue;
     }
-    i = end + 1;
-  }
-  flush();
-  return { nodes, count };
-};
-
-/** The number of strings and their total length (both saturated) of a sequence of pieces. */
-interface Size {
-  count: number;
-  length: number;
-}
-
-/** Counts and lengths are computed saturated at this value (far above every limit). */
-const SATURATED = 1e15;
-const cap = (n: number): number => (n > SATURATED ? SATURATED : n);
-
-const sizeOfNode = (node: BraceNode): Size => {
-  switch (node.kind) {
-    case 'text':
-      return { count: 1, length: node.text.length };
-    case 'range': {
-      // Called only for a line already counted (at most BRACE_MAX_PER_LINE strings); each term is
-      // made, measured and dropped, nothing is kept.
-      let length = 0;
-      for (let i = 0; i < node.count; i++) {
-        length += node.term(i).length;
+    // A range has no brace and no backslash inside: none of them is skipped below.
+    if (parseRange(line, i + 1, end)) {
+      const range = scannedRange;
+      length = cap(length + cap(pushText(line, start, i) * count));
+      const total = checkLineCount(count * range.count);
+      if (range.count === 1) {
+        // A range of one term is one more literal text (its term is made here, once).
+        const term = rangeTerm(range, 0);
+        pushPending(term);
+        length = cap(length + cap(term.length * count));
+      } else {
+        flushTexts();
+        pendingNodes.push({ ...range });
+        length = cap(cap(length * range.count) + cap(rangeLength(range) * count));
+        count = total;
       }
-      return { count: node.count, length };
+      start = end + 1;
+      continue;
     }
-    default: {
-      let count = 0;
-      let length = 0;
-      for (const option of node.options) {
-        const size = sizeOfSequence(option);
-        count = cap(count + size.count);
-        length = cap(length + size.length);
-      }
-      return { count, length };
-    }
+    // `{a}`: the braces stay (the `{` ends the text before, the `}` starts the text after); what
+    // is inside them is still expanded, into the same pieces.
+    length = cap(length + cap(pushText(line, start, i + 1) * count));
+    parseInto(line, table, i + 1, end, depth + 1);
+    const total = checkLineCount(count * parsedCount);
+    length = cap(cap(length * parsedCount) + cap(parsedLength * count));
+    count = total;
+    start = end;
   }
-};
-
-/** count = Π countᵢ; length = Σ lengthᵢ × Π_{j≠i} countⱼ (every string of a piece is combined with every string of the others). */
-const sizeOfSequence = (nodes: readonly BraceNode[]): Size => {
-  let count = 1;
-  let length = 0;
-  for (const node of nodes) {
-    const size = sizeOfNode(node);
-    length = cap(cap(length * size.count) + cap(size.length * count));
-    count = cap(count * size.count);
-  }
-  return { count, length };
+  length = cap(length + cap(pushText(line, start, to) * count));
+  parsedCount = count;
+  parsedLength = length;
 };
 
 /**
- * Folds the pieces that expand to exactly one string (literal text, a range of one term, and
- * recursively the options of alternatives) into the text around them, so that only the pieces with
- * two strings or more are left between literal texts (at most log2(BRACE_MAX_PER_LINE) of them).
- * The texts next to each other are collected and joined once. An option made only of such pieces
- * becomes one text, an empty option (`{,a}`) no piece at all. The pieces are walked with a loop;
- * only the nesting of the alternatives recurses (bounded by BRACE_MAX_DEPTH).
+ * Parses `line[from, to)` into pieces (see `parseInto`), counted and measured. Exported for the
+ * tests only.
  */
-const foldSequence = (nodes: readonly BraceNode[]): BraceNode[] => {
-  const folded: BraceNode[] = [];
-  let texts: string[] = [];
-  const flush = () => {
-    if (texts.length > 0) {
-      const text = texts.join('');
-      if (text !== '') {
-        folded.push({ kind: 'text', text });
-      }
-      texts = [];
-    }
-  };
-  for (const node of nodes) {
-    if (node.kind === 'text') {
-      texts.push(node.text);
-    } else if (node.kind === 'range' && node.count === 1) {
-      // `term` is a pure function: making the only term here instead of while expanding changes nothing.
-      texts.push(node.term(0));
-    } else if (node.kind === 'range') {
-      flush();
-      folded.push(node);
-    } else {
-      // Alternatives have two options or more, so they always expand to two strings or more.
-      flush();
-      folded.push({ kind: 'alternatives', options: node.options.map((option) => foldSequence(option)) });
-    }
+export const parseSequence = (line: string, table: BraceTable, from: number, to: number, depth: number): ParsedSequence => {
+  table.nextBrace = firstAtOrAfter(table.openAt, from);
+  table.nextEscape = firstAtOrAfter(table.escapeAt, from);
+  pendingTexts.length = 0;
+  pendingCount = 0;
+  pendingLength = 0;
+  pendingNodes.length = 0;
+  try {
+    parseInto(line, table, from, to, depth);
+    flushTexts();
+    return { nodes: pendingNodes.splice(0), count: parsedCount, length: parsedLength };
+  } finally {
+    // Nothing of a line is kept in the buffers after it (also when it is refused).
+    pendingTexts.length = 0;
+    pendingCount = 0;
+    pendingLength = 0;
+    pendingNodes.length = 0;
   }
-  flush();
-  return folded;
 };
 
-/** The strings of one folded piece (at most BRACE_MAX_PER_LINE of them, no longer in all than the line). */
+/** The strings of one piece (at most BRACE_MAX_PER_LINE of them, no longer in all than the line). */
 const piecesOf = (node: BraceNode): string[] => {
   switch (node.kind) {
     case 'text':
       return [node.text];
     case 'range':
-      return Array.from({ length: node.count }, (_, i) => node.term(i));
+      return Array.from({ length: node.count }, (_, i) => rangeTerm(node, i));
     default: {
       const pieces: string[] = [];
       for (const option of node.options) {
-        emitFolded(option, (piece) => pieces.push(piece));
+        emitSequence(option, (piece) => pieces.push(piece));
       }
       return pieces;
     }
@@ -351,15 +617,19 @@ const piecesOf = (node: BraceNode): string[] => {
 };
 
 /**
- * Emits the strings of folded pieces one by one in the order of the expansion, without building
- * the intermediate products: the strings of each piece are made once, and a mixed-radix counter
- * (one digit per piece, the last piece moving fastest) walks their combinations. Only the
- * prefixes of the current combination are kept (`prefixes[j]` is its first `j` strings
- * concatenated) and only those after the digit that moved are made again, so that the strings
- * share their prefixes as they did when the products were built (nothing is copied until the
- * result is joined). No piece at all (an empty option) emits one empty string.
+ * Emits the strings a parsed line (or part of one) expands to, one by one in the order of the
+ * expansion, without building the intermediate products. The pieces of one string are already
+ * folded into the text around them by the parser, so that only the pieces with two strings or
+ * more are left between literal texts (at most log2(BRACE_MAX_PER_LINE) of them). The strings of
+ * each piece are made once, and a mixed-radix counter (one digit per piece, the last piece moving
+ * fastest) walks their combinations. Only the prefixes of the current combination are kept
+ * (`prefixes[j]` is its first `j` strings concatenated) and only those after the digit that moved
+ * are made again, so that the strings share their prefixes (nothing is copied until the result is
+ * joined). No piece at all (an empty option) emits one empty string. Only the nesting of the
+ * alternatives recurses (bounded by BRACE_MAX_DEPTH). Exported for the tests only (they check that
+ * the strings come out one by one); it is not part of the command.
  */
-const emitFolded = (nodes: readonly BraceNode[], emit: (expanded: string) => void): void => {
+export const emitSequence = (nodes: readonly BraceNode[], emit: (expanded: string) => void): void => {
   const pieces = nodes.map(piecesOf);
   const n = pieces.length;
   const digits = pieces.map(() => 0);
@@ -389,28 +659,45 @@ const emitFolded = (nodes: readonly BraceNode[], emit: (expanded: string) => voi
 };
 
 /**
- * Emits the strings a parsed line (or part of one) expands to, one by one in the order of the
- * expansion: the pieces of one string are folded into the text around them first, then the
- * combinations of the others are walked (see `foldSequence` and `emitFolded`). Exported for the
- * tests only (they check that the strings come out one by one); it is not part of the command.
+ * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
+ * last line) and its number (from 1); LF, CRLF and CR are recognised. The same as `forEachLine`
+ * of genCommon, with the line breaks found by `indexOf` instead of looking at every character
+ * (a selection of one long line full of braces is otherwise read once more just for this).
  */
-export const emitSequence = (nodes: readonly BraceNode[], emit: (expanded: string) => void): void => {
-  emitFolded(foldSequence(nodes), emit);
+const forEachLineOf = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
+  let start = 0;
+  let lineNumber = 1;
+  let lf = text.indexOf('\n');
+  let cr = text.indexOf('\r');
+  while (lf >= 0 || cr >= 0) {
+    const at = lf < 0 ? cr : cr < 0 ? lf : Math.min(lf, cr);
+    const breakLength = at === cr && text.charCodeAt(at + 1) === 0x0a ? 2 : 1;
+    visit(text.slice(start, at), text.slice(at, at + breakLength), lineNumber);
+    start = at + breakLength;
+    lineNumber++;
+    if (lf >= 0 && lf < start) {
+      lf = text.indexOf('\n', start);
+    }
+    if (cr >= 0 && cr < start) {
+      cr = text.indexOf('\r', start);
+    }
+  }
+  visit(text.slice(start), '', lineNumber);
 };
 
 /**
  * DATEX-016: expands the braces of every line of the selection (`file{1..3}.txt` → 3 lines). The
  * strings of one line are joined with `eol`; the line breaks of the selection are kept. Every
- * line is parsed and counted before anything is expanded: more than BRACE_MAX_PER_LINE strings
- * for one line, BRACE_MAX_PER_SELECTION for the selection, or a longer result than the budget
- * stops everything. The strings of each line are then emitted one by one (`emitSequence`) and
- * joined once, without building the intermediate products of the expansion.
+ * line is parsed, counted and measured before anything is expanded: more than BRACE_MAX_PER_LINE
+ * strings for one line, BRACE_MAX_PER_SELECTION for the selection, or a longer result than the
+ * budget stops everything. The strings of each line are then emitted one by one (`emitSequence`)
+ * and joined once, without building the intermediate products of the expansion.
  */
 export const braceExpansion = (text: string, eol: string, budget: number): string => {
   const parsed: { nodes: BraceNode[] | undefined; line: string; lineBreak: string; lineNumber: number }[] = [];
   let total = 0;
   let length = 0;
-  forEachLine(text, (line, lineBreak, lineNumber) => {
+  forEachLineOf(text, (line, lineBreak, lineNumber) => {
     try {
       if (!line.includes('{')) {
         parsed.push({ nodes: undefined, line, lineBreak, lineNumber });
@@ -418,10 +705,9 @@ export const braceExpansion = (text: string, eol: string, budget: number): strin
         length += line.length + lineBreak.length;
         return;
       }
-      // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured only then.
-      const { nodes } = parseSequence(line, matchBraces(line), 0, line.length, 0);
-      const size = sizeOfSequence(nodes);
-      parsed.push({ nodes, line, lineBreak, lineNumber });
+      // Refused while it is parsed as soon as the count passes BRACE_MAX_PER_LINE; measured at the same time.
+      const size = parseSequence(line, matchBraces(line), 0, line.length, 0);
+      parsed.push({ nodes: size.nodes, line, lineBreak, lineNumber });
       total += size.count;
       length = cap(length + size.length + (size.count - 1) * eol.length + lineBreak.length);
     } catch (error) {
@@ -447,6 +733,7 @@ export const braceExpansion = (text: string, eol: string, budget: number): strin
   }
   return output.join();
 };
+
 
 // ---------------------------------------------------------------------------------------------
 // DATEX-017 Multiplication Table
