@@ -52,7 +52,7 @@ suite('HAR to Mermaid Handler Test Suite', () => {
 
   test('every script tag carries the nonce; no module script or import', () => {
     const html = render();
-    const scripts = html.match(/<script\b[^>]*>/g) ?? [];
+    const scripts = html.match(/<script\b[^>]*>/gi) ?? [];
     assert.strictEqual(scripts.length, 2);
     for (const tag of scripts) {
       assert.ok(tag.includes(`nonce="${NONCE}"`), tag);
@@ -64,7 +64,7 @@ suite('HAR to Mermaid Handler Test Suite', () => {
 
   test('webview HTML has no external URL', () => {
     const html = render();
-    assert.ok(!html.includes('cdn.jsdelivr.net'));
+    assert.ok(!/cdn\.jsdelivr\.net/i.test(html));
     assert.ok(!/https?:\/\//.test(html.replace(SCRIPT_URI, '')));
   });
 
