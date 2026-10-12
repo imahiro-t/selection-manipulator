@@ -172,9 +172,19 @@ export interface LineEdges {
   textAfter: boolean;
   /** The line after the line where the selection ends has text other than spaces and tabs. */
   textOnNextLine: boolean;
+  /**
+   * The spaces and tabs between the start of the line and the selection, when nothing else
+   * precedes the selection on its line (not before the previous selection's edit); otherwise ''.
+   */
+  indentBefore: string;
+  /**
+   * Whether `indentBefore` is taken into the edit (so that the result starts at the start of the
+   * line): always for 4 columns or more, and for less when the command asks for it.
+   */
+  indentTaken: boolean;
 }
 
-export const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false, textOnNextLine: false };
+export const NO_LINE_EDGES: LineEdges = { textBefore: false, textAfter: false, textOnNextLine: false, indentBefore: '', indentTaken: false };
 
 /** A command that transforms the text of every non-empty selection on its own. */
 export type SelectionTransform = (value: string, eol: MdEol, inputs: readonly string[], edges: LineEdges) => string;
@@ -237,10 +247,16 @@ const indentsCodeBlock = (text: string, offset: number, floor: number): boolean 
  * selection on its line and the indentation there is 4 columns or more (a tab counts to the next
  * multiple of 4), that indentation is taken into the edit too (not before the previous
  * selection's edit), so that the block written does not start with it and is not read as an
- * indented code block; up to 3 columns stay. The changed results are counted as they are made,
- * so that the output limit stops a run before all of them are built.
+ * indented code block; up to 3 columns stay, unless `takeIndent` (given that indentation and the
+ * selected text) asks for them to be taken as well. The transform is told the indentation and
+ * whether it is taken (`indentBefore`, `indentTaken`). The changed results are counted as they
+ * are made, so that the output limit stops a run before all of them are built.
  */
-export const perSelection = (transform: SelectionTransform, lineEdges = false) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
+export const perSelection = (
+  transform: SelectionTransform,
+  lineEdges = false,
+  takeIndent?: (indent: string, value: string) => boolean,
+) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
   let total = 0;
   let floor = 0;
@@ -252,16 +268,21 @@ export const perSelection = (transform: SelectionTransform, lineEdges = false) =
       return undefined;
     }
     const value = text.slice(range.start, range.end);
-    const edges = lines === undefined
-      ? NO_LINE_EDGES
-      : { textBefore: lines.textBefore(range.start), textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end) };
+    let edges = NO_LINE_EDGES;
+    if (lines !== undefined) {
+      const textBefore = lines.textBefore(range.start);
+      const indentBefore = textBefore ? '' : text.slice(indentStart(text, range.start, floor), range.start);
+      const indentTaken = indentBefore !== ''
+        && (indentWidth(indentBefore) >= 4 || (takeIndent !== undefined && takeIndent(indentBefore, value)));
+      edges = { textBefore, textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end), indentBefore, indentTaken };
+    }
     const replacement = transform(value, eol, inputs, edges);
     if (replacement !== value) {
       total += replacement.length;
       assertOutputLength(total);
       if (lines !== undefined) {
         const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
-        const breakBefore = edges.textBefore || indentsCodeBlock(text, range.start, floor);
+        const breakBefore = edges.textBefore || edges.indentTaken;
         edited[i] = editRange(text, range, breakBefore, edges.textAfter && endsInsideLine(text, range.end), floor, ceiling);
       }
     }
@@ -687,14 +708,98 @@ export const assertValid = (validate: (value: string) => string | undefined, val
   }
 };
 
+/** The length of the spaces and tabs at `start` (up to `end`). */
+const spaceOrTabRun = (text: string, start: number, end: number): number => {
+  let i = start;
+  while (i < end && isSpaceOrTab(text[i])) {
+    i++;
+  }
+  return i - start;
+};
+
+/** The length of the common prefix of `a` and `b[from, from + length)`. */
+const commonPrefixLength = (a: string, b: string, from: number, length: number): number => {
+  const limit = Math.min(a.length, length);
+  let i = 0;
+  while (i < limit && a[i] === b[from + i]) {
+    i++;
+  }
+  return i;
+};
+
+/**
+ * MD-014 (for `perSelection`): whether indentation of up to 3 columns before the selection is
+ * taken into the edit, so that the opening fence goes to the start of the line. It stays when every
+ * later line of the selection with text starts with it too (then each line keeps it in the block
+ * and loses the same columns when rendered); otherwise a line would lose less than the others.
+ */
+export const fenceTakesIndent = (indent: string, value: string): boolean => {
+  const spans = lineSpans(value);
+  for (let i = 1; i < spans.length; i++) {
+    const { start, end } = spans[i];
+    const run = spaceOrTabRun(value, start, end);
+    if (start + run < end && !value.startsWith(indent, start)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * The lines of `text` without the indentation all of its lines with text start with (compared
+ * character by character, so that a tab and spaces never match), but never more than `before` (the
+ * indentation before the selection, which `text` starts with): spaces and tabs the user selected
+ * stay. A line of spaces and tabs only loses the part of it that matches that indentation (or
+ * `before`, when no line has text). The line breaks are kept as they are.
+ */
+const removeCommonIndent = (text: string, before: string): string => {
+  const spans = lineSpans(text);
+  let common: string | undefined;
+  for (const { start, end } of spans) {
+    const run = spaceOrTabRun(text, start, end);
+    if (start + run < end) {
+      common = common === undefined
+        ? text.slice(start, start + run)
+        : common.slice(0, commonPrefixLength(common, text, start, run));
+    }
+  }
+  const prefix = common === undefined ? before : common.slice(0, before.length);
+  if (prefix === '') {
+    return text;
+  }
+  const parts: string[] = [];
+  for (const { start, next } of spans) {
+    const run = spaceOrTabRun(text, start, next);
+    parts.push(text.slice(start + commonPrefixLength(prefix, text, start, run), next));
+  }
+  return parts.join('');
+};
+
 /**
  * MD-014: a code fence longer than any backtick run in the selection (at least 3), with the
  * language. The fences are always on lines of their own: a line break is added before the
  * opening fence when the selection starts after other text on its line, and after the closing
  * fence when other text follows the selection on its line (the spaces and tabs at such a split
- * are dropped by `perSelection`). Indentation of 4 columns or more before the opening fence is
- * dropped by `perSelection` too (it would make the fence part of an indented code block). The
- * closing fence ends the block, so text on the next line needs no blank line.
+ * are dropped by `perSelection`). The closing fence ends the block, so text on the next line
+ * needs no blank line.
+ *
+ * When only indentation precedes the selection on its line (`edges.indentBefore`), the lines in
+ * the block keep their indentation relative to each other, both in the text and when rendered
+ * (CommonMark removes up to as many columns from every line in the block as the opening fence is
+ * indented):
+ * - up to 3 columns, with every later line with text starting with the same indentation
+ *   (`fenceTakesIndent` is false): the opening fence stays after the indentation, and the first
+ *   line in the block gets it too, so that every line is as it was. The closing fence gets the
+ *   same indentation, so that inside a list item it stays in the item (a closing fence at the
+ *   start of the line would end the item and open a new block that is never closed); outside a
+ *   container a closing fence may be indented by up to 3 columns, so nothing changes there;
+ * - 4 columns or more (the fence would be part of an indented code block), or a later line that
+ *   does not start with it: `perSelection` takes the indentation into the edit, the opening fence
+ *   starts the line, and the indentation all lines with text share (the first line counted with
+ *   the indentation before it) is removed from every line, up to the indentation before the
+ *   selection: spaces and tabs selected with the text stay in the block.
+ * With nothing before the selection on its line, the selected text is written as it is: the
+ * indentation selected with it stays in the block.
  */
 export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLanguageInput, language);
@@ -705,10 +810,20 @@ export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edg
     longest = Math.max(longest, run);
   }
   const fence = '`'.repeat(Math.max(3, longest + 1));
-  const [body, trailing] = splitTrailingBreaks(value);
+  const [selected, trailing] = splitTrailingBreaks(value);
+  let body = selected;
+  let closingIndent = '';
+  if (edges.indentBefore !== '') {
+    if (edges.indentTaken) {
+      body = removeCommonIndent(edges.indentBefore + selected, edges.indentBefore);
+    } else {
+      body = edges.indentBefore + selected;
+      closingIndent = edges.indentBefore;
+    }
+  }
   const before = edges.textBefore ? eol : '';
   const after = trailing === '' && edges.textAfter ? eol : '';
-  return `${before}${fence}${language}${eol}${body}${eol}${fence}${trailing}${after}`;
+  return `${before}${fence}${language}${eol}${body}${eol}${closingIndent}${fence}${trailing}${after}`;
 };
 
 /** Whether the parentheses of a URL are balanced (so that it can stay a bare link destination). */
@@ -1392,7 +1507,7 @@ export const MD_COMMAND_ENTRIES: readonly MdCommandEntry[] = [
       placeHolder: 'e.g. python',
       validate: validateLanguageInput,
     }],
-    run: perSelection((value, eol, inputs, edges) => wrapInCodeFence(value, eol, inputs[0], edges), true),
+    run: perSelection((value, eol, inputs, edges) => wrapInCodeFence(value, eol, inputs[0], edges), true, fenceTakesIndent),
   },
   {
     id: 'MD-015', name: 'markdown.blockquote', title: 'Markdown: Blockquote',
