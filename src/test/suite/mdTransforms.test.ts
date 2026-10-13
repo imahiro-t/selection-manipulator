@@ -748,6 +748,43 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.deepStrictEqual(outcome.ranges.map(({ start, end }) => [start, end]), [[1, 1], [3, 18], [19, 28]]);
     });
 
+    test('MD-014/024: a cursor in the spaces after the selection does not leave 4 columns at the start of the next line (SELEC-00143)', () => {
+      const outcome = (id: string, text: string, ranges: MdRange[], eol: MdEol = '\n'): [string, number[][]] => {
+        const done = result(id, text, { inputs: [id === 'MD-014' ? '' : 'S'], ranges, eol });
+        assert.ok(done.kind === 'edit');
+        return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+      };
+      const cursors = (...offsets: number[]): MdRange[] => offsets.map((offset) => ({ start: offset, end: offset }));
+      const a = { start: 0, end: 1 };
+      const details = '<details><summary>S</summary>\n\na\n\n</details>\n\n';
+      // Before SELEC-00143 the edit stopped at the cursor, and the 4 spaces after it started the
+      // next line (`    b`, an indented code block). Now they are taken into the edit and the
+      // cursor moves to the start of the next line.
+      assert.deepStrictEqual(outcome('MD-014', 'a     b', [a, ...cursors(2)]), ['```\na\n```\nb', [[0, 10], [10, 10]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a     b', [a, ...cursors(2)]), [`${details}b`, [[0, 46], [46, 46]]]);
+      // 4 columns after the first cursor but 1 after the last: what the first cursor would leave
+      // counts, so the spaces are taken past both cursors, which both move to the start of the next line.
+      assert.deepStrictEqual(outcome('MD-014', 'a     b', [a, ...cursors(2, 5)]), ['```\na\n```\nb', [[0, 10], [10, 10], [10, 10]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a     b', [a, ...cursors(2, 5)]), [`${details}b`, [[0, 46], [46, 46], [46, 46]]]);
+      // Several cursors, 4 columns or more after each.
+      assert.deepStrictEqual(outcome('MD-014', 'a      b', [a, ...cursors(2, 3)]), ['```\na\n```\nb', [[0, 10], [10, 10], [10, 10]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a      b', [a, ...cursors(2, 3)]), [`${details}b`, [[0, 46], [46, 46], [46, 46]]]);
+      // A tab counts to the next multiple of 4 (` \t ` at the start of a line is 5 columns).
+      assert.deepStrictEqual(outcome('MD-014', 'a  \t b', [a, ...cursors(2)]), ['```\na\n```\nb', [[0, 10], [10, 10]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a  \t b', [a, ...cursors(2)]), [`${details}b`, [[0, 46], [46, 46]]]);
+      // CRLF.
+      assert.deepStrictEqual(outcome('MD-014', 'a     b\r\nc', [a, ...cursors(2)], '\r\n'), ['```\r\na\r\n```\r\nb\r\nc', [[0, 13], [13, 13]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a     b\r\nc', [a, ...cursors(2)], '\r\n'),
+        ['<details><summary>S</summary>\r\n\r\na\r\n\r\n</details>\r\n\r\nb\r\nc', [[0, 52], [52, 52]]]);
+      // Up to 3 columns after the cursor stay, and the cursor keeps its place (unchanged).
+      assert.deepStrictEqual(outcome('MD-014', 'a    b', [a, ...cursors(2)]), ['```\na\n```\n   b', [[0, 10], [10, 10]]]);
+      assert.deepStrictEqual(outcome('MD-024', 'a    b', [a, ...cursors(2)]), [`${details}   b`, [[0, 46], [46, 46]]]);
+      // The spaces are taken up to the next non-empty selection, never into it.
+      assert.deepStrictEqual(outcome('MD-014', 'a      b', [a, ...cursors(2), { start: 7, end: 8 }]),
+        ['```\na\n```\n\n```\nb\n```', [[0, 10], [10, 10], [10, 20]]]);
+      assert.deepStrictEqual(outcome('MD-014', 'a      b', [a, { start: 4, end: 8 }]), ['```\na\n```\n\n```\n   b\n```', [[0, 10], [10, 23]]]);
+    });
+
     test('MD-024: lines selected from after the indentation of the first one keep their relative indentation (SELEC-00135)', () => {
       const wrap = (text: string, start: number, eol: '\n' | '\r\n' = '\n'): string =>
         run('MD-024', text, { inputs: ['S'], ranges: [{ start, end: text.length }], eol });
