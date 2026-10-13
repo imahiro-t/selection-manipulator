@@ -240,6 +240,10 @@ suite('Extended Number Commands (NUMX-001..023) transforms Test Suite', () => {
       assert.strictEqual(multiplyBy('0.1', 3), '0.3');
       throwsInput(() => multiplyBy('1e308', 10), 'the result is out of range');
     });
+
+    test('a lone CR at the very end of the selection is kept (SELEC-00149)', () => {
+      assert.strictEqual(run('NUMX-008', '1\n2\r', ['2']), '2\n4\r');
+    });
   });
 
   suite('NUMX-009 / 010 IEEE 754', () => {
