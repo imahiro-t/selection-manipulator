@@ -1073,6 +1073,25 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.deepStrictEqual(outcome('# A\nfoo      bar\n\n', [span(0, 7), span(7, 9), span(18, 18)]), ['- [A](#a)\n\nbar\n\n- [A](#a)\n', [[0, 11], [11, 11], [16, 26]]]);
     });
 
+    test('MD-003: a selection of spaces moved to the start of the next line keeps its direction (SELEC-00146)', () => {
+      const rangesOf = (text: string, ranges: MdRange[]): MdRange[] => {
+        const done = result('MD-003', text, { ranges });
+        assert.ok(done.kind === 'edit');
+        return done.ranges;
+      };
+      // Read past by the split (SELEC-00144): one selection, then two.
+      assert.deepStrictEqual(rangesOf('# A\nfoo      bar', [{ start: 0, end: 7 }, { start: 7, end: 9, reversed: true }]),
+        [{ start: 0, end: 11 }, { start: 11, end: 11, reversed: true }]);
+      assert.deepStrictEqual(rangesOf('# A\nfoo      bar', [{ start: 0, end: 7 }, { start: 7, end: 8, reversed: true }, { start: 8, end: 9, reversed: true }]),
+        [{ start: 0, end: 11 }, { start: 11, end: 11, reversed: true }, { start: 11, end: 11, reversed: true }]);
+      // Taken with the indentation of a continuation line (SELEC-00146).
+      assert.deepStrictEqual(rangesOf('# A\nfoo  \n    bar', [{ start: 0, end: 7 }, { start: 7, end: 10, reversed: true }]),
+        [{ start: 0, end: 11 }, { start: 11, end: 11, reversed: true }]);
+      // A selection that is not reversed stays so.
+      assert.deepStrictEqual(rangesOf('# A\nfoo      bar', [{ start: 0, end: 7 }, { start: 7, end: 9 }]),
+        [{ start: 0, end: 11 }, { start: 11, end: 11, reversed: undefined }]);
+    });
+
     test('MD-003: a selection of spaces on a heading line has a table of contents of its own and is not read past (SELEC-00144)', () => {
       const span = (start: number, end: number) => ({ start, end });
       const outcome = (text: string, ranges: MdRange[]): [string, number[][]] => {
@@ -1104,11 +1123,87 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       // (nothing before it on the line), and `textAfter` (read on the original text) makes its edit
       // take the spaces after it, so `bar` starts its line.
       assert.deepStrictEqual(outcome('# A\nfoo      bar', [span(0, 7), span(9, 9)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 11], [11, 22]]]);
-      // A selection of spaces with a line break: the split-off line is a line of spaces only (a
-      // blank line), so it is not read as code, and the selection is not read past. (The indented
-      // line after it stays as it was, with or without the selection: that is not this split.)
-      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7), span(7, 10)]), ['- [A](#a)\n  \n    bar', [[0, 10], [10, 13]]]);
-      assert.strictEqual(run('MD-003', '# A\nfoo  \n    bar', { ranges: [span(0, 7)] }), '- [A](#a)\n  \n    bar');
+      // A selection of spaces with a line break: it is not read past by this split (no 4 columns
+      // are left on the line it ends), but since SELEC-00146 the indented continuation line after it
+      // loses its indentation (with the rest of the line and the line break) and the selection is
+      // left as a cursor at the start of its text.
+      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7), span(7, 10)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7)]), ['- [A](#a)\n\nbar', [[0, 11]]]);
+    });
+
+    test('MD-003: a paragraph continuation line indented by 4 columns or more after the list loses its indentation (SELEC-00146)', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const outcome = (text: string, ranges: MdRange[], eol: MdEol = '\n'): [string, number[][]] => {
+        const done = result('MD-003', text, { ranges, eol });
+        assert.ok(done.kind === 'edit');
+        return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+      };
+      // Before SELEC-00146: `- [A](#a)\n  \n    bar`, where `bar` is taken into the last item of the
+      // list (its second paragraph) instead of staying a paragraph of its own.
+      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7)]), ['- [A](#a)\n\nbar', [[0, 11]]]);
+      // Without spaces at the end of the line; a selection that ends right after the line break.
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7)]), ['- [A](#a)\n\nbar', [[0, 11]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 8)]), ['- [A](#a)\n\nbar', [[0, 11]]]);
+      // A cursor at the end of the line and at the start of the next line.
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(7, 7)]), ['# A\nfoo\n\n- [A](#a)\n\nbar', [[7, 20]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(8, 8)]), ['# A\nfoo\n\n- [A](#a)\n\nbar', [[8, 20]]]);
+      // A tab, 6 columns, a nested table of contents.
+      assert.strictEqual(run('MD-003', '# A\nfoo\n\tbar', { ranges: [span(0, 7)] }), '- [A](#a)\n\nbar');
+      assert.strictEqual(run('MD-003', '# A\nfoo\n      bar', { ranges: [span(0, 7)] }), '- [A](#a)\n\nbar');
+      assert.strictEqual(run('MD-003', '# A\n## B\nfoo\n    bar', { ranges: [span(0, 12)] }), '- [A](#a)\n  - [B](#b)\n\nbar');
+      // Only the first continuation line: the next one continues its paragraph as before.
+      assert.strictEqual(run('MD-003', '# A\nfoo\n    bar\n    baz', { ranges: [span(0, 7)] }), '- [A](#a)\n\nbar\n    baz');
+      // A paragraph line in a list item without the marker.
+      assert.strictEqual(run('MD-003', '# A\n- foo\n  bar\n    baz', { ranges: [span(0, 15)] }), '- [A](#a)\n\nbaz');
+      // CRLF, and a lone CR (one line break; the line breaks written are the document's).
+      assert.deepStrictEqual(outcome('# A\r\nfoo  \r\n    bar', [span(0, 8)], '\r\n'), ['- [A](#a)\r\n\r\nbar', [[0, 13]]]);
+      assert.deepStrictEqual(outcome('# A\rfoo  \r    bar', [span(0, 7)]), ['- [A](#a)\n\nbar', [[0, 11]]]);
+      // Selections of spaces and line breaks in what is taken are left as cursors at the start of the text.
+      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7), span(7, 9), span(10, 12)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11], [11, 11]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7), span(9, 10)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      // A cursor in what is taken inserts a list of its own: the first edit stops at the end of the
+      // line as before, and the cursor's own edit (it is at the start of the line) takes the indentation.
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7), span(8, 8)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 10], [11, 22]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7), span(10, 10)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 10], [11, 22]]]);
+      // A selection with other text starting in what is taken: as before.
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7), span(7, 13)]), ['- [A](#a)\n\n    bar', [[0, 10], [10, 16]]]);
+      // A cursor at the start of the text, and later tables of contents: one blank line between the parts.
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar', [span(0, 7), span(12, 12)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 11], [11, 22]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar\n# B\nfoo\n    bar', [span(0, 7), span(16, 23)]),
+        ['- [A](#a)\n\nbar\n\n- [B](#b)\n\nbar', [[0, 11], [15, 27]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo\n    bar\n\n', [span(0, 7), span(17, 17)]), ['- [A](#a)\n\nbar\n\n- [A](#a)\n', [[0, 11], [16, 26]]]);
+    });
+
+    test('MD-003: what is not a paragraph continuation line to be unindented stays as before (SELEC-00146)', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const asBefore = (text: string, start: number, end: number, expected: string): void =>
+        assert.strictEqual(run('MD-003', text, { ranges: [span(start, end)] }), expected, JSON.stringify([text, start, end]));
+      // The text of the line may start a block without its indentation.
+      for (const line of ['# x', '- x', '* x', '+ x', '1. x', '> x', '```', '~~~', '***', '___', '<div>', '[x]: /u', '| a |']) {
+        asBefore(`# A\nfoo\n    ${line}`, 0, 7, `- [A](#a)\n\n    ${line}`);
+      }
+      // 3 columns or less (out of scope).
+      asBefore('# A\nfoo\n   bar', 0, 7, '- [A](#a)\n\n   bar');
+      // The line before is a heading (a selection and cursors at its end and after its line break).
+      asBefore('# A\n    code', 0, 3, '- [A](#a)\n\n    code');
+      asBefore('# A\n    code', 3, 3, '# A\n\n- [A](#a)\n\n    code');
+      asBefore('# A\n    code', 4, 4, '# A\n\n- [A](#a)\n\n    code');
+      // The line before is blank: an indented code block.
+      asBefore('# A\nfoo\n\n    code', 0, 8, '- [A](#a)\n\n    code');
+      asBefore('# A\nfoo\n\n    code', 0, 7, '- [A](#a)\n\n    code');
+      asBefore('# A\nfoo\n\n    code', 9, 9, '# A\nfoo\n\n- [A](#a)\n\n    code');
+      // The line before is a fence or in fenced code.
+      asBefore('# A\n```\n    bar\n```', 0, 7, '- [A](#a)\n\n    bar\n```');
+      asBefore('# A\n```\nfoo\n    bar\n```', 11, 11, '# A\n```\nfoo\n\n- [A](#a)\n\n    bar\n```');
+      // The line before is a thematic break or a setext underline.
+      asBefore('# A\n***\n    bar', 0, 7, '- [A](#a)\n\n    bar');
+      asBefore('# A\nfoo\n===\n    bar', 0, 11, '- [A](#a)\n\n    bar');
+      // The line before is itself indented by 4 columns or more.
+      asBefore('# A\n     foo\n    bar', 0, 12, '- [A](#a)\n\n    bar');
+      // The line before starts with a list or quote marker.
+      asBefore('# A\n- foo\n    - bar', 0, 9, '- [A](#a)\n\n    - bar');
+      asBefore('# A\n- foo\n    bar', 0, 9, '- [A](#a)\n\n    bar');
+      asBefore('# A\n> foo\n    bar', 0, 9, '- [A](#a)\n\n    bar');
     });
   });
 
