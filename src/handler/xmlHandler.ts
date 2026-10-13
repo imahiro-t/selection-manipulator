@@ -107,7 +107,9 @@ function xmlToJson(xml: string): any {
 
   // Clean up empty objects that only have text
   const simplify = (obj: any): any => {
-    if (typeof obj !== 'object' || obj === null) return obj;
+    if (typeof obj !== 'object' || obj === null) {
+      return obj;
+    }
     const keys = Object.keys(obj);
     if (keys.length === 1 && keys[0] === '#text') {
       return obj['#text'];

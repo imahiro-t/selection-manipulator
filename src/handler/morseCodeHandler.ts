@@ -37,7 +37,9 @@ const reverseWabunMap: { [key: string]: string } = Object.fromEntries(Object.ent
 // Output mode: 'new-tab' | 'replace' | 'clipboard'
 // Priority: 'standard' | 'kana' (for decoding)
 export const morseHandler = (mode: 'to-morse' | 'from-morse', output: 'new-tab' | 'replace' | 'clipboard', priority: 'standard' | 'kana' = 'standard') => async (textEditor: TextEditor) => {
-  if (textEditor.selections.length === 0) return;
+  if (textEditor.selections.length === 0) {
+    return;
+  }
 
   const selections = textEditor.selections;
   const results = selections
@@ -65,25 +67,41 @@ const processText = (text: string, mode: 'to-morse' | 'from-morse', priority: 's
       // Prioritize Wabun matches if char is Kana, Mora if char is Alpha.
       // Maps are disjoint (Kana vs Alpha), so checking both is safe, order matters only for shared chars which are none.
       // Wait, Wabun uses some chars? No key is text char.
-      if (wabunMap[char]) return wabunMap[char];
-      if (moraMap[char]) return moraMap[char];
-      if (char === ' ') return ' ';
+      if (wabunMap[char]) {
+        return wabunMap[char];
+      }
+      if (moraMap[char]) {
+        return moraMap[char];
+      }
+      if (char === ' ') {
+        return ' ';
+      }
       return char;
     }).join(' ');
   } else {
     // From Morse
     return text.split(' ').map(code => {
       const trimmedCode = code.trim();
-      if (!trimmedCode) return ' ';
+      if (!trimmedCode) {
+        return ' ';
+      }
 
       if (priority === 'kana') {
         // Check Wabun first
-        if (reverseWabunMap[trimmedCode]) return reverseWabunMap[trimmedCode];
-        if (reverseMoraMap[trimmedCode]) return reverseMoraMap[trimmedCode];
+        if (reverseWabunMap[trimmedCode]) {
+          return reverseWabunMap[trimmedCode];
+        }
+        if (reverseMoraMap[trimmedCode]) {
+          return reverseMoraMap[trimmedCode];
+        }
       } else {
         // Check Standard first
-        if (reverseMoraMap[trimmedCode]) return reverseMoraMap[trimmedCode];
-        if (reverseWabunMap[trimmedCode]) return reverseWabunMap[trimmedCode];
+        if (reverseMoraMap[trimmedCode]) {
+          return reverseMoraMap[trimmedCode];
+        }
+        if (reverseWabunMap[trimmedCode]) {
+          return reverseWabunMap[trimmedCode];
+        }
       }
       return trimmedCode; // Unknown code
     }).join('');

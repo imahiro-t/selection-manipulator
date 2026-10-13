@@ -32,12 +32,16 @@ function evaluateMathExpression(expr: string): number {
   const str = expr.trim();
 
   function peek(): string {
-    while (pos < str.length && /\s/.test(str[pos])) pos++;
+    while (pos < str.length && /\s/.test(str[pos])) {
+      pos++;
+    }
     return pos < str.length ? str[pos] : '';
   }
 
   function get(): string {
-    while (pos < str.length && /\s/.test(str[pos])) pos++;
+    while (pos < str.length && /\s/.test(str[pos])) {
+      pos++;
+    }
     return pos < str.length ? str[pos++] : '';
   }
 
@@ -73,7 +77,9 @@ function evaluateMathExpression(expr: string): number {
       } else if (op === '/') {
         get();
         const divisor = parsePower();
-        if (divisor === 0) return NaN;
+        if (divisor === 0) {
+          return NaN;
+        }
         value /= divisor;
       } else if (op === '%') {
         get();
@@ -128,7 +134,9 @@ function evaluateMathExpression(expr: string): number {
       }
       const numStr = str.substring(start, pos);
       const num = Number(numStr);
-      if (isNaN(num)) throw new Error(`Invalid number: ${numStr}`);
+      if (isNaN(num)) {
+        throw new Error(`Invalid number: ${numStr}`);
+      }
       return num;
     }
 
@@ -137,12 +145,18 @@ function evaluateMathExpression(expr: string): number {
         pos++;
       }
       const id = str.substring(start, pos).toLowerCase();
-      if (id === 'pi') return Math.PI;
-      if (id === 'e') return Math.E;
+      if (id === 'pi') {
+        return Math.PI;
+      }
+      if (id === 'e') {
+        return Math.E;
+      }
       if (peek() === '(') {
         get();
         const arg = parseExpression();
-        if (get() !== ')') throw new Error('Mismatched parentheses');
+        if (get() !== ')') {
+          throw new Error('Mismatched parentheses');
+        }
         switch (id) {
           case 'sqrt': return Math.sqrt(arg);
           case 'abs': return Math.abs(arg);
