@@ -228,6 +228,38 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       fast('MD-003 3,000 cursors x 5,000 headings', 2000, () => assert.ok(failure('MD-003', headings, { ranges: cursors }).includes('longer than')));
     });
 
+    test('many selections of spaces after the tables of contents: read past in one walk (SELEC-00144)', function () {
+      this.timeout(20_000);
+      const count = 50_000;
+      // One selection with many headings, then many selections of one space on the line it ends on.
+      const block = `${Array.from({ length: count }, (_value, i) => `# h${i}`).join('\n')}\nfoo`;
+      const text = `${block}${' '.repeat(count + 4)}bar`;
+      const ranges: MdRange[] = [{ start: 0, end: block.length }];
+      for (let i = 0; i < count; i++) {
+        ranges.push({ start: block.length + i, end: block.length + i + 1 });
+      }
+      fast('MD-003 1 selection x 50,000 headings + 50,000 selections of spaces', 2000, () => {
+        const done = result('MD-003', text, { ranges });
+        assert.ok(done.kind === 'edit');
+        assert.ok(applied(text, done).endsWith('\n\nbar'));
+      });
+      // Many tables of contents, each followed by a selection of spaces on its last line.
+      let many = '';
+      const pairs: MdRange[] = [];
+      for (let i = 0; i < count; i++) {
+        const start = many.length;
+        many += `# h${i}\nfoo`;
+        pairs.push({ start, end: many.length }, { start: many.length, end: many.length + 2 });
+        many += '      bar\n';
+      }
+      const outcomes: MdResult[] = [];
+      fast('MD-003 50,000 selections with headings + 50,000 selections of spaces', 2000, () => outcomes.push(result('MD-003', many, { ranges: pairs })));
+      const done = outcomes[0];
+      // Checked outside the timing: `applied` rebuilds the text once per edit.
+      assert.ok(done.kind === 'edit');
+      assert.ok(done.edits.every(({ end }) => many.slice(end, end + 3) === 'bar'));
+    });
+
     test('CRLF: the table of contents uses CRLF', () => {
       assert.strictEqual(run('MD-003', '# A\r\n## B', { eol: '\r\n' }), '- [A](#a)\r\n  - [B](#b)');
     });
@@ -997,6 +1029,86 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       // No headings at all: still only the information.
       assert.strictEqual(run('MD-003', '  \n  ', { ranges: [span(0, 2), span(3, 5)] }), `info: ${MD_NO_HEADINGS}`);
       assert.strictEqual(run('MD-003', '  \n  ', { ranges: [span(0, 0), span(2, 4)] }), `info: ${MD_NO_HEADINGS}`);
+    });
+
+    test('MD-003: a selection of only spaces after the table of contents does not leave 4 columns at the start of the next line (SELEC-00144)', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const outcome = (text: string, ranges: MdRange[], eol: MdEol = '\n'): [string, number[][]] => {
+        const done = result('MD-003', text, { ranges, eol });
+        assert.ok(done.kind === 'edit');
+        return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+      };
+      const text = '# A\nfoo      bar';
+      // Before SELEC-00144 the edit stopped at the selection of spaces (`editRange`'s ceiling), which
+      // has no table of contents and was left as it was, so the line after the list started with 6
+      // spaces (`      bar`, an indented code block). Now the spaces are taken into the edit past
+      // it, and it is left as a cursor at the start of the next line.
+      assert.deepStrictEqual(outcome(text, [span(0, 7), span(7, 9)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      // The same when a cursor inserts the table of contents and the selection of spaces follows it
+      // (before: `foo\n\n- [A](#a)\n\n    bar`).
+      assert.deepStrictEqual(outcome('foo      bar\n# A', [span(5, 5), span(5, 7)]), ['foo\n\n- [A](#a)\n\nbar\n# A', [[3, 16], [16, 16]]]);
+      // Exactly 4 columns, with or without spaces between the table of contents and the selection.
+      assert.deepStrictEqual(outcome('# A\nfoo    bar', [span(0, 7), span(7, 8)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo        bar', [span(0, 7), span(9, 11)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      // Up to 3 columns from the selection on stay, and the selection keeps its place (as before).
+      assert.deepStrictEqual(outcome('# A\nfoo   bar', [span(0, 7), span(7, 8)]), ['- [A](#a)\n\n   bar', [[0, 11], [11, 12]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo   bar', [span(0, 7), span(8, 9)]), ['- [A](#a)\n\n  bar', [[0, 11], [11, 12]]]);
+      // A tab counts to the next multiple of 4 (` \t` and `\t` from the selection on are 4 columns).
+      assert.deepStrictEqual(outcome('# A\nfoo \tbar', [span(0, 7), span(7, 8)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo  \tbar', [span(0, 7), span(8, 9)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11]]]);
+      // Several selections of spaces: all are read past and left at the start of the next line.
+      assert.deepStrictEqual(outcome(text, [span(0, 7), span(7, 8), span(8, 9), span(10, 11)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11], [11, 11], [11, 11]]]);
+      // A cursor after the selection of spaces stops the reading: with 4 columns up to it they are
+      // taken, and the cursor's own table of contents takes the spaces after it.
+      assert.deepStrictEqual(outcome(text, [span(0, 7), span(7, 9), span(11, 11)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 11], [11, 11], [11, 22]]]);
+      // With fewer than 4 columns up to the cursor, its table of contents takes them (the lists are adjacent).
+      assert.deepStrictEqual(outcome('# A\nfoo        bar', [span(0, 7), span(7, 8), span(9, 9)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 11], [11, 11], [11, 22]]]);
+      // A selection with other text or with a heading stops the reading too: the spaces are taken
+      // up to it, never into it.
+      assert.deepStrictEqual(outcome(text, [span(0, 7), span(7, 8), span(13, 16)]), ['- [A](#a)\n\nbar', [[0, 11], [11, 11], [11, 14]]]);
+      assert.deepStrictEqual(outcome('# A\nfoo      x bar', [span(0, 7), span(7, 8), span(11, 14)]), ['- [A](#a)\n\n  x bar', [[0, 11], [11, 11], [11, 14]]]);
+      // CRLF.
+      assert.deepStrictEqual(outcome('# A\r\nfoo      bar\r\nx', [span(0, 8), span(8, 10)], '\r\n'), ['- [A](#a)\r\n\r\nbar\r\nx', [[0, 13], [13, 13]]]);
+      // A later table of contents still sees the moved selection through.
+      assert.deepStrictEqual(outcome('# A\nfoo      bar\n\n', [span(0, 7), span(7, 9), span(18, 18)]), ['- [A](#a)\n\nbar\n\n- [A](#a)\n', [[0, 11], [11, 11], [16, 26]]]);
+    });
+
+    test('MD-003: a selection of spaces on a heading line has a table of contents of its own and is not read past (SELEC-00144)', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const outcome = (text: string, ranges: MdRange[]): [string, number[][]] => {
+        const done = result('MD-003', text, { ranges });
+        assert.ok(done.kind === 'edit');
+        return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+      };
+      // The whole line `# A      B` is the heading, so the selected spaces in it make a table of
+      // contents too: the first edit stops at them (no overlapping edits), and they are replaced by
+      // their own list.
+      const toc = '- [A      B](#a------b)';
+      assert.deepStrictEqual(outcome('# A      B\nx', [span(0, 3), span(7, 9)]), [`${toc}\n\n${toc}\n\nB\nx`, [[0, 25], [25, 50]]]);
+      // The same after a cursor in the heading line.
+      assert.deepStrictEqual(outcome('# A      B\nx', [span(3, 3), span(7, 9)]), [`# A\n\n${toc}\n\n${toc}\n\nB\nx`, [[3, 30], [30, 55]]]);
+      // On the line after the heading line, the same selection of spaces is read past (the heading
+      // line is told apart line by line, also after a reading on the heading line).
+      assert.deepStrictEqual(outcome('# A      B\nfoo      bar', [span(0, 3), span(7, 9), span(14, 14), span(14, 16)]),
+        [`${toc}\n\n${toc}\n\nB\nfoo\n\n${toc}\n\nbar`, [[0, 25], [25, 50], [55, 82], [82, 82]]]);
+    });
+
+    test('MD-003: where nothing is left at the start of the next line, as before SELEC-00144', () => {
+      const span = (start: number, end: number) => ({ start, end });
+      const outcome = (text: string, ranges: MdRange[]): [string, number[][]] => {
+        const done = result('MD-003', text, { ranges });
+        assert.ok(done.kind === 'edit');
+        return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+      };
+      // A cursor in the spaces inserts a table of contents of its own; the two lists are adjacent
+      // (nothing before it on the line), and `textAfter` (read on the original text) makes its edit
+      // take the spaces after it, so `bar` starts its line.
+      assert.deepStrictEqual(outcome('# A\nfoo      bar', [span(0, 7), span(9, 9)]), ['- [A](#a)\n\n- [A](#a)\n\nbar', [[0, 11], [11, 22]]]);
+      // A selection of spaces with a line break: the split-off line is a line of spaces only (a
+      // blank line), so it is not read as code, and the selection is not read past. (The indented
+      // line after it stays as it was, with or without the selection: that is not this split.)
+      assert.deepStrictEqual(outcome('# A\nfoo  \n    bar', [span(0, 7), span(7, 10)]), ['- [A](#a)\n  \n    bar', [[0, 10], [10, 13]]]);
+      assert.strictEqual(run('MD-003', '# A\nfoo  \n    bar', { ranges: [span(0, 7)] }), '- [A](#a)\n  \n    bar');
     });
   });
 
