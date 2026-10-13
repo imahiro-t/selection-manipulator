@@ -485,19 +485,19 @@ suite('Case Transforms (CASE-001..030) Unit Test Suite', () => {
     });
 
     test('the guard length covers every file extension and S-ending acronym', () => {
+      /** pluralize and singularize leave `text` as it is. */
+      const assertUnchanged = (text: string): void => {
+        assert.strictEqual(t.pluralize(text), text);
+        assert.strictEqual(t.singularize(text), text);
+      };
+      // Every guarded word fits in MAX_GUARD_WORD_LENGTH.
       [...t.FILE_EXTENSIONS, ...t.S_ENDING_ACRONYMS].forEach((word) => {
         assert.ok(word.length <= t.MAX_GUARD_WORD_LENGTH, word);
-        const text = `file.${word}`;
-        if (t.FILE_EXTENSIONS.has(word)) {
-          assert.strictEqual(t.pluralize(text), text);
-          assert.strictEqual(t.singularize(text), text);
-        }
       });
-      t.S_ENDING_ACRONYMS.forEach((word) => {
-        const upper = word.toUpperCase();
-        assert.strictEqual(t.pluralize(upper), upper);
-        assert.strictEqual(t.singularize(upper), upper);
-      });
+      // A file name keeps its extension.
+      t.FILE_EXTENSIONS.forEach((extension) => assertUnchanged(`file.${extension}`));
+      // An S-ending acronym in capitals is not taken for a plural.
+      t.S_ENDING_ACRONYMS.forEach((acronym) => assertUnchanged(acronym.toUpperCase()));
     });
 
     test('already plural words do not change with pluralize', () => {

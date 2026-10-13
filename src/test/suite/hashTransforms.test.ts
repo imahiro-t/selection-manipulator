@@ -7,6 +7,7 @@ import {
   findKeyProblem,
   formatLuhnMessage,
   HASH_COMMAND_ENTRIES,
+  HashCommandKind,
   hashEachLine,
   hmacText,
   KEY_EMPTY_MESSAGE,
@@ -41,6 +42,14 @@ const run = (id: string, text: string): string => {
 };
 
 suite('Hash Transforms (HASH-001..020) Test Suite', () => {
+  test('an SRI entry can only be SHA-384 (checked by the compiler)', () => {
+    const sri: HashCommandKind = { kind: 'digest', algorithm: 'sha384', encoding: 'sri' };
+    // @ts-expect-error SRI (HASH-015) is written only for SHA-384.
+    const other: HashCommandKind = { kind: 'digest', algorithm: 'sha256', encoding: 'sri' };
+    assert.deepStrictEqual([sri, other].map((entry) => entry.kind), ['digest', 'digest']);
+    assert.deepStrictEqual(HASH_COMMAND_ENTRIES.filter((entry) => entry.kind === 'digest' && entry.encoding === 'sri').map((entry) => entry.id), ['HASH-015']);
+  });
+
   test('the command entries are HASH-001..HASH-020: 17 basic commands and 3 Replace variants', () => {
     assert.deepStrictEqual(
       HASH_COMMAND_ENTRIES.map((entry) => entry.id),

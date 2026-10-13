@@ -8,6 +8,7 @@
 import { DevInputError, splitDevLines } from './devCommon';
 import { sqlUnsafeCharacterReason } from './sqlSafety';
 import { writeCell } from './tableCsv';
+import { JS_IDENTIFIER } from './textCommon';
 
 const hex2 = (code: number): string => code.toString(16).padStart(2, '0');
 const hex4 = (code: number): string => code.toString(16).padStart(4, '0');
@@ -45,9 +46,6 @@ const escapeJsSingleQuoted = (text: string): string =>
  * the other C0 controls and DEL `\xhh`, U+2028 / U+2029 and lone surrogates `\uhhhh`.
  */
 export const toJsString = (text: string): string => `'${escapeJsSingleQuoted(text)}'`;
-
-/** An ASCII JavaScript identifier (a property key that needs no quotes). */
-const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 /** A property key of an object literal: the key itself when it is an identifier, otherwise {@link toJsString}. */
 export const toJsPropertyKey = (key: string): string => (JS_IDENTIFIER.test(key) ? key : toJsString(key));

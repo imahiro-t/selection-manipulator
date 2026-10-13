@@ -284,6 +284,8 @@ const runLineCommand = async (
         regexMatches: regexMatches?.[i],
         maxAddedLength: budget,
       };
+      // LINE-032 / 040 bypass the table entry (which turns "no start marker" into the unchanged
+      // text) to see `undefined` and tell the user; see `extractBetweenMarkers`.
       const result = command === 'extract-between-markers'
         ? extractBetweenMarkers(text, options)
         : lineTransforms[command](text, options);

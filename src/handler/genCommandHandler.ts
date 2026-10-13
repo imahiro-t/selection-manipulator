@@ -76,14 +76,14 @@ class TargetError extends Error {
  * non-blank selections. `text-or-prompt`: every target; a blank one gets ''.
  */
 const readTargets = (textEditor: TextEditor, entry: GenCommandEntry): Target[] => {
-  const selections = [...textEditor.selections].sort((a, b) => a.start.compareTo(b.start));
   const targets = entry.targets ?? 'all';
+  const selections = targets === 'lines' ? textEditor.selections.filter((selection) => !selection.isEmpty) : textEditor.selections;
+  // The number is checked before the selections are sorted, so that too many are refused at once.
+  assertGenTargetCount(selections.length);
+  const candidates = [...selections].sort((a, b) => a.start.compareTo(b.start));
   if (targets === 'all') {
-    assertGenTargetCount(selections.length);
-    return selections.map((selection) => ({ selection, text: '' }));
+    return candidates.map((selection) => ({ selection, text: '' }));
   }
-  const candidates = targets === 'lines' ? selections.filter((selection) => !selection.isEmpty) : selections;
-  assertGenTargetCount(candidates.length);
   const result: Target[] = [];
   candidates.forEach((selection, index) => {
     const text = selection.isEmpty ? '' : textEditor.document.getText(selection);

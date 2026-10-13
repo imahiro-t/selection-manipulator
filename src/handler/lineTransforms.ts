@@ -21,9 +21,12 @@
  * - Commands that add characters (LINE-005, 006, 020, 027, 028, 029) count them before
  *   building the result and throw `LineOutputTooLargeError` when the count exceeds the limit.
  */
+import { isBlankLine, isHorizontalWs, isSpaceOrTab, leadingLength, LINE_BREAK, sum, trailingStart } from './textCommon';
 import { codePointWidth, describeAddedLength, MAX_ADDED_LENGTH } from './whitespaceTransforms';
 
 export { MAX_ADDED_LENGTH };
+/** A line made only of `isHorizontalWs` characters (or empty); shared with LINE2 (`line2Transforms.ts`, `msel2Transforms.ts`). */
+export { isBlankLine };
 
 export type LineCommand =
   | 'filter-contains'
@@ -261,43 +264,15 @@ const ensureAddedLength = (added: number, options: LineOptions): void => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const LINE_BREAK = /\r\n|\r|\n/;
-
-/**
- * Unicode whitespace other than line breaks, except U+FEFF (BOM / zero width no-break space):
- * as in the WS commands, it has no width, so it is not treated as a space and a BOM is never
- * trimmed away.
- */
-const isHorizontalWs = (ch: string): boolean =>
-  ch !== '\n' && ch !== '\r' && ch !== '\ufeff' && /^\s$/.test(ch);
-
-const isSpaceOrTab = (ch: string): boolean => ch === ' ' || ch === '\t';
-
-const leadingLength = (s: string, pred: (ch: string) => boolean): number => {
-  let i = 0;
-  while (i < s.length && pred(s[i])) {
-    i++;
-  }
-  return i;
-};
-
-const trailingStart = (s: string, pred: (ch: string) => boolean): number => {
-  let i = s.length;
-  while (i > 0 && pred(s[i - 1])) {
-    i--;
-  }
-  return i;
-};
+// LINE_BREAK, isHorizontalWs, isSpaceOrTab, leadingLength, trailingStart, isBlankLine and sum are
+// shared with the WS commands (textCommon.ts). trimWs stays here: it returns '' early for a blank
+// line, unlike the trimStartWs / trimEndWs pair of whitespaceTransforms.ts.
 
 const trimWs = (s: string): string => {
   const start = leadingLength(s, isHorizontalWs);
   return start === s.length ? '' : s.slice(start, trailingStart(s, isHorizontalWs));
 };
 
-/** A line made only of `isHorizontalWs` characters (or empty); shared with LINE2 (`line2Transforms.ts`, `msel2Transforms.ts`). */
-export const isBlankLine = (s: string): boolean => leadingLength(s, isHorizontalWs) === s.length;
-
-const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
 
 /** Length of the single trailing line break of `text` (0, 1 or 2). */
 export const trailingBreakLength = (text: string): number => {
@@ -363,7 +338,14 @@ export const lineWiseWith = (text: string, options: LineOptions, anchored: boole
   return result.join(options.eol) + (endsWithBreak ? options.eol : '');
 };
 
-const anchored = (fn: LineFn): LineTransform => (text, options) => lineWiseWith(text, options, true, fn) ?? text;
+/** The transforms made by `anchored`, from which `LINE_ANCHORED_COMMANDS` is derived. */
+const ANCHORED_TRANSFORMS = new WeakSet<LineTransform>();
+
+const anchored = (fn: LineFn): LineTransform => {
+  const transform: LineTransform = (text, options) => lineWiseWith(text, options, true, fn) ?? text;
+  ANCHORED_TRANSFORMS.add(transform);
+  return transform;
+};
 const unanchored = (fn: LineFn): LineTransform => (text, options) => lineWiseWith(text, options, false, fn) ?? text;
 
 const requireText = (value: string | undefined, name: string): string => {
@@ -704,6 +686,13 @@ const extractBetweenMarkerLines: LineFn = (lines, { options }) => {
 /**
  * LINE-032 (and LINE-040): the extracted text, or `undefined` when the selection has no line
  * containing the start marker (the selection is then left unchanged / not copied).
+ *
+ * There are two ways into LINE-032 on purpose. `lineHandler.ts` calls this function directly,
+ * because it has to tell "no start marker" (`undefined`: nothing is changed or copied, and the
+ * user is told) from an extraction that happens to give the same text. The command table entry
+ * `lineTransforms['extract-between-markers']` is `anchored(extractBetweenMarkerLines)`, which is
+ * this function followed by `?? text`, for the callers that only need the resulting text (the
+ * generic transform path and the tests). Both apply the same anchor rule.
  */
 export const extractBetweenMarkers = (text: string, options: LineOptions): string | undefined =>
   lineWiseWith(text, options, true, extractBetweenMarkerLines);
@@ -793,7 +782,8 @@ export const lineTransforms: Record<LineTransformCommand, LineTransform> = {
   'split-sentences': unanchored(splitSentences),
   'split-fixed-width': unanchored(splitFixedWidth),
   'remove-comment-lines': anchored((lines) => lines.filter((line) => !isCommentLine(line))),
-  'extract-between-markers': (text, options) => extractBetweenMarkers(text, options) ?? text,
+  // The same as `extractBetweenMarkers(text, options) ?? text` (see `extractBetweenMarkers`).
+  'extract-between-markers': anchored(extractBetweenMarkerLines),
   'extract-longest': anchored(extractExtreme(true)),
   'extract-shortest': anchored(extractExtreme(false)),
 };
@@ -869,34 +859,9 @@ export const LINE_CLIPBOARD_COMMANDS: LineClipboardCommand[] = [
  * The 28 commands that use the anchor rule (they delete, reorder, number or extract lines, or
  * work relative to the start / end of a line). The other five transforms (LINE-012, 022, 027,
  * 028, 029) rewrite, join or split lines in place and treat a partial line as a line.
+ *
+ * Derived from the command table (the entries made with `anchored`), in its order, so that the
+ * list and the table cannot disagree.
  */
-export const LINE_ANCHORED_COMMANDS: LineTransformCommand[] = [
-  'filter-contains',
-  'filter-not-contains',
-  'filter-regex',
-  'filter-not-regex',
-  'add-numbers',
-  'add-numbers-padded',
-  'keep-duplicates',
-  'keep-unique-only',
-  'dedupe-ignore-case',
-  'dedupe-ignore-whitespace',
-  'dedupe-adjacent',
-  'rotate',
-  'keep-every-nth',
-  'remove-every-nth',
-  'keep-odd',
-  'keep-even',
-  'head',
-  'tail',
-  'duplicate-each',
-  'swap-pairs',
-  'move-matching-to-top',
-  'remove-prefix',
-  'remove-suffix',
-  'interleave-halves',
-  'remove-comment-lines',
-  'extract-between-markers',
-  'extract-longest',
-  'extract-shortest',
-];
+export const LINE_ANCHORED_COMMANDS: LineTransformCommand[] = (Object.keys(lineTransforms) as LineTransformCommand[])
+  .filter((command) => ANCHORED_TRANSFORMS.has(lineTransforms[command]));

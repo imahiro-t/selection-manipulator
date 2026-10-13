@@ -127,5 +127,47 @@ export const forEachLfLine = (text: string, visit: (line: string, lineBreak: str
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+// Horizontal whitespace (the WS and LINE commands)
+// ---------------------------------------------------------------------------------------------
+
+/** A line break: CRLF, LF or a lone CR (for `split`). */
+export const LINE_BREAK = /\r\n|\r|\n/;
+
+/** Space or tab. */
+export const isSpaceOrTab = (ch: string): boolean => ch === ' ' || ch === '\t';
+
+/**
+ * Unicode whitespace other than line breaks ([^\S\r\n]), except U+FEFF (BOM / zero width
+ * no-break space): it has no width, so, as in WS-014, it is not treated as a space and a BOM
+ * is never trimmed away. All such characters are in the BMP.
+ */
+export const isHorizontalWs = (ch: string): boolean =>
+  ch !== '\n' && ch !== '\r' && ch !== '\ufeff' && /^\s$/.test(ch);
+
+/** Number of leading code units of `s` satisfying `pred`. */
+export const leadingLength = (s: string, pred: (ch: string) => boolean): number => {
+  let i = 0;
+  while (i < s.length && pred(s[i])) {
+    i++;
+  }
+  return i;
+};
+
+/** Index where the trailing run of code units of `s` satisfying `pred` starts (`s.length` when there is none). */
+export const trailingStart = (s: string, pred: (ch: string) => boolean): number => {
+  let i = s.length;
+  while (i > 0 && pred(s[i - 1])) {
+    i--;
+  }
+  return i;
+};
+
+/** A line that is empty or made only of `isHorizontalWs` characters. */
+export const isBlankLine = (s: string): boolean => leadingLength(s, isHorizontalWs) === s.length;
+
+/** The sum of the numbers. */
+export const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
+
 /** A JavaScript identifier (ASCII only) that can be written as a property key without quotes. */
 export const JS_IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
