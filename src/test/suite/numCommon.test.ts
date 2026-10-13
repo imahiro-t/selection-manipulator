@@ -179,6 +179,43 @@ suite('Number Commands common helpers (NUM) Test Suite', () => {
       }), EncOutputTooLargeError);
       assert.strictEqual(calls, 2);
     });
+
+    test('a lone CR at the very end of the text is kept after the result (SELEC-00149)', () => {
+      assert.strictEqual(mapLines('1\r', MAX_OUTPUT_LENGTH, double), '2\r');
+      assert.strictEqual(mapLines('1 \r', MAX_OUTPUT_LENGTH, double), '2 \r');
+      assert.strictEqual(mapLines(' 1\t\r', MAX_OUTPUT_LENGTH, double), ' 2\t\r');
+      assert.strictEqual(mapLines('1\r\n2\r', MAX_OUTPUT_LENGTH, double), '2\r\n4\r');
+    });
+
+    test('a last line of nothing but a lone CR (and spaces / tabs) stays as it is (SELEC-00149)', () => {
+      assert.strictEqual(mapLines('1\n\r', MAX_OUTPUT_LENGTH, double), '2\n\r');
+      assert.strictEqual(mapLines('1\n \t\r', MAX_OUTPUT_LENGTH, double), '2\n \t\r');
+      let calls = 0;
+      assert.strictEqual(mapLines('\r', MAX_OUTPUT_LENGTH, (value) => {
+        calls++;
+        return value;
+      }), '\r');
+      assert.strictEqual(calls, 0);
+    });
+
+    test('any other lone CR is still part of the value (SELEC-00149)', () => {
+      const parse = (value: string) => String(parseBasicNumber(value));
+      const cases: [string, string][] = [
+        ['1\r2', 'line 1: "1\\r2" is not a number'],
+        ['1\r ', 'line 1: "1\\r" is not a number'],
+        ['1\r\r', 'line 1: "1\\r" is not a number'],
+        ['1\r\n2\r3', 'line 2: "2\\r3" is not a number'],
+      ];
+      for (const [text, message] of cases) {
+        assert.throws(() => mapLines(text, MAX_OUTPUT_LENGTH, parse),
+          (error: Error) => error instanceof NumInputError && error.message === message, JSON.stringify(text));
+      }
+    });
+
+    test('the kept CR counts against the budget (SELEC-00149)', () => {
+      assert.strictEqual(mapLines('1\r', 2, (value) => value), '1\r');
+      assert.throws(() => mapLines('1\r', 1, (value) => value), EncOutputTooLargeError);
+    });
   });
 
   suite('output buffer', () => {

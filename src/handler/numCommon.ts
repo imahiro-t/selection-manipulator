@@ -10,7 +10,7 @@
  */
 import { quoteForDisplay } from '../textFormat';
 import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { assertInputLength, OutputBuffer } from './textCommon';
+import { assertInputLength, forEachLfLine, OutputBuffer } from './textCommon';
 
 /*
  * `NumOutputBuffer` is the shared `textCommon.OutputBuffer`: it collects pieces of a result and
@@ -143,32 +143,30 @@ export const parsePlainDecimal = (value: string): DecimalParts | undefined => {
 const SPACE_TAB = /^[ \t]*/;
 
 /**
- * Applies `convert` to every line of the selection (NUM-010..040). The line breaks (LF / CRLF)
- * and the spaces / tabs around each value are kept; an empty (or blank) line stays as it is and
- * is not passed to `convert`. A value that cannot be converted stops everything with
- * `line N: <reason>`. The result is counted against `budget` line by line.
+ * Applies `convert` to every line of the selection (NUM-010..040 and the NUMX line conversions).
+ * The line breaks (LF / CRLF) and the spaces / tabs around each value are kept; an empty (or
+ * blank) line stays as it is and is not passed to `convert`. A value that cannot be converted
+ * stops everything with `line N: <reason>`. The result is counted against `budget` line by line.
  *
- * The lines are split here rather than with `textCommon.forEachLfLine`: a lone CR at the very end
- * of the text is cut off here as if it were the CR of a CRLF (it is not in the result), while
- * forEachLfLine keeps it in the last line, which would pass `1\r` to `convert` and fail. Using it
- * would change what the NUM commands do.
+ * The lines are split with `textCommon.forEachLfLine`: only LF and CRLF end a line. A lone CR as
+ * the very last character of the text is kept outside the value, like the spaces / tabs after it,
+ * and written after the result as it is (`1\r` -> `2\r`, `1 \r` -> `2 \r`). Only that one last
+ * character is set aside: any other lone CR is part of the value, so `1\r2`, `1\r ` and `1\r\r`
+ * fail with `line N: <reason>` as before.
  */
 export const mapLines = (text: string, budget: number, convert: (value: string) => string): string => {
   assertNumInputLength(text);
   const output = new OutputBuffer(budget);
-  let start = 0;
-  let lineNumber = 1;
-  for (;;) {
-    const newline = text.indexOf('\n', start);
-    let end = newline === -1 ? text.length : newline;
-    const breakStart = end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
-    const line = text.slice(start, breakStart);
-    const lead = SPACE_TAB.exec(line)![0];
-    let trailStart = line.length;
-    while (trailStart > lead.length && (line.charCodeAt(trailStart - 1) === 0x20 || line.charCodeAt(trailStart - 1) === 0x09)) {
+  forEachLfLine(text, (line, lineBreak, lineNumber) => {
+    // A lone CR can only end the last line (the CR of a CRLF is in `lineBreak`).
+    const cr = lineBreak === '' && line.charCodeAt(line.length - 1) === 0x0d ? '\r' : '';
+    const body = cr === '' ? line : line.slice(0, -1);
+    const lead = SPACE_TAB.exec(body)![0];
+    let trailStart = body.length;
+    while (trailStart > lead.length && (body.charCodeAt(trailStart - 1) === 0x20 || body.charCodeAt(trailStart - 1) === 0x09)) {
       trailStart--;
     }
-    const value = line.slice(lead.length, trailStart);
+    const value = body.slice(lead.length, trailStart);
     if (value === '') {
       output.push(line);
     } else {
@@ -183,16 +181,11 @@ export const mapLines = (text: string, budget: number, convert: (value: string) 
       }
       output.push(lead);
       output.push(converted);
-      output.push(line.slice(trailStart));
+      output.push(body.slice(trailStart));
+      output.push(cr);
     }
-    if (newline === -1) {
-      break;
-    }
-    end = newline + 1;
-    output.push(text.slice(breakStart, end));
-    start = end;
-    lineNumber++;
-  }
+    output.push(lineBreak);
+  });
   return output.join();
 };
 

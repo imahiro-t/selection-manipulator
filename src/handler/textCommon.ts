@@ -140,8 +140,9 @@ export const forEachLine = (text: string, visit: (line: string, lineBreak: strin
 /**
  * Calls `visit` for every line of the text with the line itself, the line break after it (`''`
  * for the last line) and its number (from 1). Only LF and CRLF are recognised: a lone CR stays in
- * the line (the JA, UNI and DATE commands), also at the very end of the text (`'a\r'` visits
- * `'a\r'`, `''`, 1). The lines and line breaks joined together are always the text again.
+ * the line (the JA, UNI and DATE commands and the NUM / NUMX line conversions), also at the very
+ * end of the text (`'a\r'` visits `'a\r'`, `''`, 1). The lines and line breaks joined together are
+ * always the text again.
  *
  * See `forEachLine` for the variant in which a lone CR is a line break too.
  */
