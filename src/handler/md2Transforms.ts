@@ -508,11 +508,32 @@ export const validateAlertType = (value: string): string | undefined =>
  * take the next line in). As with Wrap in Details Block, a paragraph continuation line after a
  * selection that ends a paragraph line part way is kept a paragraph after that blank line
  * (`perSelection`, SELEC-00150).
+ *
+ * When only indentation precedes the selection on its line (`edges.indentBefore`, in a list item:
+ * `- a⏎⏎··foo⏎··bar`), every line of the alert gets that indentation, so that the alert stays where
+ * the selection was (SELEC-00151; before, only `> [!TYPE]` had it, and the lines after it left the
+ * item): `··> [!NOTE]⏎··> foo⏎··> bar`. Each later line of the selection loses as much of that
+ * indentation as it starts with (compared character by character, so that a tab and spaces never
+ * match), so that it is not written again after `> ` (a lazy line without it, `bar`, loses nothing;
+ * what goes past it stays). When the indentation is taken into the edit (4 columns or more: the
+ * alert would be an indented code block), the alert starts at the start of the line and the later
+ * lines lose it in the same way. Unlike MD-014 / 024, indentation of up to 3 columns stays even when
+ * a later line does not start with it (no `blockTakesIndent`): the lines are read again after `> `,
+ * where their columns only matter from 4 on, and keeping the alert in the item matters more.
  */
 export const toGithubAlert = (value: string, eol: MdEol, type: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateAlertType, type);
   const [body, trailing] = splitTrailingBreaks(value);
-  const quoted = splitLines(body).lines.map((line) => (isBlank(line) ? '>' : `> ${line}`));
+  const indentBefore = edges.indentBefore;
+  const indent = edges.indentTaken ? '' : indentBefore;
+  const quoted = splitLines(body).lines.map((line, k) => {
+    let shared = 0;
+    while (k > 0 && shared < indentBefore.length && line[shared] === indentBefore[shared]) {
+      shared++;
+    }
+    const rest = line.slice(shared);
+    return isBlank(rest) ? `${indent}>` : `${indent}> ${rest}`;
+  });
   const before = edges.textBefore ? eol : '';
   let after = '';
   if (trailing === '') {

@@ -23,14 +23,17 @@
  *   starts or ends inside a line: line breaks are added around MD-003's list, MD-014's fences and
  *   MD-024's tags, and MD-023 writes its definitions after the end of the line (see each). The
  *   spaces and tabs where a line is split are dropped. A block that the next line would
- *   otherwise continue (MD-003's list, MD-024's HTML block) is followed by a blank line when
- *   text follows it on its line or on the next line, and MD-003's list also has a blank line
- *   before it when text comes before it (MD-014's closing fence and MD-023's definitions end by
- *   themselves). A paragraph continuation line that would then be read differently (as an indented
- *   code block or a new list after the block or the heading / list item / quote line written in
- *   place of its paragraph's last line, or as a paragraph of MD-003's last item) is kept a paragraph
- *   read as before: its indentation is dropped, and a backslash is put before what would start a
- *   block (SELEC-00150, `mdContinuation.ts`).
+ *   otherwise continue (MD-003's list, MD-024's HTML block, and MD-019's HTML when it starts a
+ *   line's content and the next line has text, SELEC-00151) is followed by a blank line when text
+ *   follows it on its line or on the next line, and MD-003's list also has a blank line before it
+ *   when text comes before it (MD-014's closing fence and MD-023's definitions end by themselves;
+ *   MD-023 writes them after the end of the paragraph, SELEC-00151). A paragraph continuation line
+ *   that would then be read differently (as an indented code block or a new list after the block or
+ *   the heading / list item / quote line written in place of its paragraph's last line, or as a
+ *   paragraph of MD-003's last item) is kept a paragraph read as before: its indentation is dropped,
+ *   and a backslash is put before what would start a block (SELEC-00150, `mdContinuation.ts`);
+ *   after a list item or a quote line, the later lines of the paragraph get the same backslash
+ *   (SELEC-00151).
  * - The heading and list commands (MD-001..003, 009, 013, 020, 021) leave the lines of fenced
  *   code blocks alone.
  * - The results of all selections together may be at most `MAX_OUTPUT_LENGTH` characters.
@@ -84,7 +87,7 @@ import {
   splitTrailingBreaks,
   tableCells,
 } from './mdCommon';
-import { Continuation, ContinuationLines, writtenLine, writtenLineEdit } from './mdContinuation';
+import { afterHtmlBlock, Continuation, ContinuationLines, htmlBlockOpenAfter, writtenLine, writtenLineEdit } from './mdContinuation';
 import { inlineToPlain, parseInline } from './mdInline';
 import { mdToHtml } from './mdToHtml';
 import { trimUrl } from './mselTransforms';
@@ -142,17 +145,42 @@ export const assertOutputLength = (length: number): void => {
 
 /**
  * Replaces the text of each selection with `replacements[i]` (`undefined` = leave it) in one edit;
- * the replaced selections then select their new text.
+ * the replaced selections then select their new text. `later` are more edits in the same step (in
+ * order, none of them in a selection's edit nor in a non-empty selection): a cursor keeps its place
+ * in the text around them, stays before an insertion right where it is, and moves to the end of one
+ * that replaces text around it.
  */
-export const replaceSelections = (text: string, ranges: readonly MdRange[], replacements: readonly (string | undefined)[]): MdResult => {
+export const replaceSelections = (
+  text: string,
+  ranges: readonly MdRange[],
+  replacements: readonly (string | undefined)[],
+  later: readonly MdEdit[] = [],
+): MdResult => {
   const edits: MdEdit[] = [];
   const after: MdRange[] = [];
   let shift = 0;
   let total = 0;
+  let next = 0;
+  // Makes the edits of `later` that start before `offset`, and returns where a cursor at `offset` goes.
+  const passLater = (offset: number): number => {
+    let moved = offset;
+    while (next < later.length && later[next].start < offset) {
+      const edit = later[next++];
+      edits.push(edit);
+      total += edit.text.length;
+      shift += edit.text.length - (edit.end - edit.start);
+      if (edit.end > offset) {
+        moved = edit.end;
+      }
+    }
+    return moved;
+  };
   ranges.forEach((range, i) => {
+    const at = passLater(range.start);
     const value = replacements[i];
     if (value === undefined || value === text.slice(range.start, range.end)) {
-      after.push({ start: range.start + shift, end: range.end + shift, reversed: range.reversed });
+      const end = at === range.start ? range.end : at;
+      after.push({ start: at + shift, end: end + shift, reversed: range.reversed });
       return;
     }
     total += value.length;
@@ -161,6 +189,7 @@ export const replaceSelections = (text: string, ranges: readonly MdRange[], repl
     after.push({ start, end: start + value.length });
     shift += value.length - (range.end - range.start);
   });
+  passLater(Number.POSITIVE_INFINITY);
   if (edits.length === 0) {
     return UNCHANGED;
   }
@@ -371,31 +400,52 @@ const lastLineOf = (value: string): string => {
  * only spaces and tabs after it on L) or right after L's line break, and the line written in place of
  * L (what precedes the selection on L, if it starts there, and the last line of `replacement`) is a
  * heading, a list item or a quote line that changes how N is read (`writtenLine`,
- * `writtenLineEdit`): after a heading, N gets the same treatment as after MD-014's closing fence (its
- * indentation is taken, with the rest of L and L's line break written as one line break, and a
- * backslash is put in when its text would start a block); after a list item or a quote line, N
- * stays where it is with its indentation, and only the backslash is put in before its list marker,
- * so that it stays a lazy continuation line of the paragraph; after a list item, N indented as far
- * as the item's content or further (by 3 columns or less from there) is a line of the item, and a
- * text that would interrupt the paragraph there (`    - x`, `    # x`, `    ---`…) gets the
- * backslash in the same way (a fence or an HTML block there is left as before). The lines after N up to the end of the
- * paragraph are lazy continuation lines as well, so this is done only when none of them starts with
- * a character that may start a block (`ContinuationLines.restIsPlain`): `foo⏎2. x⏎3. y` and
- * `foo⏎2. x⏎> y` are left as before, rather than escaping `2. x` alone and leaving `3. y` a new list
- * (or letting the quote take `> y` in). A later list item after a line that needs no backslash
- * (`foo⏎bar⏎2. x`) is left as before too: it started a new list before this change already, and
- * escaping lines further down is left to another ticket. As with the others, N is left as before
- * when it is not certainly a continuation line or cannot be kept a paragraph shown the same way, and
- * when a non-empty selection starts in what would be taken or where the edit would end.
+ * `writtenLineEdit`).
+ *
+ * After a heading, N gets the same treatment as after MD-014's closing fence (its indentation is
+ * taken, with the rest of L and L's line break written as one line break, and a backslash is put in
+ * when its text would start a block). N then starts a paragraph of its own, which the later lines
+ * continue as before, so only N is looked at.
+ *
+ * After a list item or a quote line, every later line of L's paragraph (N and the lines after it, up
+ * to the end of the paragraph) stays a lazy continuation line of the paragraph in it, or a line of
+ * the item when it is indented as far as the item's content or further (SELEC-00151:
+ * `ContinuationLines.writtenEdits`). Each line keeps its place and its indentation, and the lines
+ * that would now start a block get one backslash: a list item less indented than the item's content
+ * (`foo⏎bar⏎2. x` → `- foo⏎bar⏎2\. x`, where `2. x` started a new list before), and a text that
+ * interrupts a paragraph indented as far as the content (by 3 columns or less from there: `    - x`
+ * a nested list, `    # x`, `    ---`…). N's backslash goes into the edit of the selection (which
+ * then runs up to it, as after a heading), and each later line's backslash is an edit of its own
+ * that only inserts it, outside the selection: the selection selects its result and N's change (as
+ * since SELEC-00150), not the later lines, and the text and cursors between are left in place. The paragraph is left
+ * as before as a whole when one of its lines cannot be kept shown the same way (a fence or an HTML
+ * block in the item's content) or is not certain, and when the line that ends it would be read
+ * differently after the line written: a `>` line after a quote (the quote would take it in), a
+ * setext underline (the paragraph was a heading), a block indented as far as the item's content (it
+ * would be a block in the item). A blank line, the end of the text and a block that interrupted the
+ * paragraph and still does (`foo⏎- x` → `- foo⏎- x`, a list item after which the list goes on as
+ * before) end it as before.
+ *
+ * Choosing L's paragraph turned into a list item may still make the list loose when a list of the
+ * same kind follows after a blank line (`foo⏎2. x⏎bar⏎⏎3. y` with Numbered List: `3. y` joins the
+ * list written, as it does for `foo⏎⏎3. y`). That comes from the list written being next to the
+ * user's list, not from the continuation lines (their text stays text of the item: `2\. x`, `bar`);
+ * keeping the two lists apart would need markup written outside the selection before the user's
+ * list (an HTML comment), which no Markdown command writes, so it is left as it is.
+ *
+ * L in a list item or a quote (a lazy line of it, `- a⏎foo⏎  2. x`) is left as before: the line
+ * written in place of L leaves that container or becomes a sibling item of it, and the later lines
+ * of the paragraph would have to be read against both the user's container and the line written.
+ *
+ * As with the others, N is left as before when it is not certainly a continuation line or cannot be
+ * kept a paragraph shown the same way, and the paragraph when a non-empty selection starts in what
+ * would be taken or changed (up to the last backslash: it would make its own edit there). A cursor
+ * in the rest of L or in N up to N's own edit moves to the end of that edit (into N, the line right
+ * after the selection, as since SELEC-00150); when N is not changed, nothing after the selection is
+ * taken into its edit and such a cursor stays. A cursor in a later line keeps its place in its
+ * text, before a backslash inserted where it is, so that no cursor jumps lines away.
  */
-const writtenLineTail = (
-  text: string,
-  ranges: readonly MdRange[],
-  i: number,
-  replacement: string,
-  eol: MdEol,
-  continuations: () => ContinuationLines,
-): { end: number; text: string } | undefined => {
+const writtenLineTail: SelectionTail = (text, ranges, i, replacement, eol, continuations) => {
   const last = lastLineOf(replacement);
   // Only a line that may be a heading, a thematic break, a list item or a quote is looked at further.
   const first = last.trimStart()[0];
@@ -417,24 +467,150 @@ const writtenLineTail = (
   if (found === undefined || found.container.kind !== 'top') {
     return undefined;
   }
-  const edit = writtenLineEdit(written, found, lines.restOfLine(after.n, found.body));
-  if (edit === undefined) {
+  if (written.kind === 'block') {
+    const edit = writtenLineEdit(written, found, lines.restOfLine(after.n, found.body));
+    if (edit === undefined) {
+      return undefined;
+    }
+    // The indentation is taken: the edit replaces everything from the end of the selection.
+    const editEnd = found.body + edit.at;
+    for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
+      if (!isCursor(ranges[k])) {
+        return undefined;
+      }
+    }
+    return { end: editEnd, text: (after.inside ? eol : '') + edit.insert };
+  }
+  const edits = lines.writtenEdits(after.n, written);
+  if (edits === undefined || edits.length === 0) {
     return undefined;
   }
-  const editEnd = found.body + edit.at;
-  // After a list item or a quote line, every later line of the paragraph is a lazy continuation
-  // line too: one that may start a block (`3. y`, which would start a new list as N did, or `> y`,
-  // which would go on with the quote once N no longer ends it) leaves N as before.
-  if (written.kind === 'lazy' && !lines.restIsPlain(after.n + 1)) {
-    return undefined;
-  }
-  for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
+  // A later selection in the lines changed would make its own edit there: as before.
+  const lastEnd = edits[edits.length - 1].end;
+  for (let k = i + 1; k < ranges.length && ranges[k].start <= lastEnd; k++) {
     if (!isCursor(ranges[k])) {
       return undefined;
     }
   }
-  const between = written.kind === 'block' ? (after.inside ? eol : '') : text.slice(end, found.body);
-  return { end: editEnd, text: between + edit.insert };
+  // N's own change goes into the edit of the selection (as since SELEC-00150), the later lines'
+  // backslashes are edits of their own, each only inserting its backslash.
+  const own = edits[0].line === after.n ? edits[0] : undefined;
+  const later = (own === undefined ? edits : edits.slice(1)).map(({ start, end: editEnd, insert }): MdEdit => {
+    const kept = text.slice(start, editEnd);
+    return insert.startsWith(kept) ? { start: editEnd, end: editEnd, text: insert.slice(kept.length) } : { start, end: editEnd, text: insert };
+  });
+  return own === undefined
+    ? { end, text: '', later }
+    : { end: own.end, text: text.slice(end, own.start) + own.insert, later };
+};
+
+/**
+ * What a command writes after a selection's result to keep the next line read as before
+ * (`perSelection`): the edit of the selection then runs up to `end` and has `text` after the result,
+ * and `later` (in order, after `end` and before the next non-empty selection) are edits of their own
+ * further on, which the selection does not select.
+ */
+type SelectionTail = (
+  text: string,
+  ranges: readonly MdRange[],
+  i: number,
+  replacement: string,
+  eol: MdEol,
+  continuations: () => ContinuationLines,
+) => { end: number; text: string; later?: MdEdit[] } | undefined;
+
+/**
+ * MD-019 (SELEC-00151): what the edit of `ranges[i]` (`replacement` its HTML) takes after it, so
+ * that the next line N is not taken into an HTML block that the HTML leaves open (`<p>` and the other
+ * block tags start an HTML block of kind 6, which runs up to the next blank line whatever the
+ * indentation of the lines in it: `foo⏎    bar` → `<p>foo</p>⏎    bar` showed `bar` as raw HTML), or
+ * undefined. A blank line is written between the HTML and N (as after MD-024's `</details>`), and N
+ * is kept read as before after it (`afterHtmlBlock`): a continuation line of the paragraph becomes a
+ * paragraph of its own (so the paragraph the selection ended in is split in two there: `foo⏎bar` →
+ * `<p>foo</p>⏎⏎bar`), losing 4 columns or more of indentation and getting a backslash where its text
+ * would start a block (`2\. x`); a block that interrupted the paragraph is left as it is. When the
+ * paragraph goes on after N up to a setext underline (`foo⏎bar⏎---`, a heading as a whole), the part
+ * after the blank line is that heading still (`<p>foo</p>⏎⏎bar⏎---`, `bar` an h2): the paragraph is
+ * split in any case, and its rest shown as a heading as the whole was is closer to how it was shown
+ * than its lines as raw HTML text in the block. (MD-004..006, MD-015 and MD-023 leave a setext
+ * heading as before instead: there the paragraph is not split, and the heading would be lost or
+ * moved.) N itself a setext underline is left as before (`freshLineChange`).
+ *
+ * This is done only when all of these hold, and otherwise the HTML is written as before:
+ * - The selection ends a line L part way (with only spaces and tabs after it on L) or right after
+ *   L's line break, and N has text.
+ * - L is certainly a paragraph line (`ParagraphContext`), at the top level or in a block quote (not
+ *   nested). In a quote, the blank line is a line with L's quote marker only (L's indentation and
+ *   `>`), so that the quote goes on: `> foo⏎> bar` → `> <p>foo</p>⏎>⏎> bar`; a lazy continuation
+ *   line gets that marker too (`> foo⏎bar` → `> <p>foo</p>⏎>⏎> bar`). In a quote, the HTML must
+ *   be one line and the selection must start on L: the lines after the first of a longer HTML
+ *   would have no `>`, and judging them as lazy lines is not certain.
+ * - What precedes the selection on its first line is, without the container's marker (`>` and the
+ *   one space after it, in a quote; `>` without a space and a tab after it are handled as
+ *   `ParagraphContext` does: `>foo` counts, `>⇥foo` is not certain), only spaces up to 3 columns,
+ *   so that the HTML starts the line's content and is read as an HTML block (after other text, as
+ *   in `x <p>foo</p>`, it is inline HTML in the paragraph, and the next line goes on with it).
+ * - The HTML leaves an HTML block open after its last line (`htmlBlockOpenAfter`).
+ * - N can be kept read as before (`afterHtmlBlock`), and no non-empty selection starts in what is
+ *   taken (from the end of the selection up to N's change) or where the edit ends (a cursor there
+ *   moves to the end of the edit).
+ *
+ * L in a list item is left as before: the blank line would have to be written in the item, and a
+ * blank line between two blocks of an item makes the whole list loose, which changes how every other
+ * item of it is shown (each in a `<p>`); this harm would reach beyond the item selected. Text after
+ * the selection on its own line (`foo bar` with `foo` selected: `<p>foo</p> bar`) is in the HTML
+ * block on that line, not on the next one, and is left as it is too.
+ */
+const htmlBlockTail: SelectionTail = (text, ranges, i, replacement, eol, continuations) => {
+  const lines = continuations();
+  const range = ranges[i];
+  const s = lines.lineOf(range.start);
+  const after = lines.lineAfter(range.end);
+  if (after === undefined || after.n >= lines.lineCount || isBlank(lines.textOf(after.n))) {
+    return undefined;
+  }
+  const l = after.n - 1;
+  const container = lines.containerOf(l);
+  if (container === undefined || container.kind === 'list') {
+    return undefined;
+  }
+  const before = text.slice(lines.lineStart(s), range.start);
+  // The HTML without the line break it ends with when the selection did (N follows it directly).
+  const [html] = splitTrailingBreaks(replacement);
+  let marker: string | undefined;
+  let content = before;
+  if (container.kind === 'quote') {
+    if (s !== l || hasLineBreak(html)) {
+      return undefined;
+    }
+    const quote = /^ {0,3}>/.exec(before);
+    if (quote === null) {
+      return undefined;
+    }
+    marker = quote[0];
+    content = before.slice(marker.length);
+    if (content[0] === ' ') {
+      content = content.slice(1);
+    }
+  }
+  if (!/^ {0,3}$/.test(content) || !htmlBlockOpenAfter(html)) {
+    return undefined;
+  }
+  const n = after.n;
+  const change = afterHtmlBlock(lines.textOf(n), n + 1 < lines.lineCount ? lines.textOf(n + 1) : undefined, marker);
+  if (change === undefined) {
+    return undefined;
+  }
+  const lineStart = lines.lineStart(n);
+  const end = change === 'keep' ? lineStart : lineStart + change.end;
+  for (let k = i + 1; k < ranges.length && ranges[k].start <= end; k++) {
+    if (!isCursor(ranges[k])) {
+      return undefined;
+    }
+  }
+  const blank = (after.inside ? eol : '') + (marker ?? '') + eol;
+  const changed = change === 'keep' ? '' : text.slice(lineStart, lineStart + change.start) + change.insert;
+  return { end, text: blank + changed };
 };
 
 /**
@@ -457,7 +633,8 @@ const writtenLineTail = (
  * continuation line right after a selection that ends a paragraph line part way is kept a paragraph
  * read as before (SELEC-00150): with `lineEdges`, after the block written (`continuationTail`);
  * without, after a heading, list item or quote line written in place of the line
- * (`writtenLineTail`). A cursor in what is taken then moves to the end of the edit. The changed
+ * (`writtenLineTail`), or what `selectionTail` takes instead (MD-019: a blank line after the HTML
+ * block, `htmlBlockTail`). A cursor in what is taken then moves to the end of the edit. The changed
  * results are counted as they are made, so that the output limit stops a run before all of them are
  * built.
  */
@@ -465,6 +642,7 @@ export const perSelection = (
   transform: SelectionTransform,
   lineEdges = false,
   takeIndent?: (indent: string, value: string) => boolean,
+  selectionTail: SelectionTail = writtenLineTail,
 ) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
   // The paragraph continuation lines, made only when a selection may end a paragraph line before
@@ -485,6 +663,8 @@ export const perSelection = (
   // once, when the next non-empty selection is done, so that this stays linear.
   const pending: number[] = [];
   const edited: MdRange[] = [];
+  // The edits of the later lines of paragraphs (`writtenLineTail`), apart from the selections'.
+  const later: MdEdit[] = [];
   const replacements = ranges.map((range, i) => {
     edited.push(range);
     if (range.start === range.end) {
@@ -509,7 +689,7 @@ export const perSelection = (
       edges = { textBefore, textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end), indentBefore, indentTaken };
     }
     let replacement = transform(value, eol, inputs, edges);
-    let tail: { end: number; text: string } | undefined;
+    let tail: { end: number; text: string; later?: MdEdit[] } | undefined;
     if (replacement !== value) {
       total += replacement.length;
       assertOutputLength(total);
@@ -531,12 +711,16 @@ export const perSelection = (
           tail = continuationTail(text, ranges, i, edges, eol, continuationLines);
         }
       } else {
-        tail = writtenLineTail(text, ranges, i, replacement, eol, continuationLines);
+        tail = selectionTail(text, ranges, i, replacement, eol, continuationLines);
       }
       if (tail !== undefined) {
         edited[i] = { start: edited[i].start, end: tail.end, reversed: range.reversed };
         replacement += tail.text;
         total += tail.text.length;
+        for (const edit of tail.later ?? []) {
+          later.push(edit);
+          total += edit.text.length;
+        }
         assertOutputLength(total);
       }
     }
@@ -552,7 +736,7 @@ export const perSelection = (
     indentFloor = edited[i].end;
     return replacement;
   });
-  return replaceSelections(text, edited, replacements);
+  return replaceSelections(text, edited, replacements, later);
 };
 
 /** Applies `transform` to the lines of `value` (one trailing line break kept as it is). */
@@ -770,6 +954,23 @@ const finalLineBreak = (text: string): string =>
  *   a heading: they are left as cursors at the end of the edit. A cursor there inserts a list of its
  *   own, and a selection with other text has to stay as it is. When a backslash is put in, no other
  *   selection may start where the edit ends either.
+ * Two more forms are kept read as before in the same way (SELEC-00151):
+ * - N, after a paragraph line L at the top level, indented by 1 to 3 columns and starting a block of
+ *   one line that interrupts the paragraph and reads the same at the start of the line (an ATX
+ *   heading, a thematic break that is no setext underline, a block quote line): it would be taken
+ *   into the last item of the list (its indentation reaches the item's content), so its indentation
+ *   is taken as above (`  # x` → `# x`). A list item (its content column would move, and `- x`
+ *   would go on with the list), a fence or an HTML block (read relative to that indentation), a
+ *   table or a setext underline stays as before. Writing markup between the list and N (an HTML
+ *   comment) would keep any of them apart, but no Markdown command writes such markup, so it is not
+ *   done. No other selection may start in what is taken (a selection of spaces on a heading line
+ *   has a table of contents of its own).
+ * - L in a list item or a quote and N a continuation line of it whose paragraph goes to the top
+ *   level after the list (`# A⏎> foo⏎bar⏎2. x`): the paragraph's lines after N have plain text,
+ *   and the line after them was a list item that interrupted the paragraph only as a lazy line (an
+ *   ordered item not starting with 1, or an empty item, outside the container). At the top level it
+ *   would become paragraph text, so a blank line is written before it (`bar⏎⏎2. x`), taken into the
+ *   same edit. No other selection may start past N's own edit up to that item.
  * The lines and their paragraph context are made only when a selection ends that way, at most once,
  * and the line of a selection's end is found by a walk that only moves forward.
  */
@@ -822,24 +1023,43 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
    * (see the doc comment), or undefined when it does not. The selection ends at `end`, inside the
    * line before N (`inside`) or at the start of N.
    */
-  const continuationAfter = (i: number, end: number, inside: boolean): Continuation | undefined => {
+  const continuationAfter = (i: number, end: number, inside: boolean): { end: number; text: string } | undefined => {
     continuations ??= new ContinuationLines(text);
-    const found = continuations.at(continuations.lineOf(end) + (inside ? 1 : 0));
+    const n = continuations.lineOf(end) + (inside ? 1 : 0);
+    let found = continuations.at(n);
+    // The paragraph of a lazy line goes to the top level: a list item after it that interrupted
+    // it only as a lazy line gets a blank line before it (SELEC-00151).
+    let lazyList: { found: Continuation; before: number } | undefined;
+    // Whether N is a block indented by 1 to 3 columns that interrupts the paragraph (SELEC-00151).
+    let interrupting = false;
+    if (found === undefined) {
+      lazyList = continuations.lazyListAfter(n);
+      found = lazyList?.found;
+      if (found === undefined) {
+        found = continuations.interruptingLine(n);
+        interrupting = found !== undefined;
+      }
+    }
     // A line without indentation stays a paragraph after the blank line that follows the list,
     // unless its text would start a block there.
-    if (found === undefined || (found.width === 0 && !found.escaped)) {
+    if (found === undefined || (found.width === 0 && !found.escaped && lazyList === undefined)) {
       return undefined;
     }
     // Only selections of spaces, tabs and line breaks may start in what is taken, and none where
     // the edit ends when it puts in a backslash (a cursor there would insert its list after it).
-    // Each selection is looked at from the nearest table of contents before it only, so this
-    // stays linear.
-    for (let k = i + 1; k < ranges.length && ranges[k].start <= found.end; k++) {
-      if (ranges[k].start === found.end ? found.insert !== '' : !blankSelection(ranges[k])) {
+    // Past N's edit (up to the list item that gets a blank line before it), no selection may start,
+    // and none in the indentation of a heading (a selection of spaces on a heading line has a table
+    // of contents of its own). Each selection is looked at from the nearest table of contents
+    // before it only, so this stays linear.
+    const editEnd = lazyList?.before ?? found.end;
+    for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
+      if (interrupting || ranges[k].start > found.end
+        || (ranges[k].start === found.end ? found.insert !== '' || lazyList !== undefined : !blankSelection(ranges[k]))) {
         return undefined;
       }
     }
-    return found;
+    const rest = lazyList === undefined ? '' : text.slice(found.end, lazyList.before) + eol;
+    return { end: editEnd, text: found.insert + rest };
   };
   let floor = 0;
   /** What was written after the table of contents of the previous selection (undefined when it had none). */
@@ -903,11 +1123,11 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     const endsInside = textOnNextLine && endsInsideLine(text, range.end);
     let escape = '';
     if (endsInside || (textAfter && range.end > 0 && isLineBreak(text[range.end - 1]))) {
-      const found = continuationAfter(i, range.end, endsInside);
-      if (found !== undefined) {
-        edited[i] = { start: edited[i].start, end: found.end, reversed: range.reversed };
+      const taken = continuationAfter(i, range.end, endsInside);
+      if (taken !== undefined) {
+        edited[i] = { start: edited[i].start, end: taken.end, reversed: range.reversed };
         after = eol + eol;
-        escape = found.insert;
+        escape = taken.text;
       }
     }
     // The spaces taken into this edit leave the selections of them: they end where the edit starts.
@@ -1620,9 +1840,22 @@ export const convertibleLinks = (value: string, emptyDestination = false): Inlin
  *
  * After the edit, a changed selection selects its new text, with the definitions when they were
  * written at its end.
+ *
+ * When the line after the place where the definitions would go goes on with the same paragraph at
+ * the top level (`[a](u)⏎bar`), they would end the paragraph there and the rest of it would become
+ * a paragraph of its own; they then go after the end of the paragraph instead (its last line, before
+ * the blank line, the end of the text or the block that ends it: SELEC-00151), and the definitions
+ * of every selection that ends in the same paragraph go there together. A selection that ends with
+ * its line break then selects only its own text (the definitions are a separate edit after it). The
+ * definitions stay where they were written before when the paragraph is in a list item or a quote
+ * (definitions written at the top level would close the container; written in it, every lazy line
+ * would have to be judged), when the paragraph is a setext heading, and when a line of it or the
+ * line after it is not certain (a table…): `ContinuationLines.topParagraphEnd`.
  */
 export const toReferenceLinks = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const lines = new LineContext(text);
+  // The paragraphs of the selections' lines, made only when a selection may write definitions.
+  let continuations: ContinuationLines | undefined;
   let number = largestNumber(text, REFERENCE_LABEL);
   const numbers = new Map<string, number>();
   const edits: MdEdit[] = [];
@@ -1675,14 +1908,32 @@ export const toReferenceLinks = (text: string, ranges: readonly MdRange[], eol: 
     converted += value.slice(position);
     const [body, trailing] = splitTrailingBreaks(converted);
     let replacement = converted;
+    // The end of the paragraph when the line where the definitions would go goes on in the next
+    // line (SELEC-00151), otherwise -1.
+    const paragraphEnd = (line: number): number => {
+      continuations ??= new ContinuationLines(text);
+      const end = continuations.topParagraphEnd(line);
+      return end === undefined || end === continuations.lineEnd(line) ? -1 : end;
+    };
     if (trailing !== '' || !lines.textAfter(range.end)) {
-      if (pending.length > 0) {
-        replacement = `${body}${eol}${eol}${pending.join(eol)}${trailing}`;
+      // The selection ends at the end of its line, or with line breaks: one line break (with the
+      // next line in the same paragraph) moves the definitions to the end of the paragraph.
+      continuations ??= new ContinuationLines(text);
+      const breaks = lineBreakCount(trailing);
+      const moved = breaks > 1 ? -1 : paragraphEnd(continuations.lineOf(range.end) - breaks);
+      if (moved !== -1) {
+        pendingAt = moved;
+      } else {
+        if (pending.length > 0) {
+          replacement = `${body}${eol}${eol}${pending.join(eol)}${trailing}`;
+        }
+        pending = [];
+        pendingAt = -1;
       }
-      pending = [];
-      pendingAt = -1;
     } else {
-      pendingAt = lines.lineEnd(range.end);
+      continuations ??= new ContinuationLines(text);
+      const moved = paragraphEnd(continuations.lineOf(range.end));
+      pendingAt = moved === -1 ? lines.lineEnd(range.end) : moved;
     }
     if (replacement === value) {
       after.push({ start: range.start + shift, end: range.end + shift, reversed: range.reversed });
@@ -1907,7 +2158,7 @@ export const MD_COMMAND_ENTRIES: readonly MdCommandEntry[] = [
   },
   {
     id: 'MD-019', name: 'markdown.to-html', title: 'Markdown: Convert to HTML',
-    run: perSelection((value, eol) => mdToHtml(value, eol)),
+    run: perSelection((value, eol) => mdToHtml(value, eol), false, undefined, htmlBlockTail),
   },
   {
     id: 'MD-020', name: 'markdown.strip', title: 'Markdown: Strip Formatting',
