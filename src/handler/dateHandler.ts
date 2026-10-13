@@ -2,6 +2,7 @@ import {
   TextEditor,
   env
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocumentWithTitles } from '../common';
 import { parseDate } from './dateUtils';
 
@@ -21,7 +22,7 @@ export const dateHandler = (format: DateFormat, outputMode: OutputMode) => {
         .map(selection => textEditor.document.getText(selection))
         .map(text => convert(text, format));
 
-      await textEditor.edit(editBuilder => {
+      await applyEdit(textEditor, editBuilder => {
         selections.forEach((selection, index) => {
           editBuilder.replace(selection, texts[index]);
         });

@@ -3,6 +3,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as changeCase from './changeCaseCompat';
 import { convertJsonKeys, JsonKeyCollisionError } from './caseTransforms';
 
@@ -42,7 +43,7 @@ export const caseJsonKeysHandlerInternal = (
   });
 
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, text }) => editBuilder.replace(selection, text));
     });
   }

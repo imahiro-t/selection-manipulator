@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as changeCase from "./changeCaseCompat";
 import * as caseTransforms from './caseTransforms';
 
@@ -16,7 +17,7 @@ export const caseHandler: (command: Command) => (textEditor: TextEditor) => Then
   if (textEditor.selections.length === 0) {
     return undefined;
   }
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);

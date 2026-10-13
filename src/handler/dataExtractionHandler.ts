@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 import { findEmails } from './msel2Transforms';
@@ -28,7 +29,7 @@ export const dataExtractionHandler: (type: ExtractionType, replace: boolean) => 
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, getMatches(text));

@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as vscode from 'vscode';
 import { openTextDocumentWithTitles } from '../common';
 import * as crypto from 'crypto';
@@ -19,7 +20,7 @@ export const cryptoHandler: (algorithm: Algorithm, replace: boolean) => (textEdi
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, hashContent(text));

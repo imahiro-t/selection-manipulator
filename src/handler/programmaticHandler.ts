@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as yaml from 'js-yaml';
 import { openTextDocument } from '../common';
 
@@ -11,7 +12,7 @@ export const jsonToYamlHandler: (replace: boolean) => (textEditor: TextEditor) =
   const selections = textEditor.selections;
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       selections.forEach(selection => {
         try {
           const text = textEditor.document.getText(selection);
@@ -48,7 +49,7 @@ export const yamlToJsonHandler: (replace: boolean) => (textEditor: TextEditor) =
   const selections = textEditor.selections;
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       selections.forEach(selection => {
         try {
           const text = textEditor.document.getText(selection);
@@ -85,7 +86,7 @@ export const hexToRgbHandler: (replace: boolean) => (textEditor: TextEditor) => 
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -108,7 +109,7 @@ export const rgbToHexHandler: (replace: boolean) => (textEditor: TextEditor) => 
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -121,7 +122,7 @@ export const rgbToHexHandler: (replace: boolean) => (textEditor: TextEditor) => 
 };
 
 export const toggleQuotesHandler: (textEditor: TextEditor) => Thenable<boolean> = (textEditor) => {
-  return textEditor.edit(editBuilder => {
+  return applyEdit(textEditor, editBuilder => {
     textEditor.selections.forEach(selection => {
       const text = textEditor.document.getText(selection);
       let result = text;
@@ -148,7 +149,7 @@ export const hexToDecimalHandler: (replace: boolean) => (textEditor: TextEditor)
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -167,7 +168,7 @@ export const decimalToHexHandler: (replace: boolean) => (textEditor: TextEditor)
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));

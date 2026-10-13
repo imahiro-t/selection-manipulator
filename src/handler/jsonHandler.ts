@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
 type Command = 'format' | 'minify' | 'stringify' | 'parse' | 'flatten' | 'unflatten';
@@ -10,7 +11,7 @@ export const jsonHandler: (command: Command, isReplace: boolean) => (textEditor:
     if (textEditor.selections.length === 0) {
       return;
     }
-    textEditor.edit((editBuilder) => {
+    return applyEdit(textEditor, (editBuilder) => {
       textEditor.selections
         .forEach(selection => {
           const text = textEditor.document.getText(selection);

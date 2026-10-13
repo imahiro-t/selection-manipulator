@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
 export const asciiArtHandler: (character: string, replace: boolean) => (textEditor: TextEditor) => Thenable<boolean | void> = (character, replace) => (textEditor) => {
@@ -189,7 +190,7 @@ export const asciiArtHandler: (character: string, replace: boolean) => (textEdit
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, generateAsciiArt(text, character));

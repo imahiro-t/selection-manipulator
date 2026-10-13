@@ -2,12 +2,13 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 
 export const incrementFromHandler: (incrementFrom: number) => (textEditor: TextEditor) => void = (incrementFrom) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
-  textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach((selection, index) => {
         editBuilder.replace(selection, (incrementFrom + index).toString());
@@ -23,5 +24,8 @@ export const incrementFromInputHandler: (textEditor: TextEditor) => void = async
     prompt: 'Increment From',
     ignoreFocusOut: true,
   }));
-  incrementFromHandler(incrementFrom)(textEditor);
+  if (!ensureEditorAfterInput(textEditor)) {
+    return;
+  }
+  await incrementFromHandler(incrementFrom)(textEditor);
 };

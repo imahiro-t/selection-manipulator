@@ -164,3 +164,40 @@ export function waitForNewDocument(
   promise.catch(() => undefined);
   return promise;
 }
+
+/** A notifier that records warnings (for the edit guards of `src/editGuard.ts`). */
+export function warningRecorder(): { warnings: string[]; notifier: { showWarningMessage(message: string): Thenable<unknown>; showErrorMessage(message: string): Thenable<unknown>; showInformationMessage(message: string): Thenable<unknown> } } {
+  const warnings: string[] = [];
+  const record = (message: string) => {
+    warnings.push(message);
+    return Promise.resolve(undefined);
+  };
+  return { warnings, notifier: { showWarningMessage: record, showErrorMessage: record, showInformationMessage: record } };
+}
+
+/**
+ * A stand-in for `editor` whose `edit` is replaced. The editor objects of the extension host are
+ * frozen, so the real `edit` cannot be overwritten: the other members are delegated by getters.
+ * The stand-in is not one of `window.visibleTextEditors`.
+ */
+export function withEdit(editor: vscode.TextEditor, edit: vscode.TextEditor['edit']): vscode.TextEditor {
+  return {
+    get document() { return editor.document; },
+    get selections() { return editor.selections; },
+    set selections(value: readonly vscode.Selection[]) { editor.selections = value; },
+    get selection() { return editor.selection; },
+    set selection(value: vscode.Selection) { editor.selection = value; },
+    get options() { return editor.options; },
+    get viewColumn() { return editor.viewColumn; },
+    get visibleRanges() { return editor.visibleRanges; },
+    edit,
+  } as unknown as vscode.TextEditor;
+}
+
+/** Inserts `text` at the start of `editor`'s document (a change made while an input box is open). */
+export async function insertAtTop(editor: vscode.TextEditor, text: string): Promise<void> {
+  const applied = await editor.edit((editBuilder) => editBuilder.insert(new vscode.Position(0, 0), text));
+  if (!applied) {
+    throw new Error('insertAtTop: the edit was not applied');
+  }
+}

@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
 export const csvHandler: (command: 'csv-to-markdown' | 'markdown-to-csv', isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
@@ -8,7 +9,7 @@ export const csvHandler: (command: 'csv-to-markdown' | 'markdown-to-csv', isRepl
     if (textEditor.selections.length === 0) {
       return;
     }
-    textEditor.edit((editBuilder) => {
+    return applyEdit(textEditor, (editBuilder) => {
       textEditor.selections.forEach((selection) => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(command)(text));

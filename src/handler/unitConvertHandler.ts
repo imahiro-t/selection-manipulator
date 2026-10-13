@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
 export const unitConvertHandler = (type: 'px-to-rem' | 'rem-to-px' | 'kg-to-lb' | 'lb-to-kg') => (textEditor: TextEditor) => {
   if (textEditor.selections.length === 0) {
@@ -8,7 +9,7 @@ export const unitConvertHandler = (type: 'px-to-rem' | 'rem-to-px' | 'kg-to-lb' 
   }
   const baseFontSize = 16; // Default base font size for rem conversion
 
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);

@@ -1,11 +1,12 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
 export const textCleanupHandler: (command: 'remove-empty-lines' | 'remove-line-numbers' | 'trim-lines' | 'join-lines-space' | 'join-lines-comma' | 'split-lines-space' | 'split-lines-comma' | 'normalize-whitespace' | 'strip-html-tags' | 'unsmart-quotes' | 'trim-lines-trailing' | 'remove-duplicate-lines') => (textEditor: TextEditor) => Thenable<boolean> = (command) => (textEditor) => {
   const document = textEditor.document;
 
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections.forEach((selection) => {
       const text = textEditor.document.getText(selection);
       let newText = text;

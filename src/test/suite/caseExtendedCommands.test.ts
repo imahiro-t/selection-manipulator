@@ -6,7 +6,8 @@ import { caseHandler } from '../../handler/caseHandler';
 import { caseDetectHandlerInternal } from '../../handler/caseDetectHandler';
 import { caseLocaleHandlerInternal, validateLocaleInput } from '../../handler/caseLocaleHandler';
 import { caseJsonKeysHandlerInternal } from '../../handler/caseJsonKeysHandler';
-import { createTextEditor } from './testUtils';
+import { DOCUMENT_CHANGED_WHILE_INPUT_MESSAGE, EDITOR_GONE_MESSAGE } from '../../editGuard';
+import { createTextEditor, insertAtTop, warningRecorder, withEdit } from './testUtils';
 
 type Runner = (editor: vscode.TextEditor) => Promise<void>;
 
@@ -264,5 +265,78 @@ suite('Extended Case Commands (CASE-001..030) Test Suite', () => {
       assert.strictEqual(count(packageJson.contributes.menus.commandPalette, id), 1, `commandPalette: ${id}`);
       assert.strictEqual(count(packageJson.contributes.menus['selection-manipulator.case.submenu'], id), 1, `submenu: ${id}`);
     });
+  });
+});
+
+suite('CASE-020 / CASE-021 changes while the locale is asked', () => {
+  /** `x` on the first line, `istanbul` (selected) on the second. */
+  const setUp = async () => {
+    const editor = await createTextEditor('x\nistanbul');
+    editor.selection = new vscode.Selection(1, 0, 1, 8);
+    return editor;
+  };
+
+  test('a document edited while the input box is open is not changed and the user is told', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    await caseLocaleHandlerInternal(async () => {
+      await insertAtTop(editor, 'inserted\n');
+      return 'tr';
+    }, { notifier })('upper')(editor);
+    assert.strictEqual(editor.document.getText(), 'inserted\nx\nistanbul');
+    assert.deepStrictEqual(warnings, [DOCUMENT_CHANGED_WHILE_INPUT_MESSAGE]);
+  });
+
+  test('an editor switched away while the input box is open is not changed and the user is told', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    await caseLocaleHandlerInternal(async () => {
+      await createTextEditor('other');
+      return 'tr';
+    }, { notifier })('upper')(editor);
+    assert.strictEqual(editor.document.getText(), 'x\nistanbul');
+    assert.deepStrictEqual(warnings, [EDITOR_GONE_MESSAGE]);
+  });
+
+  test('the selections are read after the input box closes', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    await caseLocaleHandlerInternal(async () => {
+      editor.selection = new vscode.Selection(0, 0, 0, 1);
+      return 'tr';
+    }, { notifier })('upper')(editor);
+    assert.strictEqual(editor.document.getText(), 'X\nistanbul');
+    assert.deepStrictEqual(warnings, []);
+  });
+
+  test('an edit the editor does not accept is reported', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    const stand = withEdit(editor, () => Promise.resolve(false));
+    await caseLocaleHandlerInternal(() => Promise.resolve('tr'), { notifier, isEditorAvailable: () => true })('upper')(stand);
+    assert.strictEqual(editor.document.getText(), 'x\nistanbul');
+    assert.deepStrictEqual(warnings, ['The text was not changed: the editor did not accept the edit.']);
+  });
+
+  test('an edit rejected because the editor is gone is reported', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    const stand = withEdit(editor, () => Promise.reject(new Error('TextEditor#edit not possible on closed editors')));
+    await caseLocaleHandlerInternal(() => Promise.resolve('tr'), { notifier, isEditorAvailable: () => true })('upper')(stand);
+    assert.strictEqual(editor.document.getText(), 'x\nistanbul');
+    assert.deepStrictEqual(warnings, ['The text was not changed: the editor was closed.']);
+  });
+
+  test('without the injected check, an editor that is not visible stops the command before the edit', async () => {
+    const editor = await setUp();
+    const { warnings, notifier } = warningRecorder();
+    let edits = 0;
+    const stand = withEdit(editor, () => {
+      edits++;
+      return Promise.resolve(false);
+    });
+    await caseLocaleHandlerInternal(() => Promise.resolve('tr'), { notifier })('upper')(stand);
+    assert.strictEqual(edits, 0);
+    assert.deepStrictEqual(warnings, [EDITOR_GONE_MESSAGE]);
   });
 });

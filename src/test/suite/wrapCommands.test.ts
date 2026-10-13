@@ -19,7 +19,8 @@ import {
   WrapInputCommand,
 } from '../../handler/wrapTransforms';
 import { SQL_BACKSLASH_REASON, SQL_CONTROL_CHARACTER_REASON, SQL_YEN_SIGN_REASON } from '../../handler/sqlSafety';
-import { createTextEditor } from './testUtils';
+import { EDITOR_GONE_MESSAGE } from '../../editGuard';
+import { createTextEditor, warningRecorder } from './testUtils';
 import { candidateRows } from './showcaseData';
 
 type Runner = (editor: vscode.TextEditor) => Promise<void>;
@@ -536,5 +537,17 @@ suite('Wrap Commands (WRAP-001..030) Test Suite', function () {
     assert.strictEqual(submenu.length, 44);
     const allTitles = myCommands.map((entry) => entry.title);
     assert.strictEqual(new Set(allTitles).size, allTitles.length, 'Show Commands titles are unique');
+  });
+
+  test('WRAP-018: an editor switched away while the input box is open is not changed and the user is told', async () => {
+    const editor = await createTextEditor('abc');
+    editor.selection = new vscode.Selection(0, 0, 0, 3);
+    const { warnings, notifier } = warningRecorder();
+    await wrapInputHandlerInternal(async () => {
+      await createTextEditor('other');
+      return 'b';
+    }, notifier)('enclose.html-tag')(editor);
+    assert.strictEqual(editor.document.getText(), 'abc');
+    assert.deepStrictEqual(warnings, [EDITOR_GONE_MESSAGE]);
   });
 });

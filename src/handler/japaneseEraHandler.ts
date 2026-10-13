@@ -1,4 +1,5 @@
 import { TextEditor } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocumentWithTitles } from '../common';
 
 export const japaneseEraHandler = (replaceFlag: boolean) => async (textEditor: TextEditor) => {
@@ -13,7 +14,7 @@ export const japaneseEraHandler = (replaceFlag: boolean) => async (textEditor: T
     .map(text => convertEra(text));
 
   if (replaceFlag) {
-    await textEditor.edit(editBuilder => {
+    await applyEdit(textEditor, editBuilder => {
       selections.forEach((selection, index) => {
         editBuilder.replace(selection, resultList[index]);
       });

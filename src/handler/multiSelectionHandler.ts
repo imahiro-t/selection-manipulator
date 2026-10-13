@@ -1,19 +1,27 @@
 import {
+  InputBoxOptions,
   TextEditor,
   Selection,
   Position,
   window,
 } from 'vscode';
+import { EditGuardDeps, ensureUnchangedAfterInput } from '../editGuard';
 
-export const multiSelectionHandler: (type?: 'all' | 'interval') => (textEditor: TextEditor) => Promise<void> = (type = 'all') => async (textEditor) => {
-  const selectedText = textEditor.document.getText(textEditor.selection);
+type MultiSelectionType = 'all' | 'interval';
+
+export const multiSelectionHandlerInternal = (
+  showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>,
+  guard: EditGuardDeps = {}
+) => (type: MultiSelectionType = 'all') => async (textEditor: TextEditor): Promise<void> => {
+  let selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
   }
 
   let interval = 1;
   if (type === 'interval') {
-    const input = await window.showInputBox({
+    const versionBeforeInput = textEditor.document.version;
+    const input = await showInputBox({
       placeHolder: 'Enter interval (n)',
       prompt: 'Select every n-th line from the selection',
       validateInput: (value) => {
@@ -21,6 +29,14 @@ export const multiSelectionHandler: (type?: 'all' | 'interval') => (textEditor: 
       }
     });
     if (!input) {
+      return;
+    }
+    if (!ensureUnchangedAfterInput(textEditor, versionBeforeInput, guard)) {
+      return;
+    }
+    // Re-read the selection: it may have moved while the input box was open.
+    selectedText = textEditor.document.getText(textEditor.selection);
+    if (!selectedText) {
       return;
     }
     interval = parseInt(input, 10);
@@ -40,3 +56,6 @@ export const multiSelectionHandler: (type?: 'all' | 'interval') => (textEditor: 
   });
   textEditor.selections = selections;
 };
+
+export const multiSelectionHandler: (type?: MultiSelectionType) => (textEditor: TextEditor) => Promise<void> = (type = 'all') =>
+  multiSelectionHandlerInternal((options) => window.showInputBox(options))(type);

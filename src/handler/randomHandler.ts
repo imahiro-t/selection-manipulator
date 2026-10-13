@@ -1,10 +1,11 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as crypto from 'crypto';
 
 export const randomHandler: (command: 'uuid' | 'password' | 'ipv4' | 'ipv6' | 'lorem-ipsum') => (textEditor: TextEditor) => Thenable<boolean> = (command) => (textEditor) => {
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     const generate = () => {
       switch (command) {
         case 'uuid':

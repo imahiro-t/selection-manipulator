@@ -1,4 +1,5 @@
 import { InputBoxOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexRunner, LineRegexSplitRunner, runRegexInWorker, runRegexSplitInWorker } from './lineRegex';
 import {
   LINE_REGEX_MAX_INPUT_LENGTH,
@@ -154,11 +155,10 @@ const applyResult = async (textEditor: TextEditor, dependencies: MselDependencie
     case 'edit': {
       const document = textEditor.document;
       const edits = result.edits.map(({ start, end, text }) => ({ range: new Range(document.positionAt(start), document.positionAt(end)), text }));
-      const applied = await textEditor.edit((editBuilder) => {
+      const applied = await applyEdit(textEditor, (editBuilder) => {
         edits.forEach(({ range, text }) => editBuilder.replace(range, text));
-      });
+      }, { notifier: dependencies.notifier, prefix: prefixOf(entry) });
       if (!applied) {
-        void dependencies.notifier.showWarningMessage(`${prefixOf(entry)}the editor did not accept the edit.`);
         return;
       }
       if (result.ranges.length > 0) {
@@ -188,6 +188,9 @@ export const mselCommandHandlerInternal = (dependencies: MselDependencies, entri
         }
         const inputs = await askInputs(dependencies, entry);
         if (inputs === undefined) {
+          return;
+        }
+        if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
           return;
         }
         // The selections and the text are read only after the input boxes close: the document

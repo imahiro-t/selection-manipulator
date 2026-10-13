@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import { DataInputError } from './dataCommon';
@@ -147,9 +148,9 @@ const applyTransform = async (
   }
   const replacements = results.filter(({ text, result }) => text !== result);
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    });
+    }, { notifier: dependencies.notifier });
   }
 };
 
@@ -225,6 +226,9 @@ export const tableHandlerInternal = (dependencies: TableDependencies) =>
         }
         const inputs = await askPrompts(dependencies, entry.prompts);
         if (inputs === undefined) {
+          return;
+        }
+        if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
           return;
         }
         // The selections are read again: the document may have changed while a prompt was open.
