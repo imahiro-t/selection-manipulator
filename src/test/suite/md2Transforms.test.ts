@@ -230,6 +230,30 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
       // A cursor in the spaces after other text keeps its place (unchanged).
       assert.deepStrictEqual(outcome('x    foo', [{ start: 3, end: 3 }, { start: 5, end: 8 }]), ['x  \n> [!NOTE]\n> foo', [[3, 3], [3, 19]]]);
     });
+
+    test('a cursor in the spaces after the selection does not leave 4 columns at the start of the next line (SELEC-00143)', () => {
+      const outcome = (text: string, ranges: MdRange[], eol: '\n' | '\r\n' = '\n'): [string, number[][]] => {
+        const entry = MD2_COMMAND_ENTRIES.find((candidate) => candidate.id === 'JAUNIX-020');
+        assert.ok(entry);
+        const result = entry.run({ text, ranges, eol, inputs: ['NOTE'] });
+        assert.ok(result.kind === 'edit');
+        return [applied(text, result), result.ranges.map(({ start, end }) => [start, end])];
+      };
+      const cursors = (...offsets: number[]): MdRange[] => offsets.map((offset) => ({ start: offset, end: offset }));
+      const a = { start: 0, end: 1 };
+      // Before SELEC-00143: `> [!NOTE]\n> a\n\n    b` (an indented code block) with the cursor at {15,15}.
+      assert.deepStrictEqual(outcome('a     b', [a, ...cursors(2)]), ['> [!NOTE]\n> a\n\nb', [[0, 15], [15, 15]]]);
+      // 4 columns after the first cursor, 1 after the last.
+      assert.deepStrictEqual(outcome('a     b', [a, ...cursors(2, 5)]), ['> [!NOTE]\n> a\n\nb', [[0, 15], [15, 15], [15, 15]]]);
+      assert.deepStrictEqual(outcome('a      b', [a, ...cursors(2, 3)]), ['> [!NOTE]\n> a\n\nb', [[0, 15], [15, 15], [15, 15]]]);
+      assert.deepStrictEqual(outcome('a  \t b', [a, ...cursors(2)]), ['> [!NOTE]\n> a\n\nb', [[0, 15], [15, 15]]]);
+      assert.deepStrictEqual(outcome('a     b\r\nc', [a, ...cursors(2)], '\r\n'), ['> [!NOTE]\r\n> a\r\n\r\nb\r\nc', [[0, 18], [18, 18]]]);
+      // Up to 3 columns stay (unchanged).
+      assert.deepStrictEqual(outcome('a    b', [a, ...cursors(2)]), ['> [!NOTE]\n> a\n\n   b', [[0, 15], [15, 15]]]);
+      assert.deepStrictEqual(outcome('a  b', [a, ...cursors(2)]), ['> [!NOTE]\n> a\n\n b', [[0, 15], [15, 15]]]);
+      // Never into the next non-empty selection.
+      assert.deepStrictEqual(outcome('a      b', [a, ...cursors(2), { start: 7, end: 8 }]), ['> [!NOTE]\n> a\n\n\n> [!NOTE]\n> b', [[0, 15], [15, 15], [15, 29]]]);
+    });
   });
 
   suite('JAUNIX-021 kbd', () => {

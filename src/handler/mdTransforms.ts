@@ -202,8 +202,10 @@ const endsInsideLine = (text: string, end: number): boolean => end > 0 && !isLin
  * are taken into the edit, so that the split lines do not keep them at their end or start. The
  * edit does not reach before `floor` (after other text: the end of the previous selection, a
  * cursor included; for the indentation taken into the edit: the end of the previous non-empty
- * selection's edit) or after `ceiling` (the start of the next selection). The spaces read are
- * next to one selection each, so this is linear over all the selections.
+ * selection's edit) or after `ceiling` (the start of the next selection; `perSelection` then reads
+ * past a cursor there with `splitOffEnd`, so that 4 columns or more do not stay at the start of the
+ * split-off line). The spaces read are next to one selection each, so this is linear over all the
+ * selections.
  */
 const editRange = (text: string, range: MdRange, breakBefore: boolean, breakAfter: boolean, floor: number, ceiling: number): MdRange => {
   let start = range.start;
@@ -243,6 +245,31 @@ const indentsCodeBlock = (text: string, offset: number, floor: number): boolean 
   indentWidth(text.slice(indentStart(text, offset, floor), offset)) >= 4;
 
 /**
+ * For `perSelection`, where the edit of `ranges[i]` ends when it splits its line after it and
+ * `editRange` stopped at the start of the next selection (`end`): the spaces and tabs left at the
+ * start of the split-off line (from `end` up to other text, a line break or the start of the next
+ * non-empty selection, read past the cursors in them) are taken into the edit when they are 4
+ * columns or more (a tab counts to the next multiple of 4), so that the text after them is not
+ * read as an indented code block; up to 3 columns stay (`end` is returned). Only the cursors and
+ * spaces between this selection and the next non-empty one are read, so this stays linear.
+ */
+const splitOffEnd = (text: string, ranges: readonly MdRange[], i: number, end: number): number => {
+  let runEnd = end;
+  let k = i + 1;
+  for (;;) {
+    // Cursors at or before `runEnd` are read past; a non-empty selection starting there stops it.
+    while (k < ranges.length && ranges[k].start === ranges[k].end && ranges[k].start <= runEnd) {
+      k++;
+    }
+    if ((k < ranges.length && ranges[k].start <= runEnd) || runEnd >= text.length || !isSpaceOrTab(text[runEnd])) {
+      break;
+    }
+    runEnd++;
+  }
+  return runEnd > end && indentWidth(text.slice(end, runEnd)) >= 4 ? runEnd : end;
+};
+
+/**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
  * lines of the selection's ends, and the spaces and tabs where it splits a line are taken into
  * the edit; otherwise it gets `NO_LINE_EDGES`). With `lineEdges`, when nothing precedes the
@@ -254,8 +281,13 @@ const indentsCodeBlock = (text: string, offset: number, floor: number): boolean 
  * whether it is taken (`indentBefore`, `indentTaken`). A cursor has no edit, so it neither cuts
  * the indentation short nor stops it from being taken: a cursor inside the indentation taken
  * moves to the start of the edit. The spaces and tabs split off after other text are not taken
- * from before the previous selection, a cursor included. The changed results are counted as they
- * are made, so that the output limit stops a run before all of them are built.
+ * from before the previous selection, a cursor included. The spaces and tabs split off after the
+ * selection are taken up to the next selection, a cursor included, unless what a cursor there
+ * would leave at the start of the next line is 4 columns or more: then they are taken past the
+ * cursors up to other text, a line break or the next non-empty selection (`splitOffEnd`), and a
+ * cursor in them moves to the end of the edit (the start of the text on the next line). The
+ * changed results are counted as they are made, so that the output limit stops a run before all of
+ * them are built.
  */
 export const perSelection = (
   transform: SelectionTransform,
@@ -277,7 +309,12 @@ export const perSelection = (
   const replacements = ranges.map((range, i) => {
     edited.push(range);
     if (range.start === range.end) {
-      floor = range.end;
+      if (range.start < indentFloor) {
+        // A cursor in the spaces taken into the previous non-empty selection's edit after it moves
+        // to the end of that edit.
+        edited[i] = { start: indentFloor, end: indentFloor, reversed: range.reversed };
+      }
+      floor = edited[i].end;
       if (lines !== undefined) {
         pending.push(i);
       }
@@ -300,7 +337,16 @@ export const perSelection = (
         const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
         const breakBefore = edges.textBefore || edges.indentTaken;
         const before = edges.textBefore ? floor : indentFloor;
-        edited[i] = editRange(text, range, breakBefore, edges.textAfter && endsInsideLine(text, range.end), before, ceiling);
+        const breakAfter = edges.textAfter && endsInsideLine(text, range.end);
+        edited[i] = editRange(text, range, breakBefore, breakAfter, before, ceiling);
+        if (breakAfter && edited[i].end === ceiling && i + 1 < ranges.length) {
+          // A cursor in the spaces split off does not leave 4 columns or more at the start of the
+          // next line (the cursors in the spaces taken move to the end of the edit, below).
+          const end = splitOffEnd(text, ranges, i, ceiling);
+          if (end !== ceiling) {
+            edited[i] = { start: edited[i].start, end, reversed: range.reversed };
+          }
+        }
       }
     }
     // A cursor inside the indentation taken into the edit moves to the start of the edit.
