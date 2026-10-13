@@ -79,3 +79,13 @@ The following commands existed as of v0.0.42 and communicate over the network. T
 - We keep `npm audit` findings of severity **high or above at zero** (v0.0.42 reached 0 vulnerabilities in total).
 - Pull requests must not introduce new high or critical findings.
 - Continuous checking in CI (running `npm audit --audit-level=high`, Dependabot and CodeQL) is being implemented in a separate ticket.
+
+### Accepted low findings
+
+`npm audit` currently reports **2 low** findings and nothing of a higher severity. They are accepted for the reasons below (checked on 2026-10-13).
+
+- **Finding**: katex, [GHSA-238p-pmpm-9mq7](https://github.com/advisories/GHSA-238p-pmpm-9mq7) "Existing prototype pollution can bypass trust restrictions" (low, affects `<0.18.2`), and mermaid, which depends on it. mermaid is a devDependency pinned to 11.17.2, but its prebuilt `mermaid.min.js` embeds katex 0.16.47 and is copied to `media/mermaid/mermaid.min.js`, so this katex code is in the VSIX.
+- **Reachability**: in the Webview of HAR to Sequence Diagram Image, mermaid calls katex (`renderToString`, without the `trust` option, i.e. the default `false`) when a label contains `$$...$$`. A HAR text (a URL path, a status text, a cookie name) can contain that, so katex is reachable.
+- **Why it has no effect here**: the advisory needs an existing prototype pollution in the page (for example `Object.prototype.trust`). Nothing in this Webview can cause one: the only scripts are the bundled mermaid and one fixed script with the per-load nonce, and the selected text is HTML-escaped into a `<pre>` and never passed to a script. Even if the `trust` check were bypassed, the commands it guards (`\href`, `\includegraphics`, ...) could neither load nor run anything: the Content Security Policy is `default-src 'none'` with nonce-only scripts and no external origin, and `localResourceRoots` is only `media/mermaid/` (§6).
+- **Why the fix is not taken**: no mermaid release uses katex `>=0.18.2` yet (the latest, 12.1.0, still depends on `^0.16.47`). The fix that `npm audit fix --force` offers is a major downgrade to mermaid 10.8.0, which would undo the update to mermaid 11 made when loading mermaid from a CDN was replaced by the bundled copy. An `overrides` entry for katex would only silence `npm audit`: the katex code embedded in the prebuilt `mermaid.min.js` would not change.
+- **When to revisit**: as soon as a mermaid release depends on katex `>=0.18.2`, update the pinned mermaid to it (`npm install mermaid@<version> --save-dev --save-exact`) and remove this entry.

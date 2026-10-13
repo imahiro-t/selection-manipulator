@@ -176,6 +176,39 @@ export function warningRecorder(): { warnings: string[]; notifier: { showWarning
 }
 
 /**
+ * A notifier that records each kind of message in its own list, synchronously, so that a test can
+ * tell an information message from a warning (`warningRecorder` puts them all in one list).
+ */
+export function notificationRecorder(): {
+  infos: string[];
+  warnings: string[];
+  errors: string[];
+  notifier: {
+    showInformationMessage(message: string): Thenable<unknown>;
+    showWarningMessage(message: string): Thenable<unknown>;
+    showErrorMessage(message: string): Thenable<unknown>;
+  };
+} {
+  const infos: string[] = [];
+  const warnings: string[] = [];
+  const errors: string[] = [];
+  const recordTo = (list: string[]) => (message: string) => {
+    list.push(message);
+    return Promise.resolve(undefined);
+  };
+  return {
+    infos,
+    warnings,
+    errors,
+    notifier: {
+      showInformationMessage: recordTo(infos),
+      showWarningMessage: recordTo(warnings),
+      showErrorMessage: recordTo(errors),
+    },
+  };
+}
+
+/**
  * A stand-in for `editor` whose `edit` is replaced. The editor objects of the extension host are
  * frozen, so the real `edit` cannot be overwritten: the other members are delegated by getters.
  * The stand-in is not one of `window.visibleTextEditors`.
