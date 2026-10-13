@@ -256,6 +256,53 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
     });
   });
 
+  suite('JAUNIX-020: paragraph continuation lines after the alert (SELEC-00150)', () => {
+    const outcome = (text: string, ranges: MdRange[], eol: '\n' | '\r\n' = '\n'): [string, number[][]] => {
+      const entry = MD2_COMMAND_ENTRIES.find((candidate) => candidate.id === 'JAUNIX-020');
+      assert.ok(entry);
+      const result = entry.run({ text, ranges, eol, inputs: ['NOTE'] });
+      assert.ok(result.kind === 'edit');
+      return [applied(text, result), result.ranges.map(({ start, end }) => [start, end])];
+    };
+    const foo = { start: 0, end: 3 };
+
+    test('a continuation line indented by 4 columns or more loses its indentation', () => {
+      // Before: `> [!NOTE]\n> foo\n\n    bar`, where `bar` is an indented code block.
+      assert.deepStrictEqual(outcome('foo\n    bar', [foo]), ['> [!NOTE]\n> foo\n\nbar', [[0, 17]]]);
+      assert.deepStrictEqual(outcome('foo\n    bar', [{ start: 0, end: 4 }]), ['> [!NOTE]\n> foo\n\nbar', [[0, 17]]]);
+      assert.deepStrictEqual(outcome('foo\r\n    bar', [{ start: 0, end: 3 }], '\r\n'), ['> [!NOTE]\r\n> foo\r\n\r\nbar', [[0, 20]]]);
+      // A cursor in what is taken moves to the start of the text.
+      assert.deepStrictEqual(outcome('foo\n    bar', [foo, { start: 6, end: 6 }]), ['> [!NOTE]\n> foo\n\nbar', [[0, 17], [17, 17]]]);
+    });
+
+    test('a continuation line whose text would start a block gets one backslash, with or without indentation', () => {
+      // Before: `2. x` became an ordered list after the alert.
+      assert.deepStrictEqual(outcome('foo\n2. x', [foo]), ['> [!NOTE]\n> foo\n\n2\\. x', [[0, 19]]]);
+      assert.deepStrictEqual(outcome('foo\n2. x', [{ start: 0, end: 4 }]), ['> [!NOTE]\n> foo\n\n2\\. x', [[0, 19]]]);
+      assert.deepStrictEqual(outcome('foo\n  *', [foo]), ['> [!NOTE]\n> foo\n\n\\*', [[0, 18]]]);
+      assert.deepStrictEqual(outcome('foo\n    > x', [foo]), ['> [!NOTE]\n> foo\n\n\\> x', [[0, 18]]]);
+    });
+
+    test('what stays a paragraph, cannot stay one shown the same way, or is not a continuation line: as before', () => {
+      assert.strictEqual(run('JAUNIX-020', 'foo\n  bar', ['NOTE'], [foo]), '> [!NOTE]\n> foo\n\n  bar');
+      assert.strictEqual(run('JAUNIX-020', 'foo\nbar', ['NOTE'], [foo]), '> [!NOTE]\n> foo\n\nbar');
+      assert.strictEqual(run('JAUNIX-020', 'foo\n    ```', ['NOTE'], [foo]), '> [!NOTE]\n> foo\n\n    ```');
+      assert.strictEqual(run('JAUNIX-020', 'foo\n1. x', ['NOTE'], [foo]), '> [!NOTE]\n> foo\n\n1. x');
+      assert.strictEqual(run('JAUNIX-020', '# h\n    bar', ['NOTE'], [foo]), '> [!NOTE]\n> # h\n\n    bar');
+    });
+
+    test('the line before in a list item, with the alert started indented in the item', () => {
+      // Before: `      bar` (code) and `  2. x` (a list) after the blank line. The line keeps the
+      // item's content indentation and loses only what is beyond it, like after Wrap in Code Fence.
+      // (The alert writes its lines after the first one without the item's indentation, as before
+      // this change: a separate issue, see the implementation notes of SELEC-00150.)
+      assert.deepStrictEqual(outcome('- a\n\n  foo\n      bar', [{ start: 7, end: 10 }]), ['- a\n\n  > [!NOTE]\n> foo\n\n  bar', [[7, 26]]]);
+      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n  2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n> foo\n\n  2\\. x');
+      // A lazy line: as before.
+      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n> foo\n\n2. x');
+    });
+  });
+
   suite('JAUNIX-021 kbd', () => {
     test('keys separated by + in <kbd>', () => {
       const cases: [string, string][] = [
