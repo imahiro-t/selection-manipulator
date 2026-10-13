@@ -1,7 +1,18 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
-import { createDocument, getWebviewContent } from '../../handler/harToMermaidHandler';
+import * as vm from 'vm';
+import * as vscode from 'vscode';
+import {
+  createDocument,
+  ensureBundledMermaid,
+  getWebviewContent,
+  MERMAID_LOAD_FAILED_MESSAGE,
+  MERMAID_MISSING_MESSAGE,
+  WEBVIEW_BOOT_SCRIPT,
+} from '../../handler/harToMermaidHandler';
+import { notificationRecorder } from './testUtils';
 
 const ROOT = path.resolve(__dirname, '../../..');
 const NONCE = 'dGVzdC1ub25jZS0xMjM0NQ==';
@@ -15,6 +26,33 @@ const cspOf = (html: string): string => {
   const metas = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)">/g) ?? [];
   assert.strictEqual(metas.length, 1, 'exactly one CSP meta');
   return /content="([^"]*)"/.exec(metas[0])![1];
+};
+
+/** The body of the inline (nonce, no `src`) script of `html`. */
+const inlineScriptOf = (html: string): string => {
+  const scripts = [...html.matchAll(/<script nonce="[^"]*">([\s\S]*?)<\/script>/g)];
+  assert.strictEqual(scripts.length, 1, 'exactly one inline script');
+  return scripts[0][1] ?? '';
+};
+
+/**
+ * Runs `script` against minimal stubs of the webview's `window` / `document` (only the DOM members
+ * the boot script uses), with or without a loaded `mermaid`.
+ */
+const runBootScript = (script: string, mermaid: { initialize(config: unknown): void } | undefined, theme = 'default') => {
+  const errorElement = { hidden: true };
+  const diagramElement = { hidden: false };
+  const document = {
+    body: { dataset: { theme } },
+    getElementById: (id: string) => (id === 'mermaid-error' ? errorElement : null),
+    querySelector: (selector: string) => (selector === 'pre.mermaid' ? diagramElement : null),
+  };
+  const window: Record<string, unknown> = { document };
+  if (mermaid) {
+    window.mermaid = mermaid;
+  }
+  vm.runInNewContext(script, { window, document });
+  return { errorElement, diagramElement };
 };
 
 suite('HAR to Mermaid Handler Test Suite', () => {
@@ -97,5 +135,89 @@ suite('HAR to Mermaid Handler Test Suite', () => {
       assert.ok(!/^(\*\*\/)?media(\/|$)/.test(line), line);
       assert.notStrictEqual(line, '**');
     }
+  });
+
+  suite('missing bundled mermaid', () => {
+    let tempRoot: string;
+
+    setup(() => {
+      tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'har-mermaid-'));
+    });
+
+    teardown(() => {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    });
+
+    test('no media/mermaid/mermaid.min.js: false and the error message', async () => {
+      const recorder = notificationRecorder();
+      assert.strictEqual(await ensureBundledMermaid(vscode.Uri.file(tempRoot), { notifier: recorder.notifier }), false);
+      assert.deepStrictEqual(recorder.errors, [MERMAID_MISSING_MESSAGE]);
+      assert.deepStrictEqual(recorder.infos, []);
+      assert.deepStrictEqual(recorder.warnings, []);
+    });
+
+    test('a directory in place of mermaid.min.js: false and the error message', async () => {
+      fs.mkdirSync(path.join(tempRoot, 'media', 'mermaid', 'mermaid.min.js'), { recursive: true });
+      const recorder = notificationRecorder();
+      assert.strictEqual(await ensureBundledMermaid(vscode.Uri.file(tempRoot), { notifier: recorder.notifier }), false);
+      assert.deepStrictEqual(recorder.errors, [MERMAID_MISSING_MESSAGE]);
+    });
+
+    test('the file present: true and no message', async () => {
+      fs.mkdirSync(path.join(tempRoot, 'media', 'mermaid'), { recursive: true });
+      fs.writeFileSync(path.join(tempRoot, 'media', 'mermaid', 'mermaid.min.js'), '');
+      const recorder = notificationRecorder();
+      assert.strictEqual(await ensureBundledMermaid(vscode.Uri.file(tempRoot), { notifier: recorder.notifier }), true);
+      assert.deepStrictEqual(recorder.errors, []);
+    });
+
+    test('the extension root of this build: true', async () => {
+      const recorder = notificationRecorder();
+      assert.strictEqual(await ensureBundledMermaid(vscode.Uri.file(ROOT), { notifier: recorder.notifier }), true);
+      assert.deepStrictEqual(recorder.errors, []);
+    });
+
+    test('the message has a fixed text and names no data of the user', () => {
+      assert.strictEqual(MERMAID_MISSING_MESSAGE, 'HAR to Sequence Diagram Image could not start: the bundled mermaid (media/mermaid/mermaid.min.js) is missing. Reinstall the extension.');
+      assert.ok(!MERMAID_MISSING_MESSAGE.includes(os.tmpdir()));
+    });
+  });
+
+  suite('webview when mermaid does not load', () => {
+    test('the HTML has one hidden error element with a fixed text', () => {
+      const html = render('A ->> B: <secret-ish label>');
+      const errors = html.match(/<p id="mermaid-error"[^>]*>[^<]*<\/p>/g) ?? [];
+      assert.deepStrictEqual(errors, [`<p id="mermaid-error" hidden>${MERMAID_LOAD_FAILED_MESSAGE}</p>`]);
+      assert.strictEqual(MERMAID_LOAD_FAILED_MESSAGE, 'Could not load the bundled mermaid. Reinstall the extension.');
+      assert.ok(!errors.join('').includes('secret-ish'));
+    });
+
+    test('the inline script is the fixed boot script and checks for mermaid', () => {
+      const script = inlineScriptOf(render());
+      assert.strictEqual(script, WEBVIEW_BOOT_SCRIPT);
+      assert.ok(script.includes("typeof window.mermaid === 'undefined'"));
+      // The diagram text never reaches the script.
+      assert.strictEqual(inlineScriptOf(render('A ->> B: payload-xyz')), WEBVIEW_BOOT_SCRIPT);
+    });
+
+    test('mermaid undefined: the error is shown, the diagram hidden, nothing initialized', () => {
+      const { errorElement, diagramElement } = runBootScript(inlineScriptOf(render()), undefined);
+      assert.strictEqual(errorElement.hidden, false);
+      assert.strictEqual(diagramElement.hidden, true);
+    });
+
+    test('mermaid loaded: initialize is called once with the theme, the error stays hidden', () => {
+      for (const theme of ['dark', 'default'] as const) {
+        const calls: unknown[] = [];
+        const { errorElement, diagramElement } = runBootScript(
+          inlineScriptOf(render(undefined, theme)),
+          { initialize: (config) => { calls.push(config); } },
+          theme);
+        // The config object comes from the vm context (another Object.prototype): compare its JSON.
+        assert.deepStrictEqual(JSON.parse(JSON.stringify(calls)), [{ startOnLoad: true, theme }]);
+        assert.strictEqual(errorElement.hidden, true);
+        assert.strictEqual(diagramElement.hidden, false);
+      }
+    });
   });
 });

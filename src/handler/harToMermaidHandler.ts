@@ -4,6 +4,8 @@ import {
   window,
   ViewColumn,
   Uri,
+  workspace,
+  FileType,
 } from 'vscode';
 import { randomBytes } from 'crypto';
 import { openTextDocument } from '../common';
@@ -13,11 +15,44 @@ const DIAGRAM_FOOTER = '```';
 
 type Command = 'mermaid' | 'image';
 
+/** Shown when the bundled mermaid cannot be used. A fixed text: never any data of the user. */
+export const MERMAID_MISSING_MESSAGE = 'HAR to Sequence Diagram Image could not start: the bundled mermaid (media/mermaid/mermaid.min.js) is missing. Reinstall the extension.';
+
+/** Shown in the webview when the bundled mermaid did not load there. A fixed text. */
+export const MERMAID_LOAD_FAILED_MESSAGE = 'Could not load the bundled mermaid. Reinstall the extension.';
+
+export interface HarDependencies {
+  notifier: { showErrorMessage(message: string): Thenable<unknown> };
+}
+
+export const defaultHarDependencies: HarDependencies = { notifier: window };
+
+const bundledMermaidUri = (extensionUri: Uri): Uri => Uri.joinPath(extensionUri, 'media', 'mermaid', 'mermaid.min.js');
+
+/**
+ * Checks that the bundled `media/mermaid/mermaid.min.js` exists (it is copied there by
+ * scripts/copy-mermaid.mjs and can be missing from a broken install). Shows
+ * `MERMAID_MISSING_MESSAGE` and returns false when it does not, so that no empty webview is opened.
+ */
+export const ensureBundledMermaid = async (extensionUri: Uri, deps: HarDependencies = defaultHarDependencies): Promise<boolean> => {
+  let isFile = false;
+  try {
+    const stat = await workspace.fs.stat(bundledMermaidUri(extensionUri));
+    isFile = (stat.type & FileType.File) !== 0;
+  } catch (_e) {
+    isFile = false;
+  }
+  if (!isFile) {
+    void deps.notifier.showErrorMessage(MERMAID_MISSING_MESSAGE);
+  }
+  return isFile;
+};
+
 /**
  * @param extensionUri The extension's root URI. Required by the `image` command, whose webview
  *   loads the bundled mermaid from `media/mermaid/`; the `mermaid` (text) command does not use it.
  */
-export const harToMermaidHandler: (command: Command, extensionUri?: Uri) => (textEditor: TextEditor) => void = (command, extensionUri) => async (textEditor) => {
+export const harToMermaidHandler: (command: Command, extensionUri?: Uri, deps?: HarDependencies) => (textEditor: TextEditor) => Promise<void> = (command, extensionUri, deps = defaultHarDependencies) => async (textEditor) => {
   const selectedText = textEditor.document.getText(textEditor.selection);
   if (!selectedText) {
     return;
@@ -59,7 +94,13 @@ export const harToMermaidHandler: (command: Command, extensionUri?: Uri) => (tex
   const content = createDocument(filteredEntries, includeQueryString, includeCookies);
 
   if (command === 'image') {
+    // Checked here, after the quick picks and right before the webview is created, so that the
+    // `mermaid` (text) command is not affected.
     if (!extensionUri) {
+      void deps.notifier.showErrorMessage(MERMAID_MISSING_MESSAGE);
+      return;
+    }
+    if (!await ensureBundledMermaid(extensionUri, deps)) {
       return;
     }
     openWebView(content, extensionUri);
@@ -164,7 +205,7 @@ const openWebView: (content: string, extensionUri: Uri) => void = (content, exte
       localResourceRoots: [mediaRoot],
     }
   );
-  const scriptUri = panel.webview.asWebviewUri(Uri.joinPath(mediaRoot, 'mermaid.min.js')).toString();
+  const scriptUri = panel.webview.asWebviewUri(bundledMermaidUri(extensionUri)).toString();
   const nonce = randomBytes(16).toString('base64');
   panel.webview.html = getWebviewContent(
     content.replace(DIAGRAM_HEADER, '').replace(DIAGRAM_FOOTER, ''),
@@ -185,6 +226,22 @@ const escapeHtml = (unsafe: string): string => {
 };
 
 /**
+ * The inline script of the webview (run after the bundled mermaid script). A fixed text: no value is
+ * spliced into it. Exported for the tests, which run it against stub `window` / `document` objects.
+ */
+export const WEBVIEW_BOOT_SCRIPT = `
+        if (typeof window.mermaid === 'undefined') {
+          document.getElementById('mermaid-error').hidden = false;
+          document.querySelector('pre.mermaid').hidden = true;
+        } else {
+          window.mermaid.initialize({
+            startOnLoad: true,
+            theme: document.body.dataset.theme === 'dark' ? 'dark' : 'default'
+          });
+        }
+      `;
+
+/**
  * Builds the HTML of the sequence diagram webview (SECURITY.md §6).
  *
  * - `default-src 'none'`, and scripts only with the per-load nonce: no `'unsafe-inline'` /
@@ -194,6 +251,9 @@ const escapeHtml = (unsafe: string): string => {
  *   it renders. §6 forbids inline *scripts*, not inline styles.
  * - The theme is passed as an escaped `data-theme` attribute (one of two fixed values) and read by
  *   the script, so no value is ever spliced into script source.
+ * - When mermaid did not load (missing file, 404, blocked or broken script), `WEBVIEW_BOOT_SCRIPT`
+ *   shows the hidden `#mermaid-error` element (a fixed text) instead of an empty page. An inline
+ *   `onerror` attribute would not run under the nonce-only `script-src`, hence the check.
  */
 export const getWebviewContent: (content: string, theme: MermaidTheme, scriptUri: string, cspSource: string, nonce: string) => string = (content, theme, scriptUri, cspSource, nonce) => {
   const safeContent = escapeHtml(content);
@@ -214,16 +274,12 @@ export const getWebviewContent: (content: string, theme: MermaidTheme, scriptUri
       <meta http-equiv="Content-Security-Policy" content="${csp}">
     </head>
     <body data-theme="${safeTheme}">
+      <p id="mermaid-error" hidden>${escapeHtml(MERMAID_LOAD_FAILED_MESSAGE)}</p>
       <pre class="mermaid">
 ${safeContent}
       </pre>
       <script nonce="${safeNonce}" src="${escapeHtml(scriptUri)}"></script>
-      <script nonce="${safeNonce}">
-        mermaid.initialize({
-          startOnLoad: true,
-          theme: document.body.dataset.theme === 'dark' ? 'dark' : 'default'
-        });
-      </script>
+      <script nonce="${safeNonce}">${WEBVIEW_BOOT_SCRIPT}</script>
     </body>
   </html>`;
 };

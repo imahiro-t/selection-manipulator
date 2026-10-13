@@ -8,7 +8,28 @@ import { openTextDocument } from '../common';
 
 type Command = 'encrypt' | 'decrypt';
 
-export const aesHandler: (command: Command, isReplace: boolean, testSecret?: string) => (textEditor: TextEditor) => void = (command, isReplace, testSecret) => async (textEditor) => {
+/** Where the AES commands send their messages (the compatibility-mode notice and the edit guard warnings). */
+export interface AesNotifier {
+  showInformationMessage(message: string): Thenable<unknown>;
+  showWarningMessage(message: string): Thenable<unknown>;
+}
+
+export interface AesDependencies {
+  notifier: AesNotifier;
+  /**
+   * Test-only hook, passed on to `ensureEditorAfterInput` (see `EditGuardDeps.isEditorAvailable`).
+   * Production callers never pass it, so the default check of `src/editGuard.ts` is used.
+   */
+  isEditorAvailable?: (textEditor: TextEditor) => boolean;
+}
+
+export const defaultAesDependencies: AesDependencies = { notifier: window };
+
+/**
+ * The returned command resolves when the command is done (for the non-Replace commands, after the
+ * result document is shown) and rejects with the original error when the command fails.
+ */
+export const aesHandler: (command: Command, isReplace: boolean, testSecret?: string, deps?: AesDependencies) => (textEditor: TextEditor) => Promise<void> = (command, isReplace, testSecret, deps = defaultAesDependencies) => async (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
@@ -17,10 +38,10 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
     ignoreFocusOut: true,
     password: true,
   }) ?? "");
-  if (!ensureEditorAfterInput(textEditor)) {
+  if (!ensureEditorAfterInput(textEditor, { notifier: deps.notifier, isEditorAvailable: deps.isEditorAvailable })) {
     return;
   }
-  const converter = createConverter(command, secret);
+  const converter = createConverter(command, secret, deps.notifier);
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;
@@ -31,7 +52,7 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
           const text = textEditor.document.getText(selection);
           editBuilder.replace(selection, converter.convert(text));
         });
-    });
+    }, { notifier: deps.notifier });
     if (applied) {
       converter.notifyLegacy();
     }
@@ -40,7 +61,7 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
     if (!selectedText) {
       return;
     }
-    openTextDocument(converter.convert(selectedText));
+    await openTextDocument(converter.convert(selectedText));
     converter.notifyLegacy();
   }
 };
@@ -49,7 +70,7 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
  * Converts each selection and remembers whether any of them was a legacy-format ciphertext, so the
  * compatibility-mode notice is shown at most once per command run (never with the text or secret).
  */
-const createConverter = (command: Command, secret: string) => {
+const createConverter = (command: Command, secret: string, notifier: AesNotifier) => {
   let usedLegacy = false;
   return {
     convert: (value: string): string => {
@@ -68,7 +89,7 @@ const createConverter = (command: Command, secret: string) => {
     notifyLegacy: (): void => {
       if (usedLegacy) {
         usedLegacy = false;
-        void window.showInformationMessage(LEGACY_NOTICE);
+        void notifier.showInformationMessage(LEGACY_NOTICE);
       }
     },
   };
