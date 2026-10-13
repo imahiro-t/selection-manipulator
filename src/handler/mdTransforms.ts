@@ -203,8 +203,9 @@ const endsInsideLine = (text: string, end: number): boolean => end > 0 && !isLin
  * edit does not reach before `floor` (after other text: the end of the previous selection, a
  * cursor included; for the indentation taken into the edit: the end of the previous non-empty
  * selection's edit) or after `ceiling` (the start of the next selection; `perSelection` then reads
- * past a cursor there with `splitOffEnd`, so that 4 columns or more do not stay at the start of the
- * split-off line). The spaces read are next to one selection each, so this is linear over all the
+ * past a cursor there, and `generateToc` past a selection of only spaces and tabs without a heading
+ * there, with `splitOffEnd`, so that 4 columns or more do not stay at the start of the split-off
+ * line). The spaces read are next to one selection each, so this is linear over all the
  * selections.
  */
 const editRange = (text: string, range: MdRange, breakBefore: boolean, breakAfter: boolean, floor: number, ceiling: number): MdRange => {
@@ -245,20 +246,24 @@ const indentsCodeBlock = (text: string, offset: number, floor: number): boolean 
   indentWidth(text.slice(indentStart(text, offset, floor), offset)) >= 4;
 
 /**
- * For `perSelection`, where the edit of `ranges[i]` ends when it splits its line after it and
- * `editRange` stopped at the start of the next selection (`end`): the spaces and tabs left at the
- * start of the split-off line (from `end` up to other text, a line break or the start of the next
- * non-empty selection, read past the cursors in them) are taken into the edit when they are 4
- * columns or more (a tab counts to the next multiple of 4), so that the text after them is not
- * read as an indented code block; up to 3 columns stay (`end` is returned). Only the cursors and
- * spaces between this selection and the next non-empty one are read, so this stays linear.
+ * Where the edit of `ranges[i]` ends when it splits its line after it and `editRange` stopped at
+ * the start of the next selection (`end`): the spaces and tabs left at the start of the split-off
+ * line (from `end` up to other text, a line break or the start of the next selection that is not
+ * `readPast`, read past the selections that are) are taken into the edit when they are 4 columns
+ * or more (a tab counts to the next multiple of 4), so that the text after them is not read as an
+ * indented code block; up to 3 columns stay (`end` is returned). `readPast` tells the selections
+ * that have no edit of their own and may be left inside the spaces taken (the caller moves them to
+ * the end of the edit): the cursors for `perSelection`, the selections of only spaces and tabs
+ * without a heading for `generateToc`. A selection read past is made of nothing but spaces and tabs,
+ * so the spaces taken always reach past its end. Only the selections and spaces between this
+ * selection and the next one that is not read past are read, so this stays linear.
  */
-const splitOffEnd = (text: string, ranges: readonly MdRange[], i: number, end: number): number => {
+const splitOffEnd = (text: string, ranges: readonly MdRange[], i: number, end: number, readPast: (range: MdRange) => boolean): number => {
   let runEnd = end;
   let k = i + 1;
   for (;;) {
-    // Cursors at or before `runEnd` are read past; a non-empty selection starting there stops it.
-    while (k < ranges.length && ranges[k].start === ranges[k].end && ranges[k].start <= runEnd) {
+    // Selections read past starting at or before `runEnd` are passed; any other one starting there stops it.
+    while (k < ranges.length && ranges[k].start <= runEnd && readPast(ranges[k])) {
       k++;
     }
     if ((k < ranges.length && ranges[k].start <= runEnd) || runEnd >= text.length || !isSpaceOrTab(text[runEnd])) {
@@ -268,6 +273,8 @@ const splitOffEnd = (text: string, ranges: readonly MdRange[], i: number, end: n
   }
   return runEnd > end && indentWidth(text.slice(end, runEnd)) >= 4 ? runEnd : end;
 };
+
+const isCursor = (range: MdRange): boolean => range.start === range.end;
 
 /**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
@@ -342,7 +349,7 @@ export const perSelection = (
         if (breakAfter && edited[i].end === ceiling && i + 1 < ranges.length) {
           // A cursor in the spaces split off does not leave 4 columns or more at the start of the
           // next line (the cursors in the spaces taken move to the end of the edit, below).
-          const end = splitOffEnd(text, ranges, i, ceiling);
+          const end = splitOffEnd(text, ranges, i, ceiling, isCursor);
           if (end !== ceiling) {
             edited[i] = { start: edited[i].start, end, reversed: range.reversed };
           }
@@ -536,9 +543,18 @@ const finalLineBreak = (text: string): string =>
  * spaces, tabs and line breaks is seen through for this separation and for the dropped indentation
  * (as if it were not there): its spaces may be taken into the edit of the next table of contents,
  * and then it is left as a cursor at the start of what replaces them (the line breaks written
- * before that list, if any, come first). The headings of a selection are found by walking the
- * headings and the selections (both in document order) together, and the whole table of contents
- * is made once for all cursors.
+ * before that list, if any, come first). When the list splits its line after it and such a
+ * selection of only spaces and tabs (no line break) lies in the spaces split off, what would stay at
+ * the start of the next line (from the end of the edit up to other text, a line break or the next
+ * selection that is not one of them) is measured past it: 4 columns or more (a tab counting to the
+ * next multiple of 4) are taken into the edit, so that the text after them is not read as an
+ * indented code block, and the selections of spaces in them are left as cursors at the end of the
+ * edit (the start of the text on the next line); up to 3 columns stay. A cursor stops this, since
+ * it inserts a list of its own that takes the spaces after it, and so does a selection of spaces on
+ * a heading line (headings span their whole line, so it has a list of its own); the heading lines
+ * are told apart by a walk of the headings of its own that only moves forward. The headings of a
+ * selection are found by walking the headings and the selections (both in document order)
+ * together, and the whole table of contents is made once for all cursors.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
@@ -565,6 +581,21 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     }
     return toc;
   };
+  // The first heading that does not end before the last `ceiling` looked at (a separate walk from
+  // `next`, so that `tocOf` is not disturbed): the `ceiling`s grow with the selections, so it only
+  // moves forward, and each heading is passed once over the whole run.
+  let probe = 0;
+  /** Whether the line of `offset` is a heading line (`offset` must not be before the previous one). */
+  const onHeadingLine = (offset: number): boolean => {
+    while (probe < headings.length && headings[probe].end < offset) {
+      probe++;
+    }
+    // A heading spans its whole line (up to its line break), so `offset` right before the line
+    // break counts as on the line too; no selection of only spaces and tabs starts there anyway.
+    return probe < headings.length && headings[probe].start <= offset;
+  };
+  /** A selection of only spaces and tabs (no line break) that `splitOffEnd` reads past off a heading line. */
+  const blankOfSpaces = (range: MdRange): boolean => range.start < range.end && /^[ \t]+$/.test(text.slice(range.start, range.end));
   let floor = 0;
   /** What was written after the table of contents of the previous selection (undefined when it had none). */
   let previousAfter: string | undefined;
@@ -576,6 +607,11 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     const toc = tocOf(range);
     if (toc === undefined) {
       if (/^[ \t\r\n]*$/.test(text.slice(range.start, range.end))) {
+        if (range.start < floor) {
+          // Read past by `splitOffEnd`: its spaces were taken into the previous table of contents'
+          // edit, and it is left as a cursor at the end of that edit (the start of the next line's text).
+          edited[i] = { start: floor, end: floor, reversed: range.reversed };
+        }
         // Seen through: the previous table of contents (or the start of the text) stays the limit.
         blanks.push(i);
       } else {
@@ -601,7 +637,19 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     }
     const ceiling = i + 1 < ranges.length ? ranges[i + 1].start : text.length;
     const breakBefore = adjacent || before !== '' || (!textBefore && indentsCodeBlock(text, range.start, floor));
-    edited[i] = editRange(text, range, breakBefore, textAfter && endsInsideLine(text, range.end), floor, ceiling);
+    const breakAfter = textAfter && endsInsideLine(text, range.end);
+    edited[i] = editRange(text, range, breakBefore, breakAfter, floor, ceiling);
+    if (breakAfter && edited[i].end === ceiling && i + 1 < ranges.length) {
+      // A selection of only spaces and tabs in the spaces split off does not leave 4 columns or more
+      // at the start of the next line. The spaces read are on the line of `ceiling` (`editRange`
+      // took only spaces and tabs, and `splitOffEnd` stops at a line break), so on a heading line
+      // every such selection has a table of contents of its own and stops the reading; off one, none has.
+      const readPast = onHeadingLine(ceiling) ? (): boolean => false : blankOfSpaces;
+      const end = splitOffEnd(text, ranges, i, ceiling, readPast);
+      if (end !== ceiling) {
+        edited[i] = { start: edited[i].start, end, reversed: range.reversed };
+      }
+    }
     // The spaces taken into this edit leave the selections of them: they end where the edit starts.
     const editStart = edited[i].start;
     blanks.forEach((j) => {
