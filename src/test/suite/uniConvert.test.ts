@@ -307,6 +307,13 @@ suite('Unicode Conversions (UNI-001..030) Test Suite', () => {
       assert.strictEqual(toCodePoints(FAMILY, BUDGET), 'U+1F468 U+200D U+1F469 U+200D U+1F467');
     });
 
+    test('UNI-007: a lone CR stays in the line, also at the very end of the selection', () => {
+      assert.strictEqual(toCodePoints('a\rb', BUDGET), 'U+0061 U+000D U+0062');
+      assert.strictEqual(toCodePoints('a\r', BUDGET), 'U+0061 U+000D');
+      assert.strictEqual(toCodePoints('a\n\r', BUDGET), 'U+0061\nU+000D');
+      assert.strictEqual(fromCodePoints(toCodePoints('a\r', BUDGET)), 'a\r');
+    });
+
     test('UNI-007: a lone surrogate is shown, not an error', () => {
       assert.strictEqual(toCodePoints('a\uD800', BUDGET), 'U+0061 U+D800');
     });

@@ -60,11 +60,22 @@ suite('Shared helpers of the category commands (textCommon / commandCommon)', ()
 
     test('a text ending with a line break has an empty last line; the empty text is one empty line', () => {
       assert.deepStrictEqual(linesOf(forEachLfLine, 'a\r\n'), [['a', '\r\n', 1], ['', '', 2]]);
-      // Kept as it was in the JA / UNI / DATE splitters: a lone CR at the very end of the text is
-      // not handed over (neither in the line nor as a line break).
-      assert.deepStrictEqual(linesOf(forEachLfLine, 'a\r'), [['a', '', 1]]);
       assert.deepStrictEqual(linesOf(forEachLfLine, ''), [['', '', 1]]);
       assert.deepStrictEqual(linesOf(forEachLfLine, '\r\n\n'), [['', '\r\n', 1], ['', '\n', 2], ['', '', 3]]);
+    });
+
+    test('a lone CR at the very end of the text stays in the last line, like a lone CR elsewhere', () => {
+      assert.deepStrictEqual(linesOf(forEachLfLine, 'a\r'), [['a\r', '', 1]]);
+      assert.deepStrictEqual(linesOf(forEachLfLine, '\r'), [['\r', '', 1]]);
+      assert.deepStrictEqual(linesOf(forEachLfLine, 'a\r\r'), [['a\r\r', '', 1]]);
+      assert.deepStrictEqual(linesOf(forEachLfLine, 'a\n\r'), [['a', '\n', 1], ['\r', '', 2]]);
+      assert.deepStrictEqual(linesOf(forEachLfLine, 'a\r\n\r'), [['a', '\r\n', 1], ['\r', '', 2]]);
+    });
+
+    test('the lines and line breaks together are the text again (nothing is lost)', () => {
+      for (const text of ['', 'a', 'a\r', '\r', 'a\r\r', 'a\n\r', 'a\r\n\r', '\r\r\n\r', 'a\nb\r\nc\rd', 'a\r\n', '\n\r\n\r']) {
+        assert.strictEqual(linesOf(forEachLfLine, text).map(([line, lineBreak]) => line + lineBreak).join(''), text, JSON.stringify(text));
+      }
     });
 
     test('the JA and UNI line splitters are the same function', () => {
@@ -104,6 +115,14 @@ suite('Shared helpers of the category commands (textCommon / commandCommon)', ()
       });
       assert.deepStrictEqual(seen, ['a\rb', 'c']);
       assert.strictEqual(result, 'A\rB\r\nC\n');
+    });
+
+    test('a lone CR at the very end of the selection stays in the last value', () => {
+      assert.deepStrictEqual(dateLineValues('2026-01-01\n2026-01-02\r'), [
+        { value: '2026-01-01', lineNumber: 1 },
+        { value: '2026-01-02\r', lineNumber: 2 },
+      ]);
+      assert.strictEqual(mapDateLines('a\nb\r', 1_000, '\n', (value) => value.toUpperCase()), 'A\nB\r');
     });
   });
 
