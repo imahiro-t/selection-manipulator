@@ -28,6 +28,7 @@
  */
 
 import { countEolGrowth } from './eolGrowth';
+import { isBlankLine, isHorizontalWs, isSpaceOrTab, leadingLength, LINE_BREAK, sum, trailingStart } from './textCommon';
 
 export type WhitespaceCommand =
   | 'tabs-to-spaces-2'
@@ -137,8 +138,6 @@ const ensureAddedLength = (added: number, options: WhitespaceOptions): void => {
   }
 };
 
-const sum = (values: number[]): number => values.reduce((a, b) => a + b, 0);
-
 /** Throws `WhitespaceOutputTooLargeError` when `result` is longer than `text` by more than the limit. */
 const ensureNetGrowth = (text: string, result: string, options: WhitespaceOptions): string => {
   ensureAddedLength(result.length - text.length, options);
@@ -196,36 +195,8 @@ export const validateDelimiterInput = (value: string): string | undefined => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const LINE_BREAK = /\r\n|\r|\n/;
-
-/** Space or tab. */
-const isSpaceOrTab = (ch: string): boolean => ch === ' ' || ch === '\t';
-
-/**
- * Unicode whitespace other than line breaks ([^\S\r\n]), except U+FEFF (BOM / zero width
- * no-break space): it has no width, so, as in WS-014, it is not treated as a space and a BOM
- * is never trimmed away. All such characters are in the BMP.
- */
-const isHorizontalWs = (ch: string): boolean =>
-  ch !== '\n' && ch !== '\r' && ch !== '\ufeff' && /^\s$/.test(ch);
-
-/** Number of leading code units of `s` satisfying `pred`. */
-const leadingLength = (s: string, pred: (ch: string) => boolean): number => {
-  let i = 0;
-  while (i < s.length && pred(s[i])) {
-    i++;
-  }
-  return i;
-};
-
-/** Index where the trailing run of code units of `s` satisfying `pred` starts (`s.length` when there is none). */
-const trailingStart = (s: string, pred: (ch: string) => boolean): number => {
-  let i = s.length;
-  while (i > 0 && pred(s[i - 1])) {
-    i--;
-  }
-  return i;
-};
+// LINE_BREAK, isSpaceOrTab, isHorizontalWs, leadingLength, trailingStart, isBlankLine and sum are
+// shared with the LINE commands (textCommon.ts).
 
 const trimStartWs = (s: string): string => s.slice(leadingLength(s, isHorizontalWs));
 const trimEndWs = (s: string): string => s.slice(0, trailingStart(s, isHorizontalWs));
@@ -233,9 +204,6 @@ const trimWs = (s: string): string => trimEndWs(trimStartWs(s));
 
 /** Leading spaces and tabs of a line. */
 const leadingSpaceTab = (s: string): string => s.slice(0, leadingLength(s, isSpaceOrTab));
-
-/** A line that is empty or only contains (non line-break) whitespace. */
-const isBlankLine = (s: string): boolean => leadingLength(s, isHorizontalWs) === s.length;
 
 /** Width of a string in code points. */
 export const codePointWidth = (s: string): number => {

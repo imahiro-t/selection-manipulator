@@ -9,6 +9,7 @@
  */
 import { quoteForDisplay } from '../textFormat';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { JS_IDENTIFIER } from './textCommon';
 
 /** The selected text cannot be converted; the message is shown to the user as it is. */
 export class DataInputError extends Error {
@@ -303,7 +304,7 @@ export class OutputBuffer {
 export type PathSegment = string | number;
 
 /** An ASCII JavaScript identifier: a name in the path notation and an unquoted key of DATA-027. */
-export const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+export const IDENTIFIER = JS_IDENTIFIER;
 const IDENTIFIER_START = /[A-Za-z_$]/;
 const IDENTIFIER_PART = /[A-Za-z0-9_$]/;
 

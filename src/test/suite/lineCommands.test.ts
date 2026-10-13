@@ -3,9 +3,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import {
+  DOCUMENT_CHANGED_MESSAGE,
   lineCountStatsHandlerInternal,
   LineHandlerDeps,
-  DOCUMENT_CHANGED_MESSAGE,
   lineHandlerInternal,
   NO_LINES_BETWEEN_MARKERS_MESSAGE,
   NO_LINES_TO_COPY_MESSAGE,

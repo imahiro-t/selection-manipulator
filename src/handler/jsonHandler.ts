@@ -52,18 +52,22 @@ const flatten = (data: any): any => {
     if (Object(cur) !== cur) {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
-      for (let i = 0, l = cur.length; i < l; i++)
+      for (let i = 0, l = cur.length; i < l; i++) {
         recurse(cur[i], prop ? prop + "." + i : "" + i);
-      if (cur.length == 0)
+      }
+      // `cur` is an array, so its length is always a number: `===` compares the same as `==`.
+      if (cur.length === 0) {
         result[prop] = [];
+      }
     } else {
       let isEmpty = true;
       for (const p in cur) {
         isEmpty = false;
         recurse(cur[p], prop ? prop + "." + p : p);
       }
-      if (isEmpty && prop)
+      if (isEmpty && prop) {
         result[prop] = {};
+      }
     }
   };
   recurse(data, "");
@@ -75,16 +79,22 @@ const isDangerousKey = (key: string): boolean => {
 };
 
 const unflatten = (data: any): any => {
-  if (Object(data) !== data || Array.isArray(data)) return data;
+  if (Object(data) !== data || Array.isArray(data)) {
+    return data;
+  }
   const res: any = {};
   for (const i in data) {
-    if (!Object.prototype.hasOwnProperty.call(data, i)) continue;
+    if (!Object.prototype.hasOwnProperty.call(data, i)) {
+      continue;
+    }
     const keys = i.split('.');
     if (keys.some(isDangerousKey)) {
       continue;
     }
     keys.reduce((acc, value, index) => {
-      if (acc === null || typeof acc !== 'object') return acc;
+      if (acc === null || typeof acc !== 'object') {
+        return acc;
+      }
       return acc[value] || (acc[value] = (isNaN(Number(keys[index + 1])) ? (keys.length - 1 === index ? data[i] : {}) : []));
     }, res);
   }

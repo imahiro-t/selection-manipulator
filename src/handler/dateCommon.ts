@@ -10,9 +10,11 @@
  */
 import { quoteForDisplay } from '../textFormat';
 import { parseDate } from './dateUtils';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength, forEachLfLine, OutputBuffer } from './textCommon';
 
 export { MAX_OUTPUT_LENGTH };
+export { isBlank, OutputBuffer as DateOutputBuffer } from './textCommon';
 
 /** The selected text or a typed value cannot be used; the message is shown to the user as it is. */
 export class DateInputError extends Error {
@@ -75,48 +77,10 @@ export const truncateText = (text: string): string => {
   return shown;
 };
 
-export const assertDateInputLength = (text: string): void => {
-  if (text.length > DATE_MAX_INPUT_LENGTH) {
-    throw new DateInputError(`the selection is longer than ${DATE_MAX_INPUT_LENGTH.toLocaleString('en-US')} characters`);
-  }
-};
-
-/** True when the text holds only spaces, tabs and line breaks (or nothing). */
-export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
+export const assertDateInputLength = (text: string): void =>
+  assertInputLength(text, DATE_MAX_INPUT_LENGTH, (message) => new DateInputError(message));
 
 export const notADate = (value: string): DateInputError => new DateInputError(`${quoteText(value)} is not a date`);
-
-/**
- * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
- * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection).
- */
-export class DateOutputBuffer {
-  private readonly parts: string[] = [];
-  private total = 0;
-
-  constructor(private readonly budget: number) { }
-
-  get length(): number {
-    return this.total;
-  }
-
-  /** Throws when `length` more characters would exceed the budget (nothing is added). */
-  reserve(length: number): void {
-    if (this.total + length > this.budget) {
-      throw new EncOutputTooLargeError(this.total + length, MAX_OUTPUT_LENGTH);
-    }
-  }
-
-  push(part: string): void {
-    this.reserve(part.length);
-    this.total += part.length;
-    this.parts.push(part);
-  }
-
-  join(): string {
-    return this.parts.join('');
-  }
-}
 
 // ---------------------------------------------------------------------------------------------
 // Calendar (proleptic Gregorian, day numbers counted from 1970-01-01)
@@ -334,26 +298,6 @@ const splitLine = (line: string): LineParts => {
   return { line, lead, value: line.slice(lead.length, trailStart), trail: line.slice(trailStart) };
 };
 
-/**
- * Calls `visit` for every line of the text with the line itself and the line break after it
- * (`''` for the last line). LF and CRLF are recognised.
- */
-const forEachLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
-  let start = 0;
-  let lineNumber = 1;
-  for (;;) {
-    const newline = text.indexOf('\n', start);
-    const end = newline === -1 ? text.length : newline;
-    const breakStart = end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
-    visit(text.slice(start, breakStart), newline === -1 ? '' : text.slice(breakStart, newline + 1), lineNumber);
-    if (newline === -1) {
-      return;
-    }
-    start = newline + 1;
-    lineNumber++;
-  }
-};
-
 /** Prefixes the message of an input error with `line N: `. */
 const atLine = (lineNumber: number, error: unknown): unknown =>
   error instanceof DateInputError ? new DateInputError(`line ${lineNumber}: ${error.message}`) : error;
@@ -362,7 +306,9 @@ const atLine = (lineNumber: number, error: unknown): unknown =>
 export const dateLineValues = (text: string): { value: string; lineNumber: number }[] => {
   assertDateInputLength(text);
   const values: { value: string; lineNumber: number }[] = [];
-  forEachLine(text, (line, _lineBreak, lineNumber) => {
+  // The lines are split at LF and CRLF only (a lone CR stays in the line), like the JA and UNI
+  // commands: `forEachLfLine`, not the `forEachLine` of the GEN commands.
+  forEachLfLine(text, (line, _lineBreak, lineNumber) => {
     const { value } = splitLine(line);
     if (value !== '') {
       values.push({ value, lineNumber });
@@ -393,13 +339,13 @@ export const mapDateLines = (
   text: string,
   budget: number,
   eol: string,
-  convert: (value: string, output: DateOutputBuffer) => string | readonly string[],
+  convert: (value: string, output: OutputBuffer) => string | readonly string[],
   options: MapDateLinesOptions = {}
 ): string => {
   assertDateInputLength(text);
-  const output = new DateOutputBuffer(budget);
+  const output = new OutputBuffer(budget);
   let afterValue = false;
-  forEachLine(text, (line, lineBreak, lineNumber) => {
+  forEachLfLine(text, (line, lineBreak, lineNumber) => {
     const { lead, value, trail } = splitLine(line);
     if (value === '') {
       output.push(line);

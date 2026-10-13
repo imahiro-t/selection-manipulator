@@ -1,5 +1,6 @@
-import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { InputBoxOptions, QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
+import { CommandNotifier, documentEol, logUnexpectedFailure, NOT_CHANGED, selectionLabel } from './commandCommon';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import {
   assertGenInputLength,
@@ -13,12 +14,10 @@ import {
   isBlank,
 } from './genCommon';
 import { GEN_COMMAND_ENTRIES, GenCommandEntry, GenContext, GenPrompt } from './genTransforms';
+import { assertTotalOutput } from './textCommon';
 
 /** How the handlers tell the user what happened. */
-export interface GenNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type GenNotifier = CommandNotifier;
 
 /** A quick pick item that carries the value it stands for. */
 export interface GenQuickPickItem extends QuickPickItem {
@@ -47,10 +46,7 @@ const defaultDependencies: GenDependencies = {
 };
 
 export const GEN_NOTHING_SELECTED = 'Select the lines to pick from.';
-export const GEN_NOT_CHANGED = 'The selection was not changed: ';
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
+export const GEN_NOT_CHANGED = NOT_CHANGED;
 
 const entryOf = (name: string, entries: readonly GenCommandEntry[]): GenCommandEntry => {
   const entry = entries.find((candidate) => candidate.name === name);
@@ -80,14 +76,14 @@ class TargetError extends Error {
  * non-blank selections. `text-or-prompt`: every target; a blank one gets ''.
  */
 const readTargets = (textEditor: TextEditor, entry: GenCommandEntry): Target[] => {
-  const selections = [...textEditor.selections].sort((a, b) => a.start.compareTo(b.start));
   const targets = entry.targets ?? 'all';
+  const selections = targets === 'lines' ? textEditor.selections.filter((selection) => !selection.isEmpty) : textEditor.selections;
+  // The number is checked before the selections are sorted, so that too many are refused at once.
+  assertGenTargetCount(selections.length);
+  const candidates = [...selections].sort((a, b) => a.start.compareTo(b.start));
   if (targets === 'all') {
-    assertGenTargetCount(selections.length);
-    return selections.map((selection) => ({ selection, text: '' }));
+    return candidates.map((selection) => ({ selection, text: '' }));
   }
-  const candidates = targets === 'lines' ? selections.filter((selection) => !selection.isEmpty) : selections;
-  assertGenTargetCount(candidates.length);
   const result: Target[] = [];
   candidates.forEach((selection, index) => {
     const text = selection.isEmpty ? '' : textEditor.document.getText(selection);
@@ -123,14 +119,9 @@ const isExpected = (error: unknown): boolean => error instanceof GenInputError |
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  if (isExpected(error)) {
-    return;
+  if (!isExpected(error)) {
+    logUnexpectedFailure('a generator command', error);
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a generator command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */
@@ -151,8 +142,8 @@ const notifyFailure = (dependencies: GenDependencies, entry: GenCommandEntry, er
   let where = '';
   if (error instanceof TargetError) {
     cause = error.inner;
-    if ((entry.targets ?? 'all') !== 'all' && error.count > 1) {
-      where = `selection ${error.index + 1} of ${error.count}: `;
+    if ((entry.targets ?? 'all') !== 'all') {
+      where = selectionLabel(error.index, error.count);
     }
   }
   if (cause instanceof EncOutputTooLargeError) {
@@ -232,9 +223,7 @@ const generateAll = (entry: GenCommandEntry, targets: readonly Target[], inputs:
     try {
       const result = entry.generate(index, text, inputs, context, MAX_OUTPUT_LENGTH - total);
       total += result.length;
-      if (total > MAX_OUTPUT_LENGTH) {
-        throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
-      }
+      assertTotalOutput(total);
       results.push(result);
     } catch (error) {
       throw new TargetError(error, index, targets.length);

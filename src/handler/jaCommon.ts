@@ -8,7 +8,10 @@
  * input, and the results are counted against the output limit.
  */
 import { quoteForDisplay } from '../textFormat';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength, forEachLfLine, OutputBuffer } from './textCommon';
+
+export { assertWithinBudget, isBlank } from './textCommon';
 
 export { MAX_OUTPUT_LENGTH };
 
@@ -50,46 +53,8 @@ export const JA_MESSAGE_TEXT_LIMIT = 60;
 /** `text` quoted like JSON and cut to JA_MESSAGE_TEXT_LIMIT characters (for messages). */
 export const quoteText = (text: string): string => quoteForDisplay(text, JA_MESSAGE_TEXT_LIMIT);
 
-export const assertJaInputLength = (text: string): void => {
-  if (text.length > JA_MAX_INPUT_LENGTH) {
-    throw new JaInputError(`the selection is longer than ${JA_MAX_INPUT_LENGTH.toLocaleString('en-US')} characters`);
-  }
-};
-
-/** True when the text holds only spaces, tabs and line breaks (or nothing). */
-export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
-
-/** Throws `EncOutputTooLargeError` when a result of `length` characters exceeds `budget`. */
-export const assertWithinBudget = (length: number, budget: number): void => {
-  if (length > budget) {
-    throw new EncOutputTooLargeError(length, MAX_OUTPUT_LENGTH);
-  }
-};
-
-/**
- * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
- * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection).
- */
-class JaOutputBuffer {
-  private readonly parts: string[] = [];
-  private total = 0;
-
-  constructor(private readonly budget: number) { }
-
-  get length(): number {
-    return this.total;
-  }
-
-  push(part: string): void {
-    assertWithinBudget(this.total + part.length, this.budget);
-    this.total += part.length;
-    this.parts.push(part);
-  }
-
-  join(): string {
-    return this.parts.join('');
-  }
-}
+export const assertJaInputLength = (text: string): void =>
+  assertInputLength(text, JA_MAX_INPUT_LENGTH, (message) => new JaInputError(message));
 
 // ---------------------------------------------------------------------------------------------
 // Lines
@@ -114,24 +79,11 @@ const splitLine = (line: string): LineParts => {
 };
 
 /**
- * Calls `visit` for every line of the text with the line itself and the line break after it
- * (`''` for the last line). LF and CRLF are recognised.
+ * Calls `visit` for every line of the text with the line itself, the line break after it (`''`
+ * for the last line) and its number. LF and CRLF are recognised; a lone CR stays in the line.
+ * A lone CR at the very end of the text is dropped (see `forEachLfLine`; kept unchanged).
  */
-export const forEachJaLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
-  let start = 0;
-  let lineNumber = 1;
-  for (;;) {
-    const newline = text.indexOf('\n', start);
-    const end = newline === -1 ? text.length : newline;
-    const breakStart = end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
-    visit(text.slice(start, breakStart), newline === -1 ? '' : text.slice(breakStart, newline + 1), lineNumber);
-    if (newline === -1) {
-      return;
-    }
-    start = newline + 1;
-    lineNumber++;
-  }
-};
+export const forEachJaLine = forEachLfLine;
 
 /** Prefixes the message of an input error with `line N: `. */
 const atLine = (lineNumber: number, error: unknown): unknown =>
@@ -145,7 +97,7 @@ const atLine = (lineNumber: number, error: unknown): unknown =>
  */
 export const mapJaLines = (text: string, budget: number, convert: (value: string) => string): string => {
   assertJaInputLength(text);
-  const output = new JaOutputBuffer(budget);
+  const output = new OutputBuffer(budget);
   forEachJaLine(text, (line, lineBreak, lineNumber) => {
     const { lead, value, trail } = splitLine(line);
     if (value === '') {

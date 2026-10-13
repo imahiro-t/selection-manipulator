@@ -12,10 +12,12 @@
  */
 import * as crypto from 'crypto';
 import { quoteForDisplay } from '../textFormat';
-import { daysFromCivil, isBlank, isValidDate } from './dateCommon';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { daysFromCivil, isValidDate } from './dateCommon';
+import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength } from './textCommon';
 
-export { isBlank, MAX_OUTPUT_LENGTH };
+export { MAX_OUTPUT_LENGTH };
+export { forEachLine, isBlank, OutputBuffer as GenOutputBuffer } from './textCommon';
 
 /** The selected text or a typed value cannot be used; the message is shown to the user as it is. */
 export class GenInputError extends Error {
@@ -88,11 +90,8 @@ export const quoteText = (text: string): string => quoteForDisplay(text, GEN_MES
 export const formatCount = (n: number): string => n.toLocaleString('en-US');
 
 /** Refuses a selection longer than GEN_MAX_INPUT_LENGTH (checked before the text is split or parsed). */
-export const assertGenInputLength = (text: string): void => {
-  if (text.length > GEN_MAX_INPUT_LENGTH) {
-    throw new GenInputError(`the selection is longer than ${formatCount(GEN_MAX_INPUT_LENGTH)} characters`);
-  }
-};
+export const assertGenInputLength = (text: string): void =>
+  assertInputLength(text, GEN_MAX_INPUT_LENGTH, (message) => new GenInputError(message));
 
 /** Refuses more than GEN_MAX_TARGETS selections and cursors. */
 export const assertGenTargetCount = (count: number): void => {
@@ -125,65 +124,6 @@ export const parseCivilDay = (text: string): number | undefined => {
 
 /** The lines of a text (split at `\r\n`, `\n` or `\r`; the line breaks are dropped). */
 export const splitLines = (text: string): string[] => text.split(/\r\n|\r|\n/);
-
-/**
- * Calls `visit` for every line of the text with the line, the line break after it (`''` for the
- * last line) and its number (from 1). LF, CRLF and CR are recognised. The line breaks are found
- * with `indexOf` (the next LF and the next CR) rather than by looking at every character, so that
- * a long line is not read once more just for this.
- */
-export const forEachLine = (text: string, visit: (line: string, lineBreak: string, lineNumber: number) => void): void => {
-  let start = 0;
-  let lineNumber = 1;
-  let lf = text.indexOf('\n');
-  let cr = text.indexOf('\r');
-  while (lf >= 0 || cr >= 0) {
-    const at = lf < 0 ? cr : cr < 0 ? lf : Math.min(lf, cr);
-    const breakLength = at === cr && text.charCodeAt(at + 1) === 0x0a ? 2 : 1;
-    visit(text.slice(start, at), text.slice(at, at + breakLength), lineNumber);
-    start = at + breakLength;
-    lineNumber++;
-    if (lf >= 0 && lf < start) {
-      lf = text.indexOf('\n', start);
-    }
-    if (cr >= 0 && cr < start) {
-      cr = text.indexOf('\r', start);
-    }
-  }
-  visit(text.slice(start), '', lineNumber);
-};
-
-/**
- * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
- * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection).
- */
-export class GenOutputBuffer {
-  private readonly parts: string[] = [];
-  private total = 0;
-
-  constructor(private readonly budget: number) { }
-
-  get length(): number {
-    return this.total;
-  }
-
-  /** Throws when `length` more characters would exceed the budget (nothing is added). */
-  reserve(length: number): void {
-    if (this.total + length > this.budget) {
-      throw new EncOutputTooLargeError(this.total + length, MAX_OUTPUT_LENGTH);
-    }
-  }
-
-  push(part: string): void {
-    this.reserve(part.length);
-    this.total += part.length;
-    this.parts.push(part);
-  }
-
-  join(separator = ''): string {
-    return this.parts.join(separator);
-  }
-}
 
 // ---------------------------------------------------------------------------------------------
 // Random values

@@ -1,17 +1,22 @@
-import { EndOfLine, InputBoxOptions, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
-import { applyEdit, ensureEditorAfterInput } from '../editGuard';
+import { InputBoxOptions, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import {
+  documentEol,
+  InfoCommandNotifier,
+  logUnexpectedFailure,
+  NOT_CHANGED,
+  replaceChangedSelections,
+  selectionLabel,
+} from './commandCommon';
+import { EncOutputTooLargeError } from './encodeTransforms';
+import { assertTotalOutput } from './textCommon';
 import { DataInputError } from './dataCommon';
 import { assertTableInputLength, findPromptProblem, TableInputError } from './tableCsv';
 import { TABLE_COMMAND_ENTRIES, TableCommandEntry, TableNotifyEntry, TablePrompt, TableTransformEntry } from './tableTransforms';
 
 /** How the handlers tell the user about a result (TABLE-015 / 023) or why nothing was changed. */
-export interface TableNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type TableNotifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface TableDependencies {
@@ -30,11 +35,6 @@ const defaultDependencies: TableDependencies = {
   showInputBox: (options) => window.showInputBox(options),
   showQuickPick: (items, options) => window.showQuickPick(items, options),
 };
-
-const NOT_CHANGED = 'The selection was not changed: ';
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /** The transforms return LF line breaks; the result follows the document's EOL. */
 const withEol = (text: string, eol: string): string => (eol === '\n' ? text : text.replace(/\r?\n/g, eol));
@@ -69,14 +69,9 @@ const isExpected = (error: unknown): boolean =>
  * the error name and the stack frames, never the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  if (isExpected(error)) {
-    return;
+  if (!isExpected(error)) {
+    logUnexpectedFailure('a CSV / TSV command', error);
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a CSV / TSV command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */
@@ -102,7 +97,7 @@ const notifyFailure = (dependencies: TableDependencies, error: unknown, position
     void dependencies.notifier.showWarningMessage(`${NOT_CHANGED}${error.message}. Select less text.`);
     return;
   }
-  const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
+  const where = position !== undefined ? selectionLabel(position.index, position.count) : '';
   void dependencies.notifier.showErrorMessage(`${NOT_CHANGED}${where}${reasonOf(error)}`);
 };
 
@@ -133,9 +128,7 @@ const applyTransform = async (
       assertTableInputLength(text);
       const result = withEol(entry.transform(text, inputs), eol);
       total += result.length + (index > 0 && entry.output === 'new-tab' ? eol.length : 0);
-      if (total > MAX_OUTPUT_LENGTH) {
-        throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
-      }
+      assertTotalOutput(total);
       results.push({ selection, text, result });
     }
   } catch (error) {
@@ -146,12 +139,7 @@ const applyTransform = async (
     await dependencies.openResult(results.map(({ result }) => result).join(eol));
     return;
   }
-  const replacements = results.filter(({ text, result }) => text !== result);
-  if (replacements.length > 0) {
-    await applyEdit(textEditor, (editBuilder) => {
-      replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    }, { notifier: dependencies.notifier });
-  }
+  await replaceChangedSelections(textEditor, results, dependencies.notifier);
 };
 
 /** TABLE-015 / 023: notifies about every non-empty selection without changing anything. */

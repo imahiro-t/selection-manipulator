@@ -8,7 +8,9 @@
  * the input, and the results are counted against the output limit.
  */
 import { quoteForDisplay } from '../textFormat';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength, forEachLfLine } from './textCommon';
+
+export { assertWithinBudget, isBlank, OutputBuffer as UniOutputBuffer } from './textCommon';
 
 /** The selected text cannot be used; the message is shown to the user as it is. */
 export class UniInputError extends Error {
@@ -39,43 +41,8 @@ export const UNI_MESSAGE_TEXT_LIMIT = 60;
 /** `text` quoted like JSON and cut to UNI_MESSAGE_TEXT_LIMIT characters (for messages). */
 export const quoteText = (text: string): string => quoteForDisplay(text, UNI_MESSAGE_TEXT_LIMIT);
 
-export const assertUniInputLength = (text: string): void => {
-  if (text.length > UNI_MAX_INPUT_LENGTH) {
-    throw new UniInputError(`the selection is longer than ${UNI_MAX_INPUT_LENGTH.toLocaleString('en-US')} characters`);
-  }
-};
-
-/** True when the text holds only spaces, tabs and line breaks (or nothing). */
-export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
-
-/** Throws `EncOutputTooLargeError` when a result of `length` characters exceeds `budget`. */
-export const assertWithinBudget = (length: number, budget: number): void => {
-  if (length > budget) {
-    throw new EncOutputTooLargeError(length, MAX_OUTPUT_LENGTH);
-  }
-};
-
-/**
- * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
- * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection), so a result that is
- * many times longer than the input is never built in full.
- */
-export class UniOutputBuffer {
-  private readonly parts: string[] = [];
-  private total = 0;
-
-  constructor(private readonly budget: number) { }
-
-  push(part: string): void {
-    assertWithinBudget(this.total + part.length, this.budget);
-    this.total += part.length;
-    this.parts.push(part);
-  }
-
-  join(): string {
-    return this.parts.join('');
-  }
-}
+export const assertUniInputLength = (text: string): void =>
+  assertInputLength(text, UNI_MAX_INPUT_LENGTH, (message) => new UniInputError(message));
 
 /** A range of a selection to select: UTF-16 offsets into the selected text (`end` exclusive). */
 export interface UniTextRange {
@@ -89,21 +56,10 @@ export interface UniTextRange {
 
 /**
  * Calls `visit` for every line of the text with the line itself and the line break after it
- * (`''` for the last line). LF and CRLF are recognised.
+ * (`''` for the last line). LF and CRLF are recognised; a lone CR stays in the line.
+ * A lone CR at the very end of the text is dropped (see `forEachLfLine`; kept unchanged).
  */
-export const forEachUniLine = (text: string, visit: (line: string, lineBreak: string) => void): void => {
-  let start = 0;
-  for (;;) {
-    const newline = text.indexOf('\n', start);
-    const end = newline === -1 ? text.length : newline;
-    const breakStart = end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
-    visit(text.slice(start, breakStart), newline === -1 ? '' : text.slice(breakStart, newline + 1));
-    if (newline === -1) {
-      return;
-    }
-    start = newline + 1;
-  }
-};
+export const forEachUniLine = forEachLfLine;
 
 /** Made once: creating a segmenter is far more expensive than using one. */
 const GRAPHEME_SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });

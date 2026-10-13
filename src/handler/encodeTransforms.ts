@@ -316,6 +316,16 @@ const shiftLetters = (text: string, shift: number): string => {
   return mapAsciiLetters(text, (index) => (index + normalized) % 26);
 };
 
+/** ROT47: rotates the 94 printable ASCII characters `!`..`~` by 47; everything else is kept. */
+const rot47 = (text: string): string => {
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    result += code >= 33 && code <= 126 ? String.fromCharCode(33 + ((code - 33 + 47) % 94)) : text[i];
+  }
+  return result;
+};
+
 // ---------------------------------------------------------------------------
 // HTML entities (ENC-001..003)
 // ---------------------------------------------------------------------------
@@ -987,14 +997,7 @@ export const encTransforms: Record<EncCommand, (text: string, options: EncOption
   'qp-encode': qpEncode,
   'qp-decode': qpDecode,
   'rot13': (text) => shiftLetters(text, 13),
-  'rot47': (text) => {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-      const code = text.charCodeAt(i);
-      result += code >= 33 && code <= 126 ? String.fromCharCode(33 + ((code - 33 + 47) % 94)) : text[i];
-    }
-    return result;
-  },
+  'rot47': rot47,
   'caesar': (text, options) => {
     const shift = options.shift;
     if (shift === undefined || !Number.isSafeInteger(shift)) {

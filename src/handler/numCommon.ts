@@ -10,6 +10,9 @@
  */
 import { quoteForDisplay } from '../textFormat';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength } from './textCommon';
+
+export { isBlank } from './textCommon';
 
 export { MAX_OUTPUT_LENGTH };
 
@@ -60,14 +63,8 @@ export const NUM_ROUNDED_DECIMALS = 4;
 /** `text` quoted like JSON and cut to NUM_MESSAGE_TEXT_LIMIT characters (for messages). */
 export const quoteText = (text: string): string => quoteForDisplay(text, NUM_MESSAGE_TEXT_LIMIT);
 
-export const assertNumInputLength = (text: string): void => {
-  if (text.length > NUM_MAX_INPUT_LENGTH) {
-    throw new NumInputError(`the selection is longer than ${NUM_MAX_INPUT_LENGTH.toLocaleString('en-US')} characters`);
-  }
-};
-
-/** True when the text holds only spaces, tabs and line breaks (or nothing). */
-export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
+export const assertNumInputLength = (text: string): void =>
+  assertInputLength(text, NUM_MAX_INPUT_LENGTH, (message) => new NumInputError(message));
 
 /**
  * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length

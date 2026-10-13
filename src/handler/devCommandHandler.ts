@@ -1,15 +1,23 @@
-import { EndOfLine, QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
-import { applyEdit, ensureEditorAfterInput } from '../editGuard';
+import { QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
+import {
+  CommandNotifier,
+  documentEol,
+  logUnexpectedFailure,
+  NOT_CHANGED,
+  NOT_SHOWN,
+  Replacement,
+  replaceChangedSelections,
+  selectionLabel,
+} from './commandCommon';
 import { assertDevInputLength, DevInputError, isBlank } from './devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry, DevContext, DevQuickPickItem } from './devTransforms';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertTotalOutput } from './textCommon';
 
 /** How the handlers tell the user what happened. */
-export interface DevNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type DevNotifier = CommandNotifier;
 
 /** A quick pick item that carries the value of its DevQuickPickItem. */
 export interface DevPickItem extends QuickPickItem {
@@ -33,13 +41,7 @@ export const defaultDevDependencies: DevDependencies = {
 
 export const DEV_NOTHING_SELECTED = 'Select the text to convert.';
 
-const NOT_CHANGED = 'The selection was not changed: ';
-const NOT_SHOWN = 'No result was shown: ';
-
 const prefixOf = (entry: DevCommandEntry): string => (entry.output === 'replace' ? NOT_CHANGED : NOT_SHOWN);
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /**
  * The selections to work on, in document order: empty selections are skipped, and so are
@@ -57,14 +59,9 @@ const isExpected = (error: unknown): boolean => error instanceof DevInputError |
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  if (isExpected(error)) {
-    return;
+  if (!isExpected(error)) {
+    logUnexpectedFailure('a developer command', error);
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a developer command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */
@@ -87,15 +84,9 @@ const notifyFailure = (dependencies: DevDependencies, prefix: string, error: unk
     void dependencies.notifier.showWarningMessage(`${prefix}${error.message}. Select less text.`);
     return;
   }
-  const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
+  const where = position !== undefined ? selectionLabel(position.index, position.count) : '';
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
-
-interface Converted {
-  selection: Selection;
-  text: string;
-  result: string;
-}
 
 /**
  * Converts every selection (in document order) with the transform of the command. Each selection
@@ -109,8 +100,8 @@ const convertSelections = (
   selections: readonly Selection[],
   context: DevContext,
   separatorLength: number
-): Converted[] | undefined => {
-  const results: Converted[] = [];
+): Replacement[] | undefined => {
+  const results: Replacement[] = [];
   let total = 0;
   let current = 0;
   try {
@@ -121,9 +112,7 @@ const convertSelections = (
       const used = total + (index > 0 ? separatorLength : 0);
       const result = entry.transform(text, context, MAX_OUTPUT_LENGTH - used);
       total = used + result.length;
-      if (total > MAX_OUTPUT_LENGTH) {
-        throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
-      }
+      assertTotalOutput(total);
       results.push({ selection, text, result });
     }
   } catch (error) {
@@ -155,12 +144,7 @@ const applyTransform = async (
     await dependencies.openResult(results.map(({ result }) => result).join(eol));
     return;
   }
-  const replacements = results.filter(({ text, result }) => text !== result);
-  if (replacements.length > 0) {
-    await applyEdit(textEditor, (editBuilder) => {
-      replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    }, { notifier: dependencies.notifier });
-  }
+  await replaceChangedSelections(textEditor, results, dependencies.notifier);
 };
 
 const pickItems = (items: readonly DevQuickPickItem[]): DevPickItem[] =>

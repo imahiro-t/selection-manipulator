@@ -7,7 +7,7 @@
  * converted as it is), and several root elements are not wrapped.
  */
 import { DevInputError, DevOutputBuffer, quoteText } from './devCommon';
-import { escapeTemplateLiteral, toJsString } from './devLiterals';
+import { escapeTemplateLiteral, toJsPropertyKey, toJsString } from './devLiterals';
 
 /** HTML attribute names (lower case) whose React name is not simply the same. */
 const ATTRIBUTE_NAMES: Record<string, string> = {
@@ -103,8 +103,7 @@ const styleKey = (property: string): string => {
   } else if (name.startsWith('-')) {
     name = name.slice(1).replace(/^([a-z])/, (ch) => ch.toUpperCase());
   }
-  const key = camelCase(name);
-  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key) ? key : toJsString(key);
+  return toJsPropertyKey(camelCase(name));
 };
 
 /** Splits CSS declarations at `;` outside strings and parentheses (`url("a;b")`). */

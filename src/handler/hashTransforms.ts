@@ -49,7 +49,9 @@ export type DigestEncoding = 'hex' | 'base64' | 'sri';
 export type HashOutput = 'new-tab' | 'replace' | 'notify';
 
 export type HashCommandKind =
-  | { kind: 'digest'; algorithm: HashAlgorithm; encoding: DigestEncoding }
+  | { kind: 'digest'; algorithm: HashAlgorithm; encoding: Exclude<DigestEncoding, 'sri'> }
+  // Subresource Integrity (HASH-015) is written only for SHA-384 (`sha384-` + Base64).
+  | { kind: 'digest'; algorithm: 'sha384'; encoding: 'sri' }
   | { kind: 'digest-each-line'; algorithm: 'sha256' }
   | { kind: 'hmac'; algorithm: HmacAlgorithm }
   | { kind: 'checksum'; algorithm: ChecksumAlgorithm }
@@ -308,8 +310,9 @@ export const luhnCheck = (text: string): LuhnResult => {
   let digitCount = 0;
   let sum = 0;
   let misplacedSeparator = false;
-  // Reading from the end, whether the character just read (the one after the current one) is a digit.
-  let nextIsDigit = false;
+  // Reading from the end: whether the character read just before (the one that comes later in the
+  // text, right after the current one) is a digit.
+  let laterIsDigit = false;
   for (let i = trimmed.length - 1; i >= 0; i--) {
     const code = trimmed.charCodeAt(i);
     if (code >= 0x30 && code <= 0x39) {
@@ -322,12 +325,12 @@ export const luhnCheck = (text: string): LuhnResult => {
       }
       sum += d;
       digitCount++;
-      nextIsDigit = true;
+      laterIsDigit = true;
     } else if (code === 0x20 || code === 0x2d) {
-      if (!nextIsDigit) {
+      if (!laterIsDigit) {
         misplacedSeparator = true;
       }
-      nextIsDigit = false;
+      laterIsDigit = false;
     } else {
       return { verdict: 'not-a-number', reason: 'invalid-character' };
     }
@@ -335,8 +338,9 @@ export const luhnCheck = (text: string): LuhnResult => {
   if (digitCount < 2) {
     return { verdict: 'not-a-number', reason: 'too-short' };
   }
-  // `nextIsDigit` is now whether the first character is a digit.
-  if (misplacedSeparator || !nextIsDigit) {
+  // After the loop, the character read last is the first one of the text.
+  const firstIsDigit = laterIsDigit;
+  if (misplacedSeparator || !firstIsDigit) {
     return { verdict: 'not-a-number', reason: 'invalid-character' };
   }
   return { verdict: sum % 10 === 0 ? 'valid' : 'invalid' };
