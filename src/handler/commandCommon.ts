@@ -32,7 +32,7 @@ export const NOT_CHANGED = 'The selection was not changed: ';
 export const NOT_SHOWN = 'No result was shown: ';
 
 /** The line break of the document (`\r\n` or `\n`). */
-export const documentEol = (textEditor: TextEditor): string =>
+export const documentEol = (textEditor: TextEditor): '\r\n' | '\n' =>
   textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /** `selection N of M: ` (from 1) when there are several selections, `''` otherwise. */

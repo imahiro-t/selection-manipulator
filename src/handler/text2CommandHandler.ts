@@ -1,5 +1,5 @@
-import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
-import { InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
+import { InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError } from './encodeTransforms';
@@ -133,7 +133,7 @@ const run = async (textEditor: TextEditor, dependencies: Text2Dependencies, entr
     notifyFailure(dependencies, entry, inputTooLong());
     return;
   }
-  const context: Text2Context = { eol: textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n', inputs };
+  const context: Text2Context = { eol: documentEol(textEditor), inputs };
 
   if (entry.output === 'new-tab') {
     let result: string;

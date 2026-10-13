@@ -1,5 +1,5 @@
-import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
-import { InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
+import { InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { MD_COMMAND_ENTRIES, MdChoice, MdCommandEntry, MdInputError, MdRange, MdResult } from './mdTransforms';
@@ -164,7 +164,7 @@ export const mdCommandHandlerInternal = (dependencies: MdDependencies, entries: 
           result = entry.run({
             text: document.getText(),
             ranges: rangesOf(textEditor),
-            eol: document.eol === EndOfLine.CRLF ? '\r\n' : '\n',
+            eol: documentEol(textEditor),
             inputs,
           });
         } catch (error) {
