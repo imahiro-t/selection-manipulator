@@ -22,6 +22,7 @@ import {
   documentHeadings,
   MD_COMMAND_ENTRIES,
   MD_NO_HEADINGS,
+  MdEdit,
   MdInputError,
   MdRange,
   MdResult,
@@ -1815,6 +1816,104 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-023', '[a](u)\nbar | x\n--- | -', { ranges: [span(0, 6)] }), '[a][1]\n\n[1]: u\nbar | x\n--- | -');
       // A blank line right after (unchanged).
       assert.strictEqual(run('MD-023', '[a](u)\n\nbar', { ranges: [span(0, 6)] }), '[a][1]\n\n[1]: u\n\nbar');
+    });
+  });
+
+  suite('replaceSelections: later edits that replace text (SELEC-00152)', () => {
+    /** Calls replaceSelections, checks that it made an edit, and returns its edits, ranges and the edited text. */
+    const call = (text: string, ranges: readonly MdRange[], replacements: readonly (string | undefined)[], later: readonly MdEdit[]) => {
+      const result = replaceSelections(text, ranges, replacements, later);
+      assert.ok(result.kind === 'edit', result.kind);
+      return { edits: result.edits, ranges: result.ranges, text: applied(text, result) };
+    };
+    const cursor = (at: number, reversed?: boolean): MdRange => ({ start: at, end: at, reversed });
+    // 'cde' -> 'XY' (shift -1): 'abcdefgh' becomes 'abXYfgh', and the edit ends at 4 afterwards.
+    const text = 'abcdefgh';
+    const later: MdEdit[] = [{ start: 2, end: 5, text: 'XY' }];
+
+    test('a cursor before, at the start of, inside, at the end of and after the replaced text (condition 2)', () => {
+      const cases: [number, number, string][] = [
+        [1, 1, 'before: stays'],
+        [2, 2, 'at the start: stays before the replacement'],
+        [3, 4, 'inside: moves to the end of the edit'],
+        [4, 4, 'inside, right before the end: moves to the end of the edit'],
+        [5, 4, 'at the end: stays at the end of the edit (shifted by -1)'],
+        [7, 6, 'after: shifted by -1'],
+      ];
+      cases.forEach(([at, expected, label]) => {
+        const result = call(text, [cursor(at)], [undefined], later);
+        assert.deepStrictEqual(result.edits, [{ start: 2, end: 5, text: 'XY' }], label);
+        assert.deepStrictEqual(result.ranges, [{ start: expected, end: expected, reversed: undefined }], label);
+        assert.strictEqual(result.text, 'abXYfgh', label);
+      });
+      // All of them in one call: the edit is made once, and the cursors keep their order. The cursor at 4
+      // moves too, although the edit around it was already made for the cursor at 3.
+      const all = call(text, [1, 2, 3, 4, 5, 7].map((at) => cursor(at)), [], later);
+      assert.deepStrictEqual(all.edits, [{ start: 2, end: 5, text: 'XY' }]);
+      assert.deepStrictEqual(
+        all.ranges.map(({ start, end }) => [start, end]),
+        [[1, 1], [2, 2], [4, 4], [4, 4], [4, 4], [6, 6]],
+      );
+      // A reversed cursor that moves stays reversed.
+      assert.deepStrictEqual(call(text, [cursor(3, true)], [undefined], later).ranges, [{ start: 4, end: 4, reversed: true }]);
+    });
+
+    test('later -> selection -> later, with a later edit right after the selection (condition 3)', () => {
+      // 'a' -> 'PQR' (+2) before the selection; 'cd' -> 'C' starts at 2 + 2 = 4; 'ef' -> 'W' touches its end.
+      const result = call(text, [{ start: 2, end: 4 }], ['C'], [{ start: 0, end: 1, text: 'PQR' }, { start: 4, end: 6, text: 'W' }]);
+      assert.deepStrictEqual(result.edits, [
+        { start: 0, end: 1, text: 'PQR' },
+        { start: 2, end: 4, text: 'C' },
+        { start: 4, end: 6, text: 'W' },
+      ]);
+      assert.deepStrictEqual(result.ranges, [{ start: 4, end: 5 }]);
+      assert.strictEqual(result.text, 'PQRbCWgh');
+      assert.strictEqual(result.text.slice(4, 5), 'C');
+    });
+
+    test('a later edit that ends where the selection starts (condition 3)', () => {
+      // 'ab' -> 'Z' (-1) is made first; the selection 'c' -> 'K' then starts at 2 - 1 = 1.
+      const replaced = call(text, [{ start: 2, end: 3 }], ['K'], [{ start: 0, end: 2, text: 'Z' }]);
+      assert.deepStrictEqual(replaced.edits, [{ start: 0, end: 2, text: 'Z' }, { start: 2, end: 3, text: 'K' }]);
+      assert.deepStrictEqual(replaced.ranges, [{ start: 1, end: 2 }]);
+      assert.strictEqual(replaced.text, 'ZKdefgh');
+      // Left as it is, the selection only shifts (it is not moved like a cursor inside the edit).
+      const kept = call(text, [{ start: 2, end: 3, reversed: true }], [undefined], [{ start: 0, end: 2, text: 'Z' }]);
+      assert.deepStrictEqual(kept.edits, [{ start: 0, end: 2, text: 'Z' }]);
+      assert.deepStrictEqual(kept.ranges, [{ start: 1, end: 2, reversed: true }]);
+      assert.strictEqual(kept.text, 'Zcdefgh');
+      assert.strictEqual(kept.text.slice(1, 2), 'c');
+    });
+
+    test('selections and later edits in turn: the shifts add up (condition 3)', () => {
+      // 'abcdefghij': 'b' -> '' (-1); 'd' -> 'DD' at 3 - 1 = 2 (+1, shift 0); the cursor at 6 is inside
+      // 'fg' -> '1234' (+2, shift 2) and moves to its end 7 + 2 = 9; 'i' -> 'II' at 8 + 2 = 10.
+      const result = call(
+        'abcdefghij',
+        [{ start: 3, end: 4 }, cursor(6), { start: 8, end: 9 }],
+        ['DD', undefined, 'II'],
+        [{ start: 1, end: 2, text: '' }, { start: 5, end: 7, text: '1234' }],
+      );
+      assert.deepStrictEqual(result.edits, [
+        { start: 1, end: 2, text: '' },
+        { start: 3, end: 4, text: 'DD' },
+        { start: 5, end: 7, text: '1234' },
+        { start: 8, end: 9, text: 'II' },
+      ]);
+      assert.deepStrictEqual(result.ranges, [{ start: 2, end: 4 }, { start: 9, end: 9, reversed: undefined }, { start: 10, end: 12 }]);
+      assert.strictEqual(result.text, 'acDDe1234hIIj');
+      assert.strictEqual(result.text.slice(2, 4), 'DD');
+      assert.strictEqual(result.text.slice(5, 9), '1234');
+      assert.strictEqual(result.text.slice(10, 12), 'II');
+    });
+
+    test('a later edit that starts at a cursor, right before a selection (condition 3)', () => {
+      // The cursor at 2 stays before 'cd' -> 'Q' (-1); the edit is made before the selection 'e' -> 'E',
+      // which then starts at 4 - 1 = 3.
+      const result = call(text, [cursor(2), { start: 4, end: 5 }], [undefined, 'E'], [{ start: 2, end: 4, text: 'Q' }]);
+      assert.deepStrictEqual(result.edits, [{ start: 2, end: 4, text: 'Q' }, { start: 4, end: 5, text: 'E' }]);
+      assert.deepStrictEqual(result.ranges, [{ start: 2, end: 2, reversed: undefined }, { start: 3, end: 4 }]);
+      assert.strictEqual(result.text, 'abQEfgh');
     });
   });
 

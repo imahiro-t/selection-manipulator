@@ -161,19 +161,19 @@ export const replaceSelections = (
   let shift = 0;
   let total = 0;
   let next = 0;
-  // Makes the edits of `later` that start before `offset`, and returns where a cursor at `offset` goes.
+  // Where the last edit of `later` made so far ends (they are in order, so no earlier one ends later).
+  let madeEnd = 0;
+  // Makes the edits of `later` that start before `offset`, and returns where a cursor at `offset` goes
+  // (the end of an edit that replaces text around it, even one made for an earlier cursor).
   const passLater = (offset: number): number => {
-    let moved = offset;
     while (next < later.length && later[next].start < offset) {
       const edit = later[next++];
       edits.push(edit);
       total += edit.text.length;
       shift += edit.text.length - (edit.end - edit.start);
-      if (edit.end > offset) {
-        moved = edit.end;
-      }
+      madeEnd = edit.end;
     }
-    return moved;
+    return madeEnd > offset ? madeEnd : offset;
   };
   ranges.forEach((range, i) => {
     const at = passLater(range.start);
