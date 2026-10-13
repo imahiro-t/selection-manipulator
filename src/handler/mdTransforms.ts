@@ -54,8 +54,10 @@ import {
   escapeHtml,
   escapeLinkText,
   FENCE_LANGUAGE_MAX_LENGTH,
+  FenceRole,
   fenceRoles,
   findInlineLinks,
+  ForwardSearch,
   githubSlug,
   indentWidth,
   InlineLink,
@@ -67,6 +69,7 @@ import {
   isThematicBreak,
   joinLines,
   LineContext,
+  LineSpan,
   lineSpans,
   ListItemLine,
   MdEol,
@@ -524,6 +527,16 @@ const finalLineBreak = (text: string): string =>
   text.endsWith('\r\n') ? '\r\n' : isLineBreak(text[text.length - 1]) ? text[text.length - 1] : '';
 
 /**
+ * Whether a line whose text starts with `c` may start a block when it has no indentation (MD-003
+ * takes the indentation of a paragraph continuation line after its list only when it does not):
+ * an ATX heading (`#`), a list item or a thematic break (`-`, `+`, `*`, `_`, a digit), a block
+ * quote (`>`), a code fence (`` ` ``, `~`), an HTML block (`<`), a link reference or footnote
+ * definition (`[`), a table (`|`) or a setext underline (`=`). This is wider than the blocks
+ * themselves (`#x` starts none): a line left out only keeps its indentation, as before.
+ */
+const mayStartBlock = (c: string): boolean => '#-+*_>`~<[|='.includes(c) || (c >= '0' && c <= '9');
+
+/**
  * MD-003: a selection is replaced with the table of contents of the headings in it (a selection
  * without headings is left); a cursor inserts the table of contents of the whole document. The
  * anchors of repeated headings are numbered over the whole document. The list is a block of its
@@ -555,6 +568,28 @@ const finalLineBreak = (text: string): string =>
  * are told apart by a walk of the headings of its own that only moves forward. The headings of a
  * selection are found by walking the headings and the selections (both in document order)
  * together, and the whole table of contents is made once for all cursors.
+ *
+ * When the list ends a paragraph line L part way (a selection or a cursor that ends inside L with
+ * only spaces and tabs after it on L, or that ends right after L's line break), the next line N
+ * would stay after the blank line that follows the list. If N is indented by 4 columns or more (a
+ * tab counting to the next multiple of 4), it was a continuation line of L's paragraph (such a line
+ * cannot interrupt a paragraph), but after the list it would be taken into the last item of the
+ * list (or read as code in it). So its indentation is taken into the edit too (with the rest of L
+ * and L's line break, which are then written as the blank line after the list), and N starts a new
+ * paragraph at the start of its line; a paragraph's first line drops its leading spaces anyway.
+ * This is done only when all of these hold, and otherwise the list is written as before:
+ * - L is read as a paragraph line: outside fenced code, not blank, indented by at most 3 columns,
+ *   and not an ATX heading, a thematic break, a setext underline, a list item or a quote line (on a
+ *   line with a list or quote marker, N's indentation would have to be measured from the item's
+ *   content, and what follows the marker may not be a paragraph).
+ * - The text of N does not start with a character that may start a block at the start of a line
+ *   (`mayStartBlock`), so that N is still read as a paragraph without its indentation.
+ * - No other selection starts in what is taken (from the end of the selection up to N's text),
+ *   except selections of only spaces, tabs and line breaks without a heading: they are left as
+ *   cursors at the end of the edit (the start of N's text). A cursor there inserts a list of its
+ *   own, and a selection with other text has to stay as it is.
+ * The lines and their fence roles are made only when a selection ends that way, at most once, and
+ * the line of a selection's end is found by a walk that only moves forward.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
@@ -596,6 +631,65 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
   };
   /** A selection of only spaces and tabs (no line break) that `splitOffEnd` reads past off a heading line. */
   const blankOfSpaces = (range: MdRange): boolean => range.start < range.end && /^[ \t]+$/.test(text.slice(range.start, range.end));
+  /** A selection of only spaces, tabs and line breaks (no cursor): it has no heading on a line that is not one. */
+  const blankSelection = (range: MdRange): boolean => range.start < range.end && /^[ \t\r\n]*$/.test(text.slice(range.start, range.end));
+  // The lines and their fence roles, made only when a table of contents may take the indentation of
+  // a paragraph continuation line after it; `lineAt` only moves forward (the selections end in order).
+  let spans: LineSpan[] | undefined;
+  let roles: FenceRole[] | undefined;
+  let lineAt = 0;
+  const lineOf = (offset: number, all: readonly LineSpan[]): number => {
+    while (lineAt < all.length - 1 && all[lineAt].next <= offset) {
+      lineAt++;
+    }
+    return lineAt;
+  };
+  /** The last line judged by `paragraphLine` and what it was (the lines judged only move forward). */
+  let judged = -1;
+  let judgedParagraph = false;
+  /** Whether line `k` is read as a paragraph line (see the doc comment for what is left out). */
+  const paragraphLine = (k: number, all: readonly LineSpan[]): boolean => {
+    if (k !== judged) {
+      roles ??= fenceRoles(all.map(({ start, end }) => text.slice(start, end)));
+      const line = text.slice(all[k].start, all[k].end);
+      let indent = 0;
+      while (indent < line.length && isSpaceOrTab(line[indent])) {
+        indent++;
+      }
+      judged = k;
+      judgedParagraph = roles[k] === 'text' && !isBlank(line) && indentWidth(line.slice(0, indent)) <= 3 && parseAtxHeading(line) === undefined
+        && !isThematicBreak(line) && setextLevel(line) === undefined && parseListItem(line) === undefined && !isQuoteLine(line);
+    }
+    return judgedParagraph;
+  };
+  const textStart = new ForwardSearch(text, (c) => !isSpaceOrTab(c));
+  /**
+   * Where the edit of `ranges[i]` ends when it takes the indentation of the paragraph continuation
+   * line N after its table of contents (the start of N's text), or undefined when it does not. The
+   * selection ends at `end`, inside the line before N (`inside`) or at the start of N.
+   */
+  const continuationText = (i: number, end: number, inside: boolean): number | undefined => {
+    spans ??= lineSpans(text);
+    const n = lineOf(end, spans) + (inside ? 1 : 0);
+    if (n < 1 || n >= spans.length) {
+      return undefined;
+    }
+    const body = textStart.find(spans[n].start);
+    if (body >= spans[n].end || mayStartBlock(text[body])) {
+      return undefined;
+    }
+    // Only selections of spaces, tabs and line breaks may start in what is taken (each selection is
+    // looked at from the nearest table of contents before it only, so this stays linear).
+    for (let k = i + 1; k < ranges.length && ranges[k].start < body; k++) {
+      if (!blankSelection(ranges[k])) {
+        return undefined;
+      }
+    }
+    if (indentWidth(text.slice(spans[n].start, body)) < 4 || !paragraphLine(n - 1, spans)) {
+      return undefined;
+    }
+    return body;
+  };
   let floor = 0;
   /** What was written after the table of contents of the previous selection (undefined when it had none). */
   let previousAfter: string | undefined;
@@ -624,7 +718,8 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     const textBefore = lines.textBefore(range.start);
     const textAfter = lines.textAfter(range.end);
     let before = textBefore ? eol + eol : lines.textOnPreviousLine(range.start) ? eol : '';
-    let after = textAfter ? eol + eol : lines.textOnNextLine(range.end) ? eol : '';
+    const textOnNextLine = !textAfter && lines.textOnNextLine(range.end);
+    let after = textAfter ? eol + eol : textOnNextLine ? eol : '';
     // Only spaces, tabs and line breaks since the previous table of contents: one blank line between
     // the two lists (counting the line breaks already there), and no indentation before this one.
     let adjacent = false;
@@ -648,6 +743,17 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
       const end = splitOffEnd(text, ranges, i, ceiling, readPast);
       if (end !== ceiling) {
         edited[i] = { start: edited[i].start, end, reversed: range.reversed };
+      }
+    }
+    // A paragraph continuation line indented by 4 columns or more after the list: its indentation is
+    // taken into the edit (with the rest of the line and the line break before it, if the selection
+    // ends inside that line), so that it is not taken into the list (SELEC-00146).
+    const endsInside = textOnNextLine && endsInsideLine(text, range.end);
+    if (endsInside || (textAfter && range.end > 0 && isLineBreak(text[range.end - 1]))) {
+      const body = continuationText(i, range.end, endsInside);
+      if (body !== undefined) {
+        edited[i] = { start: edited[i].start, end: body, reversed: range.reversed };
+        after = eol + eol;
       }
     }
     // The spaces taken into this edit leave the selections of them: they end where the edit starts.
