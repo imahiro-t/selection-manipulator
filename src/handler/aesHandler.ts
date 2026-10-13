@@ -2,6 +2,7 @@ import {
   window,
   TextEditor,
 } from 'vscode';
+import { InfoCommandNotifier } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import * as crypto from 'crypto';
 import { openTextDocument } from '../common';
@@ -9,10 +10,7 @@ import { openTextDocument } from '../common';
 type Command = 'encrypt' | 'decrypt';
 
 /** Where the AES commands send their messages (the compatibility-mode notice and the edit guard warnings). */
-export interface AesNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-}
+export type AesNotifier = Pick<InfoCommandNotifier, 'showInformationMessage' | 'showWarningMessage'>;
 
 export interface AesDependencies {
   notifier: AesNotifier;

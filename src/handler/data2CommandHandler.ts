@@ -1,4 +1,5 @@
-import { EndOfLine, InputBoxOptions, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { InputBoxOptions, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import { DataInputError } from './dataCommon';
@@ -6,11 +7,7 @@ import { TableInputError } from './tableCsv';
 import { DATA2_COMMAND_ENTRIES, Data2CommandEntry, Data2NotifyEntry, Data2Prompt, Data2TransformEntry } from './data2Transforms';
 
 /** How the handlers tell the user about a result (DATAX-013 / 016) or why nothing was changed. */
-export interface Data2Notifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type Data2Notifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface Data2Dependencies {
@@ -34,9 +31,6 @@ const defaultDependencies: Data2Dependencies = {
 
 export const DATA2_NOT_CHANGED = 'The selection was not changed: ';
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
 /** The transforms return LF line breaks; the result follows the document's EOL. */
 const withEol = (text: string, eol: string): string => (eol === '\n' ? text : text.replace(/\r?\n/g, eol));
 
@@ -59,11 +53,7 @@ export const data2InputBoxOptions = (prompt: Extract<Data2Prompt, { type: 'input
  * the message, which may quote the selected text or a typed value.
  */
 const logUnexpected = (dependencies: Data2Dependencies, error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => line.startsWith('    at ')).join('\n')
-    : '';
-  dependencies.logError(`Selection Manipulator: a data format command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a data format command', error, dependencies.logError);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */

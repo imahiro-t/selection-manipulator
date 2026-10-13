@@ -25,6 +25,14 @@ import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 export const isBlank = (text: string): boolean => !/[^ \t\r\n]/.test(text);
 
 /**
+ * True when `String.prototype.trim` leaves nothing of the line: unlike `isBlank` (only spaces,
+ * tabs, CR and LF), every Unicode whitespace character and line terminator counts as blank, for
+ * example the no-break space U+00A0, the ideographic space U+3000 and U+FEFF. The Markdown commands
+ * (`mdCommon.isBlank`) and the paragraph / indentation sorts (`sortTransforms`) use it.
+ */
+export const isTrimBlank = (line: string): boolean => line.trim() === '';
+
+/**
  * Throws the error `makeError` makes from `the selection is longer than N characters` when the
  * text is longer than `max` (UTF-16 code units).
  */
@@ -67,6 +75,11 @@ export class OutputBuffer {
     return this.total;
   }
 
+  /** Number of pieces pushed so far. */
+  get count(): number {
+    return this.parts.length;
+  }
+
   /** Throws when `length` more characters would exceed the budget (nothing is added). */
   reserve(length: number): void {
     assertWithinBudget(this.total + length, this.budget);
@@ -82,6 +95,18 @@ export class OutputBuffer {
     return this.parts.join(separator);
   }
 }
+
+/**
+ * The line break of a document whose whole text is `text`: CRLF when its first line break is one,
+ * LF otherwise (also when the text has no line break at all). VS Code keeps one kind of line break
+ * in a document, so this is `document.eol` for every document with a line break; it differs only
+ * for a one-line document, where it is always LF. Used where the document's text is all there is
+ * (the vscode-independent MSEL tables, DATEX-021).
+ */
+export const textEol = (text: string): string => {
+  const newline = text.indexOf('\n');
+  return newline > 0 && text[newline - 1] === '\r' ? '\r\n' : '\n';
+};
 
 /**
  * Calls `visit` for every line of the text with the line, the line break after it (`''` for the

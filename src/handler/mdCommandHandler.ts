@@ -1,14 +1,11 @@
-import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { MD_COMMAND_ENTRIES, MdChoice, MdCommandEntry, MdInputError, MdRange, MdResult } from './mdTransforms';
 
 /** How the handlers tell the user what happened. */
-export interface MdNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type MdNotifier = InfoCommandNotifier;
 
 /** A quick pick item that carries the value of its MdChoice. */
 export interface MdPickItem extends QuickPickItem {
@@ -42,11 +39,7 @@ export const MD_TEXT_NOT_CHANGED = 'The text was not changed: ';
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a Markdown command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a Markdown command', error);
 };
 
 /** Tells why nothing was changed. Not awaited: the Thenable only settles when the notification is dismissed. */
@@ -171,7 +164,7 @@ export const mdCommandHandlerInternal = (dependencies: MdDependencies, entries: 
           result = entry.run({
             text: document.getText(),
             ranges: rangesOf(textEditor),
-            eol: document.eol === EndOfLine.CRLF ? '\r\n' : '\n',
+            eol: documentEol(textEditor),
             inputs,
           });
         } catch (error) {

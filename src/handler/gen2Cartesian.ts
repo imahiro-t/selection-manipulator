@@ -22,19 +22,14 @@ const NOT_CHANGED = 'The text was not changed: ';
 /** The non-blank lines of a text (line breaks LF / CRLF / CR removed; the spaces of each line kept). */
 const nonBlankLines = (text: string): string[] => text.split(/\r\n|\r|\n/).filter((line) => !isBlankLine(line));
 
-/** The line break of the document: CRLF when its first line break is one, LF otherwise. */
-const documentEol = (text: string): string => {
-  const newline = text.indexOf('\n');
-  return newline > 0 && text[newline - 1] === '\r' ? '\r\n' : '\n';
-};
-
 /**
  * DATEX-021: every combination of one line of each selection (document order, the first selection
  * varying slowest), the lines of a combination joined with `delimiter` and the combinations one per
- * line. The result replaces the first selection and the texts of the others are deleted, in one
- * edit (as Join All Selections into First); the result is then the only selection.
+ * line (`eol`, the document's line break: `MselContext.eol`). The result replaces the first selection
+ * and the texts of the others are deleted, in one edit (as Join All Selections into First); the
+ * result is then the only selection.
  */
-export const cartesianProduct = (text: string, ranges: readonly MselRange[], delimiter: string): MselResult => {
+export const cartesianProduct = (text: string, ranges: readonly MselRange[], delimiter: string, eol: string): MselResult => {
   const problem = validateJoinDelimiterInput(delimiter);
   if (problem !== undefined) {
     throw new MselInputError(problem);
@@ -59,7 +54,6 @@ export const cartesianProduct = (text: string, ranges: readonly MselRange[], del
     }
   }
   // Each line of selection i is in count / nᵢ combinations.
-  const eol = documentEol(text);
   const length = lists.reduce((sum, lines) => sum + (count / lines.length) * lines.reduce((s, line) => s + line.length, 0), 0)
     + count * (lists.length - 1) * delimiter.length + (count - 1) * eol.length;
   if (length > MAX_OUTPUT_LENGTH) {
@@ -101,6 +95,6 @@ export const DATE2_MSEL_ENTRIES: readonly MselCommandEntry[] = [
   {
     id: 'DATEX-021', name: 'generate.cartesian-product', title: 'Generate - Cartesian Product of Selections', when: 'multi', needsTwo: true, edits: true,
     inputs: [cartesianDelimiterStep],
-    run: ({ text, ranges, inputs }) => cartesianProduct(text, ranges, inputs[0]),
+    run: ({ text, ranges, inputs, eol }) => cartesianProduct(text, ranges, inputs[0], eol),
   },
 ];

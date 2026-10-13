@@ -1,5 +1,4 @@
 import {
-  EndOfLine,
   InputBoxOptions,
   Range,
   Selection,
@@ -7,6 +6,7 @@ import {
   TextEditorRevealType,
   window,
 } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
@@ -28,11 +28,7 @@ import {
 } from './dataTransforms';
 
 /** How the handlers tell the user about a result (DATA-019 / 025) or why nothing was changed. */
-export interface DataNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type DataNotifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface DataDependencies {
@@ -50,9 +46,6 @@ const defaultDependencies: DataDependencies = {
 };
 
 const NOT_CHANGED = 'The selection was not changed: ';
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /** The transforms return LF line breaks; the result follows the document's EOL. */
 const withEol = (text: string, eol: string): string => (eol === '\n' ? text : text.replace(/\r?\n/g, eol));
@@ -87,11 +80,7 @@ const logUnexpected = (error: unknown): void => {
   if (error instanceof DataInputError || error instanceof EncOutputTooLargeError) {
     return;
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a data format command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a data format command', error);
 };
 
 /** The text of an error: the message of a `DataInputError`, a fixed text for anything unexpected. */

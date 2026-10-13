@@ -9,10 +9,17 @@
  * are counted against the output limit while they are built.
  */
 import { quoteForDisplay } from '../textFormat';
-import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { assertInputLength } from './textCommon';
+import { MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertInputLength, OutputBuffer } from './textCommon';
 
-export { isBlank } from './textCommon';
+/*
+ * `NumOutputBuffer` is the shared `textCommon.OutputBuffer`: it collects pieces of a result and
+ * throws `EncOutputTooLargeError` as soon as their total length would exceed `budget` (what is left
+ * of MAX_OUTPUT_LENGTH for this selection). Its `push` checks before it adds (a refused piece is not
+ * counted), where the former NUM class added first; nothing uses a buffer after it has thrown, so
+ * the results and the errors are the same.
+ */
+export { isBlank, OutputBuffer as NumOutputBuffer } from './textCommon';
 
 export { MAX_OUTPUT_LENGTH };
 
@@ -65,35 +72,6 @@ export const quoteText = (text: string): string => quoteForDisplay(text, NUM_MES
 
 export const assertNumInputLength = (text: string): void =>
   assertInputLength(text, NUM_MAX_INPUT_LENGTH, (message) => new NumInputError(message));
-
-/**
- * Collects pieces of a result and throws `EncOutputTooLargeError` as soon as their total length
- * exceeds `budget` (what is left of MAX_OUTPUT_LENGTH for this selection), so that a result that
- * grows much faster than its input is never built in full.
- */
-export class NumOutputBuffer {
-  private readonly parts: string[] = [];
-  private total = 0;
-
-  constructor(private readonly budget: number) { }
-
-  get length(): number {
-    return this.total;
-  }
-
-  push(part: string): void {
-    this.total += part.length;
-    if (this.total > this.budget) {
-      throw new EncOutputTooLargeError(this.total, MAX_OUTPUT_LENGTH);
-    }
-    this.parts.push(part);
-  }
-
-  /** The pieces joined without a separator (their total length is already within the budget). */
-  join(): string {
-    return this.parts.join('');
-  }
-}
 
 // ---------------------------------------------------------------------------------------------
 // Reading numbers
@@ -169,10 +147,15 @@ const SPACE_TAB = /^[ \t]*/;
  * and the spaces / tabs around each value are kept; an empty (or blank) line stays as it is and
  * is not passed to `convert`. A value that cannot be converted stops everything with
  * `line N: <reason>`. The result is counted against `budget` line by line.
+ *
+ * The lines are split here rather than with `textCommon.forEachLfLine`: a lone CR at the very end
+ * of the text is cut off here as if it were the CR of a CRLF (it is not in the result), while
+ * forEachLfLine keeps it in the last line, which would pass `1\r` to `convert` and fail. Using it
+ * would change what the NUM commands do.
  */
 export const mapLines = (text: string, budget: number, convert: (value: string) => string): string => {
   assertNumInputLength(text);
-  const output = new NumOutputBuffer(budget);
+  const output = new OutputBuffer(budget);
   let start = 0;
   let lineNumber = 1;
   for (;;) {

@@ -1,4 +1,5 @@
 import { InputBoxOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexRunner, LineRegexSplitRunner, runRegexInWorker, runRegexSplitInWorker } from './lineRegex';
 import {
@@ -19,16 +20,13 @@ import {
   MselTooManySelectionsError,
 } from './mselTransforms';
 import { MSEL2_COMMAND_ENTRIES } from './msel2Transforms';
+import { textEol } from './textCommon';
 
 /** The MSEL-001..030 commands and the LINEX-015..023 selection commands of the group LINE2. */
 export const ALL_MSEL_COMMAND_ENTRIES: readonly MselCommandEntry[] = [...MSEL_COMMAND_ENTRIES, ...MSEL2_COMMAND_ENTRIES];
 
 /** How the handlers tell the user what happened. */
-export interface MselNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type MselNotifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code (and the regex worker); replaced in tests. */
 export interface MselDependencies {
@@ -64,11 +62,7 @@ const prefixOf = (entry: MselCommandEntry): string => (entry.edits ? MSEL_TEXT_N
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a selection command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a selection command', error);
 };
 
 /** Tells why nothing was changed. Not awaited: the Thenable only settles when the notification is dismissed. */
@@ -202,6 +196,7 @@ export const mselCommandHandlerInternal = (dependencies: MselDependencies, entri
         const context: MselContext = {
           text,
           ranges,
+          eol: textEol(text),
           inputs,
           tabSize: typeof textEditor.options.tabSize === 'number' ? textEditor.options.tabSize : 4,
           wordAt: (offset) => {

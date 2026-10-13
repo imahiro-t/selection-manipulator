@@ -1,10 +1,10 @@
 import {
-  EndOfLine,
   InputBoxOptions,
   Selection,
   TextEditor,
   window,
 } from 'vscode';
+import { documentEol, InfoCommandNotifier } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument, openTextDocumentWithTitles } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
@@ -23,11 +23,7 @@ import {
 } from './hashTransforms';
 
 /** How the handlers tell the user about a result (HASH-017) or why nothing was changed. */
-export interface HashNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type HashNotifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface HashDependencies {
@@ -46,9 +42,6 @@ const defaultDependencies: HashDependencies = {
   openResult: (content) => openTextDocument(content),
   showInputBox: (options) => window.showInputBox(options),
 };
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /** The non-empty selections, in document order (empty selections are skipped). */
 const targetSelections = (textEditor: TextEditor): Selection[] =>

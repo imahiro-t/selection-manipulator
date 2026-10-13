@@ -1,10 +1,10 @@
 import {
-  EndOfLine,
   InputBoxOptions,
   Selection,
   TextEditor,
   window,
 } from 'vscode';
+import { CommandNotifier, documentEol } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import {
   AFFIX_MAX_LENGTH,
@@ -21,14 +21,8 @@ import {
   wrapTransforms,
 } from './wrapTransforms';
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
 /** How the handlers tell the user that a command did not change anything because of an error. */
-export interface WrapNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type WrapNotifier = CommandNotifier;
 
 /**
  * The selections a command works on: every selection for the commands that enclose the whole

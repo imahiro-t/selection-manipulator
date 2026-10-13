@@ -1,11 +1,11 @@
 import {
   env,
-  EndOfLine,
   InputBoxOptions,
   Selection,
   TextEditor,
   window,
 } from 'vscode';
+import { documentEol } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexRunner, runRegexInWorker } from './lineRegex';
 import { describeAddedLength } from './whitespaceTransforms';
@@ -68,9 +68,6 @@ const defaultDeps = (): LineHandlerDeps => ({
 
 export const NO_LINES_TO_COPY_MESSAGE = 'No lines to copy. The clipboard was not changed.';
 export const NO_LINES_BETWEEN_MARKERS_MESSAGE = 'No lines were found between the markers';
-
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
 
 /**
  * Where the selection sits in its lines (used by the anchored commands of the replace

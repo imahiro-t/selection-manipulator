@@ -7,9 +7,14 @@ import {
   forEachLfLine,
   forEachLine,
   isBlank,
+  isTrimBlank,
   JS_IDENTIFIER,
   OutputBuffer,
+  textEol,
 } from '../../handler/textCommon';
+import { isBlank as mdIsBlank } from '../../handler/mdCommon';
+import { NumOutputBuffer } from '../../handler/numCommon';
+import { OutputBuffer as DataOutputBuffer } from '../../handler/dataCommon';
 import { NOT_CHANGED, NOT_SHOWN, selectionLabel, unexpectedFailureLog } from '../../handler/commandCommon';
 import { DevOutputBuffer, splitDevLines } from '../../handler/devCommon';
 import { forEachUniLine, UniOutputBuffer } from '../../handler/uniCommon';
@@ -148,9 +153,36 @@ suite('Shared helpers of the category commands (textCommon / commandCommon)', ()
     });
 
     test('the buffers of the categories are the shared class', () => {
-      for (const buffer of [DevOutputBuffer, UniOutputBuffer, DateOutputBuffer, GenOutputBuffer]) {
+      for (const buffer of [DevOutputBuffer, UniOutputBuffer, DateOutputBuffer, GenOutputBuffer, NumOutputBuffer]) {
         assert.strictEqual(buffer, OutputBuffer);
       }
+    });
+
+    test('count is the number of pieces pushed (empty pieces too)', () => {
+      const buffer = new OutputBuffer(5);
+      assert.strictEqual(buffer.count, 0);
+      buffer.push('ab');
+      buffer.push('');
+      assert.strictEqual(buffer.count, 2);
+      assert.throws(() => buffer.push('abcd'), isTooLarge(6));
+      assert.strictEqual(buffer.count, 2);
+    });
+
+    test('the DATA buffer is the shared class with the whole limit, and join counts the separators', () => {
+      const buffer = new DataOutputBuffer();
+      assert.ok(buffer instanceof OutputBuffer);
+      buffer.push('a'.repeat(MAX_OUTPUT_LENGTH - 2));
+      buffer.push('b');
+      buffer.push('c');
+      assert.strictEqual(buffer.count, 3);
+      assert.strictEqual(buffer.join('').length, MAX_OUTPUT_LENGTH);
+      // Two separators of one character: MAX_OUTPUT_LENGTH + 2.
+      assert.throws(() => buffer.join(','), isTooLarge(MAX_OUTPUT_LENGTH + 2));
+      assert.throws(() => buffer.push('d'), isTooLarge(MAX_OUTPUT_LENGTH + 1));
+      const small = new DataOutputBuffer();
+      small.push('x');
+      small.push('y');
+      assert.strictEqual(small.join('\n'), 'x\ny');
     });
 
     test('assertWithinBudget and assertTotalOutput', () => {
@@ -164,6 +196,17 @@ suite('Shared helpers of the category commands (textCommon / commandCommon)', ()
   suite('input checks', () => {
     test('isBlank: only spaces, tabs and line breaks (or nothing)', () => {
       assert.deepStrictEqual(['', ' \t\r\n', ' a ', '　'].map(isBlank), [true, true, false, false]);
+    });
+
+    test('isTrimBlank: everything trim removes (Unicode whitespace) is blank; mdCommon.isBlank is it', () => {
+      assert.deepStrictEqual(['', ' \t\r\n', '\u00a0\u3000\ufeff', ' a ', '\u200b'].map(isTrimBlank), [true, true, true, false, false]);
+      assert.deepStrictEqual(['\u00a0', '\u3000'].map(isBlank), [false, false]);
+      assert.strictEqual(mdIsBlank, isTrimBlank);
+    });
+
+    test('textEol: CRLF when the first line break of the text is one, LF otherwise', () => {
+      assert.deepStrictEqual(['a\r\nb', 'a\nb\r\n', 'abc', '', '\nx', 'a\rb', '\r\n'].map(textEol),
+        ['\r\n', '\n', '\n', '\n', '\n', '\n', '\r\n']);
     });
 
     test('assertInputLength builds the message and the error of the category', () => {

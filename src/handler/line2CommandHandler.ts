@@ -1,4 +1,5 @@
-import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { documentEol, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexSplitRunner, runRegexSplitInWorker } from './lineRegex';
 import {
@@ -71,9 +72,6 @@ const targetSelections = (textEditor: TextEditor): Selection[] =>
     .filter((selection) => !selection.isEmpty)
     .sort((a, b) => a.start.compareTo(b.start));
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
 /** Where the selection sits in its lines (used by the anchored commands). */
 const selectionContext = (textEditor: TextEditor, selection: Selection): Partial<Line2Options> => ({
   precededByText: selection.start.character > 0,
@@ -86,11 +84,7 @@ const selectionContext = (textEditor: TextEditor, selection: Selection): Partial
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a line command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a line command', error);
 };
 
 /**

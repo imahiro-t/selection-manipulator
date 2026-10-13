@@ -10,7 +10,7 @@ import {
   GenDependencies,
   genCommandHandlerInternal,
 } from '../../handler/genCommandHandler';
-import { GEN_COMMAND_ENTRIES, GenCommandEntry } from '../../handler/genTransforms';
+import { GEN_COMMAND_ENTRIES, GenCommandEntry, GenContext } from '../../handler/genTransforms';
 import { gen2CommandHandlerInternal } from '../../handler/gen2CommandHandler';
 import { GEN2_COMMAND_ENTRIES } from '../../handler/gen2Transforms';
 import { DATE2_MSEL_ENTRIES } from '../../handler/gen2Cartesian';
@@ -388,6 +388,50 @@ suite('Extended Generator and Random Commands (DATEX-016..024) Test Suite', () =
       assert.ok(!ALL_MSEL_COMMAND_ENTRIES.some((entry) => entry.id === CARTESIAN.id || entry.name === CARTESIAN.name));
       assert.deepStrictEqual([CARTESIAN.id, CARTESIAN.name, CARTESIAN.when, CARTESIAN.needsTwo, CARTESIAN.edits],
         ['DATEX-021', 'generate.cartesian-product', 'multi', true, true]);
+    });
+  });
+
+  suite('prepare: the answers are parsed once per run', () => {
+    const context = (): GenContext => ({ random: fakeRandom(), now: GEN_TEST_NOW(), eol: '\n' });
+
+    test('an answer that does not parse throws in prepare', () => {
+      assert.throws(() => entryOf('DATEX-023').prepare(['', '16'], context()), GenInputError);
+      assert.throws(() => entryOf('DATEX-020').prepare(['30', '3', '25:00'], context()), GenInputError);
+      assert.throws(() => entryOf('DATEX-017').prepare(['0x0'], context()), GenInputError);
+    });
+
+    test('every target of one run uses the values parsed in prepare', () => {
+      const inputs = ['60', '2', '09:00'];
+      const run = entryOf('DATEX-020').prepare(inputs, context());
+      inputs.splice(0, 3, 'x', 'x', 'x');
+      assert.strictEqual(run.generate(0, '', 1_000), '09:00\n10:00');
+      assert.strictEqual(run.generate(1, '23:30', 1_000), '23:30\n00:30');
+      assert.strictEqual(run.generate(2, '', 1_000), '09:00\n10:00');
+    });
+
+    test('text-or-prompt: without the answer for the empty targets, prepare does not throw and the selected text is used', () => {
+      for (const id of ['DATEX-017', 'DATEX-018', 'DATEX-019']) {
+        const run = entryOf(id).prepare([], context());
+        assert.ok(run.generate(0, '3', 1_000).length > 0, id);
+        assert.throws(() => run.generate(1, '', 1_000), id);
+      }
+      const times = entryOf('DATEX-020').prepare(['30', '2'], context());
+      assert.strictEqual(times.generate(0, '08:00', 1_000), '08:00\n08:30');
+    });
+
+    test('DATEX-019: the sieve is kept for the run and made again for each run', () => {
+      const run = entryOf('DATEX-019').prepare(['10'], context());
+      assert.strictEqual(run.generate(0, '', 1_000), '2 3 5 7');
+      assert.strictEqual(run.generate(1, '20', 1_000), '2 3 5 7 11 13 17 19');
+      assert.strictEqual(run.generate(2, '5', 1_000), '2 3 5');
+      assert.strictEqual(entryOf('DATEX-019').prepare([], context()).generate(0, '13', 1_000), '2 3 5 7 11 13');
+    });
+
+    test('every entry has prepare and no generate / precheck of its own', () => {
+      GEN2_COMMAND_ENTRIES.forEach((entry) => {
+        assert.strictEqual(typeof entry.prepare, 'function', entry.id);
+        assert.ok(!('generate' in entry) && !('precheck' in entry), entry.id);
+      });
     });
   });
 
