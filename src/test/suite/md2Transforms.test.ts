@@ -205,6 +205,31 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
       const lines = 'a\nb\nc';
       assert.strictEqual(run('JAUNIX-020', lines, ['NOTE'], [{ start: 2, end: 4 }]), 'a\n> [!NOTE]\n> b\n\nc');
     });
+
+    test('a cursor inside the indentation does not leave the block 4 columns deep (SELEC-00135)', () => {
+      const outcome = (text: string, ranges: MdRange[]): [string, number[][]] => {
+        const entry = MD2_COMMAND_ENTRIES.find((candidate) => candidate.id === 'JAUNIX-020');
+        assert.ok(entry);
+        const result = entry.run({ text, ranges, eol: '\n', inputs: ['NOTE'] });
+        assert.ok(result.kind === 'edit');
+        return [applied(text, result), result.ranges.map(({ start, end }) => [start, end])];
+      };
+      // Indentation of 4 columns or more is taken into the edit, a cursor inside it too: the block
+      // starts the line, the same as with no cursor, and the cursor moves to the start of the line.
+      // Before SELEC-00135 the cursor cut the indentation short: `    > [!NOTE]` (an indented code
+      // block) with the cursor left at {2,2}.
+      assert.deepStrictEqual(outcome('    foo', [{ start: 2, end: 2 }, { start: 4, end: 7 }]), ['> [!NOTE]\n> foo', [[0, 0], [0, 15]]]);
+      assert.deepStrictEqual(outcome('    foo', [{ start: 4, end: 7 }]), ['> [!NOTE]\n> foo', [[0, 15]]]);
+      assert.deepStrictEqual(outcome('    foo', [{ start: 1, end: 1 }, { start: 3, end: 3 }, { start: 4, end: 7 }]),
+        ['> [!NOTE]\n> foo', [[0, 0], [0, 0], [0, 15]]]);
+      assert.deepStrictEqual(outcome('\t\tfoo', [{ start: 1, end: 1 }, { start: 2, end: 5 }]), ['> [!NOTE]\n> foo', [[0, 0], [0, 15]]]);
+      // Up to 3 columns stay before the block, with or without a cursor (unchanged), and the cursor stays.
+      assert.deepStrictEqual(outcome('  foo', [{ start: 1, end: 1 }, { start: 2, end: 5 }]), ['  > [!NOTE]\n> foo', [[1, 1], [2, 17]]]);
+      assert.deepStrictEqual(outcome('  foo', [{ start: 2, end: 5 }]), ['  > [!NOTE]\n> foo', [[2, 17]]]);
+      assert.deepStrictEqual(outcome('   a\n   b', [{ start: 1, end: 1 }, { start: 3, end: 9 }]), ['   > [!NOTE]\n> a\n>    b', [[1, 1], [3, 23]]]);
+      // A cursor in the spaces after other text keeps its place (unchanged).
+      assert.deepStrictEqual(outcome('x    foo', [{ start: 3, end: 3 }, { start: 5, end: 8 }]), ['x  \n> [!NOTE]\n> foo', [[3, 3], [3, 19]]]);
+    });
   });
 
   suite('JAUNIX-021 kbd', () => {

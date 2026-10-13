@@ -711,6 +711,11 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       const several = result('MD-014', '    foo', { inputs: [''], ranges: [{ start: 1, end: 1 }, { start: 3, end: 3 }, { start: 4, end: 7 }] });
       assert.strictEqual(applied('    foo', several), '```\nfoo\n```');
       assert.deepStrictEqual(ranges(several), [[0, 0], [0, 0], [0, 11]]);
+      // A cursor inside indentation of tabs (a tab counts to the next multiple of 4): before
+      // SELEC-00135 the tab before the cursor was left before the fence (`\t` + "```", an indented code block).
+      const tabs = result('MD-014', '\t\tfoo', { inputs: [''], ranges: [{ start: 1, end: 1 }, { start: 2, end: 5 }] });
+      assert.strictEqual(applied('\t\tfoo', tabs), '```\nfoo\n```');
+      assert.deepStrictEqual(ranges(tabs), [[0, 0], [0, 11]]);
       // Up to 3 columns that stay: the whole indentation is written before the first line and the
       // closing fence (before SELEC-00135 only the column after the cursor was), and the cursor stays.
       const three = '   a\n   b';
