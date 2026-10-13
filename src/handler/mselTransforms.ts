@@ -1192,6 +1192,8 @@ export interface MselContext {
   text: string;
   /** The selections in document order. */
   ranges: readonly MselRange[];
+  /** The document's line break, `\n` or `\r\n` (`textCommon.textEol` of `text`; DATEX-021). */
+  eol: string;
   /** The values entered, in the order of the command's `inputs` (validated). */
   inputs: readonly string[];
   /** `editor.options.tabSize` (MSEL-010). */

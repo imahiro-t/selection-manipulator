@@ -43,7 +43,8 @@ export const splitLines = (text: string): MdLines => {
 /** The inverse of `splitLines`, with the lines joined by the document's line break. */
 export const joinLines = (lines: readonly string[], eol: MdEol, trailing: string): string => lines.join(eol) + trailing;
 
-export const isBlank = (line: string): boolean => line.trim() === '';
+/** A line that `trim` empties (any Unicode whitespace, see `textCommon.isTrimBlank`). */
+export { isTrimBlank as isBlank } from './textCommon';
 
 /** A line of a text as offsets: `[start, end)` without its line break; `next` is where the next line starts. */
 export interface LineSpan {

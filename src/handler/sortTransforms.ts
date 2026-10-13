@@ -8,6 +8,7 @@
  * here (SORT-010's pattern runs in the worker of `lineRegex.ts`, which hands over the keys).
  */
 import { formatNumber } from './lineTransforms';
+import { isTrimBlank } from './textCommon';
 
 /** Keys of the line sorts (SORT-001..SORT-021 and their clipboard versions). */
 export type SortLineCommand =
@@ -454,8 +455,6 @@ const words = (line: string): string[] => line.split(/\s+/).filter((word) => wor
 
 const codePointLength = (text: string): number => Array.from(text).length;
 
-const isBlank = (line: string): boolean => line.trim() === '';
-
 const indentWidth = (line: string): number => /^[ \t]*/.exec(line)![0].length;
 
 // ---------------------------------------------------------------------------
@@ -470,7 +469,7 @@ const sortParagraphs = (lines: string[], descending: boolean): string[] => {
   const paragraphs: string[][] = [];
   let current: string[] = [];
   lines.forEach((line) => {
-    if (isBlank(line)) {
+    if (isTrimBlank(line)) {
       if (current.length > 0) {
         paragraphs.push(current);
         current = [];
@@ -493,7 +492,7 @@ const sortParagraphs = (lines: string[], descending: boolean): string[] => {
  * with no parent) stay at the top in their order. Without a non-blank line nothing changes.
  */
 const sortIndentBlocks = (lines: string[], descending: boolean): string[] => {
-  const nonBlank = lines.filter((line) => !isBlank(line));
+  const nonBlank = lines.filter((line) => !isTrimBlank(line));
   if (nonBlank.length === 0) {
     return lines;
   }
@@ -502,7 +501,7 @@ const sortIndentBlocks = (lines: string[], descending: boolean): string[] => {
   for (const line of nonBlank) {
     minIndent = Math.min(minIndent, indentWidth(line));
   }
-  const isParent = (line: string) => !isBlank(line) && indentWidth(line) === minIndent;
+  const isParent = (line: string) => !isTrimBlank(line) && indentWidth(line) === minIndent;
   const first = lines.findIndex(isParent);
   const header = lines.slice(0, first);
   const blocks: string[][] = [];

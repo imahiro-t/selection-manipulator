@@ -1,10 +1,10 @@
 import {
-  EndOfLine,
   InputBoxOptions,
   Selection,
   TextEditor,
   window,
 } from 'vscode';
+import { CommandNotifier, documentEol } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import {
@@ -18,14 +18,8 @@ import {
   MAX_OUTPUT_LENGTH,
 } from './encodeTransforms';
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
 /** How the handlers tell the user that a command did not change anything because of an error. */
-export interface EncNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type EncNotifier = CommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface EncDependencies {

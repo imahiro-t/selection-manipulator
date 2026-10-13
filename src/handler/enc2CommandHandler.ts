@@ -1,4 +1,5 @@
-import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { documentEol, InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { openTextDocument, openTextDocumentWithTitles } from '../common';
 import { EncInputError, EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import {
@@ -28,11 +29,7 @@ import { findKeyProblem, HashKeyError, keyBytes } from './hashTransforms';
 import { HMAC_KEY_PROMPT } from './hashExtendedHandler';
 
 /** How the handlers tell the user about a result (IBAN / ISBN) or why nothing was changed. */
-export interface Enc2Notifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type Enc2Notifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface Enc2Dependencies {
@@ -78,18 +75,12 @@ const targetSelections = (textEditor: TextEditor): Selection[] =>
     .filter((selection) => !selection.isEmpty)
     .sort((a, b) => a.start.compareTo(b.start));
 
-const documentEol = (textEditor: TextEditor): string => (textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n');
-
 /**
  * Logs an unexpected failure so it can be traced: only the error name and the stack frames, never
  * the message, which may quote the selected text or depend on the HMAC key.
  */
 const logUnexpected = (dependencies: Enc2Dependencies, error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => line.startsWith('    at ')).join('\n')
-    : '';
-  dependencies.logError(`Selection Manipulator: an encoding command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('an encoding command', error, dependencies.logError);
 };
 
 /** Tells why nothing was changed. Not awaited: the Thenable only settles when the notification is dismissed. */

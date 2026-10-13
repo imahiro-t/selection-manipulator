@@ -213,15 +213,18 @@ const askInputs = async (
 
 /**
  * Generates the text of every target (in document order) within MAX_OUTPUT_LENGTH: each target
- * gets what is left as its budget. Throws (a `TargetError` for a target) when one fails.
+ * gets what is left as its budget. The answers are parsed once (`prepare`) and the targets are
+ * checked (`precheck`) before anything is generated; an error there is not one of a target. Throws
+ * (a `TargetError` for a target) when one fails.
  */
 const generateAll = (entry: GenCommandEntry, targets: readonly Target[], inputs: readonly string[], context: GenContext): string[] => {
-  entry.precheck?.(targets.length, inputs, context);
+  const run = entry.prepare(inputs, context);
+  run.precheck?.(targets.length);
   const results: string[] = [];
   let total = 0;
   targets.forEach(({ text }, index) => {
     try {
-      const result = entry.generate(index, text, inputs, context, MAX_OUTPUT_LENGTH - total);
+      const result = run.generate(index, text, MAX_OUTPUT_LENGTH - total);
       total += result.length;
       assertTotalOutput(total);
       results.push(result);

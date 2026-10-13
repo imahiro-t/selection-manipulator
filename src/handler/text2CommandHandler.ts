@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { InfoCommandNotifier, logUnexpectedFailure } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError } from './encodeTransforms';
@@ -12,11 +13,7 @@ import {
 } from './text2Transforms';
 
 /** How the handlers tell the user what happened. */
-export interface Text2Notifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type Text2Notifier = InfoCommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface Text2Dependencies {
@@ -49,11 +46,7 @@ const targetSelections = (textEditor: TextEditor): Selection[] =>
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a text transform command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
+  logUnexpectedFailure('a text transform command', error);
 };
 
 interface SelectionPosition {

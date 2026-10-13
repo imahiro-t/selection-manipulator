@@ -1,10 +1,10 @@
 import {
-  EndOfLine,
   InputBoxOptions,
   Selection,
   TextEditor,
   window,
 } from 'vscode';
+import { CommandNotifier, documentEol } from './commandCommon';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import {
   COLUMN_MAX,
@@ -24,14 +24,8 @@ import {
   whitespaceTransforms,
 } from './whitespaceTransforms';
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
 /** How the handlers tell the user that a command did not change anything because of an error. */
-export interface WhitespaceNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type WhitespaceNotifier = CommandNotifier;
 
 /**
  * WS-025 only: the selection ends at the start of a line and the document goes on after it

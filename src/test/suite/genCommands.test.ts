@@ -2,10 +2,10 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { cryptoRandom, GEN_MAX_INPUT_LENGTH, GenRandom } from '../../handler/genCommon';
+import { cryptoRandom, GEN_MAX_INPUT_LENGTH, GenInputError, GenRandom } from '../../handler/genCommon';
 import { GEN_NOT_CHANGED, GEN_NOTHING_SELECTED, GenDependencies, genCommandHandlerInternal, GenQuickPickItem } from '../../handler/genCommandHandler';
 import { JA_SENTENCES } from '../../handler/genRandom';
-import { GEN_COMMAND_ENTRIES, GEN_RANDOM_ENTRIES, GEN_SEQUENCE_ENTRIES, GenCommandEntry } from '../../handler/genTransforms';
+import { GEN_COMMAND_ENTRIES, GEN_RANDOM_ENTRIES, GEN_SEQUENCE_ENTRIES, GenCommandEntry, GenContext } from '../../handler/genTransforms';
 import { myCommands } from '../../handler/showCommandsHandler';
 import { fakeRandom, GEN_TEST_NOW } from './genTestUtils';
 import { createTextEditor } from './testUtils';
@@ -532,6 +532,43 @@ suite('Generator Commands (GEN) Test Suite', () => {
         assert.deepStrictEqual([errors, warnings], [[], []], id);
         assert.match(editor.document.getText(), form, id);
       }
+    });
+  });
+
+  suite('prepare: the answers are parsed once per run', () => {
+    const context = (): GenContext => ({ random: fakeRandom(), now: GEN_TEST_NOW(), eol: '\n' });
+
+    test('an answer that does not parse throws in prepare, before any target is generated', () => {
+      assert.throws(() => entryOf('GEN-023').prepare(['x'], context()), GenInputError);
+      assert.throws(() => entryOf('GEN-006').prepare(['5..1'], context()), GenInputError);
+      assert.throws(() => entryOf('GEN-030').prepare(['300.0.0.1'], context()), GenInputError);
+    });
+
+    test('every target of one run uses the values parsed in prepare', () => {
+      const inputs = ['1..3'];
+      const run = entryOf('GEN-023').prepare(inputs, context());
+      // The answers are not read again after prepare.
+      inputs[0] = 'x';
+      assert.strictEqual(run.generate(0, '', 1_000), '1\n2\n3');
+      assert.strictEqual(run.generate(1, '', 1_000), '1\n2\n3');
+      const answers = ['2026-12-31'];
+      const dates = entryOf('GEN-022').prepare(answers, context());
+      answers[0] = 'x';
+      dates.precheck?.(2);
+      assert.deepStrictEqual([dates.generate(0, '', 1_000), dates.generate(1, '', 1_000)], ['2026-12-31', '2027-01-01']);
+    });
+
+    test('text-or-prompt: without the answer for the empty targets, prepare does not throw and the selected text is used', () => {
+      const run = entryOf('GEN-019').prepare([], { ...context(), random: fakeRandom([0, 0]) });
+      assert.strictEqual(run.generate(0, '2d6', 1_000), '2 (1+1)');
+      assert.throws(() => run.generate(1, '', 1_000));
+    });
+
+    test('every entry has prepare and no generate / precheck of its own', () => {
+      GEN_COMMAND_ENTRIES.forEach((entry) => {
+        assert.strictEqual(typeof entry.prepare, 'function', entry.id);
+        assert.ok(!('generate' in entry) && !('precheck' in entry), entry.id);
+      });
     });
   });
 

@@ -10,7 +10,7 @@
  * dependency. Random values come from `GenContext.random` only.
  */
 import { formatCount } from './genCommon';
-import { GenCommandEntry, GenContext, GenPrompt } from './genTransforms';
+import { emptyAnswer, GenCommandEntry, GenPrompt, parseEmptyAnswer } from './genTransforms';
 import {
   braceExpansion,
   fibonacci,
@@ -44,18 +44,17 @@ const PRIMES_MIN = 2;
 /**
  * The sieve of one run (DATEX-019), shared by all its targets: made for the first N, and made
  * once more (for PRIMES_MAX) only when a later target needs a larger one. Kept only as long as
- * the context of the run.
+ * the run (`prepare` makes one for each run).
  */
-const sieves = new WeakMap<GenContext, Uint8Array>();
-
-const sieveFor = (context: GenContext, n: number): Uint8Array => {
-  const cached = sieves.get(context);
-  if (cached !== undefined && cached.length >= n + 1) {
+const runSieve = (): ((n: number) => Uint8Array) => {
+  let cached: Uint8Array | undefined;
+  return (n) => {
+    if (cached !== undefined && cached.length >= n + 1) {
+      return cached;
+    }
+    cached = primeSieve(cached === undefined ? n : PRIMES_MAX);
     return cached;
-  }
-  const sieve = primeSieve(cached === undefined ? n : PRIMES_MAX);
-  sieves.set(context, sieve);
-  return sieve;
+  };
 };
 
 const integerPrompt = (prompt: string, min: number, max: number, value: string): GenPrompt => ({
@@ -69,7 +68,7 @@ const integerPrompt = (prompt: string, min: number, max: number, value: string):
 export const GEN2_COMMAND_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'DATEX-016', name: 'generate.brace-expansion', title: 'Generate - Brace Expansion', targets: 'lines', prompts: [],
-    generate: (_index, text, _inputs, context, budget) => braceExpansion(text, context.eol, budget),
+    prepare: (_inputs, context) => ({ generate: (_index, text, budget) => braceExpansion(text, context.eol, budget) }),
   },
   {
     id: 'DATEX-017', name: 'generate.multiplication-table', title: 'Generate - Multiplication Table', targets: 'text-or-prompt', prompts: [],
@@ -79,21 +78,37 @@ export const GEN2_COMMAND_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '9',
       rule: { kind: 'parse', parse: (value) => parseTableSize(value) },
     }],
-    generate: (_index, text, inputs, context, budget) =>
-      multiplicationTable(parseTableSize(text === '' ? inputs[0] : text), context.eol, budget),
+    prepare: (inputs, context) => {
+      const size = parseEmptyAnswer(inputs[0], (value) => parseTableSize(value));
+      return {
+        generate: (_index, text, budget) =>
+          multiplicationTable(text === '' ? emptyAnswer(size) : parseTableSize(text), context.eol, budget),
+      };
+    },
   },
   {
     id: 'DATEX-018', name: 'generate.fibonacci', title: 'Generate - Fibonacci Sequence', targets: 'text-or-prompt', prompts: [],
     emptyPrompts: [integerPrompt('Number of terms for the empty cursors', 1, FIBONACCI_MAX_TERMS, '10')],
-    generate: (_index, text, inputs, context, budget) =>
-      fibonacci(text === '' ? Number(inputs[0]) : parseBoundedCount(text, 1, FIBONACCI_MAX_TERMS, 'the number of terms'), context.eol, budget),
+    prepare: (inputs, context) => {
+      const terms = parseEmptyAnswer(inputs[0], Number);
+      return {
+        generate: (_index, text, budget) =>
+          fibonacci(text === '' ? emptyAnswer(terms) : parseBoundedCount(text, 1, FIBONACCI_MAX_TERMS, 'the number of terms'), context.eol, budget),
+      };
+    },
   },
   {
     id: 'DATEX-019', name: 'generate.primes', title: 'Generate - Prime Numbers', targets: 'text-or-prompt', prompts: [],
     emptyPrompts: [integerPrompt('Largest number N for the empty cursors: the primes up to N', PRIMES_MIN, PRIMES_MAX, '100')],
-    generate: (_index, text, inputs, context, budget) => {
-      const n = text === '' ? Number(inputs[0]) : parseBoundedCount(text, PRIMES_MIN, PRIMES_MAX, 'N');
-      return primesUpTo(n, sieveFor(context, n), budget);
+    prepare: (inputs) => {
+      const largest = parseEmptyAnswer(inputs[0], Number);
+      const sieveFor = runSieve();
+      return {
+        generate: (_index, text, budget) => {
+          const n = text === '' ? emptyAnswer(largest) : parseBoundedCount(text, PRIMES_MIN, PRIMES_MAX, 'N');
+          return primesUpTo(n, sieveFor(n), budget);
+        },
+      };
     },
   },
   {
@@ -108,8 +123,15 @@ export const GEN2_COMMAND_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '09:00',
       rule: { kind: 'parse', parse: (value) => parseStartTime(value) },
     }],
-    generate: (_index, text, inputs, context, budget) =>
-      timeSequence(parseStartTime(text === '' ? inputs[2] : text), Number(inputs[0]), Number(inputs[1]), context.eol, budget),
+    prepare: (inputs, context) => {
+      const interval = Number(inputs[0]);
+      const count = Number(inputs[1]);
+      const start = parseEmptyAnswer(inputs[2], (value) => parseStartTime(value));
+      return {
+        generate: (_index, text, budget) =>
+          timeSequence(text === '' ? emptyAnswer(start) : parseStartTime(text), interval, count, context.eol, budget),
+      };
+    },
   },
   {
     id: 'DATEX-022', name: 'random.passphrase', title: 'Random - Passphrase',
@@ -122,7 +144,11 @@ export const GEN2_COMMAND_ENTRIES: readonly GenCommandEntry[] = [
         rule: { kind: 'parse', parse: (value) => parsePassphraseSeparator(value), keepSpaces: true },
       },
     ],
-    generate: (_index, _text, inputs, context) => passphrase(context.random, Number(inputs[0]), parsePassphraseSeparator(inputs[1])),
+    prepare: (inputs, context) => {
+      const words = Number(inputs[0]);
+      const separator = parsePassphraseSeparator(inputs[1]);
+      return { generate: () => passphrase(context.random, words, separator) };
+    },
   },
   {
     id: 'DATEX-023', name: 'random.string-custom-charset', title: 'Random - String from Custom Characters',
@@ -135,10 +161,14 @@ export const GEN2_COMMAND_ENTRIES: readonly GenCommandEntry[] = [
       },
       integerPrompt('Length in characters', 1, CHARSET_MAX_LENGTH, '16'),
     ],
-    generate: (_index, _text, inputs, context, budget) => stringFromCharset(context.random, parseCharset(inputs[0]), Number(inputs[1]), budget),
+    prepare: (inputs, context) => {
+      const charset = parseCharset(inputs[0]);
+      const length = Number(inputs[1]);
+      return { generate: (_index, _text, budget) => stringFromCharset(context.random, charset, length, budget) };
+    },
   },
   {
     id: 'DATEX-024', name: 'random.shuffle-words', title: 'Random - Shuffle Words', targets: 'lines', prompts: [],
-    generate: (_index, text, _inputs, context, budget) => shuffleWords(context.random, text, budget),
+    prepare: (_inputs, context) => ({ generate: (_index, text, budget) => shuffleWords(context.random, text, budget) }),
   },
 ];

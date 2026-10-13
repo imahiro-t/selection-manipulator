@@ -9,7 +9,7 @@
  */
 import { quoteForDisplay } from '../textFormat';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { JS_IDENTIFIER } from './textCommon';
+import { assertWithinBudget, JS_IDENTIFIER, OutputBuffer as TextOutputBuffer } from './textCommon';
 
 /** The selected text cannot be converted; the message is shown to the user as it is. */
 export class DataInputError extends Error {
@@ -269,30 +269,22 @@ export const isSurrogatePairAt = (text: string, index: number): boolean => {
   return high >= 0xd800 && high <= 0xdbff && low >= 0xdc00 && low <= 0xdfff;
 };
 
-/** Collects output pieces and stops as soon as they would exceed MAX_OUTPUT_LENGTH. */
-export class OutputBuffer {
-  private readonly parts: string[] = [];
-  private length = 0;
-
-  /** Number of pieces pushed so far. */
-  get count(): number {
-    return this.parts.length;
+/**
+ * Collects output pieces and stops as soon as they would exceed MAX_OUTPUT_LENGTH: the shared
+ * `textCommon.OutputBuffer` with the whole output limit as its budget. Its `push` checks before it
+ * adds (a refused piece is not counted), where the former DATA class added first; nothing uses a
+ * buffer after it has thrown, so the results and the errors are the same. `join` also counts the
+ * separators against the limit.
+ */
+export class OutputBuffer extends TextOutputBuffer {
+  constructor() {
+    super(MAX_OUTPUT_LENGTH);
   }
 
-  push(part: string): void {
-    this.length += part.length;
-    if (this.length > MAX_OUTPUT_LENGTH) {
-      throw outputTooLarge(this.length);
-    }
-    this.parts.push(part);
-  }
-
-  join(separator: string): string {
-    const total = this.length + Math.max(0, this.parts.length - 1) * separator.length;
-    if (total > MAX_OUTPUT_LENGTH) {
-      throw outputTooLarge(total);
-    }
-    return this.parts.join(separator);
+  /** The pieces joined with `separator`; throws when the pieces and the separators together exceed MAX_OUTPUT_LENGTH. */
+  override join(separator: string): string {
+    assertWithinBudget(this.length + Math.max(0, this.count - 1) * separator.length, MAX_OUTPUT_LENGTH);
+    return super.join(separator);
   }
 }
 

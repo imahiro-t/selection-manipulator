@@ -280,32 +280,45 @@ suite('Extended Generators and Random (DATEX-016..024) Test Suite', () => {
   suite('DATEX-021 Cartesian product', () => {
     test('the first selection varies slowest; blank lines are skipped; the delimiter is literal', () => {
       const { text, ranges } = selectionsOf(['a\nb', '1\n\n2', 'x']);
-      assert.deepStrictEqual(cartesianProduct(text, ranges, ''), {
+      assert.deepStrictEqual(cartesianProduct(text, ranges, '', '\n'), {
         kind: 'edit',
         edits: [{ start: 0, end: 3, text: 'a1x\na2x\nb1x\nb2x' }, { start: 4, end: 8, text: '' }, { start: 9, end: 10, text: '' }],
         ranges: [{ start: 0, end: 15 }],
       });
       const two = selectionsOf(['a\r\nb', '$1']);
-      const result = cartesianProduct(two.text, two.ranges, ' + ');
+      const result = cartesianProduct(two.text, two.ranges, ' + ', '\r\n');
       assert.strictEqual(result.kind === 'edit' && result.edits[0].text, 'a + $1\r\nb + $1');
     });
 
     test('limits are computed before anything is built and only warn', () => {
       const lines = (n: number, width = 1) => Array.from({ length: n }, (_, i) => String(i).padStart(width, '0')).join('\n');
       const ok = selectionsOf([lines(100), lines(100)]);
-      const result = cartesianProduct(ok.text, ok.ranges, '');
+      const result = cartesianProduct(ok.text, ok.ranges, '', '\n');
       assert.strictEqual(result.kind === 'edit' && result.edits[0].text.split('\n').length, CARTESIAN_MAX_COMBINATIONS);
       const tooMany = selectionsOf([lines(100), lines(101)]);
-      assert.deepStrictEqual(cartesianProduct(tooMany.text, tooMany.ranges, ''),
+      assert.deepStrictEqual(cartesianProduct(tooMany.text, tooMany.ranges, '', '\n'),
         { kind: 'warn', message: 'The text was not changed: the selections make more than 10,000 combinations. Select fewer lines.' });
       const tooLong = selectionsOf([lines(100, 600), lines(100, 600)]);
-      assert.deepStrictEqual(cartesianProduct(tooLong.text, tooLong.ranges, ''),
+      assert.deepStrictEqual(cartesianProduct(tooLong.text, tooLong.ranges, '', '\n'),
         { kind: 'warn', message: 'The text was not changed: the result would be longer than 10,000,000 characters. Select fewer lines.' });
       const blank = selectionsOf(['a', '  \n\t']);
-      assert.deepStrictEqual(cartesianProduct(blank.text, blank.ranges, ''),
+      assert.deepStrictEqual(cartesianProduct(blank.text, blank.ranges, '', '\n'),
         { kind: 'warn', message: 'The text was not changed: selection 2 of 2 has no non-blank line.' });
-      assert.throws(() => cartesianProduct(ok.text, ok.ranges, 'a\nb'), /line breaks/);
-      assert.strictEqual(cartesianProduct('a', [{ start: 0, end: 1 }], '').kind, 'warn');
+      assert.throws(() => cartesianProduct(ok.text, ok.ranges, 'a\nb', '\n'), /line breaks/);
+      assert.strictEqual(cartesianProduct('a', [{ start: 0, end: 1 }], '', '\n').kind, 'warn');
+    });
+
+    test('the combinations are separated by the given line break, which counts towards the length limit', () => {
+      const { text, ranges } = selectionsOf(['a\nb', '1']);
+      const crlf = cartesianProduct(text, ranges, '', '\r\n');
+      assert.strictEqual(crlf.kind === 'edit' && crlf.edits[0].text, 'a1\r\nb1');
+      // 10,000 combinations of 999 characters: 9,999 LF fit in 10,000,000 characters, 9,999 CRLF do not.
+      const lines = (n: number, width: number) => Array.from({ length: n }, (_, i) => String(i).padStart(width, '0')).join('\n');
+      const edge = selectionsOf([lines(100, 500), lines(100, 499)]);
+      const lf = cartesianProduct(edge.text, edge.ranges, '', '\n');
+      assert.strictEqual(lf.kind === 'edit' && lf.edits[0].text.length, MAX_OUTPUT_LENGTH - 1);
+      assert.deepStrictEqual(cartesianProduct(edge.text, edge.ranges, '', '\r\n'),
+        { kind: 'warn', message: 'The text was not changed: the result would be longer than 10,000,000 characters. Select fewer lines.' });
     });
   });
 

@@ -113,12 +113,45 @@ export interface GenContext {
 export type GenTargets = 'all' | 'lines' | 'text-or-prompt';
 
 /**
- * Makes the text of one target. `index` is its position in document order (0 for the first),
- * `text` the selected text (only read for `lines` / `text-or-prompt`), `inputs` the answers of
- * the quick pick and the prompts in order (checked and trimmed by the handler), `budget` what is
- * left of MAX_OUTPUT_LENGTH.
+ * One run of a command, made by its entry's `prepare` from the answers: the answers are parsed
+ * once, there, and kept in `precheck` / `generate`.
  */
-export type GenGenerate = (index: number, text: string, inputs: readonly string[], context: GenContext, budget: number) => string;
+export interface GenRun {
+  /**
+   * Checked on all targets before anything is generated (e.g. the number of targets of a
+   * sequence); `count` is the number of targets.
+   */
+  precheck?: (count: number) => void;
+  /**
+   * Makes the text of one target. `index` is its position in document order (0 for the first),
+   * `text` the selected text (only read for `lines` / `text-or-prompt`, and parsed here, as it
+   * differs from target to target), `budget` what is left of MAX_OUTPUT_LENGTH.
+   */
+  generate: (index: number, text: string, budget: number) => string;
+}
+
+/**
+ * Parses the answers once per run and returns the run. `inputs` are the answers of the quick pick
+ * and the prompts in order (checked and trimmed by the handler), followed by those of
+ * `emptyPrompts` when they were asked (only when a target is empty). Called once, after all the
+ * answers are known and before anything is generated: an error thrown here is not one of a target.
+ */
+export type GenPrepare = (inputs: readonly string[], context: GenContext) => GenRun;
+
+/**
+ * `text-or-prompt`: the answer of an empty-target prompt parsed once, or `undefined` when it was
+ * not asked (no target is empty).
+ */
+export const parseEmptyAnswer = <T>(answer: string | undefined, parse: (value: string) => T): T | undefined =>
+  answer === undefined ? undefined : parse(answer);
+
+/** `text-or-prompt`: the parsed answer an empty target uses (always asked when a target is empty). */
+export const emptyAnswer = <T>(value: T | undefined): T => {
+  if (value === undefined) {
+    throw new Error('the answer for the empty targets was not asked');
+  }
+  return value;
+};
 
 export interface GenCommandEntry {
   /** ROADMAP ID, e.g. `GEN-001`. */
@@ -135,16 +168,12 @@ export interface GenCommandEntry {
   /** `text-or-prompt`: asked once when a target has no text of its own. */
   emptyPrompts?: readonly GenPrompt[];
   /**
-   * Checked on all targets before anything is generated (e.g. the number of targets of a
-   * sequence); `count` is the number of targets.
-   */
-  precheck?: (count: number, inputs: readonly string[], context: GenContext) => void;
-  /**
    * The results are sorted (ascending, by UTF-16 code units) before they are written in document
    * order, so that time-ordered IDs of one run are ordered in the document too (GEN-001 / 002).
    */
   sortResults?: boolean;
-  generate: GenGenerate;
+  /** Parses the answers once and returns how the targets are checked and generated (see `GenRun`). */
+  prepare: GenPrepare;
 }
 
 const bytesPrompt = (placeHolder: string): GenPrompt => ({
@@ -165,23 +194,29 @@ const DICE_PROMPT: GenPrompt = {
 export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'GEN-001', name: 'random.uuid-v7', title: 'Random - UUID v7', prompts: [], sortResults: true,
-    generate: (_index, _text, _inputs, context) => uuidV7(context.random, context.now.getTime()),
+    prepare: (_inputs, context) => ({ generate: () => uuidV7(context.random, context.now.getTime()) }),
   },
   {
     id: 'GEN-002', name: 'random.ulid', title: 'Random - ULID', prompts: [], sortResults: true,
-    generate: (_index, _text, _inputs, context) => ulid(context.random, context.now.getTime()),
+    prepare: (_inputs, context) => ({ generate: () => ulid(context.random, context.now.getTime()) }),
   },
   {
     id: 'GEN-003', name: 'random.nanoid', title: 'Random - NanoID', prompts: [],
-    generate: (_index, _text, _inputs, context) => nanoid(context.random),
+    prepare: (_inputs, context) => ({ generate: () => nanoid(context.random) }),
   },
   {
     id: 'GEN-004', name: 'random.hex', title: 'Random - Hex String', prompts: [bytesPrompt('16')],
-    generate: (_index, _text, inputs, context) => randomHex(context.random, Number(inputs[0])),
+    prepare: (inputs, context) => {
+      const bytes = Number(inputs[0]);
+      return { generate: () => randomHex(context.random, bytes) };
+    },
   },
   {
     id: 'GEN-005', name: 'random.base64', title: 'Random - Base64 Token', prompts: [bytesPrompt('24')],
-    generate: (_index, _text, inputs, context) => randomBase64Url(context.random, Number(inputs[0])),
+    prepare: (inputs, context) => {
+      const bytes = Number(inputs[0]);
+      return { generate: () => randomBase64Url(context.random, bytes) };
+    },
   },
   {
     id: 'GEN-006', name: 'random.integer', title: 'Random - Integer in Range',
@@ -191,7 +226,10 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '1..100',
       rule: { kind: 'parse', parse: (value) => parseIntegerRange(value) },
     }],
-    generate: (_index, _text, inputs, context) => randomInteger(context.random, parseIntegerRange(inputs[0])),
+    prepare: (inputs, context) => {
+      const range = parseIntegerRange(inputs[0]);
+      return { generate: () => randomInteger(context.random, range) };
+    },
   },
   {
     id: 'GEN-007', name: 'random.float', title: 'Random - Float in Range',
@@ -212,11 +250,14 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
         },
       },
     ],
-    generate: (_index, _text, inputs, context) => randomFloat(context.random, parseFloatRange(inputs[0], inputs[1])),
+    prepare: (inputs, context) => {
+      const range = parseFloatRange(inputs[0], inputs[1]);
+      return { generate: () => randomFloat(context.random, range) };
+    },
   },
   {
     id: 'GEN-008', name: 'random.pick-line', title: 'Random - Pick One Line', targets: 'lines', prompts: [],
-    generate: (_index, text, _inputs, context) => pickLine(context.random, text),
+    prepare: (_inputs, context) => ({ generate: (_index, text) => pickLine(context.random, text) }),
   },
   {
     id: 'GEN-009', name: 'random.sample-lines', title: 'Random - Pick N Lines', targets: 'lines',
@@ -226,15 +267,18 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '2',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_SAMPLE_LINES },
     }],
-    generate: (_index, text, inputs, context, budget) => sampleLines(context.random, text, Number(inputs[0]), context.eol, budget),
+    prepare: (inputs, context) => {
+      const count = Number(inputs[0]);
+      return { generate: (_index, text, budget) => sampleLines(context.random, text, count, context.eol, budget) };
+    },
   },
   {
     id: 'GEN-010', name: 'random.mac', title: 'Random - MAC Address', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomMac(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomMac(context.random) }),
   },
   {
     id: 'GEN-011', name: 'random.color', title: 'Random - Hex Color', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomColor(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomColor(context.random) }),
   },
   {
     id: 'GEN-012', name: 'random.date', title: 'Random - Date in Range',
@@ -244,23 +288,26 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
       value: defaultDateRange,
       rule: { kind: 'parse', parse: (value) => parseDateRange(value) },
     }],
-    generate: (_index, _text, inputs, context) => randomDate(context.random, parseDateRange(inputs[0])),
+    prepare: (inputs, context) => {
+      const range = parseDateRange(inputs[0]);
+      return { generate: () => randomDate(context.random, range) };
+    },
   },
   {
     id: 'GEN-013', name: 'random.email', title: 'Random - Dummy Email', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomEmail(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomEmail(context.random) }),
   },
   {
     id: 'GEN-014', name: 'random.name', title: 'Random - Dummy Name', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomName(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomName(context.random) }),
   },
   {
     id: 'GEN-015', name: 'random.name-ja', title: 'Random - Dummy Japanese Name', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomNameJa(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomNameJa(context.random) }),
   },
   {
     id: 'GEN-016', name: 'random.phone-jp', title: 'Random - Dummy Phone Number (JP)', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomPhoneJp(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomPhoneJp(context.random) }),
   },
   {
     id: 'GEN-017', name: 'random.text-ja', title: 'Random - Japanese Dummy Text',
@@ -270,17 +317,22 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '3',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_SENTENCES },
     }],
-    generate: (_index, _text, inputs, context, budget) => randomTextJa(context.random, Number(inputs[0]), budget),
+    prepare: (inputs, context) => {
+      const sentences = Number(inputs[0]);
+      return { generate: (_index, _text, budget) => randomTextJa(context.random, sentences, budget) };
+    },
   },
   {
     id: 'GEN-018', name: 'random.boolean', title: 'Random - Boolean', prompts: [],
-    generate: (_index, _text, _inputs, context) => randomBoolean(context.random),
+    prepare: (_inputs, context) => ({ generate: () => randomBoolean(context.random) }),
   },
   {
     id: 'GEN-019', name: 'random.dice', title: 'Random - Dice Roll', targets: 'text-or-prompt', prompts: [], emptyPrompts: [DICE_PROMPT],
     // `text` is the selection, or '' for an empty (or blank) target, which uses the typed dice.
-    generate: (_index, text, inputs, context) =>
-      rollDice(context.random, text === '' ? parseDice(inputs[0]) : parseDice(text, text)),
+    prepare: (inputs, context) => {
+      const dice = parseEmptyAnswer(inputs[0], (value) => parseDice(value));
+      return { generate: (_index, text) => rollDice(context.random, text === '' ? emptyAnswer(dice) : parseDice(text, text)) };
+    },
   },
 ];
 
@@ -292,12 +344,14 @@ export const GEN_RANDOM_ENTRIES: readonly GenCommandEntry[] = [
 export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
   {
     id: 'GEN-020', name: 'generate.alpha-sequence', title: 'Generate - Alphabet Sequence', prompts: [],
-    generate: (index) => alphaSequence(index),
+    prepare: () => ({ generate: (index) => alphaSequence(index) }),
   },
   {
     id: 'GEN-021', name: 'generate.roman-sequence', title: 'Generate - Roman Numeral Sequence', prompts: [],
-    precheck: (count) => checkRomanCount(count),
-    generate: (index) => romanSequence(index),
+    prepare: () => ({
+      precheck: (count) => checkRomanCount(count),
+      generate: (index) => romanSequence(index),
+    }),
   },
   {
     id: 'GEN-022', name: 'generate.date-sequence', title: 'Generate - Date Sequence',
@@ -307,8 +361,13 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       value: defaultStartDate,
       rule: { kind: 'parse', parse: (value) => parseStartDate(value) },
     }],
-    precheck: (count, inputs) => checkDateSequence(parseStartDate(inputs[0]), count),
-    generate: (index, _text, inputs) => dateSequence(parseStartDate(inputs[0]), index),
+    prepare: (inputs) => {
+      const start = parseStartDate(inputs[0]);
+      return {
+        precheck: (count) => checkDateSequence(start, count),
+        generate: (index) => dateSequence(start, index),
+      };
+    },
   },
   {
     id: 'GEN-023', name: 'generate.number-range', title: 'Generate - Number Range',
@@ -318,7 +377,10 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '1..10',
       rule: { kind: 'parse', parse: (value) => parseNumberRange(value) },
     }],
-    generate: (_index, _text, inputs, context, budget) => numberRange(parseNumberRange(inputs[0]), context.eol, budget),
+    prepare: (inputs, context) => {
+      const range = parseNumberRange(inputs[0]);
+      return { generate: (_index, _text, budget) => numberRange(range, context.eol, budget) };
+    },
   },
   {
     id: 'GEN-024', name: 'generate.repeat-char', title: 'Generate - Repeat Character to Width',
@@ -336,7 +398,11 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
         rule: { kind: 'integer', min: 1, max: GEN_MAX_REPEAT_WIDTH },
       },
     ],
-    generate: (_index, _text, inputs) => repeatToWidth(parseRepeatPattern(inputs[0]), Number(inputs[1])),
+    prepare: (inputs) => {
+      const pattern = parseRepeatPattern(inputs[0]);
+      const width = Number(inputs[1]);
+      return { generate: () => repeatToWidth(pattern, width) };
+    },
   },
   {
     id: 'GEN-025', name: 'generate.hex-sequence', title: 'Generate - Hex Sequence',
@@ -346,8 +412,13 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '0x00',
       rule: { kind: 'parse', parse: (value) => parseHexStart(value) },
     }],
-    precheck: (count, inputs) => checkHexSequence(parseHexStart(inputs[0]), count),
-    generate: (index, _text, inputs) => hexSequence(parseHexStart(inputs[0]), index),
+    prepare: (inputs) => {
+      const start = parseHexStart(inputs[0]);
+      return {
+        precheck: (count) => checkHexSequence(start, count),
+        generate: (index) => hexSequence(start, index),
+      };
+    },
   },
   {
     id: 'GEN-026', name: 'generate.kana-sequence', title: 'Generate - Kana Sequence',
@@ -359,13 +430,20 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       ],
     },
     prompts: [],
-    precheck: (count, inputs) => checkKanaCount(inputs[0], count),
-    generate: (index, _text, inputs) => kanaSequence(inputs[0], index),
+    prepare: (inputs) => {
+      const order = inputs[0];
+      return {
+        precheck: (count) => checkKanaCount(order, count),
+        generate: (index) => kanaSequence(order, index),
+      };
+    },
   },
   {
     id: 'GEN-027', name: 'generate.circled-sequence', title: 'Generate - Circled Number Sequence', prompts: [],
-    precheck: (count) => checkCircledCount(count),
-    generate: (index) => circledSequence(index),
+    prepare: () => ({
+      precheck: (count) => checkCircledCount(count),
+      generate: (index) => circledSequence(index),
+    }),
   },
   {
     id: 'GEN-028', name: 'generate.column-ruler', title: 'Generate - Column Ruler',
@@ -375,11 +453,14 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '80',
       rule: { kind: 'integer', min: 1, max: GEN_MAX_RULER_WIDTH },
     }],
-    generate: (_index, _text, inputs, context) => columnRuler(Number(inputs[0]), context.eol),
+    prepare: (inputs, context) => {
+      const columns = Number(inputs[0]);
+      return { generate: () => columnRuler(columns, context.eol) };
+    },
   },
   {
     id: 'GEN-029', name: 'generate.guid-braced', title: 'Generate - GUID (Braced Uppercase)', prompts: [],
-    generate: (_index, _text, _inputs, context) => bracedGuid(context.random),
+    prepare: (_inputs, context) => ({ generate: () => bracedGuid(context.random) }),
   },
   {
     id: 'GEN-030', name: 'generate.ipv4-sequence', title: 'Generate - IPv4 Sequence',
@@ -389,8 +470,13 @@ export const GEN_SEQUENCE_ENTRIES: readonly GenCommandEntry[] = [
       value: () => '192.0.2.1',
       rule: { kind: 'parse', parse: (value) => parseIpv4(value) },
     }],
-    precheck: (count, inputs) => checkIpv4Sequence(parseIpv4(inputs[0]), count),
-    generate: (index, _text, inputs) => ipv4Sequence(parseIpv4(inputs[0]), index),
+    prepare: (inputs) => {
+      const start = parseIpv4(inputs[0]);
+      return {
+        precheck: (count) => checkIpv4Sequence(start, count),
+        generate: (index) => ipv4Sequence(start, index),
+      };
+    },
   },
 ];
 
