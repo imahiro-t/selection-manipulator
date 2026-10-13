@@ -46,6 +46,21 @@ import {
   setextLevel,
 } from './mdCommon';
 
+/** A line split at the end of its indentation (spaces and tabs): `indent` characters, `width` columns (`indentWidth`), and the `text` after it. */
+interface IndentedLine {
+  indent: number;
+  width: number;
+  text: string;
+}
+
+const splitIndent = (line: string): IndentedLine => {
+  let indent = 0;
+  while (isSpaceOrTab(line[indent])) {
+    indent++;
+  }
+  return { indent, width: indentWidth(line.slice(0, indent)), text: line.slice(indent) };
+};
+
 /**
  * Whether a line whose text (after its indentation) starts with `c` may start a block: an ATX
  * heading (`#`), a list item or a thematic break (`-`, `+`, `*`, `_`, a digit), a block quote
@@ -491,12 +506,7 @@ export class ParagraphContext {
       }
       return OTHER;
     }
-    let indent = 0;
-    while (isSpaceOrTab(line[indent])) {
-      indent++;
-    }
-    const width = indentWidth(line.slice(0, indent));
-    const t = line.slice(indent);
+    const { width, text: t } = splitIndent(line);
     const container = this.container;
     if (container?.kind === 'list') {
       if (width >= container.content) {
@@ -669,15 +679,10 @@ export interface LineContinuation {
  *   container (a lazy line), any list item and a kind 7 tag are not.
  */
 export const lineContinuation = (container: ParagraphContainer, line: string, nextLine?: string): LineContinuation | undefined => {
-  let body = 0;
-  while (isSpaceOrTab(line[body])) {
-    body++;
-  }
-  const t = line.slice(body);
+  const { indent: body, width, text: t } = splitIndent(line);
   if (t === '') {
     return undefined;
   }
-  const width = indentWidth(line.slice(0, body));
   let r = width;
   let lazy = false;
   if (container.kind === 'list') {
@@ -906,12 +911,7 @@ export class ContinuationLines {
       return END_OF_PARAGRAPH;
     }
     const line = this.lineText(m);
-    let indent = 0;
-    while (isSpaceOrTab(line[indent])) {
-      indent++;
-    }
-    const width = indentWidth(line.slice(0, indent));
-    const t = line.slice(indent);
+    const { width, text: t } = splitIndent(line);
     // A line that would continue the paragraph but is not a paragraph line (a table's header row)
     // or that is not certain (a table, a definition) is not certain either.
     if (width >= 4) {
@@ -1016,12 +1016,7 @@ export class ContinuationLines {
       return undefined;
     }
     const line = this.lineText(n);
-    let body = 0;
-    while (isSpaceOrTab(line[body])) {
-      body++;
-    }
-    const width = indentWidth(line.slice(0, body));
-    const t = line.slice(body);
+    const { indent: body, width, text: t } = splitIndent(line);
     if (width < 1 || width > 3 || t === '') {
       return undefined;
     }
@@ -1052,12 +1047,8 @@ export class ContinuationLines {
     }
     let m = n + 1;
     for (; m < this.spans.length; m++) {
-      const line = this.lineText(m);
-      let i = 0;
-      while (isSpaceOrTab(line[i])) {
-        i++;
-      }
-      if (i === line.length || mayStartBlock(line[i])) {
+      const { text: t } = splitIndent(this.lineText(m));
+      if (t === '' || mayStartBlock(t[0])) {
         break;
       }
     }
@@ -1065,12 +1056,7 @@ export class ContinuationLines {
       return undefined;
     }
     const line = this.lineText(m);
-    let body = 0;
-    while (isSpaceOrTab(line[body])) {
-      body++;
-    }
-    const width = indentWidth(line.slice(0, body));
-    const t = line.slice(body);
+    const { width, text: t } = splitIndent(line);
     const lazy = found.container.kind === 'quote' ? t[0] !== '>' : width < found.container.content;
     if (!lazy || width > 3 || parseListItem(t) === undefined
       || blockAt(t, true, false).type !== 'none' || blockAt(t, true, true).type !== 'list') {
@@ -1155,12 +1141,7 @@ const keepsEnd = (written: WrittenLine & { kind: 'lazy' }, end: ParagraphEnd): b
 export type WrittenLine = { kind: 'block' } | { kind: 'lazy'; content: number };
 
 export const writtenLine = (line: string): WrittenLine | undefined => {
-  let indent = 0;
-  while (isSpaceOrTab(line[indent])) {
-    indent++;
-  }
-  const width = indentWidth(line.slice(0, indent));
-  const t = line.slice(indent);
+  const { width, text: t } = splitIndent(line);
   if (width >= 4 || t === '') {
     return undefined;
   }
@@ -1271,16 +1252,24 @@ const freshLineChange = (line: string, nextLine: string | undefined): LineChange
     // After the blank line, N's indentation is taken (from its start) when it is changed.
     return typeof change === 'string' ? 'keep' : { start: 0, end: found.body + change.at, insert: change.insert };
   }
-  let body = 0;
-  while (isSpaceOrTab(line[body])) {
-    body++;
-  }
-  const t = line.slice(body);
-  if (indentWidth(line.slice(0, body)) > 3 || setextLevel(t) !== undefined) {
+  const { width, text: t } = splitIndent(line);
+  if (width > 3 || setextLevel(t) !== undefined) {
     return undefined;
   }
   const block = blockAt(t, true, false);
   return block.type === 'none' || block.type === 'uncertain' ? undefined : 'keep';
+};
+
+/**
+ * The text of a line of a block quote after its `>` (3 columns or less from the start of the line)
+ * and the one space after it, or the whole line when it has no `>` there (a lazy continuation line).
+ */
+const quoteContent = (line: string): string => {
+  const { indent, width, text } = splitIndent(line);
+  if (width > 3 || text[0] !== '>') {
+    return line;
+  }
+  return line.slice(line[indent + 1] === ' ' ? indent + 2 : indent + 1);
 };
 
 /**
@@ -1293,11 +1282,14 @@ const freshLineChange = (line: string, nextLine: string | undefined): LineChange
  * - In a quote, the blank line is a line with the quote's marker only, so that the quote goes on. A
  *   line N with its own `>` (3 columns or less) is read from after its `>` and the one space after
  *   it, with the same rule (`>     bar` loses the indentation after `> `, `> 2. x` gets
- *   `> 2\. x`); a tab right after `>` or in that indentation is not certain. A blank quote line ends
+ *   `> 2\. x`), and the next line is read after its `>` too, so that a table's delimiter row there
+ *   leaves N as before as it does at the top level (`> foo⏎> a | b⏎> --|--`); a tab right after
+ *   `>` or in that indentation is not certain. A blank quote line ends
  *   the HTML block by itself, so nothing is needed (undefined). A lazy continuation line N (without
  *   `>`) would be outside the quote after the blank line: it gets the quote's marker and a space in
  *   place of its indentation (`bar` → `> bar`) when its text is plain (not starting with a
- *   character that may start a block) and indented by 3 columns or less; such a line that may start
+ *   character that may start a block), indented by 3 columns or less and not followed by a
+ *   delimiter row (which would make it a table's header row in the quote); such a line that may start
  *   a block or is indented further is not certain (undefined), and one that interrupts the
  *   paragraph (and closed the quote) is read the same way after the blank line (`keep`).
  */
@@ -1305,12 +1297,7 @@ export const afterHtmlBlock = (line: string, nextLine: string | undefined, marke
   if (marker === undefined) {
     return freshLineChange(line, nextLine);
   }
-  let indent = 0;
-  while (isSpaceOrTab(line[indent])) {
-    indent++;
-  }
-  const width = indentWidth(line.slice(0, indent));
-  const t = line.slice(indent);
+  const { indent, width, text: t } = splitIndent(line);
   if (width <= 3 && t[0] === '>') {
     let from = indent + 1;
     if (line[from] === ' ') {
@@ -1326,14 +1313,17 @@ export const afterHtmlBlock = (line: string, nextLine: string | undefined, marke
     if (line[indent + 1] === '\t' || i === line.length) {
       return undefined;
     }
-    const change = freshLineChange(line.slice(from), undefined);
+    // The next line is read in the quote as N is (a table's delimiter row after N makes N a header row).
+    const change = freshLineChange(line.slice(from), nextLine === undefined ? undefined : quoteContent(nextLine));
     return change === undefined || change === 'keep' ? change : { start: from + change.start, end: from + change.end, insert: change.insert };
   }
   if (t === '') {
     return undefined;
   }
   if (!mayStartBlock(t[0])) {
-    return width <= 3 ? { start: 0, end: indent, insert: `${marker} ` } : undefined;
+    // In the quote, N followed by a delimiter row would start a table: not certain.
+    const table = nextLine !== undefined && isDelimiterRow(quoteContent(nextLine));
+    return width <= 3 && !table ? { start: 0, end: indent, insert: `${marker} ` } : undefined;
   }
   const block = blockAt(t, true, true);
   return width > 3 || block.type === 'none' || block.type === 'uncertain' ? undefined : 'keep';

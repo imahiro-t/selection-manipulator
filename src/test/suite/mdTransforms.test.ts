@@ -1487,8 +1487,9 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-004', 'foo\n2. x\n*', { ranges: [span(0, 3)] }), '- foo\n2\\. x\n\\*');
       assert.strictEqual(run('MD-006', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '- [ ] foo\n2\\. x\n3\\. y');
       assert.strictEqual(run('MD-005', 'foo\n2. x\nbar', { ranges: [span(0, 3)] }), '1. foo\n2\\. x\nbar');
-      // A line that needs no backslash before the one that does (N itself unchanged).
-      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n2. x', [span(0, 3)]), ['- foo\nbar\n2\\. x', [[0, 12]]]);
+      // A line that needs no backslash before the one that does (N itself unchanged). The backslash
+      // is an edit of its own: the selection selects its result only, not the lines after it.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n2. x', [span(0, 3)]), ['- foo\nbar\n2\\. x', [[0, 5]]]);
       assert.strictEqual(run('MD-004', 'foo\nbar\n*', { ranges: [span(0, 3)] }), '- foo\nbar\n\\*');
       assert.strictEqual(run('MD-005', 'foo\nbar\nbaz\n2. x', { ranges: [span(0, 3)] }), '1. foo\nbar\nbaz\n2\\. x');
       assert.strictEqual(run('MD-006', 'foo\nbar\n2. x', { ranges: [span(0, 3)] }), '- [ ] foo\nbar\n2\\. x');
@@ -1503,8 +1504,8 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-015', 'foo\nbar\n    - x', { ranges: [span(0, 3)] }), '> foo\nbar\n    - x');
       // Selected with the line break, CRLF and a lone CR.
       assert.strictEqual(run('MD-004', 'foo\nbar\n2. x', { ranges: [span(0, 4)] }), '- foo\nbar\n2\\. x');
-      assert.deepStrictEqual(outcome('MD-004', 'foo\r\nbar\r\n2. x', [span(0, 3)], '\r\n'), ['- foo\r\nbar\r\n2\\. x', [[0, 14]]]);
-      assert.deepStrictEqual(outcome('MD-004', 'foo\rbar\r2. x', [span(0, 3)]), ['- foo\rbar\r2\\. x', [[0, 12]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\r\nbar\r\n2. x', [span(0, 3)], '\r\n'), ['- foo\r\nbar\r\n2\\. x', [[0, 5]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\rbar\r2. x', [span(0, 3)]), ['- foo\rbar\r2\\. x', [[0, 5]]]);
       // The end of the paragraph: a blank line, or a block that interrupted it and still does after
       // the item written (a list item at the start of the line goes on with the list written, as it did).
       assert.strictEqual(run('MD-015', 'foo\n2. x\nbar\n\n3. y', { ranges: [span(0, 3)] }), '> foo\n2\\. x\nbar\n\n3. y');
@@ -1530,15 +1531,29 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
     });
 
     test('MD-004..006, MD-015: selections and cursors in the lines taken (SELEC-00151 condition 1)', () => {
-      // A cursor in the rest of L or in N up to N's own edit moves to the end of the edit.
-      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 18], [18, 18]]]);
-      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 18], [18, 18]]]);
-      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\nbar\n3\\. y', [[0, 12], [12, 12]]]);
-      // A cursor further on (it would jump lines away): as before.
-      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(9, 9)]), ['- foo\n2. x\nbar\n3. y', [[0, 5], [11, 11]]]);
-      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\nbar\n3. y', [[0, 5], [7, 7]]]);
+      // N's backslash is in the edit of the selection (as since SELEC-00150): a cursor in the rest of
+      // L or in N up to N's own edit moves to the end of that edit, and the selection selects up to it.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 8], [8, 8]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 8], [8, 8]]]);
+      // The later lines' backslashes are edits of their own: no cursor jumps lines away, and the
+      // selection does not reach into lines the user did not select (code review of SELEC-00151).
+      // A cursor after the selection when N is unchanged stays where it is.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\nbar\n3\\. y', [[0, 5], [6, 6]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(3, 3)]), ['- foo\nbar\n3\\. y', [[0, 5], [5, 5]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\nbaz\nqux\n2. x', [span(0, 3), span(4, 4)]), ['- foo\nbar\nbaz\nqux\n2\\. x', [[0, 5], [6, 6]]]);
+      // A cursor in a later line keeps its place in its text (before a backslash inserted where it is).
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(9, 9)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 8], [12, 12]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\nbar\n3\\. y', [[0, 5], [7, 7]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(8, 8), span(9, 9), span(10, 10)]),
+        ['- foo\nbar\n3\\. y', [[0, 5], [10, 10], [11, 11], [13, 13]]]);
+      assert.deepStrictEqual(outcome('MD-005', 'foo\nbar\n10. x', [span(0, 3), span(9, 9)]), ['1. foo\nbar\n10\\. x', [[0, 6], [12, 12]]]);
+      // CRLF: the same.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\r\nbar\r\n3. y', [span(0, 3), span(6, 6)], '\r\n'), ['- foo\r\nbar\r\n3\\. y', [[0, 5], [8, 8]]]);
       // A non-empty selection in what would be taken: as before (the later selection makes its own edit).
       assert.strictEqual(run('MD-004', 'foo\n2. x\nbar\n3. y', { ranges: [span(0, 3), span(9, 12)] }), '- foo\n2. x\n- bar\n3\\. y');
+      // A non-empty selection after the paragraph: both edits are made, in order.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n2. x\n\nbaz\nq\n3. y', [span(0, 3), span(14, 17)]),
+        ['- foo\nbar\n2\\. x\n\n- baz\nq\n3\\. y', [[0, 5], [17, 22]]]);
     });
 
     test('MD-004..006, MD-015: the list written next to a list after a blank line, and L in a list item (SELEC-00151, item 7)', () => {
@@ -1728,6 +1743,14 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(html('> foo\n    bar', 2, 5), '> <p>foo</p>\n    bar');
       assert.strictEqual(html('> foo\n#x', 2, 5), '> <p>foo</p>\n#x');
       assert.strictEqual(html('> foo **a\nb** c\n> bar', 2, 13), '> <p>foo <strong>a\nb</strong></p> c\n> bar');
+      // N followed by a table's delimiter row would be a table's header row after the blank line:
+      // left as before, in a quote as at the top level (the next line is read after its `>` too).
+      assert.strictEqual(html('> foo\n> a | b\n> --|--', 2, 5), '> <p>foo</p>\n> a | b\n> --|--');
+      assert.strictEqual(html('> foo\n>a | b\n>--|--', 2, 5), '> <p>foo</p>\n>a | b\n>--|--');
+      assert.strictEqual(html('> foo\na | b\n> --|--', 2, 5), '> <p>foo</p>\na | b\n> --|--');
+      assert.strictEqual(html('> foo\na | b\n--|--', 2, 5), '> <p>foo</p>\na | b\n--|--');
+      // A next line that is no delimiter row does not change anything.
+      assert.strictEqual(html('> foo\n> a | b\n> c', 2, 5), '> <p>foo</p>\n>\n> a | b\n> c');
     });
 
     test('MD-019: what is left as before (condition 2)', () => {
@@ -1749,6 +1772,21 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(html('foo\n    <div>', 0, 3), '<p>foo</p>\n    <div>');
       assert.strictEqual(html('foo\n<custom>', 0, 3), '<p>foo</p>\n<custom>');
       assert.strictEqual(html('foo\n[x]: /u', 0, 3), '<p>foo</p>\n[x]: /u');
+      // A table's delimiter row after N (N would be its header row), at the top level.
+      assert.strictEqual(html('foo\na | b\n--|--', 0, 3), '<p>foo</p>\na | b\n--|--');
+    });
+
+    test('MD-019: the paragraph goes on to a setext underline after N (code review of SELEC-00151)', () => {
+      const html = (text: string, start: number, end: number): string => run('MD-019', text, { ranges: [span(start, end)] });
+      // The paragraph was a heading as a whole (`foo bar`, an h2). It is split in any case, and its rest
+      // stays that heading (`bar`, an h2): closer to how it was shown than raw HTML text in the block
+      // (`<p>foo</p>\nbar\n---` before). Unlike MD-004..006/015 and MD-023, which leave a setext
+      // heading as before, since they do not split the paragraph.
+      assert.strictEqual(html('foo\nbar\n---', 0, 3), '<p>foo</p>\n\nbar\n---');
+      assert.strictEqual(html('foo\nbar\nbaz\n===', 0, 3), '<p>foo</p>\n\nbar\nbaz\n===');
+      assert.strictEqual(html('> foo\n> bar\n> ---', 2, 5), '> <p>foo</p>\n>\n> bar\n> ---');
+      // N itself the underline: as before.
+      assert.strictEqual(html('foo\n---', 0, 3), '<p>foo</p>\n---');
     });
 
     test('MD-023: the definitions go after the end of the paragraph (condition 5)', () => {

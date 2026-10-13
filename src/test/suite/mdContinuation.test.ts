@@ -438,6 +438,13 @@ suite('Markdown paragraph continuation lines (mdContinuation, SELEC-00150) Test 
     assert.strictEqual(after('>bar', '>'), 'keep');
     assert.strictEqual(after('  > bar', '  >'), 'keep');
     assert.strictEqual(after('>', '>'), undefined);
+    // The next line: a table's delimiter row after N makes N a header row (not certain), read after
+    // its `>` in a quote as at the top level.
+    assert.strictEqual(afterHtmlBlock('a | b', '--|--', undefined), undefined);
+    assert.strictEqual(afterHtmlBlock('> a | b', '> --|--', '>'), undefined);
+    assert.strictEqual(afterHtmlBlock('>a | b', '>--|--', '>'), undefined);
+    assert.strictEqual(afterHtmlBlock('a | b', '> --|--', '>'), undefined);
+    assert.strictEqual(afterHtmlBlock('> a | b', '> c', '>'), 'keep');
     assert.strictEqual(after('>\tbar', '>'), undefined);
     assert.strictEqual(after('>  \tbar', '>'), undefined);
     assert.strictEqual(after('bar', '>'), '> bar');

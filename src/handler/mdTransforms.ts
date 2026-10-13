@@ -145,17 +145,42 @@ export const assertOutputLength = (length: number): void => {
 
 /**
  * Replaces the text of each selection with `replacements[i]` (`undefined` = leave it) in one edit;
- * the replaced selections then select their new text.
+ * the replaced selections then select their new text. `later` are more edits in the same step (in
+ * order, none of them in a selection's edit nor in a non-empty selection): a cursor keeps its place
+ * in the text around them, stays before an insertion right where it is, and moves to the end of one
+ * that replaces text around it.
  */
-export const replaceSelections = (text: string, ranges: readonly MdRange[], replacements: readonly (string | undefined)[]): MdResult => {
+export const replaceSelections = (
+  text: string,
+  ranges: readonly MdRange[],
+  replacements: readonly (string | undefined)[],
+  later: readonly MdEdit[] = [],
+): MdResult => {
   const edits: MdEdit[] = [];
   const after: MdRange[] = [];
   let shift = 0;
   let total = 0;
+  let next = 0;
+  // Makes the edits of `later` that start before `offset`, and returns where a cursor at `offset` goes.
+  const passLater = (offset: number): number => {
+    let moved = offset;
+    while (next < later.length && later[next].start < offset) {
+      const edit = later[next++];
+      edits.push(edit);
+      total += edit.text.length;
+      shift += edit.text.length - (edit.end - edit.start);
+      if (edit.end > offset) {
+        moved = edit.end;
+      }
+    }
+    return moved;
+  };
   ranges.forEach((range, i) => {
+    const at = passLater(range.start);
     const value = replacements[i];
     if (value === undefined || value === text.slice(range.start, range.end)) {
-      after.push({ start: range.start + shift, end: range.end + shift, reversed: range.reversed });
+      const end = at === range.start ? range.end : at;
+      after.push({ start: at + shift, end: end + shift, reversed: range.reversed });
       return;
     }
     total += value.length;
@@ -164,6 +189,7 @@ export const replaceSelections = (text: string, ranges: readonly MdRange[], repl
     after.push({ start, end: start + value.length });
     shift += value.length - (range.end - range.start);
   });
+  passLater(Number.POSITIVE_INFINITY);
   if (edits.length === 0) {
     return UNCHANGED;
   }
@@ -388,8 +414,10 @@ const lastLineOf = (value: string): string => {
  * that would now start a block get one backslash: a list item less indented than the item's content
  * (`foo⏎bar⏎2. x` → `- foo⏎bar⏎2\. x`, where `2. x` started a new list before), and a text that
  * interrupts a paragraph indented as far as the content (by 3 columns or less from there: `    - x`
- * a nested list, `    # x`, `    ---`…). The edit then runs from the end of the selection up to the
- * last backslash, with the text between kept as it is (one edit per selection). The paragraph is left
+ * a nested list, `    # x`, `    ---`…). N's backslash goes into the edit of the selection (which
+ * then runs up to it, as after a heading), and each later line's backslash is an edit of its own
+ * that only inserts it, outside the selection: the selection selects its result and N's change (as
+ * since SELEC-00150), not the later lines, and the text and cursors between are left in place. The paragraph is left
  * as before as a whole when one of its lines cannot be kept shown the same way (a fence or an HTML
  * block in the item's content) or is not certain, and when the line that ends it would be read
  * differently after the line written: a `>` line after a quote (the quote would take it in), a
@@ -410,10 +438,12 @@ const lastLineOf = (value: string): string => {
  * of the paragraph would have to be read against both the user's container and the line written.
  *
  * As with the others, N is left as before when it is not certainly a continuation line or cannot be
- * kept a paragraph shown the same way, and when a non-empty selection starts in what would be taken
- * or where the edit would end. A cursor in the rest of L or in N up to N's own edit moves to the end
- * of the edit; a cursor further on (in a later line of the paragraph, or in N past its edit when only
- * later lines are changed) leaves the paragraph as before, so that no cursor jumps lines away.
+ * kept a paragraph shown the same way, and the paragraph when a non-empty selection starts in what
+ * would be taken or changed (up to the last backslash: it would make its own edit there). A cursor
+ * in the rest of L or in N up to N's own edit moves to the end of that edit (into N, the line right
+ * after the selection, as since SELEC-00150); when N is not changed, nothing after the selection is
+ * taken into its edit and such a cursor stays. A cursor in a later line keeps its place in its
+ * text, before a backslash inserted where it is, so that no cursor jumps lines away.
  */
 const writtenLineTail: SelectionTail = (text, ranges, i, replacement, eol, continuations) => {
   const last = lastLineOf(replacement);
@@ -437,40 +467,49 @@ const writtenLineTail: SelectionTail = (text, ranges, i, replacement, eol, conti
   if (found === undefined || found.container.kind !== 'top') {
     return undefined;
   }
-  let edits: { start: number; end: number; insert: string }[];
-  let cursorLimit: number;
   if (written.kind === 'block') {
     const edit = writtenLineEdit(written, found, lines.restOfLine(after.n, found.body));
     if (edit === undefined) {
       return undefined;
     }
     // The indentation is taken: the edit replaces everything from the end of the selection.
-    edits = [{ start: end, end: found.body + edit.at, insert: (after.inside ? eol : '') + edit.insert }];
-    cursorLimit = found.body + edit.at;
-  } else {
-    const later = lines.writtenEdits(after.n, written);
-    if (later === undefined || later.length === 0) {
+    const editEnd = found.body + edit.at;
+    for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
+      if (!isCursor(ranges[k])) {
+        return undefined;
+      }
+    }
+    return { end: editEnd, text: (after.inside ? eol : '') + edit.insert };
+  }
+  const edits = lines.writtenEdits(after.n, written);
+  if (edits === undefined || edits.length === 0) {
+    return undefined;
+  }
+  // A later selection in the lines changed would make its own edit there: as before.
+  const lastEnd = edits[edits.length - 1].end;
+  for (let k = i + 1; k < ranges.length && ranges[k].start <= lastEnd; k++) {
+    if (!isCursor(ranges[k])) {
       return undefined;
     }
-    edits = later;
-    cursorLimit = later[0].line === after.n ? later[0].end : found.body;
   }
-  const editEnd = edits[edits.length - 1].end;
-  for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
-    if (!isCursor(ranges[k]) || ranges[k].start > cursorLimit) {
-      return undefined;
-    }
-  }
-  let out = '';
-  let position = end;
-  for (const edit of edits) {
-    out += text.slice(position, edit.start) + edit.insert;
-    position = edit.end;
-  }
-  return { end: editEnd, text: out };
+  // N's own change goes into the edit of the selection (as since SELEC-00150), the later lines'
+  // backslashes are edits of their own, each only inserting its backslash.
+  const own = edits[0].line === after.n ? edits[0] : undefined;
+  const later = (own === undefined ? edits : edits.slice(1)).map(({ start, end: editEnd, insert }): MdEdit => {
+    const kept = text.slice(start, editEnd);
+    return insert.startsWith(kept) ? { start: editEnd, end: editEnd, text: insert.slice(kept.length) } : { start, end: editEnd, text: insert };
+  });
+  return own === undefined
+    ? { end, text: '', later }
+    : { end: own.end, text: text.slice(end, own.start) + own.insert, later };
 };
 
-/** What a command writes after a selection's result to keep the next line read as before (`perSelection`). */
+/**
+ * What a command writes after a selection's result to keep the next line read as before
+ * (`perSelection`): the edit of the selection then runs up to `end` and has `text` after the result,
+ * and `later` (in order, after `end` and before the next non-empty selection) are edits of their own
+ * further on, which the selection does not select.
+ */
 type SelectionTail = (
   text: string,
   ranges: readonly MdRange[],
@@ -478,7 +517,7 @@ type SelectionTail = (
   replacement: string,
   eol: MdEol,
   continuations: () => ContinuationLines,
-) => { end: number; text: string } | undefined;
+) => { end: number; text: string; later?: MdEdit[] } | undefined;
 
 /**
  * MD-019 (SELEC-00151): what the edit of `ranges[i]` (`replacement` its HTML) takes after it, so
@@ -489,7 +528,13 @@ type SelectionTail = (
  * is kept read as before after it (`afterHtmlBlock`): a continuation line of the paragraph becomes a
  * paragraph of its own (so the paragraph the selection ended in is split in two there: `foo⏎bar` →
  * `<p>foo</p>⏎⏎bar`), losing 4 columns or more of indentation and getting a backslash where its text
- * would start a block (`2\. x`); a block that interrupted the paragraph is left as it is.
+ * would start a block (`2\. x`); a block that interrupted the paragraph is left as it is. When the
+ * paragraph goes on after N up to a setext underline (`foo⏎bar⏎---`, a heading as a whole), the part
+ * after the blank line is that heading still (`<p>foo</p>⏎⏎bar⏎---`, `bar` an h2): the paragraph is
+ * split in any case, and its rest shown as a heading as the whole was is closer to how it was shown
+ * than its lines as raw HTML text in the block. (MD-004..006, MD-015 and MD-023 leave a setext
+ * heading as before instead: there the paragraph is not split, and the heading would be lost or
+ * moved.) N itself a setext underline is left as before (`freshLineChange`).
  *
  * This is done only when all of these hold, and otherwise the HTML is written as before:
  * - The selection ends a line L part way (with only spaces and tabs after it on L) or right after
@@ -618,6 +663,8 @@ export const perSelection = (
   // once, when the next non-empty selection is done, so that this stays linear.
   const pending: number[] = [];
   const edited: MdRange[] = [];
+  // The edits of the later lines of paragraphs (`writtenLineTail`), apart from the selections'.
+  const later: MdEdit[] = [];
   const replacements = ranges.map((range, i) => {
     edited.push(range);
     if (range.start === range.end) {
@@ -642,7 +689,7 @@ export const perSelection = (
       edges = { textBefore, textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end), indentBefore, indentTaken };
     }
     let replacement = transform(value, eol, inputs, edges);
-    let tail: { end: number; text: string } | undefined;
+    let tail: { end: number; text: string; later?: MdEdit[] } | undefined;
     if (replacement !== value) {
       total += replacement.length;
       assertOutputLength(total);
@@ -670,6 +717,10 @@ export const perSelection = (
         edited[i] = { start: edited[i].start, end: tail.end, reversed: range.reversed };
         replacement += tail.text;
         total += tail.text.length;
+        for (const edit of tail.later ?? []) {
+          later.push(edit);
+          total += edit.text.length;
+        }
         assertOutputLength(total);
       }
     }
@@ -685,7 +736,7 @@ export const perSelection = (
     indentFloor = edited[i].end;
     return replacement;
   });
-  return replaceSelections(text, edited, replacements);
+  return replaceSelections(text, edited, replacements, later);
 };
 
 /** Applies `transform` to the lines of `value` (one trailing line break kept as it is). */
