@@ -1,16 +1,24 @@
-import { EndOfLine, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
-import { applyEdit, ensureEditorAfterInput } from '../editGuard';
+import { QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
-import { assertJaInputLength, isBlank, JaInputError, JaLimitError, JaNoTargetError } from './jaCommon';
+import {
+  documentEol,
+  InfoCommandNotifier,
+  logUnexpectedFailure,
+  nonBlankSelections,
+  NOT_CHANGED,
+  NOT_SHOWN,
+  Replacement,
+  replaceChangedSelections,
+  selectionLabel,
+} from './commandCommon';
+import { assertJaInputLength, JaInputError, JaLimitError, JaNoTargetError } from './jaCommon';
 import { JA_COMMAND_ENTRIES, JaCommandEntry, JaContext, JaQuickPickItem } from './jaTransforms';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
+import { assertTotalOutput } from './textCommon';
 
 /** How the handlers tell the user what happened. */
-export interface JaNotifier {
-  showInformationMessage(message: string): Thenable<unknown>;
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type JaNotifier = InfoCommandNotifier;
 
 /** A quick pick item that carries the value of its JaQuickPickItem. */
 export interface JaPickItem extends QuickPickItem {
@@ -45,8 +53,6 @@ class JaTooManyRangesError extends JaInputError {
   }
 }
 
-const NOT_CHANGED = 'The selection was not changed: ';
-const NOT_SHOWN = 'No result was shown: ';
 const NOT_SELECTED = 'Nothing was selected: ';
 
 const prefixOf = (entry: JaCommandEntry): string => {
@@ -60,17 +66,8 @@ const prefixOf = (entry: JaCommandEntry): string => {
   }
 };
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
-/**
- * The selections to work on, in document order: empty selections and selections of only spaces,
- * tabs and line breaks are skipped.
- */
-const targetSelections = (textEditor: TextEditor): Selection[] =>
-  textEditor.selections
-    .filter((selection) => !selection.isEmpty && !isBlank(textEditor.document.getText(selection)))
-    .sort((a, b) => a.start.compareTo(b.start));
+/** The selections to work on (see `nonBlankSelections`). */
+const targetSelections = nonBlankSelections;
 
 const isExpected = (error: unknown): boolean => error instanceof JaInputError || error instanceof EncOutputTooLargeError;
 
@@ -79,14 +76,9 @@ const isExpected = (error: unknown): boolean => error instanceof JaInputError ||
  * the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  if (isExpected(error)) {
-    return;
+  if (!isExpected(error)) {
+    logUnexpectedFailure('a Japanese text command', error);
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a Japanese text command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */
@@ -113,7 +105,7 @@ const notifyFailure = (dependencies: JaDependencies, prefix: string, error: unkn
     void dependencies.notifier.showWarningMessage(`${prefix}${error.message}. Select less text.`);
     return;
   }
-  const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
+  const where = position !== undefined ? selectionLabel(position.index, position.count) : '';
   // A limit of a JAUNIX command: a warning (JaLimitError is a JaInputError, so this comes first).
   if (error instanceof JaLimitError) {
     void dependencies.notifier.showWarningMessage(`${prefix}${where}${error.message}`);
@@ -122,11 +114,7 @@ const notifyFailure = (dependencies: JaDependencies, prefix: string, error: unkn
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
 
-interface Converted {
-  selection: Selection;
-  text: string;
-  result: string;
-}
+type Converted = Replacement;
 
 /**
  * Converts every selection (in document order) with the transform of the command. Each selection
@@ -151,9 +139,7 @@ const convertSelections = (
       const used = total + (index > 0 ? separatorLength : 0);
       const result = transform(texts[index], context, MAX_OUTPUT_LENGTH - used);
       total = used + result.length;
-      if (total > MAX_OUTPUT_LENGTH) {
-        throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
-      }
+      assertTotalOutput(total);
       results.push({ selection, text: texts[index], result });
     }
   } catch (error) {
@@ -255,12 +241,7 @@ const applyTransform = async (
     await dependencies.openResult(results.map(({ result }) => result).join(eol));
     return;
   }
-  const replacements = results.filter(({ text, result }) => text !== result);
-  if (replacements.length > 0) {
-    await applyEdit(textEditor, (editBuilder) => {
-      replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    }, { notifier: dependencies.notifier });
-  }
+  await replaceChangedSelections(textEditor, results, dependencies.notifier);
 };
 
 const pickItems = (items: readonly JaQuickPickItem[]): JaPickItem[] =>

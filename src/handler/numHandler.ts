@@ -1,15 +1,23 @@
-import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
-import { applyEdit, ensureEditorAfterInput } from '../editGuard';
+import { InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
+import {
+  CommandNotifier,
+  documentEol,
+  logUnexpectedFailure,
+  nonBlankSelections,
+  NOT_CHANGED,
+  NOT_SHOWN,
+  replaceChangedSelections,
+  selectionLabel,
+} from './commandCommon';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
-import { assertNumInputLength, findNumPromptProblem, isBlank, NumInputError, NumLimitError, NumNoNumbersError } from './numCommon';
+import { assertNumInputLength, findNumPromptProblem, NumInputError, NumLimitError, NumNoNumbersError } from './numCommon';
+import { assertTotalOutput } from './textCommon';
 import { NUM_COMMAND_ENTRIES, NumCommandEntry, NumPrompt, NumRun } from './numTransforms';
 
 /** How the handlers tell the user why nothing was changed or shown. */
-export interface NumNotifier {
-  showWarningMessage(message: string): Thenable<unknown>;
-  showErrorMessage(message: string): Thenable<unknown>;
-}
+export type NumNotifier = CommandNotifier;
 
 /** What the handlers need from VS Code; replaced in tests. */
 export interface NumDependencies {
@@ -27,22 +35,11 @@ export const defaultNumDependencies: NumDependencies = {
 };
 
 export const NUM_NOTHING_SELECTED = 'Select the numbers to use.';
-const NOT_CHANGED = 'The selection was not changed: ';
-const NOT_SHOWN = 'No result was shown: ';
 
 const prefixOf = (entry: NumCommandEntry): string => (entry.output === 'new-tab' ? NOT_SHOWN : NOT_CHANGED);
 
-const documentEol = (textEditor: TextEditor): string =>
-  textEditor.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
-
-/**
- * The selections to work on, in document order: empty selections and selections of only spaces,
- * tabs and line breaks are skipped.
- */
-const targetSelections = (textEditor: TextEditor): Selection[] =>
-  textEditor.selections
-    .filter((selection) => !selection.isEmpty && !isBlank(textEditor.document.getText(selection)))
-    .sort((a, b) => a.start.compareTo(b.start));
+/** The selections to work on (see `nonBlankSelections`). */
+const targetSelections = nonBlankSelections;
 
 const entryOf = (entries: readonly NumCommandEntry[], name: string): NumCommandEntry => {
   const entry = entries.find((candidate) => candidate.name === name);
@@ -67,14 +64,9 @@ const isExpected = (error: unknown): boolean => error instanceof NumInputError |
  * the error name and the stack frames, never the message, which may quote the selected text.
  */
 const logUnexpected = (error: unknown): void => {
-  if (isExpected(error)) {
-    return;
+  if (!isExpected(error)) {
+    logUnexpectedFailure('a number command', error);
   }
-  const name = error instanceof Error ? error.name : typeof error;
-  const frames = error instanceof Error && typeof error.stack === 'string'
-    ? error.stack.split('\n').filter((line) => /^\s+at /.test(line)).join('\n')
-    : '';
-  console.error(`Selection Manipulator: a number command failed unexpectedly (${name})${frames === '' ? '' : `\n${frames}`}`);
 };
 
 /** The text of an error: the message of an input error, a fixed text for anything unexpected. */
@@ -100,7 +92,7 @@ const notifyFailure = (dependencies: NumDependencies, prefix: string, error: unk
     void dependencies.notifier.showWarningMessage(`${prefix}${error.message}. Select less text.`);
     return;
   }
-  const where = position !== undefined && position.count > 1 ? `selection ${position.index + 1} of ${position.count}: ` : '';
+  const where = position !== undefined ? selectionLabel(position.index, position.count) : '';
   const message = `${prefix}${where}${reasonOf(error)}`;
   void (error instanceof NumNoNumbersError || error instanceof NumLimitError
     ? dependencies.notifier.showWarningMessage(message)
@@ -134,9 +126,7 @@ const applyTransform = async (
       const used = total + (index > 0 ? separator : 0);
       const result = entry.transform(text, inputs, MAX_OUTPUT_LENGTH - used, run);
       total = used + result.length;
-      if (total > MAX_OUTPUT_LENGTH) {
-        throw new EncOutputTooLargeError(total, MAX_OUTPUT_LENGTH);
-      }
+      assertTotalOutput(total);
       results.push({ selection, text, result });
     }
   } catch (error) {
@@ -147,12 +137,7 @@ const applyTransform = async (
     await dependencies.openResult(results.map(({ result }) => result).join(eol));
     return;
   }
-  const replacements = results.filter(({ text, result }) => text !== result);
-  if (replacements.length > 0) {
-    await applyEdit(textEditor, (editBuilder) => {
-      replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    }, { notifier: dependencies.notifier });
-  }
+  await replaceChangedSelections(textEditor, results, dependencies.notifier);
 };
 
 /**
