@@ -774,3 +774,56 @@ export const escapeLinkText = (text: string): string => {
   }
   return result;
 };
+
+// ---------------------------------------------------------------------------
+// GFM tables
+// ---------------------------------------------------------------------------
+
+/** A cell of a table's delimiter row (`---`, `:--`, `--:`, `:-:`). */
+export const DELIMITER_CELL = /^:?-+:?$/;
+
+/** The cells of a table row: split at `|` that is not escaped and not in a code span, trimmed. */
+export const tableCells = (line: string): string[] => {
+  const row = line.trim();
+  const spans = codeSpans(row);
+  const cells: string[] = [];
+  let start = 0;
+  let span = 0;
+  let endsWithPipe = false;
+  for (let i = 0; i < row.length; i++) {
+    while (span < spans.length && spans[span][1] <= i) {
+      span++;
+    }
+    if (span < spans.length && spans[span][0] <= i) {
+      i = spans[span][1] - 1;
+      continue;
+    }
+    if (row[i] === '\\') {
+      i++;
+    } else if (row[i] === '|') {
+      cells.push(row.slice(start, i));
+      start = i + 1;
+      endsWithPipe = i === row.length - 1;
+    }
+  }
+  cells.push(row.slice(start));
+  if (row.startsWith('|')) {
+    cells.shift();
+  }
+  if (endsWithPipe && cells.length > 0) {
+    cells.pop();
+  }
+  return cells.map((cell) => cell.trim());
+};
+
+/**
+ * Whether `line` is the delimiter row of a GFM table (`| --- | :-: |`): it has a `|`, and every
+ * cell (`tableCells`) is a delimiter cell.
+ */
+export const isDelimiterRow = (line: string): boolean => {
+  if (!line.includes('|')) {
+    return false;
+  }
+  const cells = tableCells(line);
+  return cells.length > 0 && cells.every((cell) => DELIMITER_CELL.test(cell));
+};

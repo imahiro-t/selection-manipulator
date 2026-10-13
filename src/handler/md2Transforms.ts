@@ -14,6 +14,7 @@
 import { formatNumber } from './lineTransforms';
 import {
   codeSpans,
+  DELIMITER_CELL,
   escapeHtml,
   fenceRoles,
   findInlineLinks,
@@ -25,6 +26,7 @@ import {
   splitEdges,
   splitLines,
   splitTrailingBreaks,
+  tableCells,
   trailingBreakOf,
 } from './mdCommon';
 import {
@@ -33,7 +35,6 @@ import {
   balancedParentheses,
   blockProtectedRanges,
   convertibleLinks,
-  DELIMITER_CELL,
   leadingWhitespace,
   LineEdges,
   lineBreakCount,
@@ -48,7 +49,6 @@ import {
   NOT_A_TABLE,
   perSelection,
   replaceSelections,
-  tableCells,
 } from './mdTransforms';
 
 // ---------------------------------------------------------------------------
@@ -505,7 +505,9 @@ export const validateAlertType = (value: string): string | undefined =>
  * type must be one of GITHUB_ALERT_TYPES (checked here too). Like Wrap in Details Block, the
  * block is on lines of its own: a line break is added before it when the selection starts after
  * other text on its line, and a blank line after it when text follows (a quote would otherwise
- * take the next line in).
+ * take the next line in). As with Wrap in Details Block, a paragraph continuation line after a
+ * selection that ends a paragraph line part way is kept a paragraph after that blank line
+ * (`perSelection`, SELEC-00150).
  */
 export const toGithubAlert = (value: string, eol: MdEol, type: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateAlertType, type);

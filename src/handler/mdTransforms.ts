@@ -26,7 +26,11 @@
  *   otherwise continue (MD-003's list, MD-024's HTML block) is followed by a blank line when
  *   text follows it on its line or on the next line, and MD-003's list also has a blank line
  *   before it when text comes before it (MD-014's closing fence and MD-023's definitions end by
- *   themselves).
+ *   themselves). A paragraph continuation line that would then be read differently (as an indented
+ *   code block or a new list after the block or the heading / list item / quote line written in
+ *   place of its paragraph's last line, or as a paragraph of MD-003's last item) is kept a paragraph
+ *   read as before: its indentation is dropped, and a backslash is put before what would start a
+ *   block (SELEC-00150, `mdContinuation.ts`).
  * - The heading and list commands (MD-001..003, 009, 013, 020, 021) leave the lines of fenced
  *   code blocks alone.
  * - The results of all selections together may be at most `MAX_OUTPUT_LENGTH` characters.
@@ -51,13 +55,12 @@ import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import { formatNumber } from './lineTransforms';
 import {
   codeSpans,
+  DELIMITER_CELL,
   escapeHtml,
   escapeLinkText,
   FENCE_LANGUAGE_MAX_LENGTH,
-  FenceRole,
   fenceRoles,
   findInlineLinks,
-  ForwardSearch,
   githubSlug,
   indentWidth,
   InlineLink,
@@ -69,7 +72,6 @@ import {
   isThematicBreak,
   joinLines,
   LineContext,
-  LineSpan,
   lineSpans,
   ListItemLine,
   MdEol,
@@ -80,7 +82,9 @@ import {
   splitEdges,
   splitLines,
   splitTrailingBreaks,
+  tableCells,
 } from './mdCommon';
+import { Continuation, ContinuationLines, writtenLine, writtenLineEdit } from './mdContinuation';
 import { inlineToPlain, parseInline } from './mdInline';
 import { mdToHtml } from './mdToHtml';
 import { trimUrl } from './mselTransforms';
@@ -280,6 +284,160 @@ const splitOffEnd = (text: string, ranges: readonly MdRange[], i: number, end: n
 const isCursor = (range: MdRange): boolean => range.start === range.end;
 
 /**
+ * With `lineEdges` (MD-014, MD-024, JAUNIX-020): what the edit of `ranges[i]` (a changed selection
+ * whose edit ends where it does) takes after the block it writes, so that a paragraph continuation
+ * line N right after the selection stays a paragraph of its own (SELEC-00150), or undefined. The
+ * selection ends a paragraph line L part way (with only spaces and tabs after it on L and text on N),
+ * or right after L's line break with text on N. N would stay right after the closing fence, or after
+ * the blank line that follows `</details>` or the alert, where a continuation line is read
+ * differently when it is indented by 4 columns or more (as an indented code block) or when its text
+ * starts a block that cannot interrupt a paragraph (`2. x`, an empty `*`, as a list). Only then is
+ * the edit taken up to N's text (or past the number of an ordered item), with the rest of L and
+ * L's line break written as one line break, and N gets the backslash `lineContinuation` gives. A
+ * line indented by up to 3 columns that needs no backslash is still a paragraph after the block, so
+ * it is left as it is.
+ *
+ * Where N goes depends on where the block is written. Outside any container (at the start of the
+ * line, after a list or quote marker, or indented by less than the content of L's list item, which
+ * closes the item), N loses all its indentation. In L's list item (the block indented as far as the
+ * item's content or more, `- x⏎⏎··foo⏎······bar`), N keeps the item's content indentation and loses
+ * only what is beyond it (`··bar`), so that it stays a paragraph of the item; a lazy N (less
+ * indented than the content) would leave the item after the block, and a tab that goes past the
+ * content's column cannot be split, so N is left as before then.
+ *
+ * As with MD-003, N is left as before when it is not certainly a continuation line, when it cannot
+ * be kept a paragraph shown the same way (`mdContinuation.ts`), and when a non-empty selection starts
+ * in what would be taken or where the edit would end (a cursor there moves to the end of the edit).
+ * The continuation lines (`continuations`) are made only when the selection ends that way.
+ */
+const continuationTail = (
+  text: string,
+  ranges: readonly MdRange[],
+  i: number,
+  edges: LineEdges,
+  eol: MdEol,
+  continuations: () => ContinuationLines,
+): { end: number; text: string } | undefined => {
+  const end = ranges[i].end;
+  const endsInside = !edges.textAfter && edges.textOnNextLine && endsInsideLine(text, end);
+  const afterBreak = edges.textAfter && end > 0 && isLineBreak(text[end - 1]);
+  if (!endsInside && !afterBreak) {
+    return undefined;
+  }
+  const lines = continuations();
+  const n = lines.lineOf(end) + (endsInside ? 1 : 0);
+  const found = lines.at(n);
+  if (found === undefined) {
+    return undefined;
+  }
+  // The indentation N keeps: the content's when the block is written in L's list item.
+  let keep = '';
+  if (found.container.kind === 'list' && edges.indentBefore !== '' && !edges.indentTaken
+    && indentWidth(edges.indentBefore) >= found.container.content) {
+    const prefix = lines.indentPrefix(n, found.container.content);
+    if (prefix === undefined) {
+      return undefined;
+    }
+    keep = prefix;
+  }
+  if (found.width - indentWidth(keep) < 4 && !found.escaped) {
+    return undefined;
+  }
+  // A non-empty selection that starts in what would be taken or where the edit would end has an
+  // edit of its own there (which takes 4 columns or more of indentation itself).
+  for (let k = i + 1; k < ranges.length && ranges[k].start <= found.end; k++) {
+    if (!isCursor(ranges[k])) {
+      return undefined;
+    }
+  }
+  return { end: found.end, text: (endsInside ? eol : '') + keep + found.insert };
+};
+
+/** The last line of `value` (one line break at its end not counted). */
+const lastLineOf = (value: string): string => {
+  const end = value.length - finalLineBreak(value).length;
+  let start = end;
+  while (start > 0 && !isLineBreak(value[start - 1])) {
+    start--;
+  }
+  return value.slice(start, end);
+};
+
+/**
+ * Without `lineEdges` (MD-001, MD-004..006, MD-015 and the others that write nothing after the
+ * selection): what the edit of `ranges[i]` (a changed selection, `replacement` its result) takes
+ * after it, so that a paragraph continuation line N right after the selection is read as before
+ * (SELEC-00150), or undefined. The selection ends a paragraph line L at the top level part way (with
+ * only spaces and tabs after it on L) or right after L's line break, and the line written in place of
+ * L (what precedes the selection on L, if it starts there, and the last line of `replacement`) is a
+ * heading, a list item or a quote line that changes how N is read (`writtenLine`,
+ * `writtenLineEdit`): after a heading, N gets the same treatment as after MD-014's closing fence (its
+ * indentation is taken, with the rest of L and L's line break written as one line break, and a
+ * backslash is put in when its text would start a block); after a list item or a quote line, N
+ * stays where it is with its indentation, and only the backslash is put in before its list marker,
+ * so that it stays a lazy continuation line of the paragraph; after a list item, N indented as far
+ * as the item's content or further (by 3 columns or less from there) is a line of the item, and a
+ * text that would interrupt the paragraph there (`    - x`, `    # x`, `    ---`…) gets the
+ * backslash in the same way (a fence or an HTML block there is left as before). The lines after N up to the end of the
+ * paragraph are lazy continuation lines as well, so this is done only when none of them starts with
+ * a character that may start a block (`ContinuationLines.restIsPlain`): `foo⏎2. x⏎3. y` and
+ * `foo⏎2. x⏎> y` are left as before, rather than escaping `2. x` alone and leaving `3. y` a new list
+ * (or letting the quote take `> y` in). A later list item after a line that needs no backslash
+ * (`foo⏎bar⏎2. x`) is left as before too: it started a new list before this change already, and
+ * escaping lines further down is left to another ticket. As with the others, N is left as before
+ * when it is not certainly a continuation line or cannot be kept a paragraph shown the same way, and
+ * when a non-empty selection starts in what would be taken or where the edit would end.
+ */
+const writtenLineTail = (
+  text: string,
+  ranges: readonly MdRange[],
+  i: number,
+  replacement: string,
+  eol: MdEol,
+  continuations: () => ContinuationLines,
+): { end: number; text: string } | undefined => {
+  const last = lastLineOf(replacement);
+  // Only a line that may be a heading, a thematic break, a list item or a quote is looked at further.
+  const first = last.trimStart()[0];
+  if (first === undefined || !('#>-+*_'.includes(first) || (first >= '0' && first <= '9'))) {
+    return undefined;
+  }
+  const lines = continuations();
+  const end = ranges[i].end;
+  const after = lines.lineAfter(end);
+  if (after === undefined) {
+    return undefined;
+  }
+  const lineStart = lines.lineStart(after.n - 1);
+  const written = writtenLine((ranges[i].start >= lineStart ? text.slice(lineStart, ranges[i].start) : '') + last);
+  if (written === undefined) {
+    return undefined;
+  }
+  const found = lines.at(after.n);
+  if (found === undefined || found.container.kind !== 'top') {
+    return undefined;
+  }
+  const edit = writtenLineEdit(written, found, lines.restOfLine(after.n, found.body));
+  if (edit === undefined) {
+    return undefined;
+  }
+  const editEnd = found.body + edit.at;
+  // After a list item or a quote line, every later line of the paragraph is a lazy continuation
+  // line too: one that may start a block (`3. y`, which would start a new list as N did, or `> y`,
+  // which would go on with the quote once N no longer ends it) leaves N as before.
+  if (written.kind === 'lazy' && !lines.restIsPlain(after.n + 1)) {
+    return undefined;
+  }
+  for (let k = i + 1; k < ranges.length && ranges[k].start <= editEnd; k++) {
+    if (!isCursor(ranges[k])) {
+      return undefined;
+    }
+  }
+  const between = written.kind === 'block' ? (after.inside ? eol : '') : text.slice(end, found.body);
+  return { end: editEnd, text: between + edit.insert };
+};
+
+/**
  * Runs `transform` on every non-empty selection (with `lineEdges`, it is told what shares the
  * lines of the selection's ends, and the spaces and tabs where it splits a line are taken into
  * the edit; otherwise it gets `NO_LINE_EDGES`). With `lineEdges`, when nothing precedes the
@@ -295,9 +453,13 @@ const isCursor = (range: MdRange): boolean => range.start === range.end;
  * selection are taken up to the next selection, a cursor included, unless what a cursor there
  * would leave at the start of the next line is 4 columns or more: then they are taken past the
  * cursors up to other text, a line break or the next non-empty selection (`splitOffEnd`), and a
- * cursor in them moves to the end of the edit (the start of the text on the next line). The
- * changed results are counted as they are made, so that the output limit stops a run before all of
- * them are built.
+ * cursor in them moves to the end of the edit (the start of the text on the next line). A paragraph
+ * continuation line right after a selection that ends a paragraph line part way is kept a paragraph
+ * read as before (SELEC-00150): with `lineEdges`, after the block written (`continuationTail`);
+ * without, after a heading, list item or quote line written in place of the line
+ * (`writtenLineTail`). A cursor in what is taken then moves to the end of the edit. The changed
+ * results are counted as they are made, so that the output limit stops a run before all of them are
+ * built.
  */
 export const perSelection = (
   transform: SelectionTransform,
@@ -305,6 +467,13 @@ export const perSelection = (
   takeIndent?: (indent: string, value: string) => boolean,
 ) => ({ text, ranges, eol, inputs }: MdContext): MdResult => {
   const lines = lineEdges ? new LineContext(text) : undefined;
+  // The paragraph continuation lines, made only when a selection may end a paragraph line before
+  // one (at most once a run).
+  let continuations: ContinuationLines | undefined;
+  const continuationLines = (): ContinuationLines => {
+    continuations ??= new ContinuationLines(text);
+    return continuations;
+  };
   let total = 0;
   // The end of the previous selection (a cursor included): spaces and tabs split off after other
   // text are not taken from before it.
@@ -339,7 +508,8 @@ export const perSelection = (
         && (indentWidth(indentBefore) >= 4 || (takeIndent !== undefined && takeIndent(indentBefore, value)));
       edges = { textBefore, textAfter: lines.textAfter(range.end), textOnNextLine: lines.textOnNextLine(range.end), indentBefore, indentTaken };
     }
-    const replacement = transform(value, eol, inputs, edges);
+    let replacement = transform(value, eol, inputs, edges);
+    let tail: { end: number; text: string } | undefined;
     if (replacement !== value) {
       total += replacement.length;
       assertOutputLength(total);
@@ -357,6 +527,17 @@ export const perSelection = (
             edited[i] = { start: edited[i].start, end, reversed: range.reversed };
           }
         }
+        if (edited[i].end === range.end) {
+          tail = continuationTail(text, ranges, i, edges, eol, continuationLines);
+        }
+      } else {
+        tail = writtenLineTail(text, ranges, i, replacement, eol, continuationLines);
+      }
+      if (tail !== undefined) {
+        edited[i] = { start: edited[i].start, end: tail.end, reversed: range.reversed };
+        replacement += tail.text;
+        total += tail.text.length;
+        assertOutputLength(total);
       }
     }
     // A cursor inside the indentation taken into the edit moves to the start of the edit.
@@ -527,16 +708,6 @@ const finalLineBreak = (text: string): string =>
   text.endsWith('\r\n') ? '\r\n' : isLineBreak(text[text.length - 1]) ? text[text.length - 1] : '';
 
 /**
- * Whether a line whose text starts with `c` may start a block when it has no indentation (MD-003
- * takes the indentation of a paragraph continuation line after its list only when it does not):
- * an ATX heading (`#`), a list item or a thematic break (`-`, `+`, `*`, `_`, a digit), a block
- * quote (`>`), a code fence (`` ` ``, `~`), an HTML block (`<`), a link reference or footnote
- * definition (`[`), a table (`|`) or a setext underline (`=`). This is wider than the blocks
- * themselves (`#x` starts none): a line left out only keeps its indentation, as before.
- */
-const mayStartBlock = (c: string): boolean => '#-+*_>`~<[|='.includes(c) || (c >= '0' && c <= '9');
-
-/**
  * MD-003: a selection is replaced with the table of contents of the headings in it (a selection
  * without headings is left); a cursor inserts the table of contents of the whole document. The
  * anchors of repeated headings are numbered over the whole document. The list is a block of its
@@ -571,25 +742,36 @@ const mayStartBlock = (c: string): boolean => '#-+*_>`~<[|='.includes(c) || (c >
  *
  * When the list ends a paragraph line L part way (a selection or a cursor that ends inside L with
  * only spaces and tabs after it on L, or that ends right after L's line break), the next line N
- * would stay after the blank line that follows the list. If N is indented by 4 columns or more (a
- * tab counting to the next multiple of 4), it was a continuation line of L's paragraph (such a line
- * cannot interrupt a paragraph), but after the list it would be taken into the last item of the
- * list (or read as code in it). So its indentation is taken into the edit too (with the rest of L
- * and L's line break, which are then written as the blank line after the list), and N starts a new
- * paragraph at the start of its line; a paragraph's first line drops its leading spaces anyway.
- * This is done only when all of these hold, and otherwise the list is written as before:
- * - L is read as a paragraph line: outside fenced code, not blank, indented by at most 3 columns,
- *   and not an ATX heading, a thematic break, a setext underline, a list item or a quote line (on a
- *   line with a list or quote marker, N's indentation would have to be measured from the item's
- *   content, and what follows the marker may not be a paragraph).
- * - The text of N does not start with a character that may start a block at the start of a line
- *   (`mayStartBlock`), so that N is still read as a paragraph without its indentation.
- * - No other selection starts in what is taken (from the end of the selection up to N's text),
- *   except selections of only spaces, tabs and line breaks without a heading: they are left as
- *   cursors at the end of the edit (the start of N's text). A cursor there inserts a list of its
- *   own, and a selection with other text has to stay as it is.
- * The lines and their fence roles are made only when a selection ends that way, at most once, and
- * the line of a selection's end is found by a walk that only moves forward.
+ * would stay after the blank line that follows the list. If N was a continuation line of L's
+ * paragraph, it would then be read differently: indented (by 1 column or more, a tab counting to the
+ * next multiple of 4), as a paragraph of the last item of the list or as code in it; and when its
+ * text starts a block that cannot interrupt a paragraph (`2. x`, an empty `*`), as that block. So N
+ * is kept a paragraph of its own (`mdContinuation.ts`): its indentation is taken into the edit too
+ * (with the rest of L and L's line break, which are then written as the blank line after the list),
+ * so that N starts a new paragraph at the start of its line (a paragraph's first line drops its
+ * leading spaces anyway), and when its text would start a block there (an ATX heading, a thematic
+ * break, a list item or a quote), one backslash is put before the character that starts it (before
+ * the delimiter of an ordered item: `2\. x`), which does not change how it is shown. A line without
+ * indentation is changed only when it needs the backslash. This is done only when all of these
+ * hold, and otherwise the list is written as before:
+ * - L is certainly a paragraph line, at the top level, in a list item or in a quote (not nested),
+ *   outside fenced code and HTML blocks (`ParagraphContext`); a lazy continuation line counts.
+ * - N is a continuation line of L's paragraph (`lineContinuation`): indented by 4 columns or more
+ *   (from the content of L's list item when N is in it), or its text does not start a block that
+ *   interrupts the paragraph, a table or a definition. N with a `>` after a quote line is not.
+ * - N's text can be kept a paragraph shown the same way: not a code fence, an HTML block (any of the
+ *   7 kinds), a link reference or footnote definition, or a line followed by a table delimiter row
+ *   (no escape keeps them as they were shown).
+ * - When L is in a list item or a quote, no line after N up to the end of the paragraph starts with
+ *   a character that may start a block (N's paragraph goes to the top level, and such a line would
+ *   be read differently there).
+ * - No other selection starts in what is taken (from the end of the selection up to N's text, or
+ *   the end of the number escaped), except selections of only spaces, tabs and line breaks without
+ *   a heading: they are left as cursors at the end of the edit. A cursor there inserts a list of its
+ *   own, and a selection with other text has to stay as it is. When a backslash is put in, no other
+ *   selection may start where the edit ends either.
+ * The lines and their paragraph context are made only when a selection ends that way, at most once,
+ * and the line of a selection's end is found by a walk that only moves forward.
  */
 export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol): MdResult => {
   const headings = documentHeadings(text);
@@ -633,62 +815,31 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
   const blankOfSpaces = (range: MdRange): boolean => range.start < range.end && /^[ \t]+$/.test(text.slice(range.start, range.end));
   /** A selection of only spaces, tabs and line breaks (no cursor): it has no heading on a line that is not one. */
   const blankSelection = (range: MdRange): boolean => range.start < range.end && /^[ \t\r\n]*$/.test(text.slice(range.start, range.end));
-  // The lines and their fence roles, made only when a table of contents may take the indentation of
-  // a paragraph continuation line after it; `lineAt` only moves forward (the selections end in order).
-  let spans: LineSpan[] | undefined;
-  let roles: FenceRole[] | undefined;
-  let lineAt = 0;
-  const lineOf = (offset: number, all: readonly LineSpan[]): number => {
-    while (lineAt < all.length - 1 && all[lineAt].next <= offset) {
-      lineAt++;
-    }
-    return lineAt;
-  };
-  /** The last line judged by `paragraphLine` and what it was (the lines judged only move forward). */
-  let judged = -1;
-  let judgedParagraph = false;
-  /** Whether line `k` is read as a paragraph line (see the doc comment for what is left out). */
-  const paragraphLine = (k: number, all: readonly LineSpan[]): boolean => {
-    if (k !== judged) {
-      roles ??= fenceRoles(all.map(({ start, end }) => text.slice(start, end)));
-      const line = text.slice(all[k].start, all[k].end);
-      let indent = 0;
-      while (indent < line.length && isSpaceOrTab(line[indent])) {
-        indent++;
-      }
-      judged = k;
-      judgedParagraph = roles[k] === 'text' && !isBlank(line) && indentWidth(line.slice(0, indent)) <= 3 && parseAtxHeading(line) === undefined
-        && !isThematicBreak(line) && setextLevel(line) === undefined && parseListItem(line) === undefined && !isQuoteLine(line);
-    }
-    return judgedParagraph;
-  };
-  const textStart = new ForwardSearch(text, (c) => !isSpaceOrTab(c));
+  // The paragraph continuation lines, judged only when a table of contents may take one after it.
+  let continuations: ContinuationLines | undefined;
   /**
-   * Where the edit of `ranges[i]` ends when it takes the indentation of the paragraph continuation
-   * line N after its table of contents (the start of N's text), or undefined when it does not. The
-   * selection ends at `end`, inside the line before N (`inside`) or at the start of N.
+   * How the edit of `ranges[i]` takes the paragraph continuation line N after its table of contents
+   * (see the doc comment), or undefined when it does not. The selection ends at `end`, inside the
+   * line before N (`inside`) or at the start of N.
    */
-  const continuationText = (i: number, end: number, inside: boolean): number | undefined => {
-    spans ??= lineSpans(text);
-    const n = lineOf(end, spans) + (inside ? 1 : 0);
-    if (n < 1 || n >= spans.length) {
+  const continuationAfter = (i: number, end: number, inside: boolean): Continuation | undefined => {
+    continuations ??= new ContinuationLines(text);
+    const found = continuations.at(continuations.lineOf(end) + (inside ? 1 : 0));
+    // A line without indentation stays a paragraph after the blank line that follows the list,
+    // unless its text would start a block there.
+    if (found === undefined || (found.width === 0 && !found.escaped)) {
       return undefined;
     }
-    const body = textStart.find(spans[n].start);
-    if (body >= spans[n].end || mayStartBlock(text[body])) {
-      return undefined;
-    }
-    // Only selections of spaces, tabs and line breaks may start in what is taken (each selection is
-    // looked at from the nearest table of contents before it only, so this stays linear).
-    for (let k = i + 1; k < ranges.length && ranges[k].start < body; k++) {
-      if (!blankSelection(ranges[k])) {
+    // Only selections of spaces, tabs and line breaks may start in what is taken, and none where
+    // the edit ends when it puts in a backslash (a cursor there would insert its list after it).
+    // Each selection is looked at from the nearest table of contents before it only, so this
+    // stays linear.
+    for (let k = i + 1; k < ranges.length && ranges[k].start <= found.end; k++) {
+      if (ranges[k].start === found.end ? found.insert !== '' : !blankSelection(ranges[k])) {
         return undefined;
       }
     }
-    if (indentWidth(text.slice(spans[n].start, body)) < 4 || !paragraphLine(n - 1, spans)) {
-      return undefined;
-    }
-    return body;
+    return found;
   };
   let floor = 0;
   /** What was written after the table of contents of the previous selection (undefined when it had none). */
@@ -745,15 +896,18 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
         edited[i] = { start: edited[i].start, end, reversed: range.reversed };
       }
     }
-    // A paragraph continuation line indented by 4 columns or more after the list: its indentation is
-    // taken into the edit (with the rest of the line and the line break before it, if the selection
-    // ends inside that line), so that it is not taken into the list (SELEC-00146).
+    // A paragraph continuation line after the list: its indentation is taken into the edit (with
+    // the rest of the line and the line break before it, if the selection ends inside that line),
+    // and a backslash is put in where its text would start a block, so that it is not taken into
+    // the list and stays a paragraph (SELEC-00146, SELEC-00150).
     const endsInside = textOnNextLine && endsInsideLine(text, range.end);
+    let escape = '';
     if (endsInside || (textAfter && range.end > 0 && isLineBreak(text[range.end - 1]))) {
-      const body = continuationText(i, range.end, endsInside);
-      if (body !== undefined) {
-        edited[i] = { start: edited[i].start, end: body, reversed: range.reversed };
+      const found = continuationAfter(i, range.end, endsInside);
+      if (found !== undefined) {
+        edited[i] = { start: edited[i].start, end: found.end, reversed: range.reversed };
         after = eol + eol;
+        escape = found.insert;
       }
     }
     // The spaces taken into this edit leave the selections of them: they end where the edit starts.
@@ -768,11 +922,11 @@ export const generateToc = (text: string, ranges: readonly MdRange[], eol: MdEol
     if (after === '' && edited[i].end === text.length) {
       after = finalLineBreak(text);
     }
-    total += before.length + toc.length + after.length;
+    total += before.length + toc.length + after.length + escape.length;
     assertOutputLength(total);
     floor = edited[i].end;
     previousAfter = after;
-    return before + toc + after;
+    return before + toc + after + escape;
   });
   if (replacements.every((replacement) => replacement === undefined)) {
     return { kind: 'info', message: MD_NO_HEADINGS };
@@ -1046,6 +1200,11 @@ const indentedBody = (selected: string, edges: LineEdges): { body: string; closi
  *   selection: spaces and tabs selected with the text stay in the block.
  * With nothing before the selection on its line, the selected text is written as it is: the
  * indentation selected with it stays in the block.
+ *
+ * When the selection ends a paragraph line part way, the paragraph's continuation line after it is
+ * kept a paragraph after the closing fence (`perSelection`, SELEC-00150): indented by 4 columns or
+ * more it would be an indented code block, so it loses its indentation, and a text that would start
+ * a block there (`2. x`) gets a backslash.
  */
 export const wrapInCodeFence = (value: string, eol: MdEol, language: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLanguageInput, language);
@@ -1118,6 +1277,10 @@ export const lineBreakCount = (breaks: string): number => (breaks.length === 0 ?
  *   `</details>` start the line, and the indentation all lines with text share (the first line
  *   counted with the indentation before it) is removed from every line, up to the indentation
  *   before the selection: spaces and tabs selected with the text stay in the block.
+ *
+ * As with MD-014, a paragraph continuation line after a selection that ends a paragraph line part
+ * way is kept a paragraph after the blank line that follows `</details>` (`perSelection`,
+ * SELEC-00150).
  */
 export const toDetails = (value: string, eol: MdEol, summary: string, edges: LineEdges = NO_LINE_EDGES): string => {
   assertValid(validateLabelInput, summary);
@@ -1226,42 +1389,6 @@ export const linkifyUrls: SelectionTransform = (value) => {
 // ---------------------------------------------------------------------------
 
 type Alignment = 'none' | 'left' | 'center' | 'right';
-
-export const DELIMITER_CELL = /^:?-+:?$/;
-
-/** The cells of a table row: split at `|` that is not escaped and not in a code span, trimmed. */
-export const tableCells = (line: string): string[] => {
-  const row = line.trim();
-  const spans = codeSpans(row);
-  const cells: string[] = [];
-  let start = 0;
-  let span = 0;
-  let endsWithPipe = false;
-  for (let i = 0; i < row.length; i++) {
-    while (span < spans.length && spans[span][1] <= i) {
-      span++;
-    }
-    if (span < spans.length && spans[span][0] <= i) {
-      i = spans[span][1] - 1;
-      continue;
-    }
-    if (row[i] === '\\') {
-      i++;
-    } else if (row[i] === '|') {
-      cells.push(row.slice(start, i));
-      start = i + 1;
-      endsWithPipe = i === row.length - 1;
-    }
-  }
-  cells.push(row.slice(start));
-  if (row.startsWith('|')) {
-    cells.shift();
-  }
-  if (endsWithPipe && cells.length > 0) {
-    cells.pop();
-  }
-  return cells.map((cell) => cell.trim());
-};
 
 const alignmentOf = (cell: string): Alignment => {
   const left = cell.startsWith(':');
