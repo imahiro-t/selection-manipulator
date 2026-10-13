@@ -223,10 +223,11 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
       assert.deepStrictEqual(outcome('    foo', [{ start: 1, end: 1 }, { start: 3, end: 3 }, { start: 4, end: 7 }]),
         ['> [!NOTE]\n> foo', [[0, 0], [0, 0], [0, 15]]]);
       assert.deepStrictEqual(outcome('\t\tfoo', [{ start: 1, end: 1 }, { start: 2, end: 5 }]), ['> [!NOTE]\n> foo', [[0, 0], [0, 15]]]);
-      // Up to 3 columns stay before the block, with or without a cursor (unchanged), and the cursor stays.
-      assert.deepStrictEqual(outcome('  foo', [{ start: 1, end: 1 }, { start: 2, end: 5 }]), ['  > [!NOTE]\n> foo', [[1, 1], [2, 17]]]);
-      assert.deepStrictEqual(outcome('  foo', [{ start: 2, end: 5 }]), ['  > [!NOTE]\n> foo', [[2, 17]]]);
-      assert.deepStrictEqual(outcome('   a\n   b', [{ start: 1, end: 1 }, { start: 3, end: 9 }]), ['   > [!NOTE]\n> a\n>    b', [[1, 1], [3, 23]]]);
+      // Up to 3 columns stay before the block, with or without a cursor (unchanged), and the cursor
+      // stays. Every line of the alert gets them (SELEC-00151).
+      assert.deepStrictEqual(outcome('  foo', [{ start: 1, end: 1 }, { start: 2, end: 5 }]), ['  > [!NOTE]\n  > foo', [[1, 1], [2, 19]]]);
+      assert.deepStrictEqual(outcome('  foo', [{ start: 2, end: 5 }]), ['  > [!NOTE]\n  > foo', [[2, 19]]]);
+      assert.deepStrictEqual(outcome('   a\n   b', [{ start: 1, end: 1 }, { start: 3, end: 9 }]), ['   > [!NOTE]\n   > a\n   > b', [[1, 1], [3, 26]]]);
       // A cursor in the spaces after other text keeps its place (unchanged).
       assert.deepStrictEqual(outcome('x    foo', [{ start: 3, end: 3 }, { start: 5, end: 8 }]), ['x  \n> [!NOTE]\n> foo', [[3, 3], [3, 19]]]);
     });
@@ -294,12 +295,49 @@ suite('Extended Markdown Transforms (JAUNIX-015..021) Test Suite', () => {
     test('the line before in a list item, with the alert started indented in the item', () => {
       // Before: `      bar` (code) and `  2. x` (a list) after the blank line. The line keeps the
       // item's content indentation and loses only what is beyond it, like after Wrap in Code Fence.
-      // (The alert writes its lines after the first one without the item's indentation, as before
-      // this change: a separate issue, see the implementation notes of SELEC-00150.)
-      assert.deepStrictEqual(outcome('- a\n\n  foo\n      bar', [{ start: 7, end: 10 }]), ['- a\n\n  > [!NOTE]\n> foo\n\n  bar', [[7, 26]]]);
-      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n  2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n> foo\n\n  2\\. x');
+      // (Since SELEC-00151 the lines of the alert after the first get the item's indentation too.)
+      assert.deepStrictEqual(outcome('- a\n\n  foo\n      bar', [{ start: 7, end: 10 }]), ['- a\n\n  > [!NOTE]\n  > foo\n\n  bar', [[7, 28]]]);
+      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n  2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n  > foo\n\n  2\\. x');
       // A lazy line: as before.
-      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n> foo\n\n2. x');
+      assert.strictEqual(run('JAUNIX-020', '- a\n\n  foo\n2. x', ['NOTE'], [{ start: 7, end: 10 }]), '- a\n\n  > [!NOTE]\n  > foo\n\n2. x');
+    });
+  });
+
+  suite('JAUNIX-020: the alert in a list item keeps the item\'s indentation on every line (SELEC-00151)', () => {
+    const outcome = (text: string, ranges: MdRange[], eol: '\n' | '\r\n' = '\n'): [string, number[][]] => {
+      const entry = MD2_COMMAND_ENTRIES.find((candidate) => candidate.id === 'JAUNIX-020');
+      assert.ok(entry);
+      const result = entry.run({ text, ranges, eol, inputs: ['NOTE'] });
+      assert.ok(result.kind === 'edit');
+      return [applied(text, result), result.ranges.map(({ start, end }) => [start, end])];
+    };
+    const alert = (text: string, start: number, end: number): string => run('JAUNIX-020', text, ['NOTE'], [{ start, end }]);
+
+    test('every line gets the indentation before the selection (condition 3)', () => {
+      // Before: `- a\n\n  > [!NOTE]\n> foo\n>   bar`, where the lines after the first left the item.
+      assert.deepStrictEqual(outcome('- a\n\n  foo\n  bar', [{ start: 7, end: 16 }]), ['- a\n\n  > [!NOTE]\n  > foo\n  > bar', [[7, 32]]]);
+      // A blank line in the selection, an ordered item (3 columns), CRLF.
+      assert.strictEqual(alert('- a\n\n  foo\n\n  bar', 7, 17), '- a\n\n  > [!NOTE]\n  > foo\n  >\n  > bar');
+      assert.strictEqual(alert('1. a\n\n   foo\n   bar', 9, 19), '1. a\n\n   > [!NOTE]\n   > foo\n   > bar');
+      assert.strictEqual(run('JAUNIX-020', '- a\r\n\r\n  foo\r\n  bar', ['NOTE'], [{ start: 9, end: 19 }], '\r\n'),
+        '- a\r\n\r\n  > [!NOTE]\r\n  > foo\r\n  > bar');
+      // A later line with less of the indentation (a lazy line) loses what it has of it; more stays after `> `.
+      assert.strictEqual(alert('- a\n\n  foo\nbar', 7, 14), '- a\n\n  > [!NOTE]\n  > foo\n  > bar');
+      assert.strictEqual(alert('- a\n\n  foo\n bar', 7, 15), '- a\n\n  > [!NOTE]\n  > foo\n  > bar');
+      assert.strictEqual(alert('- a\n\n  foo\n    bar', 7, 18), '- a\n\n  > [!NOTE]\n  > foo\n  >   bar');
+      // A continuation line after the alert in the item keeps the item's content indentation (SELEC-00150).
+      assert.strictEqual(alert('- a\n\n  foo\n  bar\n      baz', 7, 16), '- a\n\n  > [!NOTE]\n  > foo\n  > bar\n\n  baz');
+      // A task list item as the line before: the alert is written at the start of the line (after the checkbox).
+      assert.strictEqual(alert('- [ ] foo\n    bar', 6, 9), '- [ ]\n> [!NOTE]\n> foo\n\nbar');
+    });
+
+    test('indentation taken into the edit, or the selection starting after other text: as before (condition 3)', () => {
+      // 4 columns or more (a tab included): the alert starts the line, the later lines lose the indentation.
+      assert.strictEqual(alert('- a\n\n    foo\n    bar', 9, 20), '- a\n\n> [!NOTE]\n> foo\n> bar');
+      assert.strictEqual(alert('- a\n\n\tfoo\n\tbar', 6, 14), '- a\n\n> [!NOTE]\n> foo\n> bar');
+      assert.strictEqual(alert('    foo\n      bar', 4, 17), '> [!NOTE]\n> foo\n>   bar');
+      // Text before the selection on its line: no indentation to keep.
+      assert.strictEqual(alert('- a\n\n  x foo\n  bar', 9, 18), '- a\n\n  x\n> [!NOTE]\n> foo\n>   bar');
     });
   });
 

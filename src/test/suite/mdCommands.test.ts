@@ -189,10 +189,10 @@ suite('Markdown Commands (MD-001..025) Test Suite', () => {
       await run(entryOf('MD-014'), recorder(['js']).dependencies)(fence);
       assert.strictEqual(fence.document.getText(), 'say\n```js\na=1\n```\nnow');
       assert.deepStrictEqual(selectionsOf(fence), [[3, 18]]);
-      const text = 'x [a](u) y [b](v) z\nnext';
+      const text = 'x [a](u) y [b](v) z\n# next';
       const links = await open(text, [[2, 8], [11, 17]]);
       await run(entryOf('MD-023'), recorder().dependencies)(links);
-      assert.strictEqual(links.document.getText(), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\nnext');
+      assert.strictEqual(links.document.getText(), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\n# next');
       assert.deepStrictEqual(selectionsOf(links), [[2, 8], [11, 17]]);
       await undoIn(links);
       assert.strictEqual(links.document.getText(), text, 'one undo restores the text');

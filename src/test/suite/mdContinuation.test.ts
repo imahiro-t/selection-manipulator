@@ -1,14 +1,18 @@
 import * as assert from 'assert';
 import { isDelimiterRow, lineSpans } from '../../handler/mdCommon';
 import {
+  afterHtmlBlock,
   ContinuationLines,
   freshBlock,
+  htmlBlockOpenAfter,
   htmlBlockStart,
   lineContinuation,
   mayStartBlock,
   ParagraphContainer,
   ParagraphContext,
   writtenLine,
+  WrittenLine,
+  writtenLineChange,
   writtenLineEdit,
 } from '../../handler/mdContinuation';
 
@@ -275,6 +279,183 @@ suite('Markdown paragraph continuation lines (mdContinuation, SELEC-00150) Test 
     for (let n = 1; n < 100000; n += 2) {
       // The next line has `>`: a later line of the paragraph that may start a block.
       quoteLines.at(n);
+    }
+    const elapsed = Date.now() - started;
+    assert.ok(elapsed < 3000, `${elapsed} ms`);
+  });
+  test('ParagraphContext: a task list item is judged by the text after its checkbox (SELEC-00151)', () => {
+    assert.deepStrictEqual(contexts('- [ ] foo\n    bar'), ['list:2', 'list:2']);
+    assert.deepStrictEqual(contexts('- [x] foo\n  bar'), ['list:2', 'list:2']);
+    assert.deepStrictEqual(contexts('- [X] foo'), ['list:2']);
+    assert.deepStrictEqual(contexts('1. [ ] foo\n   bar'), ['list:3', 'list:3']);
+    assert.deepStrictEqual(contexts('* [ ]  foo'), ['list:2']);
+    // A tab after the checkbox: the content column depends on the marker and the spaces after it only.
+    assert.deepStrictEqual(contexts('- [ ]\tfoo\n  bar'), ['list:2', 'list:2']);
+    // As before: an empty task item, a text that may start a block after the checkbox, a possible
+    // definition (`[x]:` is no checkbox), a tab after the marker.
+    assert.deepStrictEqual(contexts('- [ ]\n  bar'), ['-', '-']);
+    assert.deepStrictEqual(contexts('- [ ] # x\n  bar'), ['-', '-']);
+    assert.deepStrictEqual(contexts('- [ ] > x'), ['-']);
+    assert.deepStrictEqual(contexts('- [x]: foo\n  bar'), ['-', '-']);
+    assert.deepStrictEqual(contexts('-\t[ ] foo\n  bar'), ['-', '-']);
+    // In a quote or nested: not a container this module judges (as before).
+    assert.deepStrictEqual(contexts('> - [ ] foo\n>   bar'), ['-', '-']);
+  });
+
+  test('writtenLineChange: none, an edit, or unsafe (SELEC-00151)', () => {
+    const change = (written: WrittenLine, line: string) => {
+      const found = lineContinuation(TOP, line);
+      assert.ok(found !== undefined, line);
+      return writtenLineChange(written, found, line.slice(found.body));
+    };
+    const item: WrittenLine = { kind: 'lazy', content: 2 };
+    assert.strictEqual(change(item, 'bar'), 'none');
+    assert.strictEqual(change(item, '    2. x'), 'none');
+    assert.deepStrictEqual(change(item, '2. x'), { at: 1, insert: '2\\' });
+    assert.deepStrictEqual(change(item, '    - x'), { at: 0, insert: '\\' });
+    assert.strictEqual(change({ kind: 'block' }, '  bar'), 'none');
+    assert.deepStrictEqual(change({ kind: 'block' }, '    bar'), { at: 0, insert: '' });
+  });
+
+  test('ContinuationLines.writtenEdits: every later line of the paragraph after a list item or a quote line (SELEC-00151)', () => {
+    /** The lines changed (as `line:insert`) after `written` in place of line 0 of `text`, from line `n`. */
+    const edits = (text: string, written: string, n = 1): string[] | undefined => {
+      const how = writtenLine(written);
+      assert.ok(how !== undefined && how.kind === 'lazy', written);
+      const found = new ContinuationLines(text).writtenEdits(n, how);
+      return found?.map((edit) => `${edit.line}:${text.slice(edit.start, edit.end)}>${edit.insert}`);
+    };
+    assert.deepStrictEqual(edits('foo\nbar\n2. x', '- foo'), ['2:2>2\\']);
+    assert.deepStrictEqual(edits('foo\n2. x\n3. y', '1. foo'), ['1:2>2\\', '2:3>3\\']);
+    assert.deepStrictEqual(edits('foo\nbar\n    - x', '- foo'), ['2:>\\']);
+    assert.deepStrictEqual(edits('foo\nbar', '- foo'), []);
+    assert.deepStrictEqual(edits('foo\n2. x\n\n3. y', '1. foo'), ['1:2>2\\']);
+    // After a quote: a list item at 3 columns or less only; `    - x` stays a lazy continuation line.
+    assert.deepStrictEqual(edits('foo\nbar\n    - x', '> foo'), []);
+    assert.deepStrictEqual(edits('foo\nbar\n  *', '> foo'), ['2:>\\']);
+    // What ends the paragraph would be read differently, or a line cannot be kept: undefined.
+    assert.strictEqual(edits('foo\n2. x\n> y', '> foo'), undefined);
+    assert.strictEqual(edits('foo\n2. x\n===', '- foo'), undefined);
+    assert.strictEqual(edits('foo\n2. x\n  # y', '- foo'), undefined);
+    assert.strictEqual(edits('foo\n2. x\n    ```', '- foo'), undefined);
+    assert.strictEqual(edits('foo\n2. x\nbar | x\n--- | -', '- foo'), undefined);
+    // A block that still interrupts the paragraph after the item written ends it as before.
+    assert.deepStrictEqual(edits('foo\n2. x\n- y', '- foo'), ['1:2>2\\']);
+    assert.deepStrictEqual(edits('foo\n2. x\n> y', '- foo'), ['1:2>2\\']);
+    // A later N in the same paragraph reuses the walk: only the lines from N on.
+    const lines = new ContinuationLines('a\nb\n2. x\nc\n3. y');
+    const item = writtenLine('- a');
+    assert.ok(item !== undefined && item.kind === 'lazy');
+    assert.deepStrictEqual(lines.writtenEdits(1, item)?.map((edit) => edit.line), [2, 4]);
+    assert.deepStrictEqual(lines.writtenEdits(3, item)?.map((edit) => edit.line), [4]);
+    assert.deepStrictEqual(lines.writtenEdits(4, item)?.map((edit) => edit.line), [4]);
+  });
+
+  test('ContinuationLines.topParagraphEnd: where the paragraph of a line ends (SELEC-00151)', () => {
+    const end = (text: string, k: number): number | undefined => new ContinuationLines(text).topParagraphEnd(k);
+    assert.strictEqual(end('foo\nbar\nbaz\n\nq', 0), 11);
+    assert.strictEqual(end('foo\nbar\nbaz\n\nq', 1), 11);
+    assert.strictEqual(end('foo\nbar\n# h', 0), 7);
+    assert.strictEqual(end('foo', 0), 3);
+    assert.strictEqual(end('foo\n<custom>\n[x]: y', 0), 19);
+    // Not a paragraph line at the top level, a setext heading, a table: undefined.
+    assert.strictEqual(end('- foo\n  bar', 0), undefined);
+    assert.strictEqual(end('> foo\n> bar', 0), undefined);
+    assert.strictEqual(end('foo\nbar\n===', 0), undefined);
+    assert.strictEqual(end('foo\nbar | x\n--- | -', 0), undefined);
+    assert.strictEqual(end('# h\nfoo', 0), undefined);
+  });
+
+  test('ContinuationLines.interruptingLine: a one-line block indented by 1 to 3 columns (SELEC-00151)', () => {
+    const at = (text: string): string | undefined => {
+      const found = new ContinuationLines(text).interruptingLine(1);
+      return found === undefined ? undefined : `${found.width}:${text.slice(found.body)}`;
+    };
+    assert.strictEqual(at('foo\n  # x'), '2:# x');
+    assert.strictEqual(at('foo\n # x'), '1:# x');
+    assert.strictEqual(at('foo\n   ***'), '3:***');
+    assert.strictEqual(at('foo\n  - - -'), '2:- - -');
+    assert.strictEqual(at('foo\n  > x'), '2:> x');
+    // Not indented, indented by 4 columns or more, other blocks, a setext underline, not after a
+    // paragraph line at the top level.
+    for (const text of ['foo\n# x', 'foo\n\t# x', 'foo\n  - x', 'foo\n  1. x', 'foo\n  ```', 'foo\n  <div>', 'foo\n  ---', 'foo\n  ===',
+      'foo\n  bar', '- foo\n  # x', '> foo\n  # x', '# A\n  # x']) {
+      assert.strictEqual(at(text), undefined, JSON.stringify(text));
+    }
+  });
+
+  test('ContinuationLines.lazyListAfter: a list item that interrupted a lazy paragraph only as a lazy line (SELEC-00151)', () => {
+    const at = (text: string): string | undefined => {
+      const found = new ContinuationLines(text).lazyListAfter(1);
+      return found === undefined ? undefined : `${found.found.container.kind}:${text.slice(found.before)}`;
+    };
+    assert.strictEqual(at('> foo\nbar\n2. x'), 'quote:2. x');
+    assert.strictEqual(at('> foo\nbar\nbaz\n*'), 'quote:*');
+    assert.strictEqual(at('- foo\nbar\n2. x'), 'list:2. x');
+    assert.strictEqual(at('- foo\n  bar\n2. x'), 'list:2. x');
+    // It would interrupt the paragraph at the top level too, it is in the container, a later line
+    // may start a block, the paragraph ends first, or L is at the top level: undefined.
+    for (const text of ['> foo\nbar\n1. x', '> foo\nbar\n- x', '> foo\nbar\n> 2. x', '- foo\nbar\n  2. x', '> foo\nbar\n#x\n2. x',
+      '> foo\nbar\n\n2. x', '> foo\nbar', 'foo\nbar\n2. x']) {
+      assert.strictEqual(at(text), undefined, JSON.stringify(text));
+    }
+  });
+
+  test('htmlBlockOpenAfter and afterHtmlBlock (MD-019, SELEC-00151)', () => {
+    assert.ok(htmlBlockOpenAfter('<p>foo</p>'));
+    assert.ok(htmlBlockOpenAfter('<h1>a</h1>\n<p>b</p>'));
+    assert.ok(htmlBlockOpenAfter('<ul>\n<li>a</li>\n</ul>'));
+    assert.ok(!htmlBlockOpenAfter('<pre><code>x\n</code></pre>'));
+    assert.ok(htmlBlockOpenAfter('<pre><code>x'));
+    assert.ok(!htmlBlockOpenAfter('<p>a</p>\n'));
+    assert.ok(!htmlBlockOpenAfter('foo'));
+    assert.ok(!htmlBlockOpenAfter('<custom>'));
+    assert.ok(!htmlBlockOpenAfter('    <p>a</p>'));
+    /** N (`line`) after the blank line, as `keep`, the line it becomes, or undefined. */
+    const after = (line: string, marker?: string): string | undefined => {
+      const change = afterHtmlBlock(line, undefined, marker);
+      return change === undefined || change === 'keep' ? change : line.slice(0, change.start) + change.insert + line.slice(change.end);
+    };
+    // At the top level.
+    assert.strictEqual(after('bar'), 'keep');
+    assert.strictEqual(after('  bar'), 'keep');
+    assert.strictEqual(after('    bar'), 'bar');
+    assert.strictEqual(after('2. x'), '2\\. x');
+    assert.strictEqual(after('    - x'), '\\- x');
+    assert.strictEqual(after('# x'), 'keep');
+    assert.strictEqual(after('- x'), 'keep');
+    assert.strictEqual(after('```'), 'keep');
+    assert.strictEqual(after('==='), undefined);
+    assert.strictEqual(after('---'), undefined);
+    assert.strictEqual(after('    <div>'), undefined);
+    assert.strictEqual(after('<custom>'), undefined);
+    assert.strictEqual(after('[x]: /u'), undefined);
+    // In a quote: a line with `>`, and a lazy line.
+    assert.strictEqual(after('> bar', '>'), 'keep');
+    assert.strictEqual(after('>     bar', '>'), '> bar');
+    assert.strictEqual(after('> 2. x', '>'), '> 2\\. x');
+    assert.strictEqual(after('> # x', '>'), 'keep');
+    assert.strictEqual(after('>bar', '>'), 'keep');
+    assert.strictEqual(after('  > bar', '  >'), 'keep');
+    assert.strictEqual(after('>', '>'), undefined);
+    assert.strictEqual(after('>\tbar', '>'), undefined);
+    assert.strictEqual(after('>  \tbar', '>'), undefined);
+    assert.strictEqual(after('bar', '>'), '> bar');
+    assert.strictEqual(after('  bar', '  >'), '  > bar');
+    assert.strictEqual(after('# x', '>'), 'keep');
+    assert.strictEqual(after('2. x', '>'), 'keep');
+    assert.strictEqual(after('    bar', '>'), undefined);
+    assert.strictEqual(after('#x', '>'), undefined);
+  });
+
+  test('ContinuationLines.writtenEdits reads a long paragraph once for many selections (linear)', () => {
+    const text = `foo\n${'bar\n'.repeat(100000)}2. x`;
+    const lines = new ContinuationLines(text);
+    const item = writtenLine('- foo');
+    assert.ok(item !== undefined && item.kind === 'lazy');
+    const started = Date.now();
+    for (let n = 1; n <= 100000; n++) {
+      assert.strictEqual(lines.writtenEdits(n, item)?.length, 1);
     }
     const elapsed = Date.now() - started;
     assert.ok(elapsed < 3000, `${elapsed} ms`);

@@ -1,6 +1,6 @@
 /**
  * Paragraph continuation lines after a block that a Markdown command writes (SELEC-00146,
- * SELEC-00150).
+ * SELEC-00150, SELEC-00151).
  *
  * When MD-003 (table of contents), MD-014 (code fence), MD-024 (details block) or JAUNIX-020
  * (GitHub alert) replaces a selection that ends a paragraph line L part way (or right after L's line
@@ -13,6 +13,13 @@
  * when its text would then start a block, one backslash escape is put before the character that
  * starts it (which does not change how the line is shown). The lines that cannot stay a paragraph
  * shown as before (fences, HTML blocks, link reference definitions, tables) are left as they are.
+ *
+ * SELEC-00151 adds what the same commands need around that line: every later line of the
+ * paragraph after a list item or a quote line written in place of its first line part
+ * (`writtenEdits`), the end of a paragraph (MD-023's definitions, `topParagraphEnd`), a one-line
+ * block indented by 1 to 3 columns and a list item after a lazy paragraph that a table of contents
+ * leaves (`interruptingLine`, `lazyListAfter`), and the line after an HTML block that MD-019 leaves
+ * open (`afterHtmlBlock`, `htmlBlockOpenAfter`).
  *
  * What is judged follows CommonMark 0.31 (and GFM tables). Every form that is not certain is left
  * as it is (as before): nested containers, a list item or quote whose content may start a block,
@@ -387,7 +394,8 @@ type Mode =
  * - fenced code and HTML blocks (each of the 7 kinds up to its own end) at the top level; blank
  *   lines; ATX headings, thematic breaks, setext underlines; tables and what may be a definition;
  * - a list item line whose marker is followed by a tab, by 5 columns or more (indented code) or by
- *   nothing, or whose content may start a block; a quote line followed by a tab, or whose content
+ *   nothing, or whose content may start a block (for a task list item, the text after its
+ *   checkbox: `- [ ] foo` is a paragraph line, `- [ ]` and `- [ ] # x` are not); a quote line followed by a tab, or whose content
  *   is indented code or may start a block; any block that starts inside a list item or a quote
  *   (nested lists and quotes, fences, headings…): from there on, every line up to a line with text
  *   at column 0 after a blank line (which closes every container) is `undefined`.
@@ -610,7 +618,11 @@ export class ParagraphContext {
         return OTHER;
       case 'list': {
         const item = block.item;
-        const content = itemContent(t, item);
+        // A task list item (`- [ ] foo`, SELEC-00151) is judged by the text after its checkbox: the
+        // checkbox is paragraph text (followed by a space, a tab or the end of the line, it is no
+        // definition), and the item's content column depends only on the marker and the spaces
+        // after it. `[x]: foo` has no checkbox and stays a possible definition.
+        const content = item.checkbox === undefined ? itemContent(t, item) : item.rest;
         if (item.spacing.includes('\t') || item.spacing.length >= 5 || isBlank(content) || mayStartBlock(content[0])) {
           return this.unknown();
         }
@@ -741,6 +753,11 @@ export class ContinuationLines {
     return this.spans[k].start;
   }
 
+  /** Where line `k` ends (before its line break). */
+  lineEnd(k: number): number {
+    return this.spans[k].end;
+  }
+
   /** The text of line `k` from `from` (an offset in it) to its end. */
   restOfLine(k: number, from: number): string {
     return this.text.slice(from, this.spans[k].end);
@@ -779,10 +796,9 @@ export class ContinuationLines {
    * indentation. When L is in a list item or a quote, N without its indentation becomes a paragraph
    * at the top level, and the lines after it go with it: a line that was a nested list in the item
    * (`    - x`) or a quote line (`> baz`) would be read differently, so N is left as before then.
-   * After a list item or a quote line written in place of L (`writtenLine`), the lines after N stay
-   * lazy continuation lines of it, where any list item starts a new list and a quote line goes on
-   * with the quote, so N is left as before then too. Asked for with `from` mostly increasing, the
-   * lines are read about once.
+   * (After a list item or a quote line written in place of L, the later lines are looked at one by
+   * one instead: `writtenEdits`, SELEC-00151.) Asked for with `from` mostly increasing, the lines
+   * are read about once.
    */
   restIsPlain(from: number): boolean {
     if (from < this.plainFrom || from > this.plainStop) {
@@ -808,6 +824,15 @@ export class ContinuationLines {
    * `lineContinuation`; when L is in a list item or a quote, also `restIsPlain`).
    */
   at(n: number): Continuation | undefined {
+    const found = this.continuationOf(n);
+    if (found === undefined || (found.container.kind !== 'top' && !this.restIsPlain(n + 1))) {
+      return undefined;
+    }
+    return found;
+  }
+
+  /** `at` without the look at the later lines of the paragraph. */
+  private continuationOf(n: number): Continuation | undefined {
     if (n < 1 || n >= this.spans.length) {
       return undefined;
     }
@@ -815,15 +840,300 @@ export class ContinuationLines {
     if (container === undefined) {
       return undefined;
     }
+    return this.continuationIn(container, n);
+  }
+
+  private continuationIn(container: ParagraphContainer, n: number): Continuation | undefined {
     const next = n + 1 < this.spans.length ? this.lineText(n + 1) : undefined;
     const found = lineContinuation(container, this.lineText(n), next);
-    if (found === undefined || (container.kind !== 'top' && !this.restIsPlain(n + 1))) {
+    if (found === undefined) {
       return undefined;
     }
     const start = this.spans[n].start;
     return { ...found, body: start + found.body, end: start + found.end, container };
   }
+
+  /** The number of lines. */
+  get lineCount(): number {
+    return this.spans.length;
+  }
+
+  /** The text of line `k` (without its line break). */
+  textOf(k: number): string {
+    return this.lineText(k);
+  }
+
+  /** The container of line `k` when it is certainly a paragraph line (`ParagraphContext`), otherwise undefined. */
+  containerOf(k: number): ParagraphContainer | undefined {
+    return k >= 0 && k < this.spans.length ? this.context.at(k) : undefined;
+  }
+
+  // -------------------------------------------------------------------------
+  // The rest of a paragraph at the top level (SELEC-00151)
+  // -------------------------------------------------------------------------
+
+  /** The paragraph walked last (`topParagraph`), with the edits worked out for each content column. */
+  private walked: TopParagraph | undefined;
+
+  /**
+   * The lines of the paragraph at the top level from line `n` (N, after the paragraph line `n - 1`
+   * at the top level) up to its end, read forward once: each line of the paragraph as a
+   * continuation line (`lineContinuation`, or undefined when it is one that cannot be kept shown
+   * the same way, or not certainly one), and what ends the paragraph. A later `n` in the same
+   * paragraph reuses the walk, so asked for with `n` increasing, every line is read about once.
+   */
+  private topParagraph(n: number): TopParagraph {
+    const walked = this.walked;
+    if (walked !== undefined && n >= walked.from && n <= walked.stop) {
+      return walked;
+    }
+    const lines: (Continuation | undefined)[] = [];
+    let m = n;
+    // After a paragraph line at the top level, a line with text is a continuation line exactly
+    // when `ParagraphContext` makes it a paragraph line at the top level too.
+    while (m < this.spans.length && !isBlank(this.lineText(m)) && this.context.at(m)?.kind === 'top') {
+      lines.push(this.continuationIn(TOP, m));
+      m++;
+    }
+    const paragraph: TopParagraph = { from: n, stop: m, lines, end: this.paragraphEnd(m), edits: new Map() };
+    this.walked = paragraph;
+    return paragraph;
+  }
+
+  /** What line `m` is when it ends a paragraph at the top level (see `ParagraphEnd`). */
+  private paragraphEnd(m: number): ParagraphEnd {
+    if (m >= this.spans.length || isBlank(this.lineText(m))) {
+      return END_OF_PARAGRAPH;
+    }
+    const line = this.lineText(m);
+    let indent = 0;
+    while (isSpaceOrTab(line[indent])) {
+      indent++;
+    }
+    const width = indentWidth(line.slice(0, indent));
+    const t = line.slice(indent);
+    // A line that would continue the paragraph but is not a paragraph line (a table's header row)
+    // or that is not certain (a table, a definition) is not certain either.
+    if (width >= 4) {
+      return UNCERTAIN_END;
+    }
+    const block = blockAt(t, true, false);
+    return block.type === 'none' || block.type === 'uncertain' ? UNCERTAIN_END : { kind: 'block', width, text: t };
+  }
+
+  /**
+   * After a list item or a quote line written in place of (the end of) the paragraph line `n - 1`
+   * (L) at the top level, the backslashes that keep every later line of L's paragraph (from N, line
+   * `n`) read as before (`writtenLineChange`), in order, or undefined when the paragraph is left as
+   * before: some line of it cannot be kept shown the same way or is not certain, or the line that
+   * ends it would be read differently after the line written (`keepsEnd`). An empty list: nothing
+   * to change. Each content column is worked out once for the whole paragraph, so this stays
+   * linear over the selections.
+   */
+  writtenEdits(n: number, written: WrittenLine & { kind: 'lazy' }): LineEdit[] | undefined {
+    const paragraph = this.topParagraph(n);
+    let edits = paragraph.edits.get(written.content);
+    if (edits === undefined) {
+      edits = this.editsFor(paragraph, written);
+      paragraph.edits.set(written.content, edits);
+    }
+    if (edits === 'unchanged' || edits.lastUnsafe >= n) {
+      return undefined;
+    }
+    // The first edit at or after line `n` (the edits are in line order).
+    let low = 0;
+    let high = edits.edits.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      if (edits.edits[middle].line < n) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+    return edits.edits.slice(low);
+  }
+
+  private editsFor(paragraph: TopParagraph, written: WrittenLine & { kind: 'lazy' }): ParagraphEdits {
+    if (!keepsEnd(written, paragraph.end)) {
+      return 'unchanged';
+    }
+    const edits: LineEdit[] = [];
+    let lastUnsafe = -1;
+    paragraph.lines.forEach((found, j) => {
+      const line = paragraph.from + j;
+      const change = found === undefined ? 'unsafe' : writtenLineChange(written, found, this.text.slice(found.body, this.spans[line].end));
+      if (change === 'unsafe') {
+        lastUnsafe = line;
+      } else if (change !== 'none' && found !== undefined) {
+        edits.push({ line, start: found.body, end: found.body + change.at, insert: change.insert });
+      }
+    });
+    return { edits, lastUnsafe };
+  }
+
+  /**
+   * The end of the last line of the paragraph at the top level that line `k` is a line of (`k`
+   * itself when the next line does not continue it), or undefined when `k` is not certainly a
+   * paragraph line at the top level, when some later line of the paragraph is not certain, or when
+   * the line after the paragraph is a setext underline (the paragraph is a heading). MD-023 writes
+   * its definitions there (SELEC-00151).
+   */
+  topParagraphEnd(k: number): number | undefined {
+    if (this.context.at(k)?.kind !== 'top') {
+      return undefined;
+    }
+    if (k + 1 >= this.spans.length) {
+      return this.spans[k].end;
+    }
+    // Every line walked is certainly a paragraph line (`ParagraphContext`), whether or not it could
+    // be kept a paragraph of its own: only the line after the paragraph matters here.
+    const paragraph = this.topParagraph(k + 1);
+    const end = paragraph.end;
+    if (end.kind === 'uncertain' || (end.kind === 'block' && setextLevel(end.text) !== undefined)) {
+      return undefined;
+    }
+    return this.spans[paragraph.stop - 1].end;
+  }
+
+  // -------------------------------------------------------------------------
+  // MD-003: what follows the table of contents (SELEC-00151)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Line `n` (N) when it is indented by 1 to 3 columns after a paragraph line at the top level and
+   * starts a block of one line that interrupts the paragraph and is read the same way without its
+   * indentation: an ATX heading (`  # x`), a thematic break that is no setext underline (`  ***`,
+   * `  - - -`), or a block quote line (`  > x`: the later lines of the quote stay in it with or
+   * without their own 0 to 3 columns, and its lazy continuation lines too). Then only its
+   * indentation is to be taken (`insert` ''), so that it is not taken into the last item of a table
+   * of contents written before it. Other blocks (a list item, whose content column would move, a
+   * fence or an HTML block, whose lines are read relative to that indentation, a table or a
+   * definition) give undefined.
+   */
+  interruptingLine(n: number): Continuation | undefined {
+    if (n < 1 || n >= this.spans.length || this.context.at(n - 1)?.kind !== 'top') {
+      return undefined;
+    }
+    const line = this.lineText(n);
+    let body = 0;
+    while (isSpaceOrTab(line[body])) {
+      body++;
+    }
+    const width = indentWidth(line.slice(0, body));
+    const t = line.slice(body);
+    if (width < 1 || width > 3 || t === '') {
+      return undefined;
+    }
+    const block = blockAt(t, true, false);
+    const oneLine = block.type === 'line' && setextLevel(t) === undefined && (parseAtxHeading(t) !== undefined || isThematicBreak(t));
+    if (!oneLine && block.type !== 'quote') {
+      return undefined;
+    }
+    const start = this.spans[n].start;
+    return { body: start + body, width, end: start + body, insert: '', escaped: false, container: TOP };
+  }
+
+  /**
+   * When L (line `n - 1`) is in a list item or a quote and its paragraph goes to the top level
+   * after a table of contents written in place of the paragraph's start (`# A⏎> foo⏎bar⏎2. x`):
+   * N (line `n`) as a continuation line, and the line T after the paragraph's last line that was a
+   * list item interrupting it only as a lazy line (an ordered item not starting with 1, or an empty
+   * item: they cannot interrupt a paragraph at the top level, so T would become paragraph text).
+   * A blank line is then written before T so that it still starts a list. Every line between N and
+   * T must have text that does not start with a character that may start a block (as with
+   * `restIsPlain`), T must be outside the container (no `>`, or less indented than the item's
+   * content) and indented by 3 columns or less. Otherwise undefined.
+   */
+  lazyListAfter(n: number): { found: Continuation; before: number } | undefined {
+    const found = this.continuationOf(n);
+    if (found === undefined || found.container.kind === 'top') {
+      return undefined;
+    }
+    let m = n + 1;
+    for (; m < this.spans.length; m++) {
+      const line = this.lineText(m);
+      let i = 0;
+      while (isSpaceOrTab(line[i])) {
+        i++;
+      }
+      if (i === line.length || mayStartBlock(line[i])) {
+        break;
+      }
+    }
+    if (m >= this.spans.length || isBlank(this.lineText(m))) {
+      return undefined;
+    }
+    const line = this.lineText(m);
+    let body = 0;
+    while (isSpaceOrTab(line[body])) {
+      body++;
+    }
+    const width = indentWidth(line.slice(0, body));
+    const t = line.slice(body);
+    const lazy = found.container.kind === 'quote' ? t[0] !== '>' : width < found.container.content;
+    if (!lazy || width > 3 || parseListItem(t) === undefined
+      || blockAt(t, true, false).type !== 'none' || blockAt(t, true, true).type !== 'list') {
+      return undefined;
+    }
+    return { found, before: this.spans[m].start };
+  }
 }
+
+/** What ends a paragraph at the top level (the line after its last line). */
+type ParagraphEnd =
+  /** A blank line or the end of the text. */
+  | { kind: 'end' }
+  /** A block that interrupts the paragraph, indented by `width` (3 columns or less), with its text `text`. */
+  | { kind: 'block'; width: number; text: string }
+  /** A line that is not certain (a table, a definition…). */
+  | { kind: 'uncertain' };
+
+const END_OF_PARAGRAPH: ParagraphEnd = { kind: 'end' };
+const UNCERTAIN_END: ParagraphEnd = { kind: 'uncertain' };
+
+/** One line changed: `[start, end)` of the text is replaced with `insert`. */
+export interface LineEdit {
+  line: number;
+  start: number;
+  end: number;
+  insert: string;
+}
+
+/** The edits for one content column, and the last line that cannot be kept shown the same way (-1: none). */
+type ParagraphEdits = { edits: LineEdit[]; lastUnsafe: number } | 'unchanged';
+
+interface TopParagraph {
+  /** The first line walked (N) and the line that ends the paragraph. */
+  from: number;
+  stop: number;
+  /** The lines `from` up to `stop` (exclusive) as continuation lines. */
+  lines: (Continuation | undefined)[];
+  end: ParagraphEnd;
+  edits: Map<number, ParagraphEdits>;
+}
+
+/**
+ * Whether the line that ends the paragraph (`end`) is read as before after a list item or a quote
+ * line written in place of its first line part: a blank line or the end of the text are; a block
+ * that interrupted the paragraph still interrupts it as a lazy line (outside the item written),
+ * except a `>` line after a quote (the quote would take it in), a setext underline (the paragraph
+ * was a heading) and a block indented as far as the content of the item written (by 3 columns or
+ * less from there: it would be a block in the item, `  # x` after `- foo`). A line that is not
+ * certain is not.
+ */
+const keepsEnd = (written: WrittenLine & { kind: 'lazy' }, end: ParagraphEnd): boolean => {
+  if (end.kind !== 'block') {
+    return end.kind === 'end';
+  }
+  if (setextLevel(end.text) !== undefined) {
+    return false;
+  }
+  if (written.content === Number.POSITIVE_INFINITY) {
+    return end.text[0] !== '>';
+  }
+  return end.width < written.content;
+};
 
 /**
  * How the last line a command writes in place of (the end of) a paragraph line L at the top level
@@ -898,19 +1208,158 @@ export interface WrittenLineEdit {
  *   row) are not continuation lines (`found`) in the first place either.
  */
 export const writtenLineEdit = (written: WrittenLine, found: LineContinuation, rest: string): WrittenLineEdit | undefined => {
+  const change = writtenLineChange(written, found, rest);
+  return typeof change === 'string' ? undefined : change;
+};
+
+/**
+ * `writtenLineEdit`, telling a line read as before already (`none`) from one that would be read
+ * differently but cannot be kept shown the same way (`unsafe`: a fence or an HTML block in the
+ * item's content), which leaves a whole paragraph as before when a later line of it is changed
+ * (SELEC-00151).
+ */
+export const writtenLineChange = (written: WrittenLine, found: LineContinuation, rest: string): WrittenLineEdit | 'none' | 'unsafe' => {
   const own: WrittenLineEdit = { at: found.end - found.body, insert: found.insert };
   if (written.kind === 'block') {
-    return found.width >= 4 || found.escaped ? own : undefined;
+    return found.width >= 4 || found.escaped ? own : 'none';
   }
   if (found.width < written.content) {
-    return found.width <= 3 && parseListItem(rest) !== undefined ? own : undefined;
+    return found.width <= 3 && parseListItem(rest) !== undefined ? own : 'none';
   }
   if (found.width - written.content > 3 || blockAt(rest, true, false).type === 'none') {
-    return undefined;
+    return 'none';
   }
   const fresh = freshBlock(rest);
   if (fresh.kind === 'escape') {
     return { at: fresh.at, insert: `${rest.slice(0, fresh.at)}\\` };
   }
-  return fresh.kind === 'plain' && setextLevel(rest) !== undefined ? { at: 0, insert: '\\' } : undefined;
+  return fresh.kind === 'plain' && setextLevel(rest) !== undefined ? { at: 0, insert: '\\' } : 'unsafe';
+};
+
+// ---------------------------------------------------------------------------
+// The line after an HTML block (MD-019, SELEC-00151)
+// ---------------------------------------------------------------------------
+
+/** How the line N after a blank line written before it is changed: `[start, end)` of N is replaced with `insert`. */
+export interface LineChange {
+  start: number;
+  end: number;
+  insert: string;
+}
+
+const BLOCK_LINE: WrittenLine = { kind: 'block' };
+
+/**
+ * How a line read at the start of a block (`line`, after a blank line written before it) is kept
+ * read as it was after the paragraph line L before it: `keep` (it is read the same way as it is),
+ * the change to make, or undefined when it cannot be (everything is then left as before).
+ * - A continuation line of L's paragraph (`lineContinuation`) becomes a paragraph of its own: with
+ *   the same rule as after MD-014's closing fence, indented by 4 columns or more it loses its
+ *   indentation (otherwise an indented code block), and a text that would start a block gets one
+ *   backslash. A continuation line that no backslash keeps shown the same way (an HTML block's tag,
+ *   a definition, indented code that starts a fence) is left as before: after the blank line, it
+ *   would start an HTML block or a definition (whose text is not shown at all) or a code block,
+ *   which is no closer to how it was shown than being raw HTML in the block before.
+ * - A block that interrupted L's paragraph (a heading, a list item, a quote, a fence, an HTML block
+ *   of kind 1 to 6, a thematic break) is read the same way after the blank line: `keep`. A setext
+ *   underline is not (L's paragraph was a heading): undefined.
+ */
+const freshLineChange = (line: string, nextLine: string | undefined): LineChange | 'keep' | undefined => {
+  const found = lineContinuation(TOP, line, nextLine);
+  if (found !== undefined) {
+    const change = writtenLineChange(BLOCK_LINE, found, line.slice(found.body));
+    // After the blank line, N's indentation is taken (from its start) when it is changed.
+    return typeof change === 'string' ? 'keep' : { start: 0, end: found.body + change.at, insert: change.insert };
+  }
+  let body = 0;
+  while (isSpaceOrTab(line[body])) {
+    body++;
+  }
+  const t = line.slice(body);
+  if (indentWidth(line.slice(0, body)) > 3 || setextLevel(t) !== undefined) {
+    return undefined;
+  }
+  const block = blockAt(t, true, false);
+  return block.type === 'none' || block.type === 'uncertain' ? undefined : 'keep';
+};
+
+/**
+ * MD-019: how the line N after an HTML block that the output left open is changed, once a blank
+ * line is written between the output and N so that the block does not take N in as raw HTML. L,
+ * the paragraph line where the output ends, is at the top level (`marker` undefined) or in a block
+ * quote whose marker (L's indentation and `>`) is `marker`. Returns `keep`, the change to make in N
+ * (offsets in N's line), or undefined when N cannot be kept read as before (then nothing is written).
+ * - At the top level, N gets `freshLineChange`.
+ * - In a quote, the blank line is a line with the quote's marker only, so that the quote goes on. A
+ *   line N with its own `>` (3 columns or less) is read from after its `>` and the one space after
+ *   it, with the same rule (`>     bar` loses the indentation after `> `, `> 2. x` gets
+ *   `> 2\. x`); a tab right after `>` or in that indentation is not certain. A blank quote line ends
+ *   the HTML block by itself, so nothing is needed (undefined). A lazy continuation line N (without
+ *   `>`) would be outside the quote after the blank line: it gets the quote's marker and a space in
+ *   place of its indentation (`bar` → `> bar`) when its text is plain (not starting with a
+ *   character that may start a block) and indented by 3 columns or less; such a line that may start
+ *   a block or is indented further is not certain (undefined), and one that interrupts the
+ *   paragraph (and closed the quote) is read the same way after the blank line (`keep`).
+ */
+export const afterHtmlBlock = (line: string, nextLine: string | undefined, marker: string | undefined): LineChange | 'keep' | undefined => {
+  if (marker === undefined) {
+    return freshLineChange(line, nextLine);
+  }
+  let indent = 0;
+  while (isSpaceOrTab(line[indent])) {
+    indent++;
+  }
+  const width = indentWidth(line.slice(0, indent));
+  const t = line.slice(indent);
+  if (width <= 3 && t[0] === '>') {
+    let from = indent + 1;
+    if (line[from] === ' ') {
+      from++;
+    }
+    let i = from;
+    while (isSpaceOrTab(line[i])) {
+      if (line[i] === '\t') {
+        return undefined;
+      }
+      i++;
+    }
+    if (line[indent + 1] === '\t' || i === line.length) {
+      return undefined;
+    }
+    const change = freshLineChange(line.slice(from), undefined);
+    return change === undefined || change === 'keep' ? change : { start: from + change.start, end: from + change.end, insert: change.insert };
+  }
+  if (t === '') {
+    return undefined;
+  }
+  if (!mayStartBlock(t[0])) {
+    return width <= 3 ? { start: 0, end: indent, insert: `${marker} ` } : undefined;
+  }
+  const block = blockAt(t, true, true);
+  return width > 3 || block.type === 'none' || block.type === 'uncertain' ? undefined : 'keep';
+};
+
+/**
+ * Whether the HTML block that the lines of `output` (MD-019's result, written at the start of a
+ * line's content) start is still open after its last line, so that the next line would be taken
+ * into it: a block of kind 1 to 5 not closed by its end condition, or one of kind 6 (a block tag:
+ * `<p>`, `<h1>`, `<ul>`…) that runs up to the next blank line. A line that starts no HTML block
+ * outside one (or a kind 7 tag, which MD-019 does not write) leaves nothing open.
+ */
+export const htmlBlockOpenAfter = (output: string): boolean => {
+  let open: HtmlBlockKind | undefined;
+  for (const { start, end } of lineSpans(output)) {
+    const line = output.slice(start, end);
+    if (open === undefined) {
+      let indent = 0;
+      while (line[indent] === ' ') {
+        indent++;
+      }
+      const kind = indent <= 3 ? htmlBlockStart(line.slice(indent)) : undefined;
+      open = kind === undefined || kind === 7 || (kind <= 5 && htmlBlockEnds(kind, line)) ? undefined : kind;
+    } else if (htmlBlockEnds(open, line)) {
+      open = undefined;
+    }
+  }
+  return open !== undefined;
 };

@@ -469,7 +469,8 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
     test('several selections share the numbers; a selection without links is left', () => {
       const text = '[a](x)\n[b](x) [c](y)\nplain';
       const ranges = [{ start: 0, end: 6 }, { start: 7, end: 20 }, { start: 21, end: 26 }];
-      assert.strictEqual(run('MD-023', text, { ranges }), '[a][1]\n\n[1]: x\n[b][1] [c][2]\n\n[2]: y\nplain');
+      // The three lines are one paragraph: the definitions go after its last line (SELEC-00151).
+      assert.strictEqual(run('MD-023', text, { ranges }), '[a][1]\n[b][1] [c][2]\nplain\n\n[1]: x\n[2]: y');
     });
 
     test('a link around an image; an empty destination is left', () => {
@@ -859,38 +860,47 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.deepStrictEqual(selectedAfter('MD-023', text, { ranges: [select(text, '[a](http://b)')] }), ['[a][1]']);
       // A selection ending at the end of its line (or before trailing spaces) keeps them in the selection.
       assert.deepStrictEqual(selectedAfter('MD-023', 'see [a](u)', { ranges: [{ start: 4, end: 10 }] }), ['[a][1]\n\n[1]: u']);
-      assert.strictEqual(run('MD-023', 'see [a](u)  \nnext', { ranges: [{ start: 4, end: 10 }] }), 'see [a][1]\n\n[1]: u  \nnext');
+      assert.strictEqual(run('MD-023', 'see [a](u)  \n\nnext', { ranges: [{ start: 4, end: 10 }] }), 'see [a][1]\n\n[1]: u  \n\nnext');
+      // When the next line goes on with the paragraph, the definitions go after the paragraph (SELEC-00151).
+      assert.strictEqual(run('MD-023', 'see [a](u)  \nnext', { ranges: [{ start: 4, end: 10 }] }), 'see [a][1]  \nnext\n\n[1]: u');
     });
 
     test('MD-023: selections ending on the same line share one block of definitions after it', () => {
-      const text = 'x [a](u) y [b](v) z\nnext';
+      const text = 'x [a](u) y [b](v) z\n\nnext';
       const ranges = [select(text, '[a](u)'), select(text, '[b](v)')];
-      assert.strictEqual(run('MD-023', text, { ranges }), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\nnext');
+      assert.strictEqual(run('MD-023', text, { ranges }), 'x [a][1] y [b][2] z\n\n[1]: u\n[2]: v\n\nnext');
       assert.deepStrictEqual(selectedAfter('MD-023', text, { ranges }), ['[a][1]', '[b][2]']);
-      // A later selection that starts on that line and ends at a line end takes the definitions.
+      // A later selection that starts on that line and ends at a line end takes the definitions
+      // along; the next line goes on with the paragraph, so they go after it (SELEC-00151).
       const across = 'x [a](u) y [b](v)\n[c](w) z';
       assert.strictEqual(run('MD-023', across, { ranges: [select(across, '[a](u)'), { start: across.indexOf('[b]'), end: across.indexOf('\n') }] }),
-        'x [a][1] y [b][2]\n\n[1]: u\n[2]: v\n[c](w) z');
+        'x [a][1] y [b][2]\n[c](w) z\n\n[1]: u\n[2]: v');
       // A later selection that goes on to the next lines carries them to the end of its own last line.
       assert.strictEqual(run('MD-023', across, { ranges: [select(across, '[a](u)'), { start: across.indexOf(' y'), end: across.indexOf(' z') }] }),
         'x [a][1] y [b][2]\n[c][3] z\n\n[1]: u\n[2]: v\n[3]: w');
-      // Selections on different lines: each line gets its own definitions; numbers continue.
-      const lines = 'p [a](u) q\nr [b](v) s';
+      // Selections on lines of different paragraphs: each gets its own definitions; numbers continue.
+      // On lines of the same paragraph, they share one block after it (SELEC-00151).
+      const lines = 'p [a](u) q\n\nr [b](v) s';
       assert.strictEqual(run('MD-023', lines, { ranges: [select(lines, '[a](u)'), select(lines, '[b](v)')] }),
-        'p [a][1] q\n\n[1]: u\nr [b][2] s\n\n[2]: v');
+        'p [a][1] q\n\n[1]: u\n\nr [b][2] s\n\n[2]: v');
+      const paragraph = 'p [a](u) q\nr [b](v) s';
+      assert.strictEqual(run('MD-023', paragraph, { ranges: [select(paragraph, '[a](u)'), select(paragraph, '[b](v)')] }),
+        'p [a][1] q\nr [b][2] s\n\n[1]: u\n[2]: v');
     });
 
     test('MD-023: cursors and unchanged selections around pending definitions keep their place', () => {
-      const text = 'x [a](u) y\nz';
+      // `# z` after the line is a heading of its own (with `z` alone, the paragraph would go on and
+      // the definitions would go after it, SELEC-00151).
+      const text = 'x [a](u) y\n# z';
       const lineEnd = text.indexOf('\n');
       const outcome = result('MD-023', text, { ranges: [select(text, '[a](u)'), { start: lineEnd, end: lineEnd }, { start: text.length - 1, end: text.length }] });
       assert.ok(outcome.kind === 'edit');
       const edited = applied(text, outcome);
-      assert.strictEqual(edited, 'x [a][1] y\n\n[1]: u\nz');
+      assert.strictEqual(edited, 'x [a][1] y\n\n[1]: u\n# z');
       // The cursor at the end of the line stays before the definitions; "z" is still selected.
       assert.strictEqual(outcome.ranges[1].start, edited.indexOf('\n'));
       assert.strictEqual(edited.slice(outcome.ranges[2].start, outcome.ranges[2].end), 'z');
-      assert.strictEqual(run('MD-023', text, { ranges: [select(text, '[a](u)')], eol: '\r\n' }), 'x [a][1] y\r\n\r\n[1]: u\nz');
+      assert.strictEqual(run('MD-023', text, { ranges: [select(text, '[a](u)')], eol: '\r\n' }), 'x [a][1] y\r\n\r\n[1]: u\n# z');
     });
 
     test('MD-003: a cursor or selection inside a line puts the table of contents on lines of its own', () => {
@@ -1283,8 +1293,11 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       }
       assert.strictEqual(toc('# A\nfoo\n    bar\n| - |', 0, 7), '- [A](#a)\n\n    bar\n| - |');
       // 3 columns or less, or none: a block that interrupts the paragraph (not a continuation line).
+      // Indented by 1 to 3 columns, a heading, a thematic break and a quote lose the indentation
+      // (SELEC-00151, see its own test); the others stay as they are.
       for (const line of ['# x', '- x', '* x', '+ x', '1. x', '> x', '---', '***', '===', '```']) {
-        assert.strictEqual(toc(`# A\nfoo\n  ${line}`, 0, 7), `- [A](#a)\n\n  ${line}`, line);
+        const unindented = ['# x', '> x', '***'].includes(line);
+        assert.strictEqual(toc(`# A\nfoo\n  ${line}`, 0, 7), `- [A](#a)\n\n${unindented ? '' : '  '}${line}`, line);
         assert.strictEqual(toc(`# A\nfoo\n${line}`, 0, 7), `- [A](#a)\n\n${line}`, line);
       }
       // `-` alone right after the paragraph is a setext underline (the line before is a heading).
@@ -1466,24 +1479,78 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-004', '- foo\n2. x', { ranges: [span(2, 5)] }), '- - foo\n2. x');
     });
 
-    test('MD-004..006, MD-015: the later lines of the paragraph are lazy continuation lines too (condition 4)', () => {
-      // A later line that may start a block: N is left as before too (escaping `2. x` alone would
-      // leave `3. y` a new list, and the quote would take `> y` in once `2. x` no longer ends it).
-      assert.strictEqual(run('MD-005', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '1. foo\n2. x\n3. y');
-      assert.strictEqual(run('MD-004', 'foo\n2. x\n*', { ranges: [span(0, 3)] }), '- foo\n2. x\n*');
-      assert.strictEqual(run('MD-006', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '- [ ] foo\n2. x\n3. y');
-      assert.strictEqual(run('MD-015', 'foo\n2. x\n> y', { ranges: [span(0, 3)] }), '> foo\n2. x\n> y');
-      assert.strictEqual(run('MD-015', 'foo\n2. x\n    3. y', { ranges: [span(0, 3)] }), '> foo\n2. x\n    3. y');
-      // The later lines are plain text up to the end of the paragraph (a blank line or the end): N gets its backslash.
+    test('MD-004..006, MD-015: the later lines of the paragraph are lazy continuation lines too (condition 4, SELEC-00151 condition 1)', () => {
+      // Every later line of the paragraph that would start a block after the item or quote written
+      // gets its backslash too (SELEC-00151; before, `foo⏎2. x⏎3. y` was left as before as a whole,
+      // and `foo⏎bar⏎2. x` turned `2. x` into a new list).
+      assert.strictEqual(run('MD-005', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '1. foo\n2\\. x\n3\\. y');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n*', { ranges: [span(0, 3)] }), '- foo\n2\\. x\n\\*');
+      assert.strictEqual(run('MD-006', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '- [ ] foo\n2\\. x\n3\\. y');
       assert.strictEqual(run('MD-005', 'foo\n2. x\nbar', { ranges: [span(0, 3)] }), '1. foo\n2\\. x\nbar');
+      // A line that needs no backslash before the one that does (N itself unchanged).
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n2. x', [span(0, 3)]), ['- foo\nbar\n2\\. x', [[0, 12]]]);
+      assert.strictEqual(run('MD-004', 'foo\nbar\n*', { ranges: [span(0, 3)] }), '- foo\nbar\n\\*');
+      assert.strictEqual(run('MD-005', 'foo\nbar\nbaz\n2. x', { ranges: [span(0, 3)] }), '1. foo\nbar\nbaz\n2\\. x');
+      assert.strictEqual(run('MD-006', 'foo\nbar\n2. x', { ranges: [span(0, 3)] }), '- [ ] foo\nbar\n2\\. x');
+      assert.strictEqual(run('MD-015', 'foo\nbar\n2. x', { ranges: [span(0, 3)] }), '> foo\nbar\n2\\. x');
+      assert.strictEqual(run('MD-015', 'foo\n    bar\n2. x', { ranges: [span(0, 3)] }), '> foo\n    bar\n2\\. x');
+      assert.strictEqual(run('MD-005', '  foo\nbar\n2. x', { ranges: [span(2, 5)] }), '  1. foo\nbar\n2\\. x');
+      // A later line indented into the item's content (a nested list in it before).
+      assert.strictEqual(run('MD-004', 'foo\nbar\n    - x', { ranges: [span(0, 3)] }), '- foo\nbar\n    \\- x');
+      assert.strictEqual(run('MD-004', 'foo\n    - x\n3. y', { ranges: [span(0, 3)] }), '- foo\n    \\- x\n3\\. y');
+      // After a quote, indented by 4 columns or more: still a lazy continuation line, left as it is.
+      assert.strictEqual(run('MD-015', 'foo\n2. x\n    3. y', { ranges: [span(0, 3)] }), '> foo\n2\\. x\n    3. y');
+      assert.strictEqual(run('MD-015', 'foo\nbar\n    - x', { ranges: [span(0, 3)] }), '> foo\nbar\n    - x');
+      // Selected with the line break, CRLF and a lone CR.
+      assert.strictEqual(run('MD-004', 'foo\nbar\n2. x', { ranges: [span(0, 4)] }), '- foo\nbar\n2\\. x');
+      assert.deepStrictEqual(outcome('MD-004', 'foo\r\nbar\r\n2. x', [span(0, 3)], '\r\n'), ['- foo\r\nbar\r\n2\\. x', [[0, 14]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\rbar\r2. x', [span(0, 3)]), ['- foo\rbar\r2\\. x', [[0, 12]]]);
+      // The end of the paragraph: a blank line, or a block that interrupted it and still does after
+      // the item written (a list item at the start of the line goes on with the list written, as it did).
       assert.strictEqual(run('MD-015', 'foo\n2. x\nbar\n\n3. y', { ranges: [span(0, 3)] }), '> foo\n2\\. x\nbar\n\n3. y');
-      // A later list item after a line that needs no backslash already started a new list before
-      // this change; it is left as it is (another ticket).
-      assert.strictEqual(run('MD-004', 'foo\nbar\n2. x', { ranges: [span(0, 3)] }), '- foo\nbar\n2. x');
-      assert.strictEqual(run('MD-015', 'foo\nbar\n2. x', { ranges: [span(0, 3)] }), '> foo\nbar\n2. x');
-      assert.strictEqual(run('MD-015', 'foo\n    bar\n2. x', { ranges: [span(0, 3)] }), '> foo\n    bar\n2. x');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n- y', { ranges: [span(0, 3)] }), '- foo\n2\\. x\n- y');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n# y', { ranges: [span(0, 3)] }), '- foo\n2\\. x\n# y');
       // After a heading (MD-001), N starts a paragraph of its own, which the later lines continue.
       assert.strictEqual(run('MD-001', 'foo\n2. x\n3. y', { ranges: [span(0, 3)] }), '# foo\n2\\. x\n3. y');
+    });
+
+    test('MD-004..006, MD-015: the paragraph is left as before as a whole when a line of it cannot be kept (SELEC-00151 condition 1)', () => {
+      // The quote would take a `>` line that ends the paragraph in.
+      assert.strictEqual(run('MD-015', 'foo\n2. x\n> y', { ranges: [span(0, 3)] }), '> foo\n2. x\n> y');
+      // A setext underline: the paragraph was a heading.
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n===', { ranges: [span(0, 3)] }), '- foo\n2. x\n===');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n---', { ranges: [span(0, 3)] }), '- foo\n2. x\n---');
+      // A block indented as far as the item's content would be a block in the item.
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n  # y', { ranges: [span(0, 3)] }), '- foo\n2. x\n  # y');
+      // A line that no backslash keeps shown the same way, or one that is not certain.
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n    ```', { ranges: [span(0, 3)] }), '- foo\n2. x\n    ```');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n<custom>', { ranges: [span(0, 3)] }), '- foo\n2. x\n<custom>');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\n[x]: /u', { ranges: [span(0, 3)] }), '- foo\n2. x\n[x]: /u');
+      assert.strictEqual(run('MD-004', 'foo\n2. x\nbar | x\n--- | -', { ranges: [span(0, 3)] }), '- foo\n2. x\nbar | x\n--- | -');
+    });
+
+    test('MD-004..006, MD-015: selections and cursors in the lines taken (SELEC-00151 condition 1)', () => {
+      // A cursor in the rest of L or in N up to N's own edit moves to the end of the edit.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 18], [18, 18]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\n2\\. x\nbar\n3\\. y', [[0, 18], [18, 18]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(4, 4)]), ['- foo\nbar\n3\\. y', [[0, 12], [12, 12]]]);
+      // A cursor further on (it would jump lines away): as before.
+      assert.deepStrictEqual(outcome('MD-004', 'foo\n2. x\nbar\n3. y', [span(0, 3), span(9, 9)]), ['- foo\n2. x\nbar\n3. y', [[0, 5], [11, 11]]]);
+      assert.deepStrictEqual(outcome('MD-004', 'foo\nbar\n3. y', [span(0, 3), span(5, 5)]), ['- foo\nbar\n3. y', [[0, 5], [7, 7]]]);
+      // A non-empty selection in what would be taken: as before (the later selection makes its own edit).
+      assert.strictEqual(run('MD-004', 'foo\n2. x\nbar\n3. y', { ranges: [span(0, 3), span(9, 12)] }), '- foo\n2. x\n- bar\n3\\. y');
+    });
+
+    test('MD-004..006, MD-015: the list written next to a list after a blank line, and L in a list item (SELEC-00151, item 7)', () => {
+      // The list written goes on with the user's list after the blank line (a loose list), as it
+      // does for `foo⏎⏎3. y`: the lines of the paragraph stay text of the item (`2\. x`, `bar`).
+      assert.strictEqual(run('MD-005', 'foo\n2. x\nbar\n\n3. y', { ranges: [span(0, 3)] }), '1. foo\n2\\. x\nbar\n\n3. y');
+      assert.strictEqual(run('MD-005', 'foo\n\n3. y', { ranges: [span(0, 3)] }), '1. foo\n\n3. y');
+      // L a lazy line of a list item: the line written leaves the item or becomes a sibling of it, so
+      // the later lines are left as before.
+      assert.strictEqual(run('MD-005', '- a\nfoo\n  2. x', { ranges: [span(4, 7)] }), '- a\n1. foo\n  2. x');
+      assert.strictEqual(run('MD-004', '- a\nfoo\n  2. x', { ranges: [span(4, 7)] }), '- a\n- foo\n  2. x');
+      assert.strictEqual(run('MD-015', '- a\nfoo\n  2. x', { ranges: [span(4, 7)] }), '- a\n> foo\n  2. x');
     });
 
     test('MD-004..006: a continuation line indented into the content of the item written (condition 4)', () => {
@@ -1513,7 +1580,6 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-004', 'foo\n    2. x', { ranges: [span(0, 3)] }), '- foo\n    2. x');
       assert.strictEqual(run('MD-004', 'foo\n    #x', { ranges: [span(0, 3)] }), '- foo\n    #x');
       assert.strictEqual(run('MD-004', 'foo\n      - x', { ranges: [span(0, 3)] }), '- foo\n      - x');
-      assert.strictEqual(run('MD-004', 'foo\n    - x\n3. y', { ranges: [span(0, 3)] }), '- foo\n    - x\n3. y');
       // A fence or an HTML block that no backslash keeps shown the same way: as before.
       assert.strictEqual(run('MD-004', 'foo\n    ```', { ranges: [span(0, 3)] }), '- foo\n    ```');
       assert.strictEqual(run('MD-004', 'foo\n    <div>', { ranges: [span(0, 3)] }), '- foo\n    <div>');
@@ -1531,11 +1597,186 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-021', 'foo\n2. x', { ranges: [span(0, 3)] }), '[foo](#foo)\n2. x');
       assert.strictEqual(run('MD-022', 'foo\n    bar', { ranges: [span(0, 3)] }), '[^1]\n    bar\n\n[^1]: foo');
       assert.strictEqual(run('MD-013', 'foo\n    bar', { ranges: [span(0, 3)] }), 'unchanged');
-      // MD-019 (a candidate for another ticket): `<p>` starts an HTML block (kind 6) that runs to the
-      // next blank line, so the next line is taken into it as raw HTML whatever its indentation.
-      // This ticket's rules (unindent / escape) do not fix that; the current output is kept here.
-      assert.strictEqual(run('MD-019', 'foo\n    bar', { ranges: [span(0, 3)] }), '<p>foo</p>\n    bar');
-      assert.strictEqual(run('MD-019', 'foo\nbar', { ranges: [span(0, 3)] }), '<p>foo</p>\nbar');
+      // MD-019: `<p>` starts an HTML block (kind 6) that runs to the next blank line, so the next line
+      // was taken into it as raw HTML whatever its indentation. Since SELEC-00151 a blank line is
+      // written after it (see the MD-019 suite): the paragraph is split there.
+      assert.strictEqual(run('MD-019', 'foo\n    bar', { ranges: [span(0, 3)] }), '<p>foo</p>\n\nbar');
+      assert.strictEqual(run('MD-019', 'foo\nbar', { ranges: [span(0, 3)] }), '<p>foo</p>\n\nbar');
+    });
+  });
+
+  suite('the rest of the paragraph and the blocks around what is written (SELEC-00151)', () => {
+    const span = (start: number, end: number) => ({ start, end });
+    const toc = (text: string, start: number, end: number, eol: MdEol = '\n'): string =>
+      run('MD-003', text, { ranges: [span(start, end)], eol });
+    const outcome = (id: string, text: string, ranges: MdRange[], eol: MdEol = '\n'): [string, number[][]] => {
+      const done = result(id, text, { inputs: id === 'MD-014' ? [''] : [], ranges, eol });
+      assert.ok(done.kind === 'edit');
+      return [applied(text, done), done.ranges.map(({ start, end }) => [start, end])];
+    };
+
+    test('MD-003: a block indented by 1 to 3 columns after the paragraph loses its indentation (condition 4)', () => {
+      // Before: `- [A](#a)\n\n  # x`, where `# x` was a heading in the last item of the list.
+      assert.strictEqual(toc('# A\nfoo\n  # x', 0, 7), '- [A](#a)\n\n# x');
+      assert.strictEqual(toc('# A\nfoo\n # x', 0, 7), '- [A](#a)\n\n# x');
+      assert.strictEqual(toc('# A\nfoo\n   # x', 0, 7), '- [A](#a)\n\n# x');
+      assert.strictEqual(toc('# A\nfoo\n  ***', 0, 7), '- [A](#a)\n\n***');
+      assert.strictEqual(toc('# A\nfoo\n  - - -', 0, 7), '- [A](#a)\n\n- - -');
+      assert.strictEqual(toc('# A\nfoo\n  > x', 0, 7), '- [A](#a)\n\n> x');
+      // The later lines of the quote stay in it, with their own indentation or lazily.
+      assert.strictEqual(toc('# A\nfoo\n  > x\n  > y\nz', 0, 7), '- [A](#a)\n\n> x\n  > y\nz');
+      // A tab is 4 columns: the line is a continuation line (escaped, as before).
+      assert.strictEqual(toc('# A\nfoo\n\t# x', 0, 7), '- [A](#a)\n\n\\# x');
+      // Selected with the line break, CRLF, and a cursor at the end of the line.
+      assert.deepStrictEqual(outcome('MD-003', '# A\nfoo\n  # x', [span(0, 8)]), ['- [A](#a)\n\n# x', [[0, 11]]]);
+      assert.deepStrictEqual(outcome('MD-003', '# A\r\nfoo\r\n  # x', [span(0, 8)], '\r\n'), ['- [A](#a)\r\n\r\n# x', [[0, 13]]]);
+      assert.deepStrictEqual(outcome('MD-003', '# A\nfoo\n  > x', [span(7, 7)]), ['# A\nfoo\n\n- [A](#a)\n\n> x', [[7, 20]]]);
+    });
+
+    test('MD-003: what would change with the indentation dropped stays as before (condition 4)', () => {
+      // A list item (its content column would move, and `- x` would go on with the list), a fence
+      // or an HTML block (read relative to that indentation), a table, a setext underline.
+      for (const line of ['- x', '1. x', '```', '<div>', '| a |', '---', '===']) {
+        assert.strictEqual(toc(`# A\nfoo\n  ${line}`, 0, 7), `- [A](#a)\n\n  ${line}`, line);
+      }
+      // The line before in a list item or a quote.
+      assert.strictEqual(toc('# A\n- foo\n  # x', 0, 9), '- [A](#a)\n\n  # x');
+      assert.strictEqual(toc('# A\n> foo\n  # x', 0, 9), '- [A](#a)\n\n  # x');
+      // A selection in the indentation of the heading has a table of contents of its own, and a
+      // cursor there inserts one: the first list stops at the end of the line as before.
+      assert.deepStrictEqual(outcome('MD-003', '# A\nfoo\n  # x', [span(0, 7), span(8, 9)]), ['- [A](#a)\n\n- [x](#x)\n\n# x', [[0, 10], [11, 22]]]);
+      assert.deepStrictEqual(outcome('MD-003', '# A\nfoo\n  > x', [span(0, 7), span(8, 9)]), ['- [A](#a)\n\n  > x', [[0, 10], [11, 12]]]);
+    });
+
+    test('MD-003: a list item after the lazy line that goes to the top level gets a blank line before it (item 7)', () => {
+      // Before: `bar\n2. x` became one paragraph after the list (`2. x`, a list after the quote, became text).
+      assert.deepStrictEqual(outcome('MD-003', '# A\n> foo\nbar\n2. x', [span(0, 9)]), ['- [A](#a)\n\nbar\n\n2. x', [[0, 16]]]);
+      assert.strictEqual(toc('# A\n- foo\nbar\n2. x', 0, 9), '- [A](#a)\n\nbar\n\n2. x');
+      assert.strictEqual(toc('# A\n- foo\n  bar\n2. x', 0, 9), '- [A](#a)\n\nbar\n\n2. x');
+      assert.strictEqual(toc('# A\n> foo\n    bar\n2. x', 0, 9), '- [A](#a)\n\nbar\n\n2. x');
+      assert.strictEqual(toc('# A\n> foo\nbar\nbaz\n*', 0, 9), '- [A](#a)\n\nbar\nbaz\n\n*');
+      assert.strictEqual(toc('# A\n> foo\r\nbar\r\n2. x', 0, 9, '\r\n'), '- [A](#a)\r\n\r\nbar\r\n\r\n2. x');
+      // An item that interrupts a paragraph at the top level too, or one in the quote: as before.
+      assert.strictEqual(toc('# A\n> foo\nbar\n1. x', 0, 9), '- [A](#a)\n\nbar\n1. x');
+      assert.strictEqual(toc('# A\n> foo\nbar\n> 2. x', 0, 9), '- [A](#a)\n\nbar\n> 2. x');
+      // A selection in the lines taken: as before (a cursor there inserts a list of its own).
+      assert.strictEqual(run('MD-003', '# A\n> foo\nbar\n2. x', { ranges: [span(0, 9), span(13, 13)] }), '- [A](#a)\n\nbar\n\n- [A](#a)\n\n2. x');
+    });
+
+    test('a task list item as the line before (condition 6)', () => {
+      // Before: `    bar` (taken into the last item of the list, or code after the fence) and `  2. x`
+      // were left as they were, since the item's text starts with `[`.
+      assert.strictEqual(toc('# A\n- [ ] foo\n    bar', 0, 13), '- [A](#a)\n\nbar');
+      assert.strictEqual(toc('# A\n- [x] foo\n  2. x', 0, 13), '- [A](#a)\n\n2\\. x');
+      assert.strictEqual(toc('# A\n- [X] foo\n    bar', 0, 13), '- [A](#a)\n\nbar');
+      assert.strictEqual(toc('# A\n1. [ ] foo\n     bar', 0, 14), '- [A](#a)\n\nbar');
+      assert.strictEqual(toc('# A\n- [ ]\tfoo\n    bar', 0, 13), '- [A](#a)\n\nbar');
+      assert.deepStrictEqual(outcome('MD-014', '- [ ] foo\n    bar', [span(6, 9)]), ['- [ ]\n```\nfoo\n```\nbar', [[5, 18]]]);
+      assert.deepStrictEqual(outcome('MD-014', '- [x] foo\n  2. x', [span(6, 9)]), ['- [x]\n```\nfoo\n```\n2\\. x', [[5, 20]]]);
+      assert.strictEqual(run('MD-014', '- [ ]\tfoo\n    bar', { inputs: [''], ranges: [span(6, 9)] }), '- [ ]\n```\nfoo\n```\nbar');
+      // As before: an empty task item, a block after the checkbox, a possible definition, a tab after the marker.
+      assert.strictEqual(toc('# A\n- [ ]\n    bar', 0, 9), '- [A](#a)\n\n    bar');
+      assert.strictEqual(toc('# A\n- [ ] # x\n    bar', 0, 13), '- [A](#a)\n\n    bar');
+      assert.strictEqual(toc('# A\n- [x]: foo\n    bar', 0, 14), '- [A](#a)\n\n    bar');
+      assert.strictEqual(toc('# A\n-\t[ ] foo\n    bar', 0, 13), '- [A](#a)\n\n    bar');
+    });
+
+    test('MD-019: a blank line after the HTML block, at the top level (condition 2)', () => {
+      const html = (text: string, start: number, end: number, eol: MdEol = '\n'): string => run('MD-019', text, { ranges: [span(start, end)], eol });
+      // Before: `<p>foo</p>\nbar` (`bar` raw HTML in the block). The paragraph is now split in two.
+      assert.deepStrictEqual(outcome('MD-019', 'foo\nbar', [span(0, 3)]), ['<p>foo</p>\n\nbar', [[0, 12]]]);
+      assert.deepStrictEqual(outcome('MD-019', 'foo\nbar', [span(0, 4)]), ['<p>foo</p>\n\nbar', [[0, 12]]]);
+      assert.strictEqual(html('foo  \nbar', 0, 3), '<p>foo</p>\n\nbar');
+      assert.strictEqual(html('foo\r\nbar', 0, 3, '\r\n'), '<p>foo</p>\r\n\r\nbar');
+      assert.strictEqual(html('  foo\nbar', 2, 5), '  <p>foo</p>\n\nbar');
+      // The continuation line keeps being read as before: indentation of 4 columns or more is taken,
+      // and a text that would start a block gets a backslash; a block that interrupted the paragraph stays.
+      assert.strictEqual(html('foo\n    bar', 0, 3), '<p>foo</p>\n\nbar');
+      assert.strictEqual(html('foo\n2. x', 0, 3), '<p>foo</p>\n\n2\\. x');
+      assert.strictEqual(html('foo\n    - x', 0, 3), '<p>foo</p>\n\n\\- x');
+      assert.strictEqual(html('foo\n# x', 0, 3), '<p>foo</p>\n\n# x');
+      assert.strictEqual(html('foo\n- x', 0, 3), '<p>foo</p>\n\n- x');
+      // Several lines, the ROADMAP example followed by a line.
+      assert.strictEqual(html('# a\n**b**\nc', 0, 9), '<h1>a</h1>\n<p><strong>b</strong></p>\n\nc');
+      // Several selections: a cursor in what is taken moves to the end of the edit; a non-empty
+      // selection on the next line makes its own HTML (inside the block, as before).
+      assert.deepStrictEqual(outcome('MD-019', 'foo\nbar', [span(0, 3), span(5, 5)]), ['<p>foo</p>\n\nbar', [[0, 12], [13, 13]]]);
+      assert.deepStrictEqual(outcome('MD-019', 'foo\nbar', [span(0, 3), span(4, 4)]), ['<p>foo</p>\n\nbar', [[0, 12], [12, 12]]]);
+      assert.strictEqual(run('MD-019', 'foo\nbar', { ranges: [span(0, 3), span(4, 7)] }), '<p>foo</p>\n<p>bar</p>');
+      // Nothing after the block: the whole text, a blank line after, a block closed by itself.
+      assert.strictEqual(html('foo\nbar', 0, 7), '<p>foo\nbar</p>');
+      assert.strictEqual(html('foo\n\nbar', 0, 3), '<p>foo</p>\n\nbar');
+      assert.strictEqual(html('```\ncode\n```\nbar', 0, 12), '<pre><code>code\n</code></pre>\nbar');
+    });
+
+    test('MD-019: a blank line in a block quote (condition 2)', () => {
+      const html = (text: string, start: number, end: number): string => run('MD-019', text, { ranges: [span(start, end)] });
+      // Before: `> <p>foo</p>\n> bar` (`bar` raw HTML in the block). The blank line keeps the quote open.
+      assert.deepStrictEqual(outcome('MD-019', '> foo\n> bar', [span(2, 5)]), ['> <p>foo</p>\n>\n> bar', [[2, 15]]]);
+      assert.strictEqual(html('  > foo\n  > bar', 4, 7), '  > <p>foo</p>\n  >\n  > bar');
+      assert.strictEqual(html('> foo\n>     bar', 2, 5), '> <p>foo</p>\n>\n> bar');
+      assert.strictEqual(html('> foo\n> 2. x', 2, 5), '> <p>foo</p>\n>\n> 2\\. x');
+      assert.strictEqual(html('> foo\n> # x', 2, 5), '> <p>foo</p>\n>\n> # x');
+      // `>` without a space after it counts; a tab after it is not certain (as before).
+      assert.strictEqual(html('>foo\n>bar', 1, 4), '><p>foo</p>\n>\n>bar');
+      assert.strictEqual(html('>\tfoo\n>\tbar', 2, 5), '>\t<p>foo</p>\n>\tbar');
+      assert.strictEqual(html('> foo\n>\tbar', 2, 5), '> <p>foo</p>\n>\tbar');
+      // A lazy continuation line gets the quote's marker; a block after the quote stays.
+      assert.strictEqual(html('> foo\nbar', 2, 5), '> <p>foo</p>\n>\n> bar');
+      assert.strictEqual(html('> foo\n# x', 2, 5), '> <p>foo</p>\n>\n# x');
+      // Not certain: a lazy line indented by 4 columns or that may start a block, an HTML of several lines.
+      assert.strictEqual(html('> foo\n    bar', 2, 5), '> <p>foo</p>\n    bar');
+      assert.strictEqual(html('> foo\n#x', 2, 5), '> <p>foo</p>\n#x');
+      assert.strictEqual(html('> foo **a\nb** c\n> bar', 2, 13), '> <p>foo <strong>a\nb</strong></p> c\n> bar');
+    });
+
+    test('MD-019: what is left as before (condition 2)', () => {
+      const html = (text: string, start: number, end: number): string => run('MD-019', text, { ranges: [span(start, end)] });
+      // After other text on the line, the HTML is inline: the paragraph goes on as before.
+      assert.strictEqual(html('x foo\nbar', 2, 5), 'x <p>foo</p>\nbar');
+      assert.strictEqual(html('> x foo\n> bar', 4, 7), '> x <p>foo</p>\n> bar');
+      // In a list item: a blank line would make the whole list loose (every item in a `<p>`), a
+      // change beyond the item selected. Left as it is (a candidate for another ticket).
+      assert.strictEqual(html('- foo\n  bar', 2, 5), '- <p>foo</p>\n  bar');
+      assert.strictEqual(html('- foo\nbar', 2, 5), '- <p>foo</p>\nbar');
+      assert.strictEqual(html('1. foo\n   bar', 3, 6), '1. <p>foo</p>\n   bar');
+      assert.strictEqual(html('> - foo\n>   bar', 4, 7), '> - <p>foo</p>\n>   bar');
+      // Text after the selection on its own line is in the block on that line (another ticket).
+      assert.strictEqual(html('foo bar\nbaz', 0, 3), '<p>foo</p> bar\nbaz');
+      // The paragraph was a setext heading; a line that would start an HTML block, a definition or
+      // code after the blank line (no closer to how it was shown than raw HTML in the block).
+      assert.strictEqual(html('foo\n===', 0, 3), '<p>foo</p>\n===');
+      assert.strictEqual(html('foo\n    <div>', 0, 3), '<p>foo</p>\n    <div>');
+      assert.strictEqual(html('foo\n<custom>', 0, 3), '<p>foo</p>\n<custom>');
+      assert.strictEqual(html('foo\n[x]: /u', 0, 3), '<p>foo</p>\n[x]: /u');
+    });
+
+    test('MD-023: the definitions go after the end of the paragraph (condition 5)', () => {
+      // Before: `[a][1]\n\n[1]: u\nbar`, which split the paragraph in two.
+      assert.deepStrictEqual(outcome('MD-023', '[a](u)\nbar', [span(0, 6)]), ['[a][1]\nbar\n\n[1]: u', [[0, 6]]]);
+      assert.strictEqual(run('MD-023', 'x [a](u) y\nbar', { ranges: [span(2, 8)] }), 'x [a][1] y\nbar\n\n[1]: u');
+      assert.strictEqual(run('MD-023', 'foo\n[a](u)\nbar\nbaz\n\nq', { ranges: [span(4, 10)] }), 'foo\n[a][1]\nbar\nbaz\n\n[1]: u\n\nq');
+      assert.strictEqual(run('MD-023', '[a](u)\nbar\n# h', { ranges: [span(0, 6)] }), '[a][1]\nbar\n\n[1]: u\n# h');
+      assert.strictEqual(run('MD-023', '[a](u)\r\nbar', { ranges: [span(0, 6)], eol: '\r\n' }), '[a][1]\r\nbar\r\n\r\n[1]: u');
+      // Selected with the line break: the selection selects its own text only, the definitions are after the paragraph.
+      assert.deepStrictEqual(outcome('MD-023', '[a](u)\nbar', [span(0, 7)]), ['[a][1]\nbar\n\n[1]: u', [[0, 7]]]);
+      // Two selections in the same paragraph share one block of definitions; a cursor at the end of
+      // the paragraph stays before them.
+      assert.deepStrictEqual(outcome('MD-023', '[a](u)\n[b](v) x\nbar', [span(0, 6), span(7, 13), span(19, 19)]),
+        ['[a][1]\n[b][2] x\nbar\n\n[1]: u\n[2]: v', [[0, 6], [7, 13], [19, 19]]]);
+      // A selection on the paragraph's last line ending at its end writes them in its own edit, as before.
+      assert.deepStrictEqual(outcome('MD-023', '[a](u)\n[b](v)', [span(0, 6), span(7, 13)]), ['[a][1]\n[b][2]\n\n[1]: u\n[2]: v', [[0, 6], [7, 28]]]);
+    });
+
+    test('MD-023: what is left as before (condition 5)', () => {
+      // In a list item or a quote: definitions at the top level would close the container.
+      assert.strictEqual(run('MD-023', '- [a](u)\n  bar', { ranges: [span(2, 8)] }), '- [a][1]\n\n[1]: u\n  bar');
+      assert.strictEqual(run('MD-023', '> [a](u)\n> bar', { ranges: [span(2, 8)] }), '> [a][1]\n\n[1]: u\n> bar');
+      // The paragraph is a setext heading, or what follows it is not certain (a table).
+      assert.strictEqual(run('MD-023', '[a](u)\nbar\n===', { ranges: [span(0, 6)] }), '[a][1]\n\n[1]: u\nbar\n===');
+      assert.strictEqual(run('MD-023', '[a](u)\nbar | x\n--- | -', { ranges: [span(0, 6)] }), '[a][1]\n\n[1]: u\nbar | x\n--- | -');
+      // A blank line right after (unchanged).
+      assert.strictEqual(run('MD-023', '[a](u)\n\nbar', { ranges: [span(0, 6)] }), '[a][1]\n\n[1]: u\n\nbar');
     });
   });
 
@@ -1670,6 +1911,16 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       });
       const links = '[a](u) '.repeat(100_000);
       fast('MD-023', 2000, () => result('MD-023', links, { ranges: Array.from({ length: 100_000 }, (_value, i) => ({ start: 7 * i, end: 7 * i + 6 })) }));
+    });
+
+    test('many selections in one long paragraph (MD-004, MD-019, MD-023, SELEC-00151) are linear', function () {
+      this.timeout(20_000);
+      const text = `${'foo\n'.repeat(100_000)}2. x`;
+      const ranges = Array.from({ length: 100_000 }, (_value, i) => ({ start: 4 * i, end: 4 * i + 3 }));
+      fast('MD-004', 3000, () => result('MD-004', text, { ranges }));
+      fast('MD-019', 3000, () => result('MD-019', text, { ranges }));
+      const links = '[a](u)\n'.repeat(100_000);
+      fast('MD-023', 3000, () => result('MD-023', links, { ranges: Array.from({ length: 100_000 }, (_value, i) => ({ start: 7 * i, end: 7 * i + 6 })) }));
     });
 
     test('many large results over the output limit are refused', function () {
