@@ -6,7 +6,7 @@ import { openTextDocument } from '../common';
 
 type Command = 'encode' | 'decode' | 'deflate' | 'inflate';
 
-export const base64Handler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+export const base64Handler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => Promise<boolean> | undefined = (command, isReplace) => (textEditor) => {
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;

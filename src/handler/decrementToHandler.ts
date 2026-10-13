@@ -4,7 +4,7 @@ import {
 } from 'vscode';
 import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 
-export const decrementToHandler: (decrementTo: number) => (textEditor: TextEditor) => void = (decrementTo) => (textEditor) => {
+export const decrementToHandler: (decrementTo: number) => (textEditor: TextEditor) => Promise<boolean> | undefined = (decrementTo) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }

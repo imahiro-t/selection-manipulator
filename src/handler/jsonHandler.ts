@@ -6,7 +6,7 @@ import { openTextDocument } from '../common';
 
 type Command = 'format' | 'minify' | 'stringify' | 'parse' | 'flatten' | 'unflatten';
 
-export const jsonHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+export const jsonHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => Promise<boolean> | undefined = (command, isReplace) => (textEditor) => {
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;

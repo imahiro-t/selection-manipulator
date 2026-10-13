@@ -4,7 +4,7 @@ import {
 import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
-export const csvHandler: (command: 'csv-to-markdown' | 'markdown-to-csv', isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+export const csvHandler: (command: 'csv-to-markdown' | 'markdown-to-csv', isReplace: boolean) => (textEditor: TextEditor) => Promise<boolean> | undefined = (command, isReplace) => (textEditor) => {
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;

@@ -111,7 +111,7 @@ const applyTransform = async (
   }
   await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  }, { notifier: notifier });
+  }, { notifier });
 };
 
 /** ENC commands that do not need any input (39 commands). The dependencies can be replaced in tests. */

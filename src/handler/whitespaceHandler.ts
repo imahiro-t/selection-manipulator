@@ -125,7 +125,7 @@ const applyTransform = async (
   }
   await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  }, { notifier: notifier });
+  }, { notifier });
 };
 
 /** WS commands that do not need any input (31 commands). The notifier can be replaced in tests. */
@@ -184,7 +184,7 @@ export const whitespaceInputHandlerInternal = (
   if (input === undefined || spec.validate(input) !== undefined) {
     return;
   }
-  if (!ensureEditorAfterInput(textEditor, { notifier: notifier })) {
+  if (!ensureEditorAfterInput(textEditor, { notifier })) {
     return;
   }
   await applyTransform(textEditor, notifier, command, spec.toOptions(input));

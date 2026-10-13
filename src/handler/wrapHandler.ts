@@ -92,7 +92,7 @@ const applyTransform = async (
   }
   await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  }, { notifier: notifier });
+  }, { notifier });
 };
 
 /** WRAP commands that do not need any input (26 commands). The notifier can be replaced in tests. */
@@ -159,7 +159,7 @@ export const wrapInputHandlerInternal = (
     }
     options = { ...options, ...step.toOptions(input) };
   }
-  if (!ensureEditorAfterInput(textEditor, { notifier: notifier })) {
+  if (!ensureEditorAfterInput(textEditor, { notifier })) {
     return;
   }
   // applyTransform reads the selections again: the document may have changed while the input

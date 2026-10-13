@@ -123,7 +123,7 @@ const applyHash = async (
     if (replacements.length > 0) {
       await applyEdit(textEditor, (editBuilder) => {
         replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-      }, { notifier: notifier });
+      }, { notifier });
     }
     return;
   }

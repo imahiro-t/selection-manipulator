@@ -5,7 +5,7 @@ import {
 } from 'vscode';
 import { applyEdit } from '../editGuard';
 
-export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => Promise<boolean> | undefined = (textEditor) => {
   const selections: Array<Selection> = [];
   const selectedTexts: Array<string> = [];
   textEditor.selections.forEach((selection) => {
