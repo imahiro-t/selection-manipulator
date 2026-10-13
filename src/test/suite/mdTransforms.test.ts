@@ -591,14 +591,14 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-024', 'para\n\n\tfoo', { inputs: ['S'], ranges: [{ start: 7, end: 10 }] }),
         'para\n\n<details><summary>S</summary>\n\nfoo\n\n</details>');
       // Boundaries: 3 spaces stay; 4 spaces, more than 4, and 2 spaces and a tab (4 columns) are dropped.
-      // MD-014 writes the 3 spaces before the first line in the block and the closing fence too
-      // (SELEC-00082): the fence's indentation is removed from the line when rendered, so it still
-      // renders as "foo".
+      // MD-014 (SELEC-00082) and MD-024 (SELEC-00135) write the 3 spaces before the first line in the
+      // block and the closing fence or tag too: the fence's indentation is removed from the line when
+      // rendered, so it still renders as "foo".
       assert.strictEqual(run('MD-014', '   foo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '   ```\n   foo\n   ```');
       assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```');
       assert.strictEqual(run('MD-014', '      foo', { inputs: [''], ranges: [{ start: 6, end: 9 }] }), '```\nfoo\n```');
       assert.strictEqual(run('MD-014', '  \tfoo', { inputs: [''], ranges: [{ start: 3, end: 6 }] }), '```\nfoo\n```');
-      assert.strictEqual(run('MD-024', '   foo', { inputs: ['S'], ranges: [{ start: 3, end: 6 }] }), '   <details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.strictEqual(run('MD-024', '   foo', { inputs: ['S'], ranges: [{ start: 3, end: 6 }] }), '   <details><summary>S</summary>\n\n   foo\n\n   </details>');
       assert.strictEqual(run('MD-024', '  \tfoo', { inputs: ['S'], ranges: [{ start: 3, end: 6 }] }), '<details><summary>S</summary>\n\nfoo\n\n</details>');
       // The indentation selected with the text stays in the block, as before.
       assert.strictEqual(run('MD-014', '    foo', { inputs: [''] }), '```\n    foo\n```');
@@ -619,13 +619,12 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-014', '    foo  bar', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```\nbar');
       // Two selections on one line: the second follows text, so it starts on a new line as before.
       assert.strictEqual(run('MD-014', '    a b', { inputs: [''], ranges: [{ start: 4, end: 5 }, { start: 6, end: 7 }] }), '```\na\n```\n\n```\nb\n```');
-      // A cursor inside the indentation: the edit does not reach before it. This pins the current
-      // output only, which is a known problem (the opening fence ends up 4 columns deep and is read
-      // as an indented code block; it was already so before SELEC-00082) left for a separate ticket:
-      // MD-014 counts only the 2 columns after the cursor as the indentation before the selection.
-      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }), '    ```\n  foo\n  ```');
+      // A cursor inside the indentation does not cut it short (SELEC-00135): the whole indentation
+      // is counted and taken into the edit, as with no cursor, and the cursor moves to the start of
+      // the line.
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }), '```\nfoo\n```');
       assert.strictEqual(run('MD-024', '    foo', { inputs: ['S'], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] }),
-        '    <details><summary>S</summary>\n\nfoo\n\n</details>');
+        '<details><summary>S</summary>\n\nfoo\n\n</details>');
       // The block and the selection after it start at the start of the line.
       assert.deepStrictEqual(selectedAfter('MD-014', 'para\n\n    foo', { inputs: [''], ranges: [{ start: 10, end: 13 }] }), ['```\nfoo\n```']);
     });
@@ -691,10 +690,82 @@ suite('Markdown Transforms (MD-001..025) Test Suite', () => {
       assert.strictEqual(run('MD-014', text, { inputs: [''], ranges: [{ start: 2, end: 3 }, { start: 8, end: 9 }] }), '  ```\n  a\n  ```\n```\nb\n```');
     });
 
-    test('MD-024: the indentation before the selection is handled as before (SELEC-00082)', () => {
-      assert.strictEqual(run('MD-024', '  a\n    b', { inputs: ['S'], ranges: [{ start: 2, end: 9 }] }), '  <details><summary>S</summary>\n\na\n    b\n\n</details>');
-      assert.strictEqual(run('MD-024', '  a\nb', { inputs: ['S'], ranges: [{ start: 2, end: 5 }] }), '  <details><summary>S</summary>\n\na\nb\n\n</details>');
-      assert.strictEqual(run('MD-024', '    a\n    b', { inputs: ['S'], ranges: [{ start: 4, end: 11 }] }), '<details><summary>S</summary>\n\na\n    b\n\n</details>');
+    test('MD-014/024: a cursor inside the indentation does not cut it short (SELEC-00135)', () => {
+      const ranges = (outcome: MdResult): number[][] => {
+        assert.ok(outcome.kind === 'edit');
+        return outcome.ranges.map(({ start, end }) => [start, end]);
+      };
+      // The case from the ticket: the fence starts the line (it is not 4 columns deep, which would
+      // make it an indented code block), the lines keep their relative indentation, and the cursor
+      // inside the indentation taken into the edit moves to the start of the line.
+      const lines = '    a\n    b';
+      const fenced = result('MD-014', lines, { inputs: [''], ranges: [{ start: 2, end: 2 }, { start: 4, end: 11 }] });
+      assert.strictEqual(applied(lines, fenced), '```\na\nb\n```');
+      assert.deepStrictEqual(ranges(fenced), [[0, 0], [0, 11]]);
+      // The same as with no cursor; MD-024 too.
+      assert.strictEqual(run('MD-014', '    foo', { inputs: [''], ranges: [{ start: 4, end: 7 }] }), '```\nfoo\n```');
+      const details = result('MD-024', '    foo', { inputs: ['S'], ranges: [{ start: 2, end: 2 }, { start: 4, end: 7 }] });
+      assert.strictEqual(applied('    foo', details), '<details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.deepStrictEqual(ranges(details), [[0, 0], [0, 46]]);
+      // Several cursors inside the indentation all move to the start of the line.
+      const several = result('MD-014', '    foo', { inputs: [''], ranges: [{ start: 1, end: 1 }, { start: 3, end: 3 }, { start: 4, end: 7 }] });
+      assert.strictEqual(applied('    foo', several), '```\nfoo\n```');
+      assert.deepStrictEqual(ranges(several), [[0, 0], [0, 0], [0, 11]]);
+      // Up to 3 columns that stay: the whole indentation is written before the first line and the
+      // closing fence (before SELEC-00135 only the column after the cursor was), and the cursor stays.
+      const three = '   a\n   b';
+      const kept = result('MD-014', three, { inputs: [''], ranges: [{ start: 1, end: 1 }, { start: 3, end: 9 }] });
+      assert.strictEqual(applied(three, kept), '   ```\n   a\n   b\n   ```');
+      assert.deepStrictEqual(ranges(kept), [[1, 1], [3, 23]]);
+    });
+
+    test('MD-014/024: a cursor in the spaces after other text keeps its place, as before (SELEC-00135)', () => {
+      // The spaces split off after other text are not taken from before a cursor (unchanged by
+      // SELEC-00135): the text and the cursor are as before.
+      const text = 'x    foo';
+      const fenced = result('MD-014', text, { inputs: [''], ranges: [{ start: 3, end: 3 }, { start: 5, end: 8 }] });
+      assert.strictEqual(applied(text, fenced), 'x  \n```\nfoo\n```');
+      assert.ok(fenced.kind === 'edit');
+      assert.deepStrictEqual(fenced.ranges.map(({ start, end }) => [start, end]), [[3, 3], [3, 15]]);
+      const details = result('MD-024', text, { inputs: ['S'], ranges: [{ start: 3, end: 3 }, { start: 5, end: 8 }] });
+      assert.strictEqual(applied(text, details), 'x  \n<details><summary>S</summary>\n\nfoo\n\n</details>');
+      assert.ok(details.kind === 'edit');
+      assert.deepStrictEqual(details.ranges.map(({ start, end }) => [start, end]), [[3, 3], [3, 50]]);
+    });
+
+    test('MD-014: a cursor is moved by the next non-empty selection only, never by a later one (SELEC-00135)', () => {
+      // The cursor is in the 3 columns kept before the first selection, so it stays; the second
+      // selection (on the next line, 4 columns taken into its edit) does not move it either.
+      const text = '   a\n    b';
+      const outcome = result('MD-014', text, { inputs: [''], ranges: [{ start: 1, end: 1 }, { start: 3, end: 4 }, { start: 9, end: 10 }] });
+      assert.strictEqual(applied(text, outcome), '   ```\n   a\n   ```\n```\nb\n```');
+      assert.ok(outcome.kind === 'edit');
+      assert.deepStrictEqual(outcome.ranges.map(({ start, end }) => [start, end]), [[1, 1], [3, 18], [19, 28]]);
+    });
+
+    test('MD-024: lines selected from after the indentation of the first one keep their relative indentation (SELEC-00135)', () => {
+      const wrap = (text: string, start: number, eol: '\n' | '\r\n' = '\n'): string =>
+        run('MD-024', text, { inputs: ['S'], ranges: [{ start, end: text.length }], eol });
+      // Up to 3 columns, every later line starting with them: both tags stay after them and the
+      // first line gets them too, so every line is as it was.
+      assert.strictEqual(wrap('  a\n    b', 2), '  <details><summary>S</summary>\n\n  a\n    b\n\n  </details>');
+      assert.strictEqual(wrap('  a\n\n  b', 2), '  <details><summary>S</summary>\n\n  a\n\n  b\n\n  </details>');
+      // Up to 3 columns, but a later line does not start with them: the tags start the line.
+      assert.strictEqual(wrap('  a\nb', 2), '<details><summary>S</summary>\n\n  a\nb\n\n</details>');
+      // 4 columns or more, or a tab: the tags start the line and the shared indentation is removed.
+      assert.strictEqual(wrap('    a\n    b', 4), '<details><summary>S</summary>\n\na\nb\n\n</details>');
+      assert.strictEqual(wrap('    a\n      b', 4), '<details><summary>S</summary>\n\na\n  b\n\n</details>');
+      assert.strictEqual(wrap('\ta\n\tb', 1), '<details><summary>S</summary>\n\na\nb\n\n</details>');
+      // CRLF.
+      assert.strictEqual(wrap('  a\r\n    b', 2, '\r\n'), '  <details><summary>S</summary>\r\n\r\n  a\r\n    b\r\n\r\n  </details>');
+      assert.strictEqual(wrap('    a\r\n      b\r\n', 4, '\r\n'), '<details><summary>S</summary>\r\n\r\na\r\n  b\r\n\r\n</details>\r\n');
+      // From the start of the line: the selected text is written as it is.
+      assert.strictEqual(wrap('    a\n    b', 0), '<details><summary>S</summary>\n\n    a\n    b\n\n</details>');
+      // After other text on the line: nothing is added or removed.
+      assert.strictEqual(wrap('x   a\n    b', 4), 'x\n<details><summary>S</summary>\n\na\n    b\n\n</details>');
+      // Inside a list item: both tags are indented as the item's content, so the block stays in the item.
+      assert.strictEqual(run('MD-024', '- item\n\n  a\n    b\n', { inputs: ['S'], ranges: [{ start: 10, end: 18 }] }),
+        '- item\n\n  <details><summary>S</summary>\n\n  a\n    b\n\n  </details>\n');
     });
 
     test('MD-023: indentation before the link does not reach the definitions (SELEC-00066)', () => {
