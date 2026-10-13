@@ -273,7 +273,6 @@ const trimWs = (s: string): string => {
   return start === s.length ? '' : s.slice(start, trailingStart(s, isHorizontalWs));
 };
 
-
 /** Length of the single trailing line break of `text` (0, 1 or 2). */
 export const trailingBreakLength = (text: string): number => {
   if (text.endsWith('\r\n')) {

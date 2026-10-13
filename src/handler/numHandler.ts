@@ -38,9 +38,6 @@ export const NUM_NOTHING_SELECTED = 'Select the numbers to use.';
 
 const prefixOf = (entry: NumCommandEntry): string => (entry.output === 'new-tab' ? NOT_SHOWN : NOT_CHANGED);
 
-/** The selections to work on (see `nonBlankSelections`). */
-const targetSelections = nonBlankSelections;
-
 const entryOf = (entries: readonly NumCommandEntry[], name: string): NumCommandEntry => {
   const entry = entries.find((candidate) => candidate.name === name);
   if (!entry) {
@@ -176,7 +173,7 @@ export const numHandlerInternal = (dependencies: NumDependencies, entries: reado
     const entry = entryOf(entries, name);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
-        if (targetSelections(textEditor).length === 0) {
+        if (nonBlankSelections(textEditor).length === 0) {
           void dependencies.notifier.showWarningMessage(NUM_NOTHING_SELECTED);
           return;
         }
@@ -188,7 +185,7 @@ export const numHandlerInternal = (dependencies: NumDependencies, entries: reado
           return;
         }
         // The selections are read again: the document may have changed while a prompt was open.
-        const selections = targetSelections(textEditor);
+        const selections = nonBlankSelections(textEditor);
         if (selections.length === 0) {
           void dependencies.notifier.showWarningMessage(NUM_NOTHING_SELECTED);
           return;

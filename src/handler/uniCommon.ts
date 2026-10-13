@@ -8,7 +8,7 @@
  * the input, and the results are counted against the output limit.
  */
 import { quoteForDisplay } from '../textFormat';
-import { assertInputLength } from './textCommon';
+import { assertInputLength, forEachLfLine } from './textCommon';
 
 export { assertWithinBudget, isBlank, OutputBuffer as UniOutputBuffer } from './textCommon';
 
@@ -57,8 +57,9 @@ export interface UniTextRange {
 /**
  * Calls `visit` for every line of the text with the line itself and the line break after it
  * (`''` for the last line). LF and CRLF are recognised; a lone CR stays in the line.
+ * A lone CR at the very end of the text is dropped (see `forEachLfLine`; kept unchanged).
  */
-export { forEachLfLine as forEachUniLine } from './textCommon';
+export const forEachUniLine = forEachLfLine;
 
 /** Made once: creating a segmenter is far more expensive than using one. */
 const GRAPHEME_SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });

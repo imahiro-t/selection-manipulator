@@ -41,7 +41,6 @@ export const defaultDevDependencies: DevDependencies = {
 
 export const DEV_NOTHING_SELECTED = 'Select the text to convert.';
 
-
 const prefixOf = (entry: DevCommandEntry): string => (entry.output === 'replace' ? NOT_CHANGED : NOT_SHOWN);
 
 /**
@@ -89,8 +88,6 @@ const notifyFailure = (dependencies: DevDependencies, prefix: string, error: unk
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
 
-type Converted = Replacement;
-
 /**
  * Converts every selection (in document order) with the transform of the command. Each selection
  * gets what is left of MAX_OUTPUT_LENGTH as its budget. Returns `undefined` (after telling the
@@ -103,8 +100,8 @@ const convertSelections = (
   selections: readonly Selection[],
   context: DevContext,
   separatorLength: number
-): Converted[] | undefined => {
-  const results: Converted[] = [];
+): Replacement[] | undefined => {
+  const results: Replacement[] = [];
   let total = 0;
   let current = 0;
   try {

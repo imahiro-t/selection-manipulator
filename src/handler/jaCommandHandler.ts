@@ -66,9 +66,6 @@ const prefixOf = (entry: JaCommandEntry): string => {
   }
 };
 
-/** The selections to work on (see `nonBlankSelections`). */
-const targetSelections = nonBlankSelections;
-
 const isExpected = (error: unknown): boolean => error instanceof JaInputError || error instanceof EncOutputTooLargeError;
 
 /**
@@ -114,8 +111,6 @@ const notifyFailure = (dependencies: JaDependencies, prefix: string, error: unkn
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
 
-type Converted = Replacement;
-
 /**
  * Converts every selection (in document order) with the transform of the command. Each selection
  * gets what is left of MAX_OUTPUT_LENGTH as its budget. Returns `undefined` (after telling the
@@ -128,9 +123,9 @@ const convertSelections = (
   selections: readonly Selection[],
   context: JaContext,
   separatorLength: number
-): Converted[] | undefined => {
+): Replacement[] | undefined => {
   const transform = entry.transform!;
-  const results: Converted[] = [];
+  const results: Replacement[] = [];
   let total = 0;
   let current = 0;
   try {
@@ -259,7 +254,7 @@ export const jaCommandHandlerInternal = (dependencies: JaDependencies, entries: 
     }
     return async (textEditor: TextEditor): Promise<void> => {
       try {
-        if (targetSelections(textEditor).length === 0) {
+        if (nonBlankSelections(textEditor).length === 0) {
           void dependencies.notifier.showWarningMessage(JA_NOTHING_SELECTED);
           return;
         }
@@ -282,7 +277,7 @@ export const jaCommandHandlerInternal = (dependencies: JaDependencies, entries: 
           }
         }
         // The selections are read again: the document may have changed while the quick pick was open.
-        const selections = targetSelections(textEditor);
+        const selections = nonBlankSelections(textEditor);
         if (selections.length === 0) {
           void dependencies.notifier.showWarningMessage(JA_NOTHING_SELECTED);
           return;

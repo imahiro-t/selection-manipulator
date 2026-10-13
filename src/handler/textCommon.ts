@@ -1,8 +1,16 @@
 /**
- * Shared, vscode-independent helpers of the category commands (DEV, UNI, JA, DATE, GEN, NUM, ...):
- * the blank test, the input length check, the output budget and the two line splitters. Each
- * category keeps its own names for these (`isBlank`, `assertXxxInputLength`, `XxxOutputBuffer`,
- * `forEachXxxLine`) as aliases or thin wrappers, so the rules live in one place.
+ * Shared, vscode-independent helpers of the category commands (DEV, UNI, JA, DATE, GEN, NUM, LINE,
+ * WS, DATA, ...):
+ * - the blank test, the input length check, the output budget (`OutputBuffer`) and the two line
+ *   splitters (`forEachLine`, `forEachLfLine`);
+ * - the horizontal whitespace helpers of the WS and LINE commands (`LINE_BREAK`, `isSpaceOrTab`,
+ *   `isHorizontalWs`, `leadingLength`, `trailingStart`, `isBlankLine`, `sum`);
+ * - `JS_IDENTIFIER`, the unquoted property key test of the DATA and DEV commands.
+ *
+ * Each category keeps its own names for these as aliases, re-exports or thin wrappers, so the
+ * rules live in one place: for example `isBlank`, `assertXxxInputLength`, `XxxOutputBuffer` and
+ * `forEachXxxLine` (DEV, UNI, JA, DATE, GEN, NUM), `lineTransforms.isBlankLine` (LINE) and
+ * `dataCommon.IDENTIFIER` (DATA).
  *
  * Security rules (SECURITY.md): nothing here evaluates code, no regular expression is built from
  * the user's text, every loop is linear in the input, and the results are counted against the
@@ -107,7 +115,10 @@ export const forEachLine = (text: string, visit: (line: string, lineBreak: strin
 /**
  * Calls `visit` for every line of the text with the line itself, the line break after it (`''`
  * for the last line) and its number (from 1). Only LF and CRLF are recognised: a lone CR stays in
- * the line (the JA, UNI and DATE commands).
+ * the line (the JA, UNI and DATE commands). A lone CR at the very end of the text, however, is
+ * passed neither in the line nor as its line break, so it is dropped (`'a\r'` visits `'a'`, `''`,
+ * 1). This is the long-standing behaviour of the JA / UNI / DATE splitters and is kept unchanged
+ * here on purpose.
  *
  * See `forEachLine` for the variant in which a lone CR is a line break too.
  */

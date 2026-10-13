@@ -74,9 +74,6 @@ const prefixOf = (entry: DateCommandEntry): string => {
   }
 };
 
-/** The selections to work on (see `nonBlankSelections`). */
-const targetSelections = nonBlankSelections;
-
 const entryOf = (name: string, entries: readonly DateCommandEntry[]): DateCommandEntry => {
   const entry = entries.find((candidate) => candidate.name === name);
   if (!entry) {
@@ -132,8 +129,6 @@ const notifyFailure = (dependencies: DateDependencies, prefix: string, error: un
   void dependencies.notifier.showErrorMessage(`${prefix}${where}${reasonOf(error)}`);
 };
 
-type Converted = Replacement;
-
 /**
  * Converts every selection (in document order) with the transform of the command. Each selection
  * gets what is left of MAX_OUTPUT_LENGTH as its budget. Returns `undefined` (after telling the
@@ -147,8 +142,8 @@ const convertSelections = (
   inputs: readonly string[],
   context: DateContext,
   separatorLength: number
-): Converted[] | undefined => {
-  const results: Converted[] = [];
+): Replacement[] | undefined => {
+  const results: Replacement[] = [];
   let total = 0;
   let current = 0;
   try {
@@ -268,7 +263,7 @@ export const dateCommandHandlerInternal = (dependencies: DateDependencies, entri
     const entry = entryOf(name, entries);
     return async (textEditor: TextEditor): Promise<void> => {
       try {
-        if (targetSelections(textEditor).length === 0) {
+        if (nonBlankSelections(textEditor).length === 0) {
           void dependencies.notifier.showWarningMessage(DATE_NOTHING_SELECTED);
           return;
         }
@@ -287,7 +282,7 @@ export const dateCommandHandlerInternal = (dependencies: DateDependencies, entri
           return;
         }
         // The selections are read again: the document may have changed while a prompt was open.
-        const selections = targetSelections(textEditor);
+        const selections = nonBlankSelections(textEditor);
         if (selections.length === 0) {
           void dependencies.notifier.showWarningMessage(DATE_NOTHING_SELECTED);
           return;
