@@ -2,6 +2,7 @@ import {
   window,
   TextEditor
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 
 const DEFAULT_DIGIT = 8;
 
@@ -14,8 +15,11 @@ export const zeroPaddingHandler: (textEditor: TextEditor) => void = async (textE
     placeHolder: `Default: ${DEFAULT_DIGIT}`,
     ignoreFocusOut: true,
   }));
+  if (!ensureEditorAfterInput(textEditor)) {
+    return;
+  }
   digit = digit > 0 ? digit : DEFAULT_DIGIT;
-  textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach((selection) => {
         const text = textEditor.document.getText(selection);

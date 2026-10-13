@@ -1,9 +1,10 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
 export const insertDateHandler: (format: 'iso' | 'locale' | 'timestamp') => (textEditor: TextEditor) => Thenable<boolean> = (format) => (textEditor) => {
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     const now = new Date();
     let dateStr = '';
 

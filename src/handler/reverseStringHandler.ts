@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
 
@@ -11,7 +12,7 @@ export const reverseStringHandler: (isClipboard: boolean) => (textEditor: TextEd
 
   // If replacing, we edit the document
   if (!isClipboard) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       textEditor.selections.forEach((selection) => {
         const text = textEditor.document.getText(selection);
         const reversedText = [...text].reverse().join('');

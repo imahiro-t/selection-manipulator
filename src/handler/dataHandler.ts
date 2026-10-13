@@ -7,6 +7,7 @@ import {
   TextEditorRevealType,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import {
@@ -164,9 +165,9 @@ const applyTransform = async (
   }
   const replacements = results.filter(({ text, result }) => text !== result);
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    });
+    }, { notifier: dependencies.notifier });
   }
 };
 
@@ -282,6 +283,9 @@ const applyWithPrompt = async (textEditor: TextEditor, dependencies: DataDepende
   const problem = findPathProblem(input);
   if (problem !== undefined) {
     void dependencies.notifier.showWarningMessage(`${NOT_CHANGED}${problem}`);
+    return;
+  }
+  if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
     return;
   }
   await applyTransform(textEditor, dependencies, entry, parsePath(input));

@@ -5,6 +5,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import {
   EncCommand,
@@ -108,9 +109,9 @@ const applyTransform = async (
   if (replacements.length === 0) {
     return;
   }
-  await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  });
+  }, { notifier });
 };
 
 /** ENC commands that do not need any input (39 commands). The dependencies can be replaced in tests. */
@@ -150,6 +151,9 @@ export const encodeInputHandlerInternal = (
   }
   const shift = Number(input);
   if (!Number.isSafeInteger(shift)) {
+    return;
+  }
+  if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
     return;
   }
   // applyTransform reads the selections again: the document may have changed while the input

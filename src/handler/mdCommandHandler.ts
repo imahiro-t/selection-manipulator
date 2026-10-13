@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { MD_COMMAND_ENTRIES, MdChoice, MdCommandEntry, MdInputError, MdRange, MdResult } from './mdTransforms';
 
@@ -127,11 +128,10 @@ const applyResult = async (textEditor: TextEditor, dependencies: MdDependencies,
     case 'edit': {
       const document = textEditor.document;
       const edits = result.edits.map(({ start, end, text }) => ({ range: new Range(document.positionAt(start), document.positionAt(end)), text }));
-      const applied = await textEditor.edit((editBuilder) => {
+      const applied = await applyEdit(textEditor, (editBuilder) => {
         edits.forEach(({ range, text }) => editBuilder.replace(range, text));
-      });
+      }, { notifier: dependencies.notifier, prefix: MD_TEXT_NOT_CHANGED });
       if (!applied) {
-        void dependencies.notifier.showWarningMessage(`${MD_TEXT_NOT_CHANGED}the editor did not accept the edit.`);
         return;
       }
       setSelections(textEditor, result.ranges);
@@ -159,6 +159,9 @@ export const mdCommandHandlerInternal = (dependencies: MdDependencies, entries: 
         }
         const inputs = await askInputs(dependencies, entry);
         if (inputs === undefined) {
+          return;
+        }
+        if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
           return;
         }
         // The text and the selections are read after the input boxes close: they may have changed.

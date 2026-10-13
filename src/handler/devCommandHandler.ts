@@ -1,4 +1,5 @@
 import { EndOfLine, QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { assertDevInputLength, DevInputError, isBlank } from './devCommon';
 import { DEV_COMMAND_ENTRIES, DevCommandEntry, DevContext, DevQuickPickItem } from './devTransforms';
@@ -156,9 +157,9 @@ const applyTransform = async (
   }
   const replacements = results.filter(({ text, result }) => text !== result);
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    });
+    }, { notifier: dependencies.notifier });
   }
 };
 
@@ -195,6 +196,9 @@ export const devCommandHandlerInternal = (dependencies: DevDependencies, entries
             return;
           }
           choice = picked.value;
+          if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
+            return;
+          }
         }
         // The selections are read again: the document may have changed while the quick pick was open.
         const selections = targetSelections(textEditor, entry);

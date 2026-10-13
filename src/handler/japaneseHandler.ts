@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
 const kanaMap: { [key: string]: string } = {
@@ -65,7 +66,7 @@ export const fullWidthToHalfWidthHandler: (replace: boolean) => (textEditor: Tex
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -87,7 +88,7 @@ export const halfWidthToFullWidthHandler: (replace: boolean) => (textEditor: Tex
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -105,7 +106,7 @@ export const hiraganaToKatakanaHandler: (replace: boolean) => (textEditor: TextE
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));
@@ -129,7 +130,7 @@ export const katakanaToHiraganaHandler: (replace: boolean) => (textEditor: TextE
   };
 
   if (replace) {
-    return textEditor.edit(editBuilder => {
+    return applyEdit(textEditor, editBuilder => {
       textEditor.selections.forEach(selection => {
         const text = textEditor.document.getText(selection);
         editBuilder.replace(selection, convert(text));

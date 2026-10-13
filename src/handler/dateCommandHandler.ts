@@ -1,4 +1,5 @@
 import { env, EndOfLine, InputBoxOptions, Selection, TextEditor, window, workspace } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import {
   assertDateInputLength,
@@ -248,9 +249,9 @@ const applyTransform = async (
     default: {
       const replacements = results.filter(({ text, result }) => text !== result);
       if (replacements.length > 0) {
-        await textEditor.edit((editBuilder) => {
+        await applyEdit(textEditor, (editBuilder) => {
           replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-        });
+        }, { notifier: dependencies.notifier });
       }
     }
   }
@@ -300,6 +301,9 @@ export const dateCommandHandlerInternal = (dependencies: DateDependencies, entri
         }
         const inputs = await askPrompts(dependencies, entry);
         if (inputs === undefined) {
+          return;
+        }
+        if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
           return;
         }
         // The selections are read again: the document may have changed while a prompt was open.

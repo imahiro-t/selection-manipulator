@@ -1,4 +1,5 @@
 import { TextEditor } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocumentWithTitles } from '../common';
 
 // Maps
@@ -44,7 +45,7 @@ export const morseHandler = (mode: 'to-morse' | 'from-morse', output: 'new-tab' 
     .map(text => processText(text, mode, priority));
 
   if (output === 'replace') {
-    await textEditor.edit(editBuilder => {
+    await applyEdit(textEditor, editBuilder => {
       selections.forEach((selection, index) => {
         editBuilder.replace(selection, results[index]);
       });

@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, QuickPickItem, QuickPickOptions, Selection, TextEditor, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import {
   assertGenInputLength,
@@ -298,6 +299,9 @@ export const genCommandHandlerInternal = (dependencies: GenDependencies, entries
             inputs.push(answer);
           }
         }
+        if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
+          return;
+        }
         const context: GenContext = { random: dependencies.random, now, eol: documentEol(textEditor) };
         let results: string[];
         try {
@@ -306,9 +310,9 @@ export const genCommandHandlerInternal = (dependencies: GenDependencies, entries
           notifyFailure(dependencies, entry, error);
           return;
         }
-        await textEditor.edit((editBuilder) => {
+        await applyEdit(textEditor, (editBuilder) => {
           targets.forEach(({ selection }, index) => editBuilder.replace(selection, results[index]));
-        });
+        }, { notifier: dependencies.notifier });
       } catch (error) {
         // Last resort: an unexpected failure is reported instead of escaping to VS Code.
         void dependencies.notifier.showErrorMessage(`${GEN_NOT_CHANGED}${reasonOf(error)}`);

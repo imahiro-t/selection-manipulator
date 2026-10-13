@@ -2,12 +2,13 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 
-export const decrementByHandler: (decrementBy: number) => (textEditor: TextEditor) => void = (decrementBy) => (textEditor) => {
+export const decrementByHandler: (decrementBy: number) => (textEditor: TextEditor) => Promise<boolean> | undefined = (decrementBy) => (textEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
-  textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);
@@ -25,8 +26,11 @@ export const decrementByInputHandler: (textEditor: TextEditor) => void = async (
     placeHolder: `Default: 1`,
     ignoreFocusOut: true,
   }));
+  if (!ensureEditorAfterInput(textEditor)) {
+    return;
+  }
   decrementBy = decrementBy > 0 ? decrementBy : 1;
-  decrementByHandler(decrementBy)(textEditor);
+  await decrementByHandler(decrementBy)(textEditor);
 };
 
 const decrement: (num: number) => (value: string) => string = (num) => (value) => {

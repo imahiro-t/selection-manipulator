@@ -5,6 +5,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import {
   AFFIX_MAX_LENGTH,
   describeAddedLength,
@@ -89,9 +90,9 @@ const applyTransform = async (
   if (replacements.length === 0) {
     return;
   }
-  await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  });
+  }, { notifier });
 };
 
 /** WRAP commands that do not need any input (26 commands). The notifier can be replaced in tests. */
@@ -157,6 +158,9 @@ export const wrapInputHandlerInternal = (
       return;
     }
     options = { ...options, ...step.toOptions(input) };
+  }
+  if (!ensureEditorAfterInput(textEditor, { notifier })) {
+    return;
   }
   // applyTransform reads the selections again: the document may have changed while the input
   // boxes were shown, and VS Code keeps the current selections in step with such edits.

@@ -3,8 +3,9 @@ import {
   Selection,
   Position,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
-export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => void = (textEditor) => {
+export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => Promise<boolean> | undefined = (textEditor) => {
   const selections: Array<Selection> = [];
   const selectedTexts: Array<string> = [];
   textEditor.selections.forEach((selection) => {
@@ -16,7 +17,7 @@ export const removeCharacterFromEachSideHandler: (textEditor: TextEditor) => voi
     selections.push(new Selection(startPos, endPos));
   });
   textEditor.selections = selections;
-  textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach((selection, index) => {
         editBuilder.replace(selection, selectedTexts[index]);

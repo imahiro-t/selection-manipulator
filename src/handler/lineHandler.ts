@@ -6,6 +6,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexRunner, runRegexInWorker } from './lineRegex';
 import { describeAddedLength } from './whitespaceTransforms';
 import {
@@ -251,6 +252,9 @@ const runLineCommand = async (
   if (asked === undefined) {
     return;
   }
+  if (isInputCommand(command) && !ensureEditorAfterInput(textEditor, { notifier: deps })) {
+    return;
+  }
   // Read the selections (and below, their text) only after the input boxes close: the document
   // may have changed while they were shown (a formatter, a reload, another extension), and
   // VS Code keeps the current selections in step with such edits.
@@ -322,9 +326,9 @@ const runLineCommand = async (
     void deps.showWarningMessage(DOCUMENT_CHANGED_MESSAGE);
     return;
   }
-  await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result as string));
-  });
+  }, { notifier: deps });
 };
 
 /**

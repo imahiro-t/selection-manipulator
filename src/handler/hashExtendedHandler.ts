@@ -5,6 +5,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument, openTextDocumentWithTitles } from '../common';
 import { EncOutputTooLargeError, MAX_OUTPUT_LENGTH } from './encodeTransforms';
 import {
@@ -120,9 +121,9 @@ const applyHash = async (
   if (entry.output === 'replace') {
     const replacements = results.filter(({ text, result }) => text !== result);
     if (replacements.length > 0) {
-      await textEditor.edit((editBuilder) => {
+      await applyEdit(textEditor, (editBuilder) => {
         replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-      });
+      }, { notifier });
     }
     return;
   }
@@ -163,6 +164,9 @@ const applyHmac = async (textEditor: TextEditor, dependencies: HashDependencies,
   const problem = findKeyProblem(key);
   if (problem !== undefined) {
     void dependencies.notifier.showWarningMessage(`The selection was not changed: ${problem}`);
+    return;
+  }
+  if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
     return;
   }
   const bytes = keyBytes(key);

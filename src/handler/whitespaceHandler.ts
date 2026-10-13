@@ -5,6 +5,7 @@ import {
   TextEditor,
   window,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import {
   COLUMN_MAX,
   COLUMN_MIN,
@@ -122,9 +123,9 @@ const applyTransform = async (
   if (replacements.length === 0) {
     return;
   }
-  await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  });
+  }, { notifier });
 };
 
 /** WS commands that do not need any input (31 commands). The notifier can be replaced in tests. */
@@ -181,6 +182,9 @@ export const whitespaceInputHandlerInternal = (
   const input = await showInputBox({ ...spec.options, validateInput: spec.validate });
   // Cancelled, or (defensively) invalid despite validateInput.
   if (input === undefined || spec.validate(input) !== undefined) {
+    return;
+  }
+  if (!ensureEditorAfterInput(textEditor, { notifier })) {
     return;
   }
   await applyTransform(textEditor, notifier, command, spec.toOptions(input));

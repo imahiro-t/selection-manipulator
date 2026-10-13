@@ -3,15 +3,17 @@ import {
   window,
   Selection,
 } from 'vscode';
+import { EditGuardDeps, ensureUnchangedAfterInput } from '../editGuard';
 
 // Export internal function for testing
 export const selectMatchesHandlerInternal = (
-  showInputBox: (options: import('vscode').InputBoxOptions) => Thenable<string | undefined>
+  showInputBox: (options: import('vscode').InputBoxOptions) => Thenable<string | undefined>,
+  guard: EditGuardDeps = {}
 ) => async (textEditor: TextEditor) => {
-  const selections = textEditor.selections;
-  if (selections.length === 0) {
+  if (textEditor.selections.length === 0) {
     return;
   }
+  const versionBeforeInput = textEditor.document.version;
 
   const searchString = await showInputBox({
     placeHolder: 'Enter string to select',
@@ -19,6 +21,14 @@ export const selectMatchesHandlerInternal = (
   });
 
   if (!searchString) {
+    return;
+  }
+  if (!ensureUnchangedAfterInput(textEditor, versionBeforeInput, guard)) {
+    return;
+  }
+  // Re-read the selections: they may have moved while the input box was open.
+  const selections = textEditor.selections;
+  if (selections.length === 0) {
     return;
   }
 

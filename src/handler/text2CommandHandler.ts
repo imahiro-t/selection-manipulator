@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { EncOutputTooLargeError } from './encodeTransforms';
 import {
@@ -125,6 +126,9 @@ const run = async (textEditor: TextEditor, dependencies: Text2Dependencies, entr
   if (inputs === undefined) {
     return;
   }
+  if (inputs.length > 0 && !ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
+    return;
+  }
   // The selections are read again: the document may have changed while the input boxes were open.
   const selections = targetSelections(textEditor);
   if (selections.length === 0) {
@@ -176,12 +180,9 @@ const run = async (textEditor: TextEditor, dependencies: Text2Dependencies, entr
   if (replacements.length === 0) {
     return;
   }
-  const applied = await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  });
-  if (!applied) {
-    void dependencies.notifier.showWarningMessage(`${TEXT2_NOT_CHANGED}the editor did not accept the edit.`);
-  }
+  }, { notifier: dependencies.notifier, prefix: TEXT2_NOT_CHANGED });
 };
 
 /**

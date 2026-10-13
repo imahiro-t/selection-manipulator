@@ -1,16 +1,17 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import { openTextDocument } from '../common';
 
 type Command = 'escape' | 'unescape';
 
-export const escapeHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => void = (command, isReplace) => (textEditor) => {
+export const escapeHandler: (command: Command, isReplace: boolean) => (textEditor: TextEditor) => Promise<boolean> | undefined = (command, isReplace) => (textEditor) => {
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;
     }
-    textEditor.edit((editBuilder) => {
+    return applyEdit(textEditor, (editBuilder) => {
       textEditor.selections
         .forEach(selection => {
           const text = textEditor.document.getText(selection);

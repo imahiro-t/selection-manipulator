@@ -1,4 +1,5 @@
 import { EndOfLine, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { assertJaInputLength, isBlank, JaInputError, JaLimitError, JaNoTargetError } from './jaCommon';
 import { JA_COMMAND_ENTRIES, JaCommandEntry, JaContext, JaQuickPickItem } from './jaTransforms';
@@ -256,9 +257,9 @@ const applyTransform = async (
   }
   const replacements = results.filter(({ text, result }) => text !== result);
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    });
+    }, { notifier: dependencies.notifier });
   }
 };
 
@@ -295,6 +296,9 @@ export const jaCommandHandlerInternal = (dependencies: JaDependencies, entries: 
             return;
           }
           choice = picked.value;
+          if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
+            return;
+          }
         }
         // The selections are read again: the document may have changed while the quick pick was open.
         const selections = targetSelections(textEditor);

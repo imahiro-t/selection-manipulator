@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 import * as vscode from 'vscode';
 
 export const markdownHandler: (type: 'link') => (textEditor: TextEditor) => Promise<boolean | void> = (type) => async (textEditor) => {
@@ -11,7 +12,7 @@ export const markdownHandler: (type: 'link') => (textEditor: TextEditor) => Prom
   if (type === 'link') {
     const clipboardText = await vscode.env.clipboard.readText();
 
-    return textEditor.edit((editBuilder) => {
+    return applyEdit(textEditor, (editBuilder) => {
       textEditor.selections.forEach((selection) => {
         const text = textEditor.document.getText(selection);
         // If selection looks like a URL, use it as URL and clipboard as text (if not empty), else selection as text and clipboard as URL

@@ -1,6 +1,7 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
 type EncloseType =
   | 'single'
@@ -42,7 +43,7 @@ export const encloseHandler: (type: EncloseType) => (textEditor: TextEditor) => 
 
   const [start, end] = encloseMap[type];
 
-  return textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections.forEach((selection) => {
       const text = textEditor.document.getText(selection);
       editBuilder.replace(selection, `${start}${text}${end}`);

@@ -2,6 +2,7 @@ import {
   window,
   TextEditor,
 } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import * as crypto from 'crypto';
 import { openTextDocument } from '../common';
 
@@ -16,18 +17,24 @@ export const aesHandler: (command: Command, isReplace: boolean, testSecret?: str
     ignoreFocusOut: true,
     password: true,
   }) ?? "");
+  if (!ensureEditorAfterInput(textEditor)) {
+    return;
+  }
   const converter = createConverter(command, secret);
   if (isReplace) {
     if (textEditor.selections.length === 0) {
       return;
     }
-    textEditor.edit((editBuilder) => {
+    const applied = await applyEdit(textEditor, (editBuilder) => {
       textEditor.selections
         .forEach(selection => {
           const text = textEditor.document.getText(selection);
           editBuilder.replace(selection, converter.convert(text));
         });
-    }).then(() => converter.notifyLegacy());
+    });
+    if (applied) {
+      converter.notifyLegacy();
+    }
   } else {
     const selectedText = textEditor.document.getText(textEditor.selection);
     if (!selectedText) {

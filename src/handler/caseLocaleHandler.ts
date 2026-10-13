@@ -5,6 +5,7 @@ import {
   window,
 } from 'vscode';
 import { lowerLocale, upperLocale } from './caseTransforms';
+import { applyEdit, EditGuardDeps, ensureUnchangedAfterInput } from '../editGuard';
 
 type LocaleCaseMode = 'upper' | 'lower';
 
@@ -32,12 +33,14 @@ export const validateLocaleInput = (value: string): string | undefined => {
  * toLocaleUpperCase / toLocaleLowerCase to every selection.
  */
 export const caseLocaleHandlerInternal = (
-  showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>
+  showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>,
+  guard: EditGuardDeps = {}
 ) => (mode: LocaleCaseMode) => async (textEditor: TextEditor): Promise<void> => {
-  const selections = textEditor.selections.filter((selection) => !selection.isEmpty);
-  if (selections.length === 0) {
+  const nonEmpty = () => textEditor.selections.filter((selection) => !selection.isEmpty);
+  if (nonEmpty().length === 0) {
     return;
   }
+  const versionBeforeInput = textEditor.document.version;
   const input = await showInputBox({
     prompt: `Locale for ${mode === 'upper' ? 'toLocaleUpperCase' : 'toLocaleLowerCase'}`,
     placeHolder: 'e.g. tr, az, lt, de',
@@ -48,13 +51,21 @@ export const caseLocaleHandlerInternal = (
   if (input === undefined || validateLocaleInput(input) !== undefined) {
     return;
   }
+  if (!ensureUnchangedAfterInput(textEditor, versionBeforeInput, guard)) {
+    return;
+  }
+  // Re-read the selections: they may have moved while the input box was open.
+  const selections = nonEmpty();
+  if (selections.length === 0) {
+    return;
+  }
   const locale = getCanonicalLocales(input.trim())[0];
   const transform = mode === 'upper' ? upperLocale : lowerLocale;
-  await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     selections.forEach((selection) => {
       editBuilder.replace(selection, transform(textEditor.document.getText(selection), locale));
     });
-  });
+  }, { notifier: guard.notifier });
 };
 
 export const caseLocaleHandler = caseLocaleHandlerInternal(window.showInputBox);

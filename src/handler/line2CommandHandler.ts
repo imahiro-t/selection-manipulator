@@ -1,4 +1,5 @@
 import { EndOfLine, InputBoxOptions, Selection, TextEditor, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { LineRegexSplitRunner, runRegexSplitInWorker } from './lineRegex';
 import {
   formatNumber,
@@ -159,12 +160,9 @@ const replaceAll = async (
   if (changed.length === 0) {
     return;
   }
-  const applied = await textEditor.edit((editBuilder) => {
+  await applyEdit(textEditor, (editBuilder) => {
     changed.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-  });
-  if (!applied) {
-    void deps.showWarningMessage(`${LINE2_NOT_CHANGED}: the editor did not accept the edit.`);
-  }
+  }, { notifier: deps, prefix: `${LINE2_NOT_CHANGED}: ` });
 };
 
 const countFits = (command: Line2MultiCommand, count: number): boolean => {
@@ -181,6 +179,9 @@ const runMulti = async (deps: Line2Dependencies, entry: Line2CommandEntry, comma
   }
   const asked = await askInputs(deps, entry);
   if (asked === undefined) {
+    return;
+  }
+  if ((entry.inputs?.length ?? 0) > 0 && !ensureEditorAfterInput(textEditor, { notifier: deps })) {
     return;
   }
   // Read again: the document may have changed while the input box was shown.
@@ -216,6 +217,9 @@ const runSingle = async (deps: Line2Dependencies, entry: Line2CommandEntry, text
   }
   const asked = await askInputs(deps, entry);
   if (asked === undefined) {
+    return;
+  }
+  if ((entry.inputs?.length ?? 0) > 0 && !ensureEditorAfterInput(textEditor, { notifier: deps })) {
     return;
   }
   // Read the selections (and their text) only after the input boxes close.

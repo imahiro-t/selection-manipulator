@@ -1,12 +1,13 @@
 import {
   TextEditor,
 } from 'vscode';
+import { applyEdit } from '../editGuard';
 
 export const diacriticHandler = (textEditor: TextEditor) => {
   if (textEditor.selections.length === 0) {
     return;
   }
-  textEditor.edit((editBuilder) => {
+  return applyEdit(textEditor, (editBuilder) => {
     textEditor.selections
       .forEach(selection => {
         const text = textEditor.document.getText(selection);

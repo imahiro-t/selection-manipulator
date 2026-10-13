@@ -1,9 +1,11 @@
 import {
+  InputBoxOptions,
   TextEditor,
   window,
 } from 'vscode';
 import * as vscode from 'vscode';
 import { openTextDocument } from '../common';
+import { applyEdit, EditGuardDeps, ensureUnchangedAfterInput } from '../editGuard';
 
 export const processSplitJoin = (text: string, delimiter: string, type: 'split' | 'join'): string => {
   if (type === 'split') {
@@ -14,13 +16,19 @@ export const processSplitJoin = (text: string, delimiter: string, type: 'split' 
   }
 };
 
-export const splitJoinHandler: (type: 'split' | 'join', mode?: 'replace' | 'clipboard' | 'new-tab') => (textEditor: TextEditor) => Promise<void> = (type, mode = 'replace') => async (textEditor) => {
-  const selections = textEditor.selections;
-  if (selections.length === 0) {
+type SplitJoinType = 'split' | 'join';
+type SplitJoinMode = 'replace' | 'clipboard' | 'new-tab';
+
+export const splitJoinHandlerInternal = (
+  showInputBox: (options: InputBoxOptions) => Thenable<string | undefined>,
+  guard: EditGuardDeps = {}
+) => (type: SplitJoinType, mode: SplitJoinMode = 'replace') => async (textEditor: TextEditor): Promise<void> => {
+  if (textEditor.selections.length === 0) {
     return;
   }
+  const versionBeforeInput = textEditor.document.version;
 
-  const delimiter = await window.showInputBox({
+  const delimiter = await showInputBox({
     placeHolder: 'Enter delimiter',
     prompt: type === 'split' ? 'Enter character(s) to split by' : 'Enter character(s) to join with',
   });
@@ -28,25 +36,25 @@ export const splitJoinHandler: (type: 'split' | 'join', mode?: 'replace' | 'clip
   if (!delimiter) {
     return;
   }
-  // Allow empty string for join (join without separator), but for split usually we need something? 
-  // Consistently, if user enters empty string, use it (split by empty string = explode string, join with empty = concat)
+  if (!ensureUnchangedAfterInput(textEditor, versionBeforeInput, guard)) {
+    return;
+  }
+  // Re-read the selections: they may have moved while the input box was open.
+  const selections = textEditor.selections;
+  if (selections.length === 0) {
+    return;
+  }
 
   if (mode === 'replace') {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       selections.forEach((selection) => {
         const text = textEditor.document.getText(selection);
         const newText = processSplitJoin(text, delimiter, type);
         editBuilder.replace(selection, newText);
       });
-    });
+    }, { notifier: guard.notifier });
   } else {
-    // For clipboard/new-tab, treat multiple selections? 
-    // Usually we join results or handle each.
-    // implementation_plan says "either replace the selection or copy the joined/split text to clipboard".
-    // If multiple selections, let's process all and join with newline for output?
-    // Existing logic in previous file:
-    // It mapped replacements.
-    // Copy/New-tab logic:
+    // Clipboard / new tab: process every selection and join the results with newlines.
     const results = selections.map(selection => {
       const text = textEditor.document.getText(selection);
       return processSplitJoin(text, delimiter, type);
@@ -60,3 +68,6 @@ export const splitJoinHandler: (type: 'split' | 'join', mode?: 'replace' | 'clip
     }
   }
 };
+
+export const splitJoinHandler: (type: SplitJoinType, mode?: SplitJoinMode) => (textEditor: TextEditor) => Promise<void> = (type, mode = 'replace') =>
+  splitJoinHandlerInternal((options) => window.showInputBox(options))(type, mode);

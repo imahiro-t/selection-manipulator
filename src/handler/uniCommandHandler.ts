@@ -1,4 +1,5 @@
 import { EndOfLine, QuickPickItem, QuickPickOptions, Range, Selection, TextEditor, TextEditorRevealType, window } from 'vscode';
+import { applyEdit, ensureEditorAfterInput } from '../editGuard';
 import { openTextDocument } from '../common';
 import { assertUniInputLength, isBlank, UNI_MAX_SELECT_RANGES, UniInputError, UniNoTargetError } from './uniCommon';
 import { UNI_COMMAND_ENTRIES, UniCommandEntry, UniContext, UniQuickPickItem } from './uniTransforms';
@@ -264,9 +265,9 @@ const applyTransform = async (
   }
   const replacements = results.filter(({ text, result }) => text !== result);
   if (replacements.length > 0) {
-    await textEditor.edit((editBuilder) => {
+    await applyEdit(textEditor, (editBuilder) => {
       replacements.forEach(({ selection, result }) => editBuilder.replace(selection, result));
-    });
+    }, { notifier: dependencies.notifier });
   }
 };
 
@@ -303,6 +304,9 @@ export const uniCommandHandlerInternal = (dependencies: UniDependencies, entries
             return;
           }
           choice = picked.value;
+          if (!ensureEditorAfterInput(textEditor, { notifier: dependencies.notifier })) {
+            return;
+          }
         }
         // The selections are read again: the document may have changed while the quick pick was open.
         const selections = targetSelections(textEditor);
