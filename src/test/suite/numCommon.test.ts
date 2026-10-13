@@ -204,6 +204,7 @@ suite('Number Commands common helpers (NUM) Test Suite', () => {
         ['1\r2', 'line 1: "1\\r2" is not a number'],
         ['1\r ', 'line 1: "1\\r" is not a number'],
         ['1\r\r', 'line 1: "1\\r" is not a number'],
+        ['1\r\r\n2', 'line 1: "1\\r" is not a number'],
         ['1\r\n2\r3', 'line 2: "2\\r3" is not a number'],
       ];
       for (const [text, message] of cases) {

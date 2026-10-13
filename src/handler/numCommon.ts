@@ -151,14 +151,15 @@ const SPACE_TAB = /^[ \t]*/;
  * The lines are split with `textCommon.forEachLfLine`: only LF and CRLF end a line. A lone CR as
  * the very last character of the text is kept outside the value, like the spaces / tabs after it,
  * and written after the result as it is (`1\r` -> `2\r`, `1 \r` -> `2 \r`). Only that one last
- * character is set aside: any other lone CR is part of the value, so `1\r2`, `1\r ` and `1\r\r`
- * fail with `line N: <reason>` as before.
+ * character is set aside: any other lone CR is part of the value, so `1\r2`, `1\r `, `1\r\r` and
+ * `1\r\r\n2` (the CR before the CRLF) fail with `line N: <reason>` as before.
  */
 export const mapLines = (text: string, budget: number, convert: (value: string) => string): string => {
   assertNumInputLength(text);
   const output = new OutputBuffer(budget);
   forEachLfLine(text, (line, lineBreak, lineNumber) => {
-    // A lone CR can only end the last line (the CR of a CRLF is in `lineBreak`).
+    // Only a lone CR as the very last character of the text is set aside (the CR of a CRLF is in
+    // `lineBreak`); a lone CR anywhere else, also right before a CRLF (`1\r\r\n`), stays in the value.
     const cr = lineBreak === '' && line.charCodeAt(line.length - 1) === 0x0d ? '\r' : '';
     const body = cr === '' ? line : line.slice(0, -1);
     const lead = SPACE_TAB.exec(body)![0];
