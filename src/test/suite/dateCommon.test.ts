@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import {
   civilFromDays,
   compilePattern,
+  dateLineValues,
   DATE_MAX_INPUT_LENGTH,
   DateInputError,
   DateSettingError,
@@ -114,6 +115,13 @@ suite('Date Commands - common helpers (dateCommon)', () => {
     test('keeps the spaces around each value, blank lines and CRLF', () => {
       assert.strictEqual(mapDateLines('  a \r\n\r\n \t\nb', 1_000, '\r\n', upper), '  A \r\n\r\n \t\nB');
       assert.strictEqual(mapDateLines('a\n', 1_000, '\n', upper), 'A\n');
+    });
+
+    test('a lone CR at the very end of the selection is kept (it is part of the last value)', () => {
+      assert.strictEqual(mapDateLines('a\r', 1_000, '\n', upper), 'A\r');
+      assert.strictEqual(mapDateLines('a\nb\r', 1_000, '\n', upper), 'A\nB\r');
+      assert.strictEqual(mapDateLines('a\n\r', 1_000, '\n', upper), 'A\n\r');
+      assert.deepStrictEqual(dateLineValues('a\n\r'), [{ value: 'a', lineNumber: 1 }, { value: '\r', lineNumber: 2 }]);
     });
 
     test('a result of several lines is joined with the EOL and the indentation of the value', () => {

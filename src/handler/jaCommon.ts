@@ -80,8 +80,8 @@ const splitLine = (line: string): LineParts => {
 
 /**
  * Calls `visit` for every line of the text with the line itself, the line break after it (`''`
- * for the last line) and its number. LF and CRLF are recognised; a lone CR stays in the line.
- * A lone CR at the very end of the text is dropped (see `forEachLfLine`; kept unchanged).
+ * for the last line) and its number. LF and CRLF are recognised; a lone CR stays in the line,
+ * also at the very end of the text (see `forEachLfLine`).
  */
 export const forEachJaLine = forEachLfLine;
 

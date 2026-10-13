@@ -144,6 +144,12 @@ suite('Japanese Text - conversions (jaConvert / jaCommon / jaTables)', () => {
       }), 'line 3: bad');
     });
 
+    test('mapJaLines keeps a lone CR at the very end of the selection (it is part of the last value)', () => {
+      assert.strictEqual(mapJaLines('1\r', 1000, (value) => `<${value}>`), '<1\r>');
+      assert.strictEqual(mapJaLines('1\n2\r', 1000, (value) => `<${value}>`), '<1>\n<2\r>');
+      assert.strictEqual(mapJaLines('ＡＢ\nＣ\r', 1000, fullwidthAlnumToHalf), 'AB\nC\r');
+    });
+
     test('the budget and the input limit', () => {
       assert.throws(() => mapJaLines('12345', 4, (value) => value), EncOutputTooLargeError);
       throwsInput(() => mapJaLines('a'.repeat(JA_MAX_INPUT_LENGTH + 1), Infinity, (value) => value), 'the selection is longer than 1,000,000 characters');

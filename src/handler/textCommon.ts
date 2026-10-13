@@ -115,10 +115,8 @@ export const forEachLine = (text: string, visit: (line: string, lineBreak: strin
 /**
  * Calls `visit` for every line of the text with the line itself, the line break after it (`''`
  * for the last line) and its number (from 1). Only LF and CRLF are recognised: a lone CR stays in
- * the line (the JA, UNI and DATE commands). A lone CR at the very end of the text, however, is
- * passed neither in the line nor as its line break, so it is dropped (`'a\r'` visits `'a'`, `''`,
- * 1). This is the long-standing behaviour of the JA / UNI / DATE splitters and is kept unchanged
- * here on purpose.
+ * the line (the JA, UNI and DATE commands), also at the very end of the text (`'a\r'` visits
+ * `'a\r'`, `''`, 1). The lines and line breaks joined together are always the text again.
  *
  * See `forEachLine` for the variant in which a lone CR is a line break too.
  */
@@ -128,7 +126,8 @@ export const forEachLfLine = (text: string, visit: (line: string, lineBreak: str
   for (;;) {
     const newline = text.indexOf('\n', start);
     const end = newline === -1 ? text.length : newline;
-    const breakStart = end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
+    // Only a CR right before an LF belongs to the line break (CRLF); any other CR stays in the line.
+    const breakStart = newline !== -1 && end > start && text.charCodeAt(end - 1) === 0x0d ? end - 1 : end;
     visit(text.slice(start, breakStart), newline === -1 ? '' : text.slice(breakStart, newline + 1), lineNumber);
     if (newline === -1) {
       return;

@@ -70,6 +70,12 @@ suite('Date Commands - transforms (DATE-001..030)', () => {
       assert.strictEqual(run('DATE-013', '  2026-09-28 \n\n\t2026/1/2'), '  20260928 \n\n\t20260102');
       assert.strictEqual(run('DATE-022', ' 2026-09-28..2026-09-29', [], contextOf({}, DATE_TEST_NOW(), '\r\n')), ' 2026-09-28\r\n 2026-09-29');
     });
+
+    test('a lone CR at the very end of the selection is part of the last value and refused like one in the middle (not dropped)', () => {
+      throwsInput(() => run('DATE-013', '2026-09-28\r2026-09-29'), 'line 1: "2026-09-28\\r2026-09-29" is not a date');
+      throwsInput(() => run('DATE-013', '2026-09-28\n2026/1/2\r'), 'line 2: "2026/1/2\\r" is not a date');
+      throwsInput(() => run('DATE-013', '2026-09-28\n\r'), 'line 2: "\\r" is not a date');
+    });
   });
 
   suite('DATE-001 / 002 / 003: instants and time zones', () => {
