@@ -12839,7 +12839,7 @@
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "~3.1.0",
     "esbuild": "^0.28.2",
-    "eslint": "^10.11.0",
+    "eslint": "^10.13.0",
     "glob": "^13.0.6",
     "mermaid": "11.17.2",
     "mocha": "^11.7.5",
