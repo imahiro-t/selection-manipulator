@@ -12841,7 +12841,7 @@
     "esbuild": "^0.28.2",
     "eslint": "^10.11.0",
     "glob": "^13.0.6",
-    "mermaid": "11.17.2",
+    "mermaid": "12.2.0",
     "mocha": "^11.7.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0"
