@@ -12844,7 +12844,7 @@
     "mermaid": "11.17.2",
     "mocha": "^11.7.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.71.0"
+    "typescript-eslint": "^8.72.0"
   },
   "dependencies": {
     "change-case": "^5.4.4",
