@@ -12832,7 +12832,7 @@
     "test:showcase": "node --test scripts/generate-showcase.test.mjs"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^5.10.0",
+    "@stylistic/eslint-plugin": "^6.0.1",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
